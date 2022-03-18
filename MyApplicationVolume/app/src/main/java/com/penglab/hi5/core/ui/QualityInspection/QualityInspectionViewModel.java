@@ -48,6 +48,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import es.dmoral.toasty.Toasty;
+
 /**
  * Created by Jackiexing on 01/10/21
  */
@@ -80,7 +82,6 @@ public class QualityInspectionViewModel extends ViewModel {
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
     private final ImageDataSource imageDataSource;
-    AnnotationDataManager annotationDataManager;
     private final AnnotationDataSource annotationDataSource;
     private QualityInspectionDataSource qualityInspectionDataSource;
 
@@ -95,6 +96,8 @@ public class QualityInspectionViewModel extends ViewModel {
     private int lastIndex = -1;
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
+
+
 
     public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, QualityInspectionDataSource qualityInspectionDataSource,ImageDataSource imageDataSource, AnnotationDataSource annotationDataSource) {
         this.userInfoRepository = userInfoRepository;
@@ -261,8 +264,6 @@ public class QualityInspectionViewModel extends ViewModel {
                 if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
                     workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
                 }
-
-//                workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
             } else {
 //                ToastEasy("Error when download image");
                 isDownloading = false;
@@ -281,9 +282,7 @@ public class QualityInspectionViewModel extends ViewModel {
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType =FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicFile().setFileInfo(fileName,new FilePath<String>((String) data),fileType);
-
                 FilePath filePath = new FilePath(Myapplication.getContext().getExternalFilesDir(null) + "/swc" +fileName);
-//                Log.e(TAG,"SWC FILE PATH"+filePath);
                 NeuronTree neuronTree = NeuronTree.parse(filePath);
                 NeuronTree neuronTreeCoordinateConvert = NeuronTree.convertGlobalToLocal(neuronTree, coordinateConvert);
                 if (neuronTreeCoordinateConvert == null) {
@@ -293,11 +292,6 @@ public class QualityInspectionViewModel extends ViewModel {
                 if(swcResult == null){
                     Log.e(TAG,"SWC RESULT IS NULL");
                 }
-//                if (neuronTree == null){
-//                    ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
-//                } else {
-//                    annotationDataManager.loadNeuronTree(neuronTreeCoordinateConvert, false);
-//                }
                 annotationResult.setValue( new ResourceResult(true));
                 annotationMode.setValue(AnnotationMode.BIG_DATA);
 //                workStatus.setValue(WorkStatus.GET_SWC_SUCCESSFULLY);
@@ -564,7 +558,6 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void getArborMarkerList() {
-//        String arborName = lastDownloadPotentialArborMarkerInfo.getArborName();
         String arborName = curPotentialArborMarkerInfo.getArborName();
         qualityInspectionDataSource.getArborMarkerList(arborName);
     }
@@ -580,7 +573,6 @@ public class QualityInspectionViewModel extends ViewModel {
         try {
             int arborId = curPotentialArborMarkerInfo.getArborId();
             String arborName = curPotentialArborMarkerInfo.getArborName();
-            String image = curPotentialArborMarkerInfo.getBrianId();
             String username = loggedInUser.getUserId();
             qualityInspectionDataSource.UpdateCheckResult(arborId, arborName,
                     MarkerList.toJSONArrayAddType(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete,username);
@@ -594,15 +586,11 @@ public class QualityInspectionViewModel extends ViewModel {
         }
     }
 
-
     public void getSwc(){
         Log.e(TAG,"GET SWC");
         String arborName = curPotentialArborMarkerInfo.getArborName();
         XYZ loc =curPotentialArborMarkerInfo.getLocation();
         String res = "/"+curPotentialArborMarkerInfo.getBrianId()+"/"+curPotentialArborMarkerInfo.getSomaId();
-//        String arborName =lastDownloadPotentialArborMarkerInfo.getArborName();
-//        XYZ loc = lastDownloadPotentialArborMarkerInfo.getLocation();
-//        String res ="/"+lastDownloadPotentialArborMarkerInfo.getBrianId()+"/"+lastDownloadPotentialArborMarkerInfo.getSomaId();
         qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, lastDownloadCoordinateConvert.getResIndex()-1),arborName);
     }
 

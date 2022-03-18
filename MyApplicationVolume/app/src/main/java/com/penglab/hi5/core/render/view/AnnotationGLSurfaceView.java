@@ -550,6 +550,17 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
+
+    public boolean setShowAnnotation() {
+        if (renderOptions.getIfShowSWC()) {
+            renderOptions.setIfShowSWC(false);
+            return false;
+        }else{
+            renderOptions.setIfShowSWC(true);
+            return true;
+        }
+    }
+
     public void pixelClassification(){
         if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
             NeuronTree neuronTree = annotationDataManager.getNeuronTree();

@@ -12,7 +12,7 @@ public class PotentialArborMarkerInfo {
     private long createdTime;
     private boolean isFresh = true;
     private boolean alreadyUpload = false;
-    private final long shelfLife = 7 * 60 * 1000;
+    private final long shelfLife = 20 * 60 * 1000;
 
     public PotentialArborMarkerInfo(int id, String name, String somaId, String image, XYZ loc) {
         this.id = id;

@@ -47,6 +47,7 @@ import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewWithCheckBox;
 import com.penglab.hi5.core.music.MusicService;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
@@ -66,6 +67,7 @@ import com.warkiz.widget.SeekParams;
 import java.util.HashMap;
 
 import cn.carbs.android.library.MDDialog;
+import es.dmoral.toasty.Toasty;
 
 /**
  * Created by Jackiexing on 01/10/21
@@ -91,6 +93,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
+    private AnnotationRender annotationRender;
     private QualityInspectionViewModel qualityInspectionViewModel;
 
     private final Handler uiHandler = new Handler();
@@ -163,9 +166,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         }
                         break;
 
-//                    case GET_SOMA_LIST_SUCCESSFULLY:
-//                        hideDownloadingProgressBar();
-//                        break;
                     case GET_ARBOR_MARKER_LIST_SUCCESSFULLY:
                         hideDownloadingProgressBar();
                         Log.e(TAG,"GET ARBOR MARKERLIST SUCCESSFULLY");
@@ -175,17 +175,13 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         showDownloadingProgressBar();
                         break;
 
-//                    case START_TO_DOWNLOAD_SWC:
-////                        qualityInspectionViewModel.getSwc();
-////                        break;
-
                     case DOWNLOAD_IMAGE_FINISH:
                         Log.e(TAG,"downloadImageFinished");
-//                        qualityInspectionViewModel.openFileWithNoIndex();
                         hideDownloadingProgressBar();
                         qualityInspectionViewModel.openNewFile();
                         qualityInspectionViewModel.getSwc();
                         break;
+
                     case GET_SWC_SUCCESSFULLY:
 //                        annotationGLSurfaceView.loadFile();
                         qualityInspectionViewModel.getArborMarkerList();
@@ -627,7 +623,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
-//            boringFile.setOnClickListener(v -> boringFile());
+            boringFile.setOnClickListener(v -> boringFile());
             ignoreFile.setOnClickListener(v -> boringFile());
             hideSwc.setOnClickListener(v ->hideSwc());
 
@@ -654,8 +650,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
     }
 
     private void hideSwc() {
-
-
+        ImageButton hideSwc = findViewById(R.id.hide_swc);
+        if (annotationGLSurfaceView.setShowAnnotation()){
+            annotationGLSurfaceView.requestRender();
+            hideSwc.setImageResource(R.drawable.ic_hide);
+        } else {
+            annotationGLSurfaceView.requestRender();
+            hideSwc.setImageResource(R.drawable.ic_not_hide);
+        }
     }
 
 
@@ -684,6 +686,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(3);
+                        Toasty.info(this,"Missing Tracing",Toast.LENGTH_SHORT,true).show();
                         addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
@@ -696,6 +699,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(2);
+                        Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
                         addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
@@ -708,6 +712,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(switchMarkerMode) {
                     if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                         annotationGLSurfaceView.setLastMarkerType(6);
+                        Toasty.warning(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
                         addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
                     }
                 }else{
