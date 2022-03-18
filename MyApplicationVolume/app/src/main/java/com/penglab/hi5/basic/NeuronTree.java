@@ -133,7 +133,7 @@ public class NeuronTree extends BasicSurfObj {
             s.x = xyz.x;
             s.y =xyz.y;
             s.z = xyz.z;
-            s.type = neuronTree.listNeuron.get(i).type;
+            s.type = 4;
             s.radius = neuronTree.listNeuron.get(i).radius;
             s.parent = neuronTree.listNeuron.get(i).parent;
             s.seg_id = neuronTree.listNeuron.get(i).seg_id;
