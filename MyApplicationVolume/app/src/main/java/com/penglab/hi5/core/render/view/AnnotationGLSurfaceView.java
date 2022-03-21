@@ -406,7 +406,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case JPG:
             case PNG:
                 Bitmap bitmap2D = Image4DSimple.loadImage2D(filePath);
-                Image4DSimple curImage2D = Image4DSimple.loadImage(filePath, fileType);
+                Image4DSimple curImage2D = Image4DSimple.loadImage2D(bitmap2D, filePath);
                 if (bitmap2D != null && curImage2D != null){
                     image4DSimple = curImage2D;
                     update2DImageSize(new Integer[]{
