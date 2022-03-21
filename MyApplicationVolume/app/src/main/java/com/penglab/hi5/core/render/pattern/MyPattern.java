@@ -229,11 +229,11 @@ public class MyPattern extends BasicPattern {
                     "{" +
                     "  vec2 texC = pos.xy/pos.w;" +
                     "  texC.x = 0.5*texC.x + 0.5;" +
-                    "  texC.y = 0.5*texC.y + 0.5;" +
+                    "  texC.y = 0.5*texC.y + 0.5;" +         // 将当前坐标转换为帧缓冲上对应的坐标
                     "  " +
-                    "  vec4 backColor = texture(uBackCoord, texC);" +
+                    "  vec4 backColor = texture(uBackCoord, texC);" +  // 读取帧光线的 射出点和射入点
                     "  " +
-                    "  vec3 dir = backColor.rgb - frontColor.rgb;" +
+                    "  vec3 dir = backColor.rgb - frontColor.rgb;" +   // 得到方向向量
                     "  int steps = 256;" +
                     "  int stepSize = 1;" +
                     "  vec4 vpos = frontColor;" +
@@ -244,7 +244,7 @@ public class MyPattern extends BasicPattern {
                     "  vec4 value = vec4(0, 0, 0, 0);" +
                     "  " +
 
-                    "  for(int i = 0; i < steps; i+=stepSize)" +
+                    "  for(int i = 0; i < steps; i+=stepSize)" + // 从入射点开始遍历体素，找灰度值最大的
                     "  {" +
                     "     vec4 texture_value;" +
                     "     texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
