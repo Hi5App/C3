@@ -707,11 +707,17 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             -1: boringFile,
              0: default, no update
              1: normalFile with annotation,
-             1: normalFile without annotation
+             2: normalFile without annotation
          */
         if (needUpload) {
-            markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
-                    annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            if (locationType == -1) {
+                // boringFile: can not add; only can delete
+                markerFactoryViewModel.updateSomaList(new MarkerList(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            } else {
+                markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            }
         }
         if (nextFile) {
             markerFactoryViewModel.nextFile();
