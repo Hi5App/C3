@@ -274,19 +274,23 @@ public class Myapplication extends Application {
                 .show();
     }
 
-    public static void ToastEasy(String message, int length){
+    public static void ToastEasy(String message, int length) {
         Toast.makeText(context, message, length).show();
     }
 
-    public static void playButtonSound(){
+    public static void playButtonSound() {
         musicHelper.playButtonSound();
     }
 
-    public static void playCurveActionSound(){
+    public static void playRewardSound(int level) {
+        musicHelper.playRewardSound(level);
+    }
+
+    public static void playCurveActionSound() {
         musicHelper.playActionSound(MusicHelper.ActionType.CURVE);
     }
 
-    public static void playMarkerActionSound(){
+    public static void playMarkerActionSound() {
         musicHelper.playActionSound(MusicHelper.ActionType.MARKER);
     }
 

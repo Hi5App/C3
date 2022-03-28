@@ -32,12 +32,16 @@ public class MusicHelper {
             R.raw.marker,
             R.raw.curve,
             R.raw.button,
-            R.raw.fail };
+            R.raw.fail,
+            R.raw.nice,
+            R.raw.wonderful,
+            R.raw.unbelievable
+    };
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
     private final PreferenceMusic preferenceMusic;
     private final SoundPool soundPool;
-    private final int SOUND_NUM = 4;
+    private final int SOUND_NUM = 7;
     private final int[] soundId = new int[SOUND_NUM];
 
     private float bgmVolume;
@@ -86,6 +90,10 @@ public class MusicHelper {
 
     public void playFailSound(){
         executorService.submit(() -> soundPool.play(soundId[3], buttonVolume, buttonVolume, 0, 0, 1.0f));
+    }
+
+    public void playRewardSound(int level) {
+        executorService.submit(() -> soundPool.play(soundId[3+level], 0.3f, 0.3f, 0, 0, 1.0f));
     }
 
     public void updateVolume(){
