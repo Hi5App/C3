@@ -91,6 +91,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     private boolean noFileLeft = false;
 
     private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
     private SomaNumStatus somaNumStatus;
 
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
@@ -109,6 +110,7 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         somaNum.setValue(0);
         somaNumStatus = SomaNumStatus.ZERO;
+        editImageNum.setValue(0);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -153,6 +155,10 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public MutableLiveData<Integer> getSomaNum() {
         return somaNum;
+    }
+
+    public MutableLiveData<Integer> getEditImageNum() {
+        return editImageNum;
     }
 
     public SomaNumStatus getSomaNumStatus() {
@@ -461,6 +467,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         } else {
             ToastEasy("Something wrong with curIndex");
         }
+
+        editImageNum.setValue(editImageNum.getValue()+1);
     }
 
     private void getBrainList() {
@@ -503,9 +511,13 @@ public class MarkerFactoryViewModel extends ViewModel {
             markerFactoryDataSource.updateSomaList(brainId, locationId, locationType, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
             somaNum.setValue(somaNum.getValue() + markerListToAdd.size());
+
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
+
+
+
             }
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
@@ -516,6 +528,8 @@ public class MarkerFactoryViewModel extends ViewModel {
     public void winScoreByFinishConfirmAnImage() {
         userInfoRepository.getScoreModel().finishAnImage();
     }
+
+
 
     public void winScoreByPinPoint() {
         userInfoRepository.getScoreModel().pinpoint();
