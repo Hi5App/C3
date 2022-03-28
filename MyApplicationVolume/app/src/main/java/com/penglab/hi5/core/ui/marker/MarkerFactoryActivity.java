@@ -48,6 +48,7 @@ import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
@@ -80,7 +81,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
-
+import com.sdsmdg.tastytoast.TastyToast;
 /**
  * Created by Jackiexing on 01/10/21
  */
@@ -324,6 +325,31 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 }
             }
         });
+
+        markerFactoryViewModel.getEditImageNum().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer editImageNum) {
+                if(editImageNum == 50) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageNum), TastyToast.LENGTH_LONG, TastyToast.WARNING);
+                } else if (editImageNum == 80) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+
+                } else if(editImageNum == 100) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+
+                }else if (editImageNum == 500) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+
+                }else if (editImageNum == 1000) {
+                    TastyToast.makeText(getApplicationContext(), String.format("WOW! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+
+                }
+
+            }
+        });
+
+
+
 
         initScoreTickerView();
         startMusicService();
