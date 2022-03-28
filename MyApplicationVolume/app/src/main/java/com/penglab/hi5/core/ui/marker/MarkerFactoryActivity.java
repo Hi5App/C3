@@ -2,23 +2,27 @@ package com.penglab.hi5.core.ui.marker;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
+import static com.penglab.hi5.core.Myapplication.playRewardSound;
 import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -38,6 +42,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.amrdeveloper.lottiedialog.LottieDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
@@ -61,6 +66,8 @@ import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.robinhood.ticker.TickerView;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
@@ -68,6 +75,7 @@ import com.warkiz.widget.SeekParams;
 import org.jetbrains.annotations.Contract;
 
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -95,6 +103,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private MarkerFactoryViewModel markerFactoryViewModel;
@@ -111,6 +120,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean switchMarkerMode = true;
+    private LottieDialog lottieDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -295,6 +305,26 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
+        markerFactoryViewModel.getSomaNum().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer somaNum) {
+                MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
+                if (somaNum >= 50 && somaNum < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                    playRewardSound(1);
+                    showRewardDialog(1);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
+                } else if (somaNum >= 100 && somaNum < 200 && somaNumStatus.ordinal() < 2) {
+                    playRewardSound(2);
+                    showRewardDialog(2);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
+                } else if (somaNum >= 200 && somaNumStatus.ordinal() < 3) {
+                    playRewardSound(3);
+                    showRewardDialog(3);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
+                }
+            }
+        });
+
         initScoreTickerView();
         startMusicService();
     }
@@ -416,6 +446,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private void openFile(){
         // TODO: download image
         markerFactoryViewModel.openNewFile();
+//        executorService.submit(() -> showRewardDialog());
+
     }
 
     private void screenCapture(Uri uri){
@@ -677,7 +709,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void ignoreFile() {
-            navigateFile(true, true, 2);
+        navigateFile(true, true, 2);
     }
 
     private void previousFile(){
@@ -735,9 +767,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 () -> navigateFile(true, nextFile, 1),
                                 () -> navigateFile(false, nextFile, 0),
                                 null)
-                        .setConfirmText("Upload")
-                        .setIgnoreText("Don't upload")
-                        .setCancelText("Cancel")
+                                .setConfirmText("Upload")
+                                .setIgnoreText("Don't upload")
+                                .setCancelText("Cancel")
                 ).show();
     }
 
@@ -777,6 +809,86 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         if (markerFactoryView != null){
             markerFactoryView.setVisibility(View.GONE);
         }
+    }
+
+    private void showRewardDialog(int level) {
+        final int [] gifId = new int [] {R.raw.success_like,R.raw.present,R.raw.achievement};
+        final int [] somaNum = new int [] {50,100,200,500};
+        Button okButton = new Button(MarkerFactoryActivity.this);
+        okButton.setText("OK");
+        okButton.setTextColor(Color.rgb(60,179,113));
+        okButton.setOnClickListener(view -> {
+            getJokeDialog();
+            lottieDialog.dismiss();
+        });
+        Button cancelButton = new Button(MarkerFactoryActivity.this);
+            cancelButton.setText("No Need");
+//        cancelButton.setBackgroundColor(Color.rgb(192,192,192));
+        cancelButton.setOnClickListener(view -> {
+            lottieDialog.dismiss();
+
+        });
+        lottieDialog = new LottieDialog(MarkerFactoryActivity.this)
+                .setAnimation(gifId[level-1])
+                .setAnimationRepeatCount(10)
+                .setAutoPlayAnimation(true)
+                .setTitle("")
+                .setTitleColor(R.color.account_lock_bg)
+                .setMessage(String.format("You have finished over %s soma! There is a present for you...",somaNum[level-1]))
+                .setMessageTextSize(20f)
+                .setMessageColor(Color.BLACK)
+                .setDialogBackground(Color.WHITE)
+                .setCancelable(false)
+                .addActionButton(cancelButton)
+                .addActionButton(okButton)
+                .setOnShowListener(dialogInterface -> {})
+                .setOnDismissListener(dialogInterface -> {})
+                .setOnCancelListener(dialogInterface -> {});
+        lottieDialog.show();
+    }
+
+    private void getJokeDialog() {
+        final int[] jokeNum = new int[]{R.raw.gif4, R.raw.gif5, R.raw.gif6, R.raw.gif7, R.raw.gif8,
+                R.raw.gif10, R.raw.gif12, R.raw.gif13, R.raw.gif15, R.raw.gif20};
+//        final int[] bgColor = new int[]{};
+        final String[] messNum = new String[]{
+                "我虽然不能为你上天揽月但是我能为你下海底捞,捞鱼丸捞虾捞肥牛",
+                "特别能吃苦，这句话我想了想，我只能做到前四个",
+                "安全感是什么？安全感就是你在快迟到的路上,碰到了你的同事,但他跑的比你慢",
+                "我呼唤星期五的频率古今中外，只有鲁滨逊可与我比肩",
+                "和人吵架的时候最好去楼梯吵，这样的好处是，吵完了双方都有台阶下",
+                "其实之前也考虑过劳斯莱斯和宾利，到最后还是选择了公交，因为人多热闹",
+                "刚刚点外卖的时候，突然想起来自己160斤，我猛地扇了自己一耳光，点外卖的时候怎么可以分心",
+                "跟公司说完，“我身体不舒服今天请假”，之后身体就好多了，比药有效5000倍",
+                "曾经我的一位同事到公司面试，HR问他：“今天来面试有做什么准备工作吗”，同事一本正经的回答：有的，用飘柔洗了个头",
+                "排队做核酸的朋友们，一定要仔细看清楚!别像我，排了半天，买了一杯奶茶"};
+        int randomNum = new Random().nextInt(10);
+        Log.e(TAG,"randomNum"+randomNum);
+        new FancyGifDialog.Builder(this)
+                .setTitle(messNum[randomNum]) // You can also send title like R.string.from_resources
+//                .setMessage("") // or pass like R.string.description_from_resources
+                .setTitleTextColor(R.color.black)
+                .setDescriptionTextColor(R.color.descriptionText)
+                .setNegativeBtnText("Cancel") // or pass it like android.R.string.cancel
+                .setPositiveBtnBackground(R.color.positiveButton)
+                .setPositiveBtnText("Ok") // or pass it like android.R.string.ok
+                .setNegativeBtnBackground(R.color.negativeButton)
+                .setGifResource(jokeNum[randomNum])   //Pass your Gif here
+                .isCancellable(true)
+                .OnPositiveClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(MarkerFactoryActivity.this,"Ok",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .OnNegativeClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(MarkerFactoryActivity.this,"Cancel",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .build();
+
     }
 
     private void showDownloadingProgressBar() {

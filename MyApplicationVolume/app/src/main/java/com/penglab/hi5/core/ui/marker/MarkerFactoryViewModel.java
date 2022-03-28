@@ -53,11 +53,15 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final int DEFAULT_RES_INDEX = 2;
 
     public enum AnnotationMode{
-       BIG_DATA, NONE
+        BIG_DATA, NONE
     }
 
     public enum WorkStatus{
         IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
+    }
+
+    public enum SomaNumStatus{
+        ZERO, TEN, FIFTY, HUNDRED
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -86,6 +90,9 @@ public class MarkerFactoryViewModel extends ViewModel {
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
 
+    private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
+    private SomaNumStatus somaNumStatus;
+
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
@@ -99,6 +106,9 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         initPreDownloadThread();
         initCheckFreshThread();
+
+        somaNum.setValue(0);
+        somaNumStatus = SomaNumStatus.ZERO;
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -139,6 +149,18 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public PotentialSomaInfo getCurPotentialSomaInfo() {
         return curPotentialSomaInfo;
+    }
+
+    public MutableLiveData<Integer> getSomaNum() {
+        return somaNum;
+    }
+
+    public SomaNumStatus getSomaNumStatus() {
+        return somaNumStatus;
+    }
+
+    public void setSomaNumStatus(SomaNumStatus somaNumStatus) {
+        this.somaNumStatus = somaNumStatus;
     }
 
     public void updateImageResult(Result result) {
@@ -480,6 +502,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, locationType, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
+            somaNum.setValue(somaNum.getValue() + markerListToAdd.size());
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
@@ -489,7 +512,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             e.printStackTrace();
         }
     }
-    
+
     public void winScoreByFinishConfirmAnImage() {
         userInfoRepository.getScoreModel().finishAnImage();
     }
