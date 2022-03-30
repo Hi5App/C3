@@ -40,28 +40,28 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"/>
 
-<!--            <com.robinhood.ticker.TickerView-->
-<!--                android:id="@+id/score_ticker_view"-->
-<!--                android:textColor="@color/colorMid_yellow"-->
-<!--                android:textSize="16dp"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_marginTop="65dp"-->
-<!--                android:layout_marginStart="30dp"-->
-<!--                app:layout_constraintTop_toTopOf="parent"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:ticker_animationDuration="1500"-->
-<!--                app:ticker_defaultPreferredScrollingDirection="any"-->
-<!--                app:ticker_defaultCharacterList="number"/>-->
+            <com.robinhood.ticker.TickerView
+                android:id="@+id/score_ticker_view"
+                android:textColor="@color/colorMid_yellow"
+                android:textSize="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="65dp"
+                android:layout_marginStart="30dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:ticker_animationDuration="1500"
+                app:ticker_defaultPreferredScrollingDirection="any"
+                app:ticker_defaultCharacterList="number"/>
 
-<!--            <TextView-->
-<!--                android:id="@+id/imageid_location_text_view"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:textSize="16dp"-->
-<!--                app:layout_constraintStart_toStartOf="parent"-->
-<!--                app:layout_constraintTop_toBottomOf="@id/score_ticker_view"-->
-<!--                />-->
+            <TextView
+                android:id="@+id/imageid_location_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/score_ticker_view"
+                />
 
 <!--            <ImageView-->
 <!--                android:layout_width="0dp"-->

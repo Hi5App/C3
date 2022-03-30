@@ -161,5 +161,6 @@ dependencies {
     implementation 'com.github.amrdeveloper:lottiedialog:1.0.0'
     implementation 'com.github.Shashank02051997:FancyGifDialog-Android:1.4'
     compile 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
+    implementation 'com.github.mejdi14:Flat-Dialog-Android:1.0.5'
 
 }

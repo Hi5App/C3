@@ -96,6 +96,10 @@ public class MusicHelper {
         executorService.submit(() -> soundPool.play(soundId[3+level], 0.3f, 0.3f, 0, 0, 1.0f));
     }
 
+    public void playMusicReward(int level) {
+
+    }
+
     public void updateVolume(){
         bgmVolume = preferenceMusic.getBackgroundSound() / 100.0f;
         buttonVolume = preferenceMusic.getButtonSound() / 100.0f;

@@ -273,10 +273,10 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     annotationGLSurfaceView.openFile();
                     qualityInspectionViewModel.getSwc();
                     qualityInspectionViewModel.getArborMarkerList();
-//                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
-//                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
-//                    Log.e(TAG,"image text view content"+arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
-//                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+                    PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
+                    imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+                    Log.e(TAG,"image text view content"+arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
+                    annotationGLSurfaceView.setImageInfoInRender(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
                 } else {
                     ToastEasy(resourceResult.getError());
                 }

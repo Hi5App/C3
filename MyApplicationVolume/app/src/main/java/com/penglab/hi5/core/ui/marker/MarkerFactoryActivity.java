@@ -43,6 +43,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.amrdeveloper.lottiedialog.LottieDialog;
+import com.example.flatdialoglibrary.dialog.FlatDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
@@ -916,6 +917,34 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 .build();
 
     }
+
+//    private void getMusicPlayReward() {
+//        String musicName[] = new String[]{"天空之城", "克罗地亚狂想曲", "偷功","遇见","一千个伤心的理由","冢森的大树","生命的守护者","瓦妮莎的微笑"};
+//        int randomNum = new Random().nextInt(10);
+//        final FlatDialog flatDialog = new FlatDialog(MarkerFactoryActivity.this);
+//        flatDialog.setTitle("A Music for you")
+//                .setSubtitle(musicName[randomNum])
+//                .setFirstTextFieldHint("email")
+//                .setSecondTextFieldHint("password")
+//                .setFirstButtonText("Play")
+//                .setSecondButtonText("Nope")
+//                .withFirstButtonListner(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        flatDialog.setFirstButtonText("Stop");
+//
+//
+//
+//                    }
+//                })
+//                .withSecondButtonListner(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        flatDialog.dismiss();
+//                    }
+//                })
+//                .show();
+//    }
 
     private void showDownloadingProgressBar() {
         downloadingPopupView.show();
