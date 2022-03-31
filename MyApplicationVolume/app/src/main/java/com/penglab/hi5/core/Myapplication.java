@@ -48,6 +48,8 @@ import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import org.litepal.LitePal;
 import java.io.IOException;
 
+import io.agora.rtc.internal.RtcEngineMessage;
+
 public class Myapplication extends Application {
 
     /**
@@ -284,6 +286,13 @@ public class Myapplication extends Application {
 
     public static void playRewardSound(int level) {
         musicHelper.playRewardSound(level);
+    }
+
+    public static void playMusicReward(int level) {
+        musicHelper.playMusicReward(level);
+    }
+    public static void stopMusicRewardPlay() {
+        musicHelper.stopMusicRewardPlay();
     }
 
     public static void playCurveActionSound() {
