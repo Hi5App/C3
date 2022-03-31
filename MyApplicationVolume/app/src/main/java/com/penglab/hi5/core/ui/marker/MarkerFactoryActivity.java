@@ -646,7 +646,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             ImageButtonExt nextFile = findViewById(R.id.next_file);
             ImageButtonExt boringFile = findViewById(R.id.boring_file);
             ImageButtonExt ignoreFile = findViewById(R.id.ignore_file);
-            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
+//            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
+            ImageButtonExt goodFile = findViewById(R.id.good_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
@@ -654,7 +655,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
             ignoreFile.setOnClickListener(v -> ignoreFile());
-            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
+            goodFile.setOnClickListener(v -> goodFile());
+//            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
 
             contrastSeekBar.setProgress(preferenceSetting.getContrast());
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -743,6 +745,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void ignoreFile() {
         navigateFile(true, true, 2);
+    }
+
+    private void goodFile() {
+        navigateFile(true, true, 3);
     }
 
     private void previousFile(){
