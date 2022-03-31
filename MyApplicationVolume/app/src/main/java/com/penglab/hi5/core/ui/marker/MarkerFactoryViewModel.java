@@ -485,6 +485,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         String res = resMap.get(brainId);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
+            isDownloading = false;
             return;
         }
         imageDataSource.downloadImage(lastDownloadPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
