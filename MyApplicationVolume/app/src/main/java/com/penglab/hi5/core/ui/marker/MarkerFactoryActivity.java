@@ -854,8 +854,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         okButton.setOnClickListener(view -> {
             switch (level){
                 case 1:
-//                    playGuessMusicGame();
-//                    getJokeDialog();
+                    playGuessMusicGame(1);
+                    getJokeDialog();
                     lottieDialog.dismiss();
                     break;
                 case 2:
@@ -968,7 +968,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void playGuessMusicGame(int num) {
-        int randomNum = new Random().nextInt(3);
+        int randomNum = new Random().nextInt(7);
         String arrayName[][] = new String[][]{
                 {"克罗地亚狂想曲","亡灵序曲","悲怆"},
                 {"天空之城","天空","城堡"},
@@ -1007,17 +1007,50 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         thirdAnswer.setText(arrayName[randomNum][2]);
 
                         firstAnswer.setOnClickListener(new View.OnClickListener() {
+                            @SuppressLint("ResourceAsColor")
                             @Override
                             public void onClick(View view) {
                                 if(firstAnswer.getText() == rightName[randomNum]) {
+                                    firstAnswer.setBackgroundColor(R.color.login_input_active);
 
+                                }else{
+                                    firstAnswer.setBackgroundColor(R.color.color_red_f04c62);
                                 }
-//                                else if
-
+                                firstAnswer.setEnabled(false);
+                                secondAnswer.setEnabled(false);
+                                thirdAnswer.setEnabled(false);
                             }
                         });
 
-//                        secondAnswer.setOnClickListener();
+                        secondAnswer.setOnClickListener(new View.OnClickListener() {
+                            @SuppressLint("ResourceAsColor")
+                            @Override
+                            public void onClick(View view) {
+                                if(secondAnswer.getText() == rightName[randomNum]) {
+                                    secondAnswer.setBackgroundColor(R.color.login_input_active);
+                                }else{
+                                    secondAnswer.setBackgroundColor(R.color.color_red_f04c62);
+                                }
+                                firstAnswer.setEnabled(false);
+                                secondAnswer.setEnabled(false);
+                                thirdAnswer.setEnabled(false);
+                            }
+                        });
+
+                        thirdAnswer.setOnClickListener(new View.OnClickListener() {
+                            @SuppressLint("ResourceAsColor")
+                            @Override
+                            public void onClick(View view) {
+                                if(thirdAnswer.getText() == rightName[randomNum]) {
+                                    thirdAnswer.setBackgroundColor(R.color.login_input_active);
+                                }else{
+                                    thirdAnswer.setBackgroundColor(R.color.color_red_f04c62);
+                                }
+                                firstAnswer.setEnabled(false);
+                                secondAnswer.setEnabled(false);
+                                thirdAnswer.setEnabled(false);
+                            }
+                        });
 
 
                     }
