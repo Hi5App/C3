@@ -2,7 +2,9 @@ package com.penglab.hi5.core.ui.marker;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
+import static com.penglab.hi5.core.Myapplication.playMusicReward;
 import static com.penglab.hi5.core.Myapplication.playRewardSound;
+import static com.penglab.hi5.core.Myapplication.stopMusicRewardPlay;
 import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 
 import android.annotation.SuppressLint;
@@ -26,6 +28,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -43,6 +46,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.amrdeveloper.lottiedialog.LottieDialog;
+import com.example.flatdialoglibrary.dialog.FlatDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
@@ -75,12 +79,15 @@ import com.warkiz.widget.SeekParams;
 
 import org.jetbrains.annotations.Contract;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
+import co.mobiwise.library.MusicPlayerView;
+
 import com.sdsmdg.tastytoast.TastyToast;
 /**
  * Created by Jackiexing on 01/10/21
@@ -310,15 +317,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer somaNum) {
                 MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
-                if (somaNum >= 50 && somaNum < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                if (somaNum >= 1 && somaNum < 2 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
                     playRewardSound(1);
                     showRewardDialog(1);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
-                } else if (somaNum >= 100 && somaNum < 200 && somaNumStatus.ordinal() < 2) {
+                } else if (somaNum >= 2 && somaNum < 3 && somaNumStatus.ordinal() < 2) {
                     playRewardSound(2);
                     showRewardDialog(2);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
-                } else if (somaNum >= 200 && somaNumStatus.ordinal() < 3) {
+                } else if (somaNum >= 3 && somaNumStatus.ordinal() < 3) {
                     playRewardSound(3);
                     showRewardDialog(3);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
@@ -766,6 +773,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
              0: default, no update
              1: normalFile with annotation,
              2: normalFile without annotation
+             3: goodFile with annotation
          */
         if (needUpload) {
             if (locationType == -1) {
@@ -844,8 +852,19 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         okButton.setText("OK");
         okButton.setTextColor(Color.rgb(60,179,113));
         okButton.setOnClickListener(view -> {
-            getJokeDialog();
-            lottieDialog.dismiss();
+            switch (level){
+                case 1:
+//                    playGuessMusicGame();
+//                    getJokeDialog();
+                    lottieDialog.dismiss();
+                    break;
+                case 2:
+                    getMusicPlayReward();
+                    lottieDialog.dismiss();
+                    break;
+                case 3:
+                    break;
+            }
         });
         Button cancelButton = new Button(MarkerFactoryActivity.this);
             cancelButton.setText("No Need");
@@ -915,6 +934,105 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 })
                 .build();
 
+    }
+
+    private void getMusicPlayReward() {
+        String musicName[] = new String[]{"天空之城", "克罗地亚狂想曲", "偷功","遇见","一千个伤心的理由","冢森的大树","瓦妮莎的微笑"};
+        int randomNum = new Random().nextInt(7);
+        final FlatDialog flatDialog = new FlatDialog(MarkerFactoryActivity.this);
+        flatDialog.setTitle("A Music for you")
+                .setSubtitle(musicName[randomNum])
+                .setFirstTextFieldHint("Write here everything")
+                .setFirstButtonText("Play")
+                .setSecondButtonText("Stop")
+                .setThirdButtonText("Cancel")
+                .withFirstButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        playMusicReward(randomNum);
+                    }
+                })
+                .withSecondButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        stopMusicRewardPlay();
+                    }
+                })
+                .withThirdButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        flatDialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void playGuessMusicGame(int num) {
+        int randomNum = new Random().nextInt(3);
+        String arrayName[][] = new String[][]{
+                {"克罗地亚狂想曲","亡灵序曲","悲怆"},
+                {"天空之城","天空","城堡"},
+                {"醉拳","随缘","偷功"},
+                {"瓦妮莎","瓦妮莎的微笑","睡梦"},
+                {"慢慢","一千个伤心的理由","李香兰"},
+                {"遇见","听见","再见"},
+                {"龙猫","冢森的大树","风之谷"}};
+        String rightName[] = new String[]{"克罗地亚狂想曲","天空之城","偷功","瓦妮莎的微笑","一千个伤心的理由","遇见","冢森的大树"};
+
+        new MDDialog.Builder(MarkerFactoryActivity.this)
+                .setContentView(R.layout.guess_music)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        MusicPlayerView mpv = findViewById(R.id.mpv);
+                        mpv.setCoverURL("https://upload.wikimedia.org/wikipedia/en/b/b3/MichaelsNumberOnes.JPG");
+                        Button firstAnswer = findViewById(R.id.firstAnswer);
+                        Button secondAnswer = findViewById(R.id.secondAnswer);
+                        Button thirdAnswer = findViewById(R.id.thirdAnswer);
+                        mpv.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(mpv.isRotating()){
+                                    mpv.stop();
+                                    stopMusicRewardPlay();
+                                }else{
+                                    mpv.start();
+                                    playMusicReward(num);
+                                }
+                            }
+                        });
+
+                        firstAnswer.setText(arrayName[randomNum][0]);
+                        secondAnswer.setText(arrayName[randomNum][1]);
+                        thirdAnswer.setText(arrayName[randomNum][2]);
+
+                        firstAnswer.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(firstAnswer.getText() == rightName[randomNum]) {
+
+                                }
+//                                else if
+
+                            }
+                        });
+
+//                        secondAnswer.setOnClickListener();
+
+
+                    }
+                })
+                .setNegativeButton("Cancel", v -> { })
+                .setPositiveButton(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                    }
+                })
+                .setWidthMaxDp(600)
+//              .setShowTitle(false)//default is true
+//              .setShowButtons(true)//default is true
+                .create()
+                .show();
     }
 
     private void showDownloadingProgressBar() {
