@@ -535,6 +535,14 @@ public class MarkerFactoryViewModel extends ViewModel {
         userInfoRepository.getScoreModel().pinpoint();
     }
 
+    public void winScoreByReward(int level){
+        userInfoRepository.getScoreModel().getScorePerRewardLevel(level);
+    }
+
+    public void winScoreByGuessMusic(){
+        userInfoRepository.getScoreModel().getScorePerGuessMusic();
+    }
+
     private void initPreDownloadThread() {
         executorService.submit(new Runnable() {
             @Override

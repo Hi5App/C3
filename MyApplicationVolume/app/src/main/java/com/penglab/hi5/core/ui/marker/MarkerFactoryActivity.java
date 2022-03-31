@@ -848,27 +848,31 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private void showRewardDialog(int level) {
         final int [] gifId = new int [] {R.raw.success_like,R.raw.present,R.raw.achievement};
         final int [] somaNum = new int [] {50,100,200,500};
+        int randomNumber = new Random().nextInt(10);
         Button okButton = new Button(MarkerFactoryActivity.this);
         okButton.setText("OK");
         okButton.setTextColor(Color.rgb(60,179,113));
         okButton.setOnClickListener(view -> {
             switch (level){
                 case 1:
-                    playGuessMusicGame(1);
-                    getJokeDialog();
-                    lottieDialog.dismiss();
+                    markerFactoryViewModel.winScoreByReward(1);
                     break;
                 case 2:
-                    getMusicPlayReward();
-                    lottieDialog.dismiss();
+                    markerFactoryViewModel.winScoreByReward(2);
                     break;
                 case 3:
+                    markerFactoryViewModel.winScoreByReward(3);
                     break;
             }
+            if(randomNumber %2 == 0){
+                playGuessMusicGame();
+            }else{
+                getJokeDialog();
+            }
+            lottieDialog.dismiss();
         });
         Button cancelButton = new Button(MarkerFactoryActivity.this);
             cancelButton.setText("No Need");
-//        cancelButton.setBackgroundColor(Color.rgb(192,192,192));
         cancelButton.setOnClickListener(view -> {
             lottieDialog.dismiss();
 
@@ -936,38 +940,38 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     }
 
-    private void getMusicPlayReward() {
-        String musicName[] = new String[]{"天空之城", "克罗地亚狂想曲", "偷功","遇见","一千个伤心的理由","冢森的大树","瓦妮莎的微笑"};
-        int randomNum = new Random().nextInt(7);
-        final FlatDialog flatDialog = new FlatDialog(MarkerFactoryActivity.this);
-        flatDialog.setTitle("A Music for you")
-                .setSubtitle(musicName[randomNum])
-                .setFirstTextFieldHint("Write here everything")
-                .setFirstButtonText("Play")
-                .setSecondButtonText("Stop")
-                .setThirdButtonText("Cancel")
-                .withFirstButtonListner(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        playMusicReward(randomNum);
-                    }
-                })
-                .withSecondButtonListner(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        stopMusicRewardPlay();
-                    }
-                })
-                .withThirdButtonListner(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        flatDialog.dismiss();
-                    }
-                })
-                .show();
-    }
+//    private void getMusicPlayReward() {
+//        String musicName[] = new String[]{"天空之城", "克罗地亚狂想曲", "偷功","遇见","一千个伤心的理由","冢森的大树","瓦妮莎的微笑"};
+//        int randomNum = new Random().nextInt(7);
+//        final FlatDialog flatDialog = new FlatDialog(MarkerFactoryActivity.this);
+//        flatDialog.setTitle("A Music for you")
+//                .setSubtitle(musicName[randomNum])
+//                .setFirstTextFieldHint("Write here everything")
+//                .setFirstButtonText("Play")
+//                .setSecondButtonText("Stop")
+//                .setThirdButtonText("Cancel")
+//                .withFirstButtonListner(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        playMusicReward(randomNum);
+//                    }
+//                })
+//                .withSecondButtonListner(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        stopMusicRewardPlay();
+//                    }
+//                })
+//                .withThirdButtonListner(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        flatDialog.dismiss();
+//                    }
+//                })
+//                .show();
+//    }
 
-    private void playGuessMusicGame(int num) {
+    private void playGuessMusicGame() {
         int randomNum = new Random().nextInt(7);
         String arrayName[][] = new String[][]{
                 {"克罗地亚狂想曲","亡灵序曲","悲怆"},
@@ -997,7 +1001,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                     stopMusicRewardPlay();
                                 }else{
                                     mpv.start();
-                                    playMusicReward(num);
+                                    playMusicReward(randomNum);
                                 }
                             }
                         });
@@ -1005,16 +1009,16 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                         firstAnswer.setText(arrayName[randomNum][0]);
                         secondAnswer.setText(arrayName[randomNum][1]);
                         thirdAnswer.setText(arrayName[randomNum][2]);
-
                         firstAnswer.setOnClickListener(new View.OnClickListener() {
                             @SuppressLint("ResourceAsColor")
                             @Override
                             public void onClick(View view) {
                                 if(firstAnswer.getText() == rightName[randomNum]) {
                                     firstAnswer.setBackgroundColor(R.color.login_input_active);
+                                    markerFactoryViewModel.winScoreByGuessMusic();
 
                                 }else{
-                                    firstAnswer.setBackgroundColor(R.color.color_red_f04c62);
+                                    firstAnswer.setBackgroundColor(R.color.help_color);
                                 }
                                 firstAnswer.setEnabled(false);
                                 secondAnswer.setEnabled(false);
@@ -1028,8 +1032,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                             public void onClick(View view) {
                                 if(secondAnswer.getText() == rightName[randomNum]) {
                                     secondAnswer.setBackgroundColor(R.color.login_input_active);
+                                    markerFactoryViewModel.winScoreByGuessMusic();
                                 }else{
-                                    secondAnswer.setBackgroundColor(R.color.color_red_f04c62);
+                                    secondAnswer.setBackgroundColor(R.color.help_color);
                                 }
                                 firstAnswer.setEnabled(false);
                                 secondAnswer.setEnabled(false);
@@ -1043,8 +1048,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                             public void onClick(View view) {
                                 if(thirdAnswer.getText() == rightName[randomNum]) {
                                     thirdAnswer.setBackgroundColor(R.color.login_input_active);
+                                    markerFactoryViewModel.winScoreByGuessMusic();
                                 }else{
-                                    thirdAnswer.setBackgroundColor(R.color.color_red_f04c62);
+                                    thirdAnswer.setBackgroundColor(R.color.help_color);
                                 }
                                 firstAnswer.setEnabled(false);
                                 secondAnswer.setEnabled(false);
@@ -1056,12 +1062,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     }
                 })
                 .setNegativeButton("Cancel", v -> { })
-                .setPositiveButton(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                    }
-                })
-                .setWidthMaxDp(600)
+                .setPositiveButton("Ok", v -> { })
+//                .setWidthMaxDp(600)
 //              .setShowTitle(false)//default is true
 //              .setShowButtons(true)//default is true
                 .create()

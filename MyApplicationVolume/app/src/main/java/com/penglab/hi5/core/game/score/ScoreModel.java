@@ -186,6 +186,24 @@ public class ScoreModel {
         user.updateAll("userid = ?", id);
     }
 
+    public void getScorePerRewardLevel (int level){
+
+        addScore(ScoreRule.getScorePerRewardLevel()*level);
+
+        User user = new User();
+        user.setScore(score.getValue());
+        user.updateAll("userid = ?", id);
+
+    }
+
+    public void getScorePerGuessMusic (){
+        addScore(ScoreRule.getScorePerGuessMusic());
+        User user = new User();
+        user.setScore(score.getValue());
+        user.updateAll("userid = ?", id);
+    }
+
+
     public void finishAnImage(){
         addScore(ScoreRule.getScorePerImage());
 
