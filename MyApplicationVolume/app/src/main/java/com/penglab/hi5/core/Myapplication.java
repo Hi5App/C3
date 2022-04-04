@@ -290,6 +290,7 @@ public class Myapplication extends Application {
 
     public static void playMusicReward(int level) {
         musicHelper.playMusicReward(level);
+
     }
     public static void stopMusicRewardPlay() {
         musicHelper.stopMusicRewardPlay();
