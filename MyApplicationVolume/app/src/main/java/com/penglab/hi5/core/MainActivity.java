@@ -5039,7 +5039,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }catch (Exception e){
             e.printStackTrace();
         }
-        hideDownloadingPopupView();
+       // hideDownloadingPopupView();
     }
 
     /*

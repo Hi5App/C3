@@ -591,8 +591,8 @@ public class Image4DSimple {
 
                 switch (fileType){
                     case V3DRAW:
-                            image4DSimple =  new RawReader().read(length, is);
-                            is.close();
+                        image4DSimple =  new RawReader().read(length, is);
+                        is.close();
                         break;
                     case TIFF:
                         // create a new file

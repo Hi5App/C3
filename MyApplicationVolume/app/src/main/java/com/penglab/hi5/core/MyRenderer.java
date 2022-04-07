@@ -837,7 +837,23 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
 
 
-
+    public boolean loadNeuronTree(NeuronTree neuronTree, boolean isBigData) {
+        try {
+            Vector<V_NeuronSWC> segments = neuronTree.devideByBranch();
+            for (V_NeuronSWC segment: segments){
+                if (isBigData){
+                    syncSwcList.append(segment);
+                }else {
+                    curSwcList.append(segment);
+                }
+            }
+            return true;
+        } catch (Exception e){
+            ToastEasy("Fail to divide NeuronTree by branch !");
+            e.printStackTrace();
+            return false;
+        }
+    }
     /*
     About set Matrix --------------------------------------------------------------------------
      */

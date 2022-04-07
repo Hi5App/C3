@@ -6,7 +6,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
-import android.app.MediaRouteButton;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -22,7 +21,6 @@ import android.graphics.Typeface;
 import android.media.SoundPool;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -112,11 +110,8 @@ import com.penglab.hi5.core.fileReader.annotationReader.AnoReader;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
-import com.penglab.hi5.core.game.LeaderBoardActivity;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
-import com.penglab.hi5.core.game.quest.QuestActivity;
-import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
@@ -194,6 +189,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static Button Zoom_in_Big;
     private static ImageButton si_logo;
+    private static ImageButton Hide_i;
+
+
+
 
     private static Button Zoom_out_Big;
     private static ImageButton zseries_scan;
@@ -219,7 +218,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton navigation_up;
     private static ImageButton navigation_down;
     private static ImageButton navigation_location;
-    private static ImageButton manual_sync;
+    private static ImageButton eswc_sync;
     private static ImageButton ROI_i;
     private static Button navigation_front;
     private static Button navigation_back;
@@ -282,6 +281,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static boolean isBigData_Remote;
     private static boolean isVirtualScope;
+    private static boolean isCheckmode;
     private static boolean isBigData_Local;
     private static boolean isS2Start = false;
     private static ProgressBar progressBar;
@@ -325,6 +325,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static String filename = "";
     private static String s2filename = "";
+    private static String s2EswcPath ="";
     private String S2path = "";
 
     private enum PenColor {
@@ -359,6 +360,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     //    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
+    private boolean mBounds2 = false;
 
     private int count = 0;
 
@@ -533,6 +535,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 loadBigDataImg(msg.split(":")[1]);
 
             }
+            if (msg.endsWith(".jpg")) {
+
+                Log.e(TAG, "File: .jpg");
+                loadBigDataImg(msg.split(":")[1]);
+
+            }
             if (msg.endsWith(".tif")) {
 
                 Log.e(TAG, "File: .tif");
@@ -557,38 +565,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-        }
+            if (msg.endsWith(".eswc")) {
 
-        /*
-        After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
+                Log.e(TAG, "File: .eswc");
+                loadBigDataSwc(msg.split(":")[1]);
 
-        when the file is selected, room will be created, and collaborationService will be init, port is room number
-         */
-        if (msg.startsWith("Port:")) {
-
-            if (msg.split(":")[1].equals("-1")) {
-                Toast_in_Thread("Something wrong with this img, choose other img please !");
-
-                return;
             }
 
-            initMsgConnector(msg.split(":")[1]);
-            if (firstJoinRoom) {
-                initMsgService();
-                firstJoinRoom = false;
-            } else {
-
-                /*
-                reset the msg connect in collaboration service
-                 */
-                CollaborationService.resetConnection();
-            }
-
-            /*
-            when join the room, user should login first
-             */
-            MsgConnector.getInstance().sendMsg("/login:" + username);
         }
+
 
 
 
@@ -957,7 +942,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        s2initialization();
+        //s2initialization();
 
 
         /*
@@ -1176,6 +1161,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         si_logo.setImageResource(R.drawable.si_logo);
         si_logo.setBackgroundResource(R.drawable.circle_normal);
 
+//        eswc_sync = new ImageButton(this);
+//        eswc_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
+
+
+        Hide_i = new ImageButton(this);
+        Hide_i.setImageResource(R.drawable.ic_not_hide);
+        Hide_i.setBackgroundResource(R.drawable.circle_normal);
 
         Zoom_in_Big = new Button(this);
         Zoom_in_Big.setText("+");
@@ -1239,8 +1231,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         res_list.setText("R");
         res_list.setTextColor(Color.BLUE);
 
-        manual_sync = new ImageButton(this);
-        manual_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
+        eswc_sync = new ImageButton(this);
+        eswc_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
 
 
         room_id = new ImageButton(this);
@@ -1357,8 +1349,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         lp_res_list.setMargins(20, 490, 0, 0);
 
         lp_sync_i = new FrameLayout.LayoutParams(120, 120);
-        lp_sync_i.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_sync_i.setMargins(0, 440, 0, 0);
+        lp_sync_i.gravity =Gravity.BOTTOM | Gravity.RIGHT;
+        lp_sync_i.setMargins(0, 0, 20,140 );
 
         lp_room_id = new FrameLayout.LayoutParams(115, 115);
         lp_room_id.gravity = Gravity.TOP | Gravity.RIGHT;
@@ -1416,6 +1408,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //
 //            }
 //        });
+
 
         Zslice_up.setOnClickListener(new Button.OnClickListener() {
             @Override
@@ -1586,6 +1579,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     isS2Start=false;
                     isVirtualScope=false;
                     ifZscanSeries = true;
+                    isCheckmode=false;
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -1596,6 +1590,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 } else {
                     isS2Start=false;
                     isVirtualScope=false;
+                    isCheckmode=false;
                     ifZscanSeries = true;
                     Log.e(TAG, "zseries_scan already push ! ");
                 }
@@ -1618,6 +1613,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Log.e(TAG, "s2send ");
                 isBigData_Remote = false;
                 isVirtualScope = false;
+                isCheckmode=false;
                 isBigData_Local = false;
                 ifZscanSeries=false;
                // ifGetRoiPoint = true;
@@ -1645,6 +1641,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 isVirtualScope = true;
                 isBigData_Local = false;
                 ifZscanSeries=false;
+                isCheckmode=false;
 
                 isS2Start = false;
                 setButtons();
@@ -1675,7 +1672,29 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
+        Hide_i.setOnClickListener(new Button.OnClickListener() {
 
+            @Override
+            public void onClick(View v) {
+               // soundPool.play(soundId[2], buttonVolume, buttonVolume, 0, 0, 1.0f);
+
+                if (!myS2renderer.getIfFileLoaded()){
+                    Toast.makeText(context, "Please load a File First", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (myS2renderer.getIfShowSWC()){
+                    myS2renderer.setIfShowSWC(false);
+                    myS2GLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_hide);
+
+                } else {
+                    myS2renderer.setIfShowSWC(true);
+                    myS2GLSurfaceView.requestRender();
+                    Hide_i.setImageResource(R.drawable.ic_not_hide);
+                }
+            }
+        });
         animation_i.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
 
@@ -1747,12 +1766,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         });
 
 
-        manual_sync.setOnClickListener(new Button.OnClickListener() {
+        eswc_sync.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showSyncBar();
-                myS2renderer.deleteAllTracing();
-                MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+                //showSyncBar();
+                String eswcPath=s2EswcPath.replace(".tif",".eswc");
+                loadBigDataSwc(eswcPath);
+
             }
         });
 
@@ -1805,6 +1825,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(zseries_scan, lp_rotation);
         this.addContentView(S2start, lp_hide);
 
+        this.addContentView(Hide_i, lp_hide);
+
         this.addContentView(imgs2stack, lp_img2stack);
         //this.addContentView(ROI_i,lp_ROI_i);
         //this.addContentView(scoreText, lp_score);
@@ -1823,7 +1845,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         this.addContentView(res_list, lp_res_list);
-        this.addContentView(manual_sync, lp_sync_i);
+        this.addContentView(eswc_sync, lp_sync_i);
 //        this.addContentView(red_pen, lp_red_color);
 //        this.addContentView(blue_pen, lp_blue_color);
 
@@ -1839,6 +1861,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         zseries_scan.setVisibility(View.GONE);
         S2start.setVisibility(View.GONE);
+        Hide_i.setVisibility(View.GONE);
         imgs2stack.setVisibility(View.GONE);
         Zoom_in_Big.setVisibility(View.GONE);
         Zoom_out_Big.setVisibility(View.GONE);
@@ -1853,7 +1876,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         res_list.setVisibility(View.GONE);
-        manual_sync.setVisibility(View.GONE);
+        eswc_sync.setVisibility(View.GONE);
 
 
         room_id.setVisibility(View.GONE);
@@ -1913,29 +1936,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgService() {
-        // Bind to LocalService
-        Intent intent = new Intent(this, CollaborationService.class);
-        bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
-    }
 
-    private void initMsgConnector(String port) {
-        MsgConnector msgConnector = MsgConnector.getInstance();
 
-        if (!firstJoinRoom)
-            msgConnector.releaseConnection();
-        msgConnector.setIp(ip_TencentCloud);
-        msgConnector.setPort(port);
-        msgConnector.initConnection();
-    }
 
 
     private void initServerConnector() {
-//        ServerConnector serverConnectorForScope = ServerConnector.getInstance();
-//
-//        serverConnectorForScope.setIp(ip_TencentCloud);
-//        serverConnectorForScope.setPort("8511");
-//        serverConnectorForScope.initConnection();
+
 
 
         ServerConnector serverConnector = ServerConnector.getInstance();
@@ -1974,6 +1980,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((S2Activity) getActivityFromContext(S2Context));
             mBoundManagement = true;
+
         }
 
         @Override
@@ -2003,6 +2010,23 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
     };
 
+
+    private ArrayList<String> getFiles(String FilePath){
+        ArrayList<String> arr = new ArrayList<>();
+        File file = new File(FilePath);
+        File[] files = file.listFiles();
+        for (int i = 0; i < files.length; i++) {
+            File childFile = files[i];
+            String childName = childFile.getName();
+
+            //String fileSizeString = formetFileSize(childFile);
+            Log.e("iiii", "getFiles: "+childName);
+            arr.add(childName);
+           // Log.e("iiii", "fileLength="+fileSizeString);
+        }
+        return arr;
+    }
+
     /*
     for service ------------------------------------------------------------------------------------
      */
@@ -2014,6 +2038,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private void LoadFiles(String FileList) {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
+        ArrayList<String> arr = new ArrayList<>();
+        String dir_str_server = null;
+        try {
+            dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         boolean isFile = false;
         String[] fileName = new String[1];
@@ -2024,79 +2055,155 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log"))
                 continue;
 
-            if (Communicator.getInstance().initSoma(list[i].split(" ")[0])) {
-                fileName[0] = list[i].split(" ")[0];
+            if (list[i].split(" ")[0].endsWith(".tif")) {
+
                 isFile = true;
-                continue;
+
             }
+//            if (Communicator.getInstance().initSoma(list[i].split(" ")[0])) {
+//                fileName[0] = list[i].split(" ")[0];
+//                isFile = true;
+//                continue;
+//            }
 
             list_array.add(list[i].split(" ")[0]);
         }
-        if (isFile) {
-            list_array.add("create a new Room");
+//        if (isFile) {
+//            list_array.add("create a new Room");
+//        }
+        if (!isFile) {
+            list_array.add("Update all data from microscope");
         }
+
 
         String[] list_show = new String[list_array.size()];
         for (int i = 0; i < list_array.size(); i++) {
             list_show[i] = list_array.get(i);
         }
 
-
-        if (isFile) {
-            /*
-            the last directory
-            */
-            new XPopup.Builder(this)
+ {
+     String finalDir_str_server = dir_str_server;
+     new XPopup.Builder(this)
                     .maxHeight(1350)
-                    .maxWidth(800)
-                    .asCenterList("BigData File", list_show,
-                            new OnSelectListener() {
-                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    Communicator.BrainNum = conPath.split("/")[1];
-                                    switch (text) {
-                                        case "create a new Room":
-                                            CreateFile(conPath + "/" + fileName[0], "0");
-                                            break;
-
-                                        default:
-                                            loadFileMode(conPath + "/" + text);
-                                            Communicator.Path = conPath + "/" + text;
-                                            break;
-                                    }
-                                }
-                            })
-                    .show();
-
-        } else {
-            new XPopup.Builder(this)
-                    .maxHeight(1350)
-                    .maxWidth(800)
+                    .maxWidth(1200)
                     .asCenterList("VirtualScope File", list_show,
                             new OnSelectListener() {
                                 @RequiresApi(api = Build.VERSION_CODES.N)
                                 @Override
                                 public void onSelect(int position, String text) {
-                                    ServerConnector serverConnector = ServerConnector.getInstance();
-                                    conPath = conPath + "/" + text;
-                                    serverConnector.sendMsg("getimglist:" + conPath);
-
                                     ifZscanSeries=false;
                                     isS2Start = false;
-                                    if(text.contains(".tif"))
+                                    if(text.contains(".tif")||(text.contains(".v3draw")))
                                     {
                                         isVirtualScope=false;
+                                        isCheckmode=true;
 
-                                    }else {
+                                    }else if (text.contains("img2d_")) {
                                         isVirtualScope=true;
+                                        isCheckmode=false;
+                                    }else if (text.contains(".eswc")) {
+                                        isCheckmode=true;
                                     }
+                                    if(text.contains("Update all data from microscope"))
+                                    {
+                                        ServerConnector.getInstance().sendMsg("Update_data:");
+                                        Toast_in_Thread("Request for data! ");
+                                        return;
+                                    }
+
+                                    if(getFiles(finalDir_str_server).contains(text)&&text.contains(".tif"))
+                                    {
+
+                                        String filepath=finalDir_str_server+"/"+text;
+                                        Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepath);
+                                        loadBigDataImg(filepath);
+                                        return;
+                                    }
+                                    if(getFiles(finalDir_str_server).contains(text)&&text.contains(".eswc"))
+                                    {
+                                        String filepathgg=finalDir_str_server+"/"+text;
+                                        Log.e(TAG, "loadBigDataSwc" + filepathgg);
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            loadBigDataSwc(filepathgg);
+                                        }
+                                        return;
+                                    }
+                                   // ServerConnector serverConnector = ServerConnector.getInstance();
+                                    conPath = conPath + "/" + text;
+                                    ServerConnector.getInstance().sendMsg("getimglist:" + conPath);
+                                    Log.e(TAG, " ServerConnector.getInstance().sendMsg;" + conPath);
+
                                     Toast_in_Thread("VirtualScope Mode!");
 
                                 }
                             })
                     .show();
         }
+//        if (isFile) {
+//            /*
+//            the last directory
+//            */
+//            new XPopup.Builder(this)
+//                    .maxHeight(1350)
+//                    .maxWidth(800)
+//                    .asCenterList("BigData File", list_show,
+//                            new OnSelectListener() {
+//                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                @Override
+//                                public void onSelect(int position, String text) {
+//                                    Communicator.BrainNum = conPath.split("/")[1];
+//                                    switch (text) {
+//                                        case "Update all data from microscope":
+//
+//                                            ServerConnector.getInstance().sendMsg("Update_data:");
+//                                            Toast_in_Thread("Request for data! ");
+//                                            //CreateFile(conPath + "/" + fileName[0], "0");
+//                                            break;
+//
+//                                        default:
+//                                            loadFileMode(conPath + "/" + text);
+//                                            Communicator.Path = conPath + "/" + text;
+//                                            break;
+//                                    }
+//                                }
+//                            })
+//                    .show();
+//
+//        } else {
+//            new XPopup.Builder(this)
+//                    .maxHeight(1350)
+//                    .maxWidth(800)
+//                    .asCenterList("VirtualScope File", list_show,
+//                            new OnSelectListener() {
+//                                @RequiresApi(api = Build.VERSION_CODES.N)
+//                                @Override
+//                                public void onSelect(int position, String text) {
+//
+//                                    if(text.contains("Update all data from microscope"))
+//                                    {
+//                                        ServerConnector.getInstance().sendMsg("Update_data:");
+//                                        Toast_in_Thread("Request for data! ");
+//                                        return;
+//                                    }
+//                                    ServerConnector serverConnector = ServerConnector.getInstance();
+//                                    conPath = conPath + "/" + text;
+//                                    serverConnector.sendMsg("getimglist:" + conPath);
+//
+//                                    ifZscanSeries=false;
+//                                    isS2Start = false;
+//                                    if(text.contains(".tif"))
+//                                    {
+//                                        isVirtualScope=false;
+//
+//                                    }else {
+//                                        isVirtualScope=true;
+//                                    }
+//                                    Toast_in_Thread("VirtualScope Mode!");
+//
+//                                }
+//                            })
+//                    .show();
+//        }
     }
 
 
@@ -2427,7 +2534,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void File_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open virtualscope","Open BigData", "Open LocalFile"},
+                .asCenterList("File Open", new String[]{"Open virtualscope", "Open LocalFile"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -2442,9 +2549,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     case "Open virtualscope":
                                         loadvirtualscope();
                                         break;
-                                    case "Open BigData":
-                                        loadBigData();
-                                        break;
+//                                    case "Open BigData":
+//                                        loadBigData();
+//                                        break;
 
 
                                     default:
@@ -3433,7 +3540,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{ "liveScan","Settings", "Crash Info","Help"},
+                .asCenterList("More Functions...", new String[]{ "liveScan","Settings"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3448,18 +3555,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         setSettings();
                                         break;
 
-                                    case "Crash Info":
-                                        CrashInfoShare();
-                                        break;
-
-                                    case "Help":
-                                        try {
-                                            Intent helpIntent = new Intent(S2Activity.this, HelpActivity.class);
-                                            startActivity(helpIntent);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
+//                                    case "Crash Info":
+//                                        CrashInfoShare();
+//                                        break;
+//
+//                                    case "Help":
+//                                        try {
+//                                            Intent helpIntent = new Intent(S2Activity.this, HelpActivity.class);
+//                                            startActivity(helpIntent);
+//                                        } catch (Exception e) {
+//                                            e.printStackTrace();
+//                                        }
+//                                        break;
 
 
 
@@ -3938,6 +4045,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
                 //Toast_in_Thread("Confirm setting!");
+
             }
         });
         builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
@@ -4031,7 +4139,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
     private void openlivescan() {
 
-        //S2start.setVisibility(View.VISIBLE);
+
+        hideButtons();
         s2initialization();
     }
     private void setSettings() {
@@ -4556,7 +4665,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
-                if (isBigData_Remote) {
+                if (ifZscanSeries) {
                     String[] Direction = {"ZStart", "ZStop", "Zslicesize1", "ZScan"};
                     if (Arrays.asList(Direction).contains(text)) {
                         Log.e("S2_Zscan", text);
@@ -5055,6 +5164,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         String file_Name = list[list.length - 1];
         Log.e(TAG, "loadBigDataImg file_Name: "+file_Name);
         s2filename=file_Name;
+        s2EswcPath=filepath;
         puiHandler.sendEmptyMessage(7);
         //progressDialog_zscan.dismiss();
         myS2renderer.setPath(filepath);
@@ -5089,17 +5199,30 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void loadBigDataSwc(String filepath) {
         try {
-            NeuronTree nt = NeuronTree.readSWC_file(filepath);
+            //NeuronTree nt = NeuronTree.readSWC_file(filepath);
+            isCheckmode=true;
+            Log.e(TAG,"load .swc file !");
+            float downsample = (float) 0.5;
+            NeuronTree neuronTree = NeuronTree.parse(filepath,downsample);
+//            if (neuronTree == null){
+//                ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
+//            } else {
+//                myS2renderer.loadNeuronTree(neuronTree, false);
+//            }
 
-            myS2renderer.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt), false);
-            myS2renderer.saveUndo();
+            myS2renderer.importNeuronTree(neuronTree, false);
+          //  myS2renderer.saveUndo();
             myS2GLSurfaceView.requestRender();
-            setBigDataName();
 
+            String[] list = filepath.split("/");
+            String file_Name = list[list.length - 1];
+            s2filename=file_Name;
+            puiHandler.sendEmptyMessage(7);
+            setButtons();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        hideProgressBar();
+        //hideProgressBar();
     }
 
     /*
@@ -5220,62 +5343,45 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
     public static void setButtonsVirtualScope() {
-        if (isVirtualScope || isS2Start||ifZscanSeries) {
-            navigation_left.setVisibility(View.VISIBLE);
-            navigation_right.setVisibility(View.VISIBLE);
-            navigation_up.setVisibility(View.VISIBLE);
-            navigation_down.setVisibility(View.VISIBLE);
-            navigation_front.setVisibility(View.VISIBLE);
-            navigation_back.setVisibility(View.VISIBLE);
+        Log.v(TAG, "setButtonsVirtualScope: " + isVirtualScope+ isS2Start+ifZscanSeries+isCheckmode);
 
-            zseries_scan.setVisibility(View.VISIBLE);
-            S2start.setVisibility(View.VISIBLE);
+        hideButtons();
+        if(isCheckmode)
+        {
 
-            imgs2stack.setVisibility(View.VISIBLE);
+            eswc_sync.setVisibility(View.VISIBLE);
+            Hide_i.setVisibility(View.VISIBLE);
 
-            zseries_scan.setVisibility(View.VISIBLE);
-            S2start.setVisibility(View.VISIBLE);
-
-            Zoom_in_Big.setVisibility(View.VISIBLE);
-            Zoom_out_Big.setVisibility(View.VISIBLE);
-
+        }
             if (isVirtualScope) {
+                //eswc_sync.setVisibility(View.VISIBLE);
 
-                 zseries_scan.setVisibility(View.GONE);
-                 S2start.setVisibility(View.GONE);
-                Zslice_up.setVisibility(View.GONE);
-                Zslice_down.setVisibility(View.GONE);
                 imgs2stack.setVisibility(View.VISIBLE);
+                Zoom_in_Big.setVisibility(View.VISIBLE);
+                Zoom_out_Big.setVisibility(View.VISIBLE);
 
-            }else {
-
-                navigation_left.setVisibility(View.GONE);
-                navigation_right.setVisibility(View.GONE);
-                navigation_up.setVisibility(View.GONE);
-                navigation_down.setVisibility(View.GONE);
-                navigation_front.setVisibility(View.GONE);
-                navigation_back.setVisibility(View.GONE);
-                imgs2stack.setVisibility(View.GONE);
             }
 
-            if (isS2Start) {
 
+
+
+            if (isS2Start) {
+                Zoom_in_Big.setVisibility(View.VISIBLE);
+                Zoom_out_Big.setVisibility(View.VISIBLE);
                 zseries_scan.setVisibility(View.VISIBLE);
                 S2start.setVisibility(View.VISIBLE);
-                Zslice_up.setVisibility(View.GONE);
-                Zslice_down.setVisibility(View.GONE);
-                imgs2stack.setVisibility(View.GONE);
 
             }
             if (ifZscanSeries) {
-                imgs2stack.setVisibility(View.GONE);
+
+
                 zseries_scan.setVisibility(View.VISIBLE);
                 S2start.setVisibility(View.VISIBLE);
                 Zslice_up.setVisibility(View.VISIBLE);
                 Zslice_down.setVisibility(View.VISIBLE);
-                imgs2stack.setVisibility(View.GONE);
+
             }
-        }
+
     }
 
     public void setButtonsLocal() {
@@ -5284,7 +5390,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
-                manual_sync.setVisibility(View.GONE);
+                eswc_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
@@ -5318,7 +5424,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.GONE);
                 user_list.setVisibility(View.GONE);
                 room_id.setVisibility(View.GONE);
-                manual_sync.setVisibility(View.GONE);
+                eswc_sync.setVisibility(View.GONE);
                 ROI_i.setVisibility(View.GONE);
             }
             isBigData_Remote = false;
@@ -5345,47 +5451,25 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void hideButtons() {
-        if (!ifButtonShowed)
-            return;
-
-//       ll_top.setVisibility(View.GONE);
-//        ll_bottom.setVisibility(View.GONE);
-//
-//        animation_i.setVisibility(View.GONE);
-//      //  zseries_scan.setVisibility(View.GONE);
-//      //  S2start.setVisibility(View.GONE);
-//        Undo_i.setVisibility(View.GONE);
-//        Redo_i.setVisibility(View.GONE);
-
-
-        if (isBigData_Remote || isBigData_Local) {
-            navigation_back.setVisibility(View.GONE);
-            navigation_down.setVisibility(View.GONE);
-            navigation_front.setVisibility(View.GONE);
+    private static void hideButtons() {
             navigation_left.setVisibility(View.GONE);
             navigation_right.setVisibility(View.GONE);
             navigation_up.setVisibility(View.GONE);
+            navigation_down.setVisibility(View.GONE);
+            navigation_front.setVisibility(View.GONE);
+            navigation_back.setVisibility(View.GONE);
 
+            zseries_scan.setVisibility(View.GONE);
+            S2start.setVisibility(View.GONE);
             Zslice_up.setVisibility(View.GONE);
             Zslice_down.setVisibility(View.GONE);
-
+            imgs2stack.setVisibility(View.GONE);
+            Hide_i.setVisibility(View.GONE);
+            zseries_scan.setVisibility(View.GONE);
+            S2start.setVisibility(View.GONE);
+            eswc_sync.setVisibility(View.GONE);
             Zoom_in_Big.setVisibility(View.GONE);
             Zoom_out_Big.setVisibility(View.GONE);
-
-            if (isBigData_Remote) {
-                res_list.setVisibility(View.GONE);
-                user_list.setVisibility(View.GONE);
-                room_id.setVisibility(View.GONE);
-                manual_sync.setVisibility(View.GONE);
-                ROI_i.setVisibility(View.GONE);
-            }
-        } else {
-
-        }
-
-
-        ifButtonShowed = false;
 
     }
 
@@ -5421,7 +5505,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 res_list.setVisibility(View.VISIBLE);
                 user_list.setVisibility(View.VISIBLE);
                 room_id.setVisibility(View.VISIBLE);
-                manual_sync.setVisibility(View.VISIBLE);
+                eswc_sync.setVisibility(View.VISIBLE);
                 ROI_i.setVisibility(View.VISIBLE);
             }
 

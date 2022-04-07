@@ -3,9 +3,11 @@ package com.penglab.hi5.core.collaboration.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.penglab.hi5.R;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.DataType;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
@@ -13,6 +15,7 @@ import com.penglab.hi5.core.collaboration.connector.BasicConnector;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -352,6 +355,12 @@ public abstract class BasicService extends Service {
         private boolean processHeader(final String rmsg){
 
             int ret = 0;
+            String dir_str_server = null;
+            try {
+                dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             if (rmsg.endsWith("\n")){
                 String msg = rmsg.trim();
 //                msg.replaceAll("deviceError","");
@@ -371,10 +380,11 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else
-                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Img";
+                        else if(dataType.filename.endsWith(".tif")||dataType.filename.endsWith(".eswc")||dataType.filename.endsWith(".v3draw")) {
+                            dataType.filepath = dir_str_server;
+                            Log.e(TAG,"This is a s2 file !");
+                        }
 
-//                        Log.e(TAG,"This is a file !");
                     }else {
                         ret = 3;
                     }
