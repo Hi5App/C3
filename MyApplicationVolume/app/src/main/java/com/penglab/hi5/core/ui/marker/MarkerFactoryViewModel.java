@@ -530,11 +530,6 @@ public class MarkerFactoryViewModel extends ViewModel {
         userInfoRepository.getScoreModel().finishAnImage();
     }
 
-    public void getEditImageFinish(){
-        userInfoRepository.getScoreModel().getEditImageNumToday();
-    }
-
-
 
     public void winScoreByPinPoint() {
         userInfoRepository.getScoreModel().pinpoint();

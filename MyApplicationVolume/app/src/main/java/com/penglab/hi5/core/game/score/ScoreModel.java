@@ -9,6 +9,7 @@ import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
 import com.penglab.hi5.data.dataStore.database.User;
 
+import java.lang.ref.PhantomReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -19,11 +20,13 @@ public class ScoreModel {
     private String id;
     private MutableLiveData<Integer> score = new MutableLiveData<>();
     private int curveNum;
-    private int markerNum;
+//    private int markerNum;
     private int lastLoginYear;
     private int lastLoginDay;
     private int curveNumToday;
-    private int markerNumToday;
+//    private int markerNumToday;
+    private MutableLiveData<Integer> markerNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> markerNumToday = new MutableLiveData<>();
     private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
     private MutableLiveData<Integer> editImageNumToday = new MutableLiveData<>();
 
@@ -63,11 +66,11 @@ public class ScoreModel {
     }
 
     public int getMarkerNum() {
-        return markerNum;
+        return markerNum.getValue();
     }
 
     public void setMarkerNum(int markerNum) {
-        this.markerNum = markerNum;
+        this.markerNum.postValue(markerNum);
     }
 
     public int getLastLoginYear() {
@@ -95,11 +98,11 @@ public class ScoreModel {
     }
 
     public int getMarkerNumToday() {
-        return markerNumToday;
+        return markerNumToday.getValue();
     }
 
     public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday = markerNumToday;
+        this.markerNumToday.postValue(markerNumToday);;
     }
 
     public int getEditImageNum() {
@@ -116,6 +119,14 @@ public class ScoreModel {
 
     public MutableLiveData<Integer> getObserveEditImageToday(){
         return editImageNumToday;
+    }
+
+    public MutableLiveData<Integer> getObserveMarkerNumToday(){
+        return markerNumToday;
+    }
+
+    public MutableLiveData<Integer> getObserveMarkerNum() {
+        return markerNum;
     }
 
     public void setEditImageNumToday(int editImageNumToday) {
@@ -179,16 +190,18 @@ public class ScoreModel {
     }
 
     public void pinpoint(){
-        markerNum += 1;
-        markerNumToday += 1;
+//        markerNum += 1;
+//        markerNumToday += 1;
+        markerNum.setValue(markerNum.getValue()+1);
+        markerNumToday.setValue(markerNumToday.getValue()+1);
         addScore(ScoreRule.getScorePerPinPoint());
 
-        dailyQuestsModel.updateMarkerNum(markerNumToday);
+        dailyQuestsModel.updateMarkerNum(markerNumToday.getValue());
 
         User user = new User();
         user.setScore(score.getValue());
-        user.setMarkerNum(markerNum);
-        user.setMarkerNumToday(markerNumToday);
+        user.setMarkerNum(markerNum.getValue());
+        user.setMarkerNumToday(markerNumToday.getValue());
         user.updateAll("userid = ?", id);
     }
 

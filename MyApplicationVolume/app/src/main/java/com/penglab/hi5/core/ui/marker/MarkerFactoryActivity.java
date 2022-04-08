@@ -566,10 +566,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                         pinpointStrokeSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                             @Override
-                            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                                preferenceSetting.setPointStroke(pinpointStrokeSwitch.isChecked());
+                            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                                preferenceSetting.setPointStroke(isChecked);
                                 if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
-                                    if (switchMarkerMode) {
+                                    if (isChecked) {
                                         annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
                                     } else {
                                         annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
