@@ -4,10 +4,13 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
 import static com.penglab.hi5.core.Myapplication.playMusicReward;
 import static com.penglab.hi5.core.Myapplication.playRewardSound;
+import static com.penglab.hi5.core.Myapplication.playRightAnswerSound;
+import static com.penglab.hi5.core.Myapplication.playWrongAnswerSound;
 import static com.penglab.hi5.core.Myapplication.stopMusicRewardPlay;
 import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
@@ -90,7 +93,6 @@ import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
 import co.mobiwise.library.MusicPlayerView;
-
 import com.sdsmdg.tastytoast.TastyToast;
 /**
  * Created by Jackiexing on 01/10/21
@@ -323,15 +325,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer somaNum) {
                 MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
-                if (somaNum >= 50 && somaNum < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                if (somaNum >= 1 && somaNum < 2 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
                     playRewardSound(1);
                     showRewardDialog(1);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
-                } else if (somaNum >= 100 && somaNum < 200 && somaNumStatus.ordinal() < 2) {
+                } else if (somaNum >= 2 && somaNum < 3 && somaNumStatus.ordinal() < 2) {
                     playRewardSound(2);
                     showRewardDialog(2);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
-                } else if (somaNum >= 200 && somaNumStatus.ordinal() < 3) {
+                } else if (somaNum >= 3 && somaNumStatus.ordinal() < 3) {
                     playRewardSound(3);
                     showRewardDialog(3);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
@@ -339,25 +341,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
-        markerFactoryViewModel.getEditImageNum().observe(this, new Observer<Integer>() {
+        markerFactoryViewModel.getEditImageNumToday().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(Integer editImageNum) {
-                if(editImageNum == 40) {
-                    TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageNum), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                } else if (editImageNum == 80) {
-                    TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-
-                } else if(editImageNum == 120) {
-                    TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-
-                }else if (editImageNum == 500) {
-                    TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-
-                }else if (editImageNum == 1000) {
-                    TastyToast.makeText(getApplicationContext(), String.format("WOW! you have scanned %s images",editImageNum), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-
+            public void onChanged(Integer editImageToday) {
+                if(editImageToday == 5) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
+                } else if (editImageToday == 8) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                } else if(editImageToday == 10) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
+                }else if (editImageToday == 12) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                }else if (editImageToday == 14) {
+                    TastyToast.makeText(getApplicationContext(), String.format("WOW! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                 }
-
             }
         });
 
@@ -482,6 +479,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private void openFile(){
         // TODO: download image
 
+
+
 //        playGuessMusicGame();
 //        showRewardDialog(1);
 
@@ -535,6 +534,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
+                        SwitchCompat pinpointStrokeSwitch = contentView.findViewById(R.id.switch_marker_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -542,6 +542,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
+                        pinpointStrokeSwitch.setChecked(preferenceSetting.getPointStrokeMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -560,6 +561,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 preferenceSetting.setDownSampleMode(isChecked);
                                 annotationGLSurfaceView.updateRenderOptions();
                                 annotationGLSurfaceView.requestRender();
+                            }
+                        });
+
+                        pinpointStrokeSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                                preferenceSetting.setPointStroke(pinpointStrokeSwitch.isChecked());
+                                if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
+                                    if (switchMarkerMode) {
+                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
+                                    } else {
+                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
+                                    }
+                                }
                             }
                         });
 
@@ -991,11 +1006,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 {"克罗地亚狂想曲","亡灵序曲","悲怆"},
                 {"天空之城","天空","城堡"},
                 {"醉拳","随缘","偷功"},
-                {"瓦妮莎","瓦妮莎的微笑","睡梦"},
-                {"慢慢","一千个伤心的理由","李香兰"},
                 {"遇见","听见","再见"},
-                {"龙猫","冢森的大树","风之谷"}};
-        String rightName[] = new String[]{"克罗地亚狂想曲","天空之城","偷功","瓦妮莎的微笑","一千个伤心的理由","遇见","冢森的大树"};
+                {"龙猫","冢森的大树","风之谷"},
+                {"the day you went away","the day you leave me","One day"},
+                {"梦中的婚礼","婚礼","水边的阿狄丽娜"}
+        };
+        String rightName[] = new String[]{"克罗地亚狂想曲","天空之城","偷功","遇见","冢森的大树","the day you went away","梦中的婚礼"};
 
         dialog = new Dialog(MarkerFactoryActivity.this);
         dialog.setContentView(R.layout.guess_music);
@@ -1026,9 +1042,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(firstAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
                     markerFactoryViewModel.winScoreByGuessMusic();
                 }else{
+                    playWrongAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(211,211,211));
                 }
                 firstAnswer.setEnabled(false);
@@ -1041,9 +1059,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(secondAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
                     secondAnswer.setBackgroundColor(Color.rgb(69,179,113));
                     markerFactoryViewModel.winScoreByGuessMusic();
                 }else{
+                    playWrongAnswerSound();
                     secondAnswer.setBackgroundColor(Color.rgb(211,211,211));
                 }
                 firstAnswer.setEnabled(false);
@@ -1056,9 +1076,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(thirdAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
                     thirdAnswer.setBackgroundColor(Color.rgb(69,179,113));
                     markerFactoryViewModel.winScoreByGuessMusic();
                 }else{
+                    playWrongAnswerSound();
                     thirdAnswer.setBackgroundColor(Color.rgb(211,211,211));
                 }
                 firstAnswer.setEnabled(false);

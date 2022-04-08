@@ -41,23 +41,24 @@ public class MusicHelper {
             R.raw.nice,
             R.raw.wonderful,
             R.raw.unbelievable,
-
+            R.raw.right,
+            R.raw.wrong
     };
 
     private final int[] musicId = new int[]{
             R.raw.kldykuangxiangqu,
             R.raw.tiankongzhicheng,
             R.raw.tougong,
-            R.raw.wanisha,
-            R.raw.yiqiangeshangxindeliyou,
             R.raw.yujian,
-            R.raw.zhongsendedashu
+            R.raw.zhongsendedashu,
+            R.raw.thedayyouwentaway,
+            R.raw.mengzhongdehunli
     };
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
     private final PreferenceMusic preferenceMusic;
     private final SoundPool soundPool;
-    private final int SOUND_NUM = 7;
+    private final int SOUND_NUM = 9;
     private final int[] soundId = new int[SOUND_NUM];
     private final int MUSIC_NUM = 7;
     private final int[] music_id = new int [MUSIC_NUM];
@@ -119,6 +120,14 @@ public class MusicHelper {
         mPlayer.setVolume(0.5f,0.5f);
         mPlayer.start();
 
+    }
+
+    public void playRightAnswerSound() {
+        executorService.submit(()-> soundPool.play(soundId[7],0.3f,0.3f,0,0,1.0f));
+    }
+
+    public void playWrongAnswerSound() {
+        executorService.submit(()->soundPool.play(soundId[8],0.3f,0.3f,0,0,1.0f));
     }
 
     public void stopMusicRewardPlay() {

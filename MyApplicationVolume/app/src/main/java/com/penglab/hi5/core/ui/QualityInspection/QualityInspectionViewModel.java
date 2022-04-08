@@ -57,7 +57,7 @@ public class QualityInspectionViewModel extends ViewModel {
 
     private final String TAG = "QualityInspectionViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
-    private final int DEFAULT_RES_INDEX = 2;
+    private final int DEFAULT_RES_INDEX = 1;
 
 
     public enum AnnotationMode{
@@ -233,8 +233,8 @@ public class QualityInspectionViewModel extends ViewModel {
                         for (int j = 0; j < rois.length; j++) {
                             rois[j] = rois[j].substring(1, rois[j].length() - 1);
                         }
-                        if (rois.length >= 2){
-                            resMap.put(imageId, rois[1]);
+                        if (rois.length >= 1){
+                            resMap.put(imageId, rois[0]);
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -546,9 +546,11 @@ public class QualityInspectionViewModel extends ViewModel {
 
 
     public void downloadImage() {
+
         String brianId = lastDownloadPotentialArborMarkerInfo.getBrianId();
         XYZ loc = lastDownloadCoordinateConvert.getCenterLocation();
         String res = resMap.get(brianId);
+        Log.e(TAG,"res"+res);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
             return;

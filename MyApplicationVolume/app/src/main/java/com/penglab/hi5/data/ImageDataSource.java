@@ -152,6 +152,7 @@ public class ImageDataSource {
                     try {
                         int responseCode = response.code();
                         if (responseCode == 200) {
+                            Log.e(TAG,"downloadImage_responseCode_200");
                             if (response.body() != null) {
                                 byte[] fileContent = response.body().bytes();
 

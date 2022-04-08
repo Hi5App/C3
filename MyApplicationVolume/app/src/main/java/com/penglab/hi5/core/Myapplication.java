@@ -304,6 +304,14 @@ public class Myapplication extends Application {
         musicHelper.playActionSound(MusicHelper.ActionType.MARKER);
     }
 
+    public static void playRightAnswerSound() {
+        musicHelper.playRightAnswerSound();
+    }
+
+    public static void playWrongAnswerSound() {
+        musicHelper.playWrongAnswerSound();
+    }
+
     public static void playFailSound(){
         musicHelper.playFailSound();
     }

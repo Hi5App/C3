@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.game.score;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.penglab.hi5.core.MainActivity;
@@ -22,8 +24,8 @@ public class ScoreModel {
     private int lastLoginDay;
     private int curveNumToday;
     private int markerNumToday;
-    private int editImageNum;
-    private int editImageNumToday;
+    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> editImageNumToday = new MutableLiveData<>();
 
     private DailyQuestsModel dailyQuestsModel;
 
@@ -101,19 +103,23 @@ public class ScoreModel {
     }
 
     public int getEditImageNum() {
-        return editImageNum;
+        return editImageNum.getValue();
     }
 
     public void setEditImageNum(int editImageNum) {
-        this.editImageNum = editImageNum;
+        this.editImageNum.postValue(editImageNum);
+    }
+//
+    public int getEditImageNumToday() {
+        return editImageNumToday.getValue();
     }
 
-    public int getEditImageNumToday() {
+    public MutableLiveData<Integer> getObserveEditImageToday(){
         return editImageNumToday;
     }
 
     public void setEditImageNumToday(int editImageNumToday) {
-        this.editImageNumToday = editImageNumToday;
+        this.editImageNumToday.postValue(editImageNumToday);
     }
 
     public DailyQuestsModel getDailyQuestsModel() {
@@ -206,14 +212,17 @@ public class ScoreModel {
 
     public void finishAnImage(){
         addScore(ScoreRule.getScorePerImage());
+        editImageNum.setValue(editImageNum.getValue()+1);
+        editImageNumToday.setValue(editImageNumToday.getValue()+1);
 
-        editImageNum += 1;
-        editImageNumToday += 1;
+//        editImageNum += 1;
+//        editImageNumToday += 1;
 
         User user = new User();
         user.setScore(score.getValue());
-        user.setEditImageNum(editImageNum);
-        user.setEditImageNumToday(editImageNumToday);
+        user.setEditImageNum(editImageNum.getValue());
+        user.setEditImageNumToday(editImageNumToday.getValue());
+        Log.e("editImageNumToday",editImageNumToday.getValue().toString());
         user.updateAll("userid = ?", id);
     }
 
