@@ -9,11 +9,26 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:cardBackgroundColor="#F5F5F5"
         app:cardCornerRadius="20dp">
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="350dp"
             android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/imageViewClose"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0"
+                app:srcCompat="@drawable/ic_close" />
 
             <co.mobiwise.library.MusicPlayerView
                 android:id="@+id/mpv"
@@ -21,6 +36,7 @@
                 android:layout_height="250dp"
                 android:layout_marginTop="16dp"
                 app:buttonColor="#FF0028"
+                app:cover ="@drawable/mycover"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -34,13 +50,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:layout_marginTop="8dp"
-                android:text="Guess what music it is?"
-                android:textColor="#353534"
-                android:textSize="20sp"
-                android:textStyle="bold|italic"
+                android:text="猜猜是下面哪首歌？"
+
+                android:textSize="16sp"
+                android:textStyle="italic"
                 android:typeface="normal"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.219"
+                app:layout_constraintHorizontal_bias="0.341"
                 app:layout_constraintStart_toStartOf="@+id/firstAnswer"
                 app:layout_constraintTop_toBottomOf="@+id/mpv" />
 

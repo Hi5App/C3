@@ -546,9 +546,11 @@ public class QualityInspectionViewModel extends ViewModel {
 
 
     public void downloadImage() {
+
         String brianId = lastDownloadPotentialArborMarkerInfo.getBrianId();
         XYZ loc = lastDownloadCoordinateConvert.getCenterLocation();
         String res = resMap.get(brianId);
+        Log.e(TAG,"res"+res);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
             return;

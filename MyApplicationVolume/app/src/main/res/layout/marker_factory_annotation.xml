@@ -72,7 +72,8 @@
         android:textOff="stroke"
         android:textOn="point"
         android:textSize="10sp"
-        android:background="@drawable/circle_normal"/>
+        android:background="@drawable/circle_normal"
+        app:srcCompat = "@drawable/ic_goods_favor" />
 
     <ImageButton
         android:id="@+id/add_marker"

@@ -91,7 +91,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     private boolean noFileLeft = false;
 
     private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
-    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
+//    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
     private SomaNumStatus somaNumStatus;
 
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
@@ -110,7 +110,7 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         somaNum.setValue(0);
         somaNumStatus = SomaNumStatus.ZERO;
-        editImageNum.setValue(0);
+//        editImageNum.setValue(0);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -157,8 +157,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         return somaNum;
     }
 
-    public MutableLiveData<Integer> getEditImageNum() {
-        return editImageNum;
+    public MutableLiveData<Integer> getEditImageNumToday() {
+        return userInfoRepository.getScoreModel().getObserveEditImageToday();
     }
 
     public SomaNumStatus getSomaNumStatus() {
@@ -468,7 +468,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Something wrong with curIndex");
         }
 
-        editImageNum.setValue(editImageNum.getValue()+1);
+//        editImageNum.setValue(editImageNum.getValue()+1);
     }
 
     private void getBrainList() {
@@ -529,7 +529,6 @@ public class MarkerFactoryViewModel extends ViewModel {
     public void winScoreByFinishConfirmAnImage() {
         userInfoRepository.getScoreModel().finishAnImage();
     }
-
 
 
     public void winScoreByPinPoint() {
