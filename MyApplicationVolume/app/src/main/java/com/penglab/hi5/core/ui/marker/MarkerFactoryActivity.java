@@ -344,16 +344,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         markerFactoryViewModel.getEditImageNumToday().observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer editImageToday) {
-                if(editImageToday == 5) {
+                MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
+                if(editImageToday >= 5 && editImageToday <8 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
                     TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                } else if (editImageToday == 8) {
+                } else if (editImageToday >= 8 && editImageToday <10 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.FORTY) {
                     TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-                } else if(editImageToday == 10) {
+                } else if(editImageToday >= 10 && editImageToday <12 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY) {
                     TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                }else if (editImageToday == 12) {
+                }else if (editImageToday >= 12 && editImageToday <14 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED) {
                     TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-                }else if (editImageToday == 14) {
-                    TastyToast.makeText(getApplicationContext(), String.format("WOW! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                 }
             }
         });
@@ -1045,7 +1044,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     playRightAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
                     markerFactoryViewModel.winScoreByGuessMusic();
-                }else{
+                }else {
                     playWrongAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(211,211,211));
                 }

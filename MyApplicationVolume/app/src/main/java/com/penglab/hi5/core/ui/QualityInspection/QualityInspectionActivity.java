@@ -416,7 +416,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if (!annotationGLSurfaceView.nothingToUpload()) {
                     needSyncSomaList = true;
                     qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
-                            annotationGLSurfaceView.getMarkerListToDelete());
+                            annotationGLSurfaceView.getMarkerListToDelete(),1);
                     playButtonSound();
                 }
                 return true;
@@ -750,36 +750,50 @@ public class QualityInspectionActivity extends AppCompatActivity {
             warning4BoringFile();
         } else {
             qualityInspectionViewModel.removeCurFileFromList();
-            navigateFile(true, true);
+            navigateFile(true, true,-1);
         }
     }
 
     private void previousFile(){
         if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
-            navigateFile(true, false);
+            navigateFile(true, false,1);
         } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
             warning4ChangeFile(false);
         } else {
-            navigateFile(false, false);
+            navigateFile(false, false,0);
         }
         playButtonSound();
     }
 
     private void nextFile(){
         if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
-            navigateFile(true, true);
+            navigateFile(true, true,1);
         } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
             warning4ChangeFile(true);
         } else {
-            navigateFile(false, true);
+            navigateFile(false, true,0);
         }
         playButtonSound();
     }
 
-    private void navigateFile(boolean needUpload, boolean nextFile) {
+    private void navigateFile(boolean needUpload, boolean nextFile, int locationType) {
+
+        /* locationType:
+            -1: boringFile,
+             0: default, no update
+             1: normalFile with annotation,
+             2: normalFile without annotation
+             3: goodFile with annotation
+         */
         if (needUpload) {
-            qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
-                    annotationGLSurfaceView.getMarkerListToDelete());
+            if (locationType == -1) {
+                // boringFile: can not add; only can delete
+                qualityInspectionViewModel.updateCheckResult(new MarkerList(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            } else {
+                qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            }
         }
         if (nextFile) {
             qualityInspectionViewModel.nextFile();
@@ -787,6 +801,16 @@ public class QualityInspectionActivity extends AppCompatActivity {
             qualityInspectionViewModel.previousFile();
         }
     }
+//        if (needUpload) {
+//            qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
+//                    annotationGLSurfaceView.getMarkerListToDelete());
+//        }
+//        if (nextFile) {
+//            qualityInspectionViewModel.nextFile();
+//        } else {
+//            qualityInspectionViewModel.previousFile();
+//        }
+//    }
 
     private void warning4ChangeFile(boolean nextFile) {
         new XPopup.Builder(this)
@@ -794,8 +818,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         ConfirmPopupViewExt.init(this, "Warning...",
                                 "You have not upload your annotation (by press √ button), navigate to another image will lose your annotation.\n\n" +
                                         " Do you want to upload your annotation? (Or you can choose auto upload in settings)",
-                                () -> navigateFile(true, nextFile),
-                                () -> navigateFile(false, nextFile),
+                                () -> navigateFile(true, nextFile,1),
+                                () -> navigateFile(false, nextFile,0),
                                 null)
                         .setConfirmText("Upload")
                         .setIgnoreText("Don't upload")
@@ -812,7 +836,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                                     @Override
                                     public void onConfirm() {
                                         qualityInspectionViewModel.removeCurFileFromList();
-                                        navigateFile(true, true);
+                                        navigateFile(true, true,-1);
                                     }
                                 },
                                 null,
@@ -828,8 +852,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 .dismissOnTouchOutside(false)
                 .asConfirm("Warning...",
                         "Current file is expired, will change another file for you.",
-                        () -> navigateFile(false, true),
-                        () -> navigateFile(false, true))
+                        () -> navigateFile(false, true,0),
+                        () -> navigateFile(false, true,0))
                 .setConfirmText("Confirm")
                 .setCancelText("I know")
                 .show();

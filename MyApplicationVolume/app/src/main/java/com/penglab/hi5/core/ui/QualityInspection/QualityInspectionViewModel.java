@@ -564,7 +564,7 @@ public class QualityInspectionViewModel extends ViewModel {
         qualityInspectionDataSource.getArborMarkerList(arborName);
     }
 
-    public void updateCheckResult(MarkerList markerListToAdd, JSONArray markerListToDelete) {
+    public void updateCheckResult(MarkerList markerListToAdd, JSONArray markerListToDelete, int locationType) {
         if ((markerListToAdd == null) && (markerListToDelete == null)){
             return;
         }
