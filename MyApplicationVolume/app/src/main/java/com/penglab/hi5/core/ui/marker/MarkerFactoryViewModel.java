@@ -531,8 +531,6 @@ public class MarkerFactoryViewModel extends ViewModel {
                 curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
 
-
-
             }
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");

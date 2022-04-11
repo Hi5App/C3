@@ -614,8 +614,9 @@ public class QualityInspectionActivity extends AppCompatActivity {
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
             ImageButtonExt boringFile = findViewById(R.id.boring_file);
+            ImageButtonExt goodFile = findViewById(R.id.good_file);
             ImageButtonExt ignoreFile = findViewById(R.id.ignore_file);
-            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
+//            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
             ImageButton hideSwc = findViewById(R.id.hide_swc);
 
             addMarkerBlue.setOnClickListener(this::onButtonClick);
@@ -625,7 +626,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
-            ignoreFile.setOnClickListener(v -> boringFile());
+            goodFile.setOnClickListener(v -> goodFile());
+            ignoreFile.setOnClickListener(v -> ignoreFile());
             hideSwc.setOnClickListener(v ->hideSwc());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -643,7 +645,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     annotationGLSurfaceView.requestRender();
                 }});
-            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
+//            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
         }
         else {
             QualityInspectionView.setVisibility(View.VISIBLE);
@@ -752,6 +754,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
             qualityInspectionViewModel.removeCurFileFromList();
             navigateFile(true, true,-1);
         }
+    }
+
+    private void goodFile() {
+        navigateFile(true, true, 3);
+    }
+
+    private void ignoreFile() {
+        navigateFile(true, true, 2);
     }
 
     private void previousFile(){
