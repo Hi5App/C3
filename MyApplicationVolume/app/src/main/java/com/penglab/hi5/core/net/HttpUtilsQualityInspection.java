@@ -39,12 +39,13 @@ public class HttpUtilsQualityInspection extends HttpUtils{
         }
     }
 
-    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, String arborName,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
+    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, int locationType,String arborName,JSONArray insertList, JSONArray deleteList, String owner, Callback callback)
     {
         try {
             JSONObject updateCheckInfo = new JSONObject()
                     .put("arborid", arborId)
                     .put("arborname",arborName)
+                    .put("status",locationType)
                     .put("insertlist", insertList)
                     .put("deletelist", deleteList)
                     .put("owner", owner);
@@ -55,6 +56,7 @@ public class HttpUtilsQualityInspection extends HttpUtils{
             Log.e("body","updatecheckbody"+String.valueOf(new JSONObject()
                     .put("arborid", arborId)
                     .put("arborname",arborName)
+                    .put("status",locationType)
                     .put("insertlist", insertList)
                     .put("deletelist", deleteList)
                     .put("owner", owner)

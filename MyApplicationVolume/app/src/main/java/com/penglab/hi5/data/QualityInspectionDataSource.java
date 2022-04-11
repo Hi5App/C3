@@ -157,11 +157,11 @@ public class QualityInspectionDataSource {
     }
 
 
-    public void UpdateCheckResult(int arborId,String arborName,JSONArray insertList,JSONArray deleteList,String name){
+    public void UpdateCheckResult(int arborId,String arborName,int locationType,JSONArray insertList,JSONArray deleteList,String name){
         try{
             Log.e(TAG,"start updateCheckResult");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, arborId,arborName, insertList, deleteList, name, new Callback() {
+            HttpUtilsQualityInspection.UpdateCheckResultWithOkHttp(userInfo, arborId,locationType,arborName, insertList, deleteList, name, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     updateArborMarkerResult.postValue(new Result.Error(new Exception("Connect failed when upload marker list !")));
@@ -171,6 +171,7 @@ public class QualityInspectionDataSource {
                     Log.e(TAG,"responseCode"+response.code());
                     int responseCode = response.code();
                     if (responseCode == 200) {
+                        Log.e(TAG,"response_upload_marker_list_200:"+response.body().string());
                         // process response
                         updateArborMarkerResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
