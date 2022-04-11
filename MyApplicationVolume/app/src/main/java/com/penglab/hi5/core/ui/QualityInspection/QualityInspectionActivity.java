@@ -616,6 +616,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             ImageButtonExt boringFile = findViewById(R.id.boring_file);
             ImageButtonExt goodFile = findViewById(R.id.good_file);
             ImageButtonExt ignoreFile = findViewById(R.id.ignore_file);
+            ImageButtonExt veryGoodFile = findViewById(R.id.very_good_file);
 //            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
             ImageButton hideSwc = findViewById(R.id.hide_swc);
 
@@ -628,6 +629,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             boringFile.setOnClickListener(v -> boringFile());
             goodFile.setOnClickListener(v -> goodFile());
             ignoreFile.setOnClickListener(v -> ignoreFile());
+            veryGoodFile.setOnClickListener(v ->veryGoodFile());
             hideSwc.setOnClickListener(v ->hideSwc());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -764,6 +766,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
         navigateFile(true, true, 2);
     }
 
+    private void veryGoodFile() { navigateFile(true,true,4); }
+
     private void previousFile(){
         if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
             navigateFile(true, false,1);
@@ -794,6 +798,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
              1: normalFile with annotation,
              2: normalFile without annotation
              3: goodFile with annotation
+             4: veryGoodFile with annotation
          */
         if (needUpload) {
             if (locationType == -1) {
