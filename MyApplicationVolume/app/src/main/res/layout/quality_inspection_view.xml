@@ -48,7 +48,7 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <com.penglab.hi5.basic.utils.view.ImageButtonExt
-        android:id="@+id/ignore_file"
+        android:id="@+id/good_file"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="@drawable/circle_normal"
@@ -58,19 +58,30 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <ToggleButton
-        android:id="@+id/switch_marker_mode"
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id ="@+id/ignore_file"
         android:layout_width="40dp"
         android:layout_height="40dp"
+        android:background="@drawable/circle_normal"
+        android:src ="@drawable/ic_normal"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="140dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:checked="true"
-        android:textOff="stroke"
-        android:textOn="point"
-        android:textSize="10sp"
-        android:background="@drawable/circle_normal"/>
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+<!--    <ToggleButton-->
+<!--        android:id="@+id/switch_marker_mode"-->
+<!--        android:layout_width="40dp"-->
+<!--        android:layout_height="40dp"-->
+<!--        android:layout_marginEnd="10dp"-->
+<!--        android:layout_marginBottom="140dp"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        android:checked="true"-->
+<!--        android:textOff="stroke"-->
+<!--        android:textOn="point"-->
+<!--        android:textSize="10sp"-->
+<!--        android:background="@drawable/circle_normal"/>-->
 
     <ImageButton
         android:id= "@+id/hide_swc"

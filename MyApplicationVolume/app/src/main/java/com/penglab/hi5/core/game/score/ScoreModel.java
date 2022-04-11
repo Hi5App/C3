@@ -234,6 +234,7 @@ public class ScoreModel {
         User user = new User();
         user.setScore(score.getValue());
         user.setEditImageNum(editImageNum.getValue());
+
         user.setEditImageNumToday(editImageNumToday.getValue());
         Log.e("editImageNumToday",editImageNumToday.getValue().toString());
         user.updateAll("userid = ?", id);

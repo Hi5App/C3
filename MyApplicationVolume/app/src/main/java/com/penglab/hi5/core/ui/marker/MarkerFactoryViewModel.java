@@ -21,6 +21,7 @@ import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.ui.ResourceResult;
+import com.penglab.hi5.core.ui.userProfile.PhotoUtils;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
@@ -64,6 +65,10 @@ public class MarkerFactoryViewModel extends ViewModel {
         ZERO, TEN, FIFTY, HUNDRED
     }
 
+    public enum EditImageTodayStatus {
+        ZERO,FORTY,EIGHTY,LONG_HUNDRED
+    }
+
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -93,6 +98,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
 //    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
     private SomaNumStatus somaNumStatus;
+    private EditImageTodayStatus editImageTodayStatus;
 
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
         this.userInfoRepository = userInfoRepository;
@@ -167,6 +173,14 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public void setSomaNumStatus(SomaNumStatus somaNumStatus) {
         this.somaNumStatus = somaNumStatus;
+    }
+
+    public EditImageTodayStatus getEditImageTodayStatus() {
+        return editImageTodayStatus;
+    }
+
+    public void setEditImageTodayStatus (EditImageTodayStatus editImageTodayStatus) {
+        this.editImageTodayStatus = editImageTodayStatus;
     }
 
     public void updateImageResult(Result result) {
@@ -516,8 +530,6 @@ public class MarkerFactoryViewModel extends ViewModel {
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
-
-
 
             }
         } catch (JSONException e) {
