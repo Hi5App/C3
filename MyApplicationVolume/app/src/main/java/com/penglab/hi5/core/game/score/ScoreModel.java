@@ -145,6 +145,7 @@ public class ScoreModel {
         boolean result = true;
         ScoreLitePalConnector scoreLitePalConnector = new ScoreLitePalConnector(id);
         ScoreModel scoreModel = scoreLitePalConnector.getScoreModelFromLitePal();
+
         if (scoreModel == null) {
             result = false;
         } else {
@@ -158,6 +159,8 @@ public class ScoreModel {
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
+            editImageNumToday.setValue(0);
+            scoreLitePalConnector.updateEditImageNumtoday(editImageNumToday);
         }
 
         return result;
@@ -226,6 +229,13 @@ public class ScoreModel {
     public void finishAnImage(){
         addScore(ScoreRule.getScorePerImage());
         editImageNum.setValue(editImageNum.getValue()+1);
+
+//        Calendar calendar = Calendar.getInstance();
+//        int year = calendar.get(Calendar.YEAR);
+//        int date = calendar.get(Calendar.DAY_OF_YEAR);
+//        if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
+//            editImageNumToday.setValue(0);
+//        }
         editImageNumToday.setValue(editImageNumToday.getValue()+1);
 
 //        editImageNum += 1;

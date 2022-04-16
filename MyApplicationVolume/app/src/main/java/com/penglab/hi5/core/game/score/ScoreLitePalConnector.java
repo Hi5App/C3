@@ -5,6 +5,8 @@ import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
 import android.content.Context;
 import android.util.Log;
 
+import androidx.lifecycle.MutableLiveData;
+
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.data.dataStore.database.User;
 
@@ -114,6 +116,28 @@ public class ScoreLitePalConnector {
         return true;
     }
 
+    public boolean updateEditImageNumtoday(MutableLiveData<Integer> editImageNumToday) {
+        return updateEditImageNumToday(userId,editImageNumToday);
+
+    }
+
+    private boolean updateEditImageNumToday(String userid, MutableLiveData<Integer>  editImageNumToday) {
+        List<User> users = LitePal.where("userid = ?", userid).find(User.class);
+        if(users.size() == 0) {
+            User user = new User();
+            user.setUserid(userid);
+            user.setEditImageNumToday(editImageNumToday.getValue());
+            user.save();
+        } else if(users.size() ==1) {
+            User user = new User();
+            user.setEditImageNumToday(editImageNumToday.getValue());
+            user.updateAll("userid=?",userid);
+        }else {
+            Toast_in_Thread_static("Something wrong with database !");
+            return false;
+        }
+        return true;
+    }
 
 
     public boolean addScore(String userid, int score){
@@ -138,4 +162,5 @@ public class ScoreLitePalConnector {
         }
         return true;
     }
+
 }
