@@ -27,7 +27,7 @@ public class BitmapReader {
 //                Log.e("BitmapReader",String.format("value: %s", data[i*argbBitmap.getWidth() + j]));
             }
         }
-
+        Log.e("BitmapReader", String.valueOf(+ data.length));
         Log.e("BitmapReader",String.format("x: %s, y: %s, z: %s, a: %s", sz[0],sz[1],sz[2],sz[3]));
         img.setDataFromImage(data,sz[0],sz[1],sz[2],sz[3], dt, isBig);
 
@@ -37,6 +37,38 @@ public class BitmapReader {
                 Log.e("BitmapReader","value: " + img.getValue(i,j,0,0));
             }
         }
+
+        return img;
+    }
+    public Image4DSimple readpvdata(byte[] a){
+        Image4DSimple img = new Image4DSimple();
+
+        //Bitmap argbBitmap = bitmapOrigin.copy(Bitmap.Config.ARGB_8888, true);
+        Image4DSimple.ImagePixelType dt = Image4DSimple.ImagePixelType.V3D_UINT8;
+        boolean isBig = false;
+        //byte[] data = new byte[argbBitmap.getHeight() * argbBitmap.getWidth()];
+        long[] sz = new long[]{688, 512, 1, 1};
+
+//        for (int i=0; i<sz[0]; i++){
+//            for (int j=0; j<sz[0]; j++){
+//                int color = argbBitmap.getPixel(j, i);
+////                data[i*argbBitmap.getWidth() + j] = (byte) ((int) (Color.red(color)*30 + Color.green(color)*59 + Color.blue(color)*11 + 50) / 100.0f);
+//                a[i*argbBitmap.getWidth() + j] = (byte) ((int) ( Color.red(color)*0.299 + Color.green(color)*0.587 + Color.blue(color)*0.114 ));
+////                Log.e("BitmapReader",String.format("value: %s", data[i*argbBitmap.getWidth() + j]));
+//            }
+//        }
+
+        Log.e("BitmapReader", String.valueOf(+ a.length));
+        Log.e("BitmapReader",String.format("x: %s, y: %s, z: %s, a: %s", sz[0],sz[1],sz[2],sz[3]));
+        img.setDataFromImage(a,sz[0],sz[1],sz[2],sz[3], dt, isBig);
+
+        for (int i=0; i<sz[0]; i++){
+            for(int j=0; j<sz[1]; j++){
+                if (img.getValue(i,j,0,0)>255 || img.getValue(i,j,0,0)<0)
+                    Log.e("BitmapReader","value: " + img.getValue(i,j,0,0));
+            }
+        }
+
         return img;
     }
 }

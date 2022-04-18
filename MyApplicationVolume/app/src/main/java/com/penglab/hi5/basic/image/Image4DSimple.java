@@ -697,12 +697,22 @@ public class Image4DSimple {
         return bitmap2D;
     }
 
-    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin, FilePath filePath){
+    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin){
         Image4DSimple image = new Image4DSimple();
         BitmapReader bmr = new BitmapReader();
 
         if (bitmapOrigin != null){
             image = bmr.read(bitmapOrigin);
+        }
+        return image;
+    }
+
+    public static Image4DSimple loadPvImage2D(byte[] bitmapOrigin){
+        Image4DSimple image = new Image4DSimple();
+        BitmapReader bmr = new BitmapReader();
+
+        if (bitmapOrigin != null){
+            image = bmr.readpvdata(bitmapOrigin);
         }
         return image;
     }
@@ -735,7 +745,7 @@ public class Image4DSimple {
 
                     is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
                     length = (int)parcelFileDescriptor.getStatSize();
-                    image =  rr.read(length, is);
+                    image =  rr.read(length,true, is);
                     is.close();
 
                 }catch (Exception e){
@@ -888,10 +898,13 @@ public class Image4DSimple {
 
         if (bitmapOrigin != null){
             image = bmr.read(bitmapOrigin);
+
+            Log.v("loadImage2D","bitmapOrigin");
         }
 
         if (image != null) {
             image.setImgSrcFile(filepath);
+            Log.v("loadImage2D","image");
         }
         return image;
     }

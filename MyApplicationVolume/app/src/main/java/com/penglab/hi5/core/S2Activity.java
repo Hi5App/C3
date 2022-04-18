@@ -16,6 +16,7 @@ import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.SoundPool;
@@ -196,6 +197,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static Button Zoom_out_Big;
     private static ImageButton zseries_scan;
+    private static ImageButton Camera_open;
     private static ImageButton S2start;
     private static ImageButton imgs2stack;
 
@@ -284,6 +286,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean isCheckmode;
     private static boolean isBigData_Local;
     private static boolean isS2Start = false;
+    private static boolean isCamera;
     private static ProgressBar progressBar;
     private static ProgressDialog progressDialog_zscan;
 
@@ -532,7 +535,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             if (msg.endsWith(".jpg")) {
 
                 Log.e(TAG, "File: .jpg");
-                loadBigDataImg(msg.split(":")[1]);
+                 loadBigDataImg(msg.split(":")[1]);
 
             }
             if (msg.endsWith(".jpg")) {
@@ -572,209 +575,27 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             }
 
-        }
-
-
-
-
-
-        /*
-        After msg:  "/login:xf"
-
-        server will send user list when the users in current room are changed
-         */
-        if (msg.startsWith("/users:")) {
-
-            if (firstLoad || copyFile) {
-                /*
-                when first join the room, try to get the image
-                 */
-                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLoad = false;
-                copyFile = false;
-            }
-            /*
-            update the user list
-             */
-            String[] users = msg.split(":")[1].split(";");
-            List<String> newUserList = Arrays.asList(users);
-            updateUserList(newUserList);
 
         }
 
 
 
-        /*
-        After msg:  "/ImageRes:18454"
-
-        process the img resolution info
-         */
-        if (msg.startsWith("ImgRes")) {
-            Log.e(TAG, "msg: " + msg);
-            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-
-//            communicator.setResolution(msg.split(";"));
-//            communicator.setImgRes(Integer.parseInt(msg.split(";")[1]));
-//            communicator.setCurRes(Integer.parseInt(msg.split(";")[1]));
-
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-        }
 
 
 
-        /*
-        After msg:  "/Imgblock:"
-
-        process the img block & swc apo file
-         */
-        if (msg.startsWith("Block:")) {
-
-            loadBigDataImg(msg.split(":")[1]);
-            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-        }
-
-
-//        if (msg.startsWith("Score:")) {
-//            Log.e(TAG, "get score: " + msg);
-//            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-//            Score score = Score.getInstance();
-//            if (score.serverUpdateScore(serverScore)) {
-//                updateScoreText();
-//            }
-////            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-//        }
 
 
 
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
+    }
 
-        if (msg.startsWith("/drawline_norm:")) {
-            Log.e(TAG, "drawline_norm");
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    public void onRecBinData(String msg,byte[] a) {
+        if (msg.startsWith("pvcam")) {
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg = msg.split(":")[1];
+            Log.e(TAG, "onRecBinData");
+            loadPvcamData(a);
 
-            if (!userID.equals(username)) {
-                Communicator communicator = Communicator.getInstance();
-                myS2renderer.syncAddSegSWC(communicator.syncSWC(seg));
-                myS2GLSurfaceView.requestRender();
-            }
-
-        }
-
-
-        if (msg.startsWith("/delline_norm:")) {
-            Log.e(TAG, "delline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg = msg.split(":")[1];
-
-            if (!userID.equals(username)) {
-                Communicator communicator = Communicator.getInstance();
-                myS2renderer.syncDelSegSWC(communicator.syncSWC(seg));
-                myS2GLSurfaceView.requestRender();
-            }
-
-        }
-
-        if (msg.startsWith("/addmarker_norm:")) {
-            Log.e(TAG, "addmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)) {
-                Communicator communicator = Communicator.getInstance();
-                myS2renderer.syncAddMarker(communicator.syncMarker(marker));
-                myS2GLSurfaceView.requestRender();
-            }
-        }
-
-
-        if (msg.startsWith("/delmarker_norm:")) {
-            Log.e(TAG, "delmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)) {
-                Communicator communicator = Communicator.getInstance();
-                myS2renderer.syncDelMarker(communicator.syncMarker(marker));
-                myS2GLSurfaceView.requestRender();
-            }
-        }
-
-
-        if (msg.startsWith("/retypeline_norm:")) {
-            Log.e(TAG, "retypeline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg = msg.split(":")[1];
-
-            if (!userID.equals(username)) {
-                Communicator communicator = Communicator.getInstance();
-                myS2renderer.syncRetypeSegSWC(communicator.syncSWC(seg));
-                myS2GLSurfaceView.requestRender();
-            }
-
-        }
-
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
-
-        if (msg.startsWith("GETFIRSTK:")) {
-            Log.d(TAG, msg);
-            if (msg.split(":").length > 1) {
-                String body = msg.split(":")[1];
-                String[] accountsWithScore = body.split(";");
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore.length);
-                Log.d(TAG, "accountsWithScore: " + accountsWithScore);
-
-                if (accountsWithScore.length % 2 == 0) {
-                    ArrayList<String> accounts = new ArrayList<>();
-                    for (int i = 0; i < accountsWithScore.length / 2; i++) {
-                        accounts.add(accountsWithScore[i * 2]);
-                    }
-                    ArrayList<LeaderBoardItem> leaderBoardItems = new ArrayList<>();
-
-                    NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallback<List<NimUserInfo>>() {
-                        @Override
-                        public void onSuccess(List<NimUserInfo> param) {
-                            if (param.size() == accounts.size()) {
-                                for (int i = 0; i < param.size(); i++) {
-                                    leaderBoardItems.add(new LeaderBoardItem(accountsWithScore[i * 2], param.get(i).getName(), Integer.parseInt(accountsWithScore[i * 2 + 1])));
-                                }
-                            } else {
-                                postMessage("LeaderBoard Account Error");
-                            }
-                        }
-
-                        @Override
-                        public void onFailed(int code) {
-                            postMessage("LeaderBoard Account Error");
-
-                        }
-
-                        @Override
-                        public void onException(Throwable exception) {
-                            postMessage("LeaderBoard Account Error");
-
-                        }
-                    });
-                    LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
-                    leaderBoardContainer.setLeaderBoardItems(leaderBoardItems);
-                } else {
-                    Toast_in_Thread_static("LeaderBoard Message Error");
-                }
-            } else {
-                Toast_in_Thread_static("LeaderBoard Message Error");
-            }
         }
     }
 
@@ -1186,6 +1007,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Zslice_down.setText("back");
 
 
+        Camera_open = new ImageButton(this);
+        Camera_open.setImageResource(R.drawable.ic_camera_foreground);
+      //  Camera_open.setBackgroundResource(R.);
+
         zseries_scan = new ImageButton(this);
         zseries_scan.setImageResource(R.drawable.ic_zscan_foreground);
         //  zseries_scan.setBackgroundResource(R.drawable.);
@@ -1297,6 +1122,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
         lp_hide.setMargins(0, 0, 20, 20);
 
+
+        FrameLayout.LayoutParams lp_camera = new FrameLayout.LayoutParams(120, 120);
+        lp_camera.gravity = Gravity.BOTTOM | Gravity.LEFT;
+        lp_camera.setMargins(60, 0, 0, 20);
+
+
         FrameLayout.LayoutParams lp_img2stack = new FrameLayout.LayoutParams(120, 120);
         lp_img2stack.gravity = Gravity.TOP | Gravity.RIGHT;
         lp_img2stack.setMargins(0, 300, 0, 20);
@@ -1362,52 +1193,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-
-        /*
-        button onclick event  -----------------------------------------------------------------------------
-         */
-
-//        Zoom_in.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//
-//                if(!myS2renderer.getIfFileLoaded()){
-//                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        myS2renderer.zoom_in();
-//                        myS2GLSurfaceView.requestRender();
-//                    }
-//                }).start();
-//
-//            }
-//        });
-
-
-//        Zoom_out.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//
-//                if(!myS2renderer.getIfFileLoaded()){
-//                    Toast.makeText(getContext(), "Please load image first!", Toast.LENGTH_LONG).show();
-//                    return;
-//                }
-//
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        myS2renderer.zoom_out();
-//                        myS2GLSurfaceView.requestRender();
-//                    }
-//                }).start();
-//
-//            }
-//        });
 
 
         Zslice_up.setOnClickListener(new Button.OnClickListener() {
@@ -1605,6 +1390,32 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
 
+        Camera_open.setOnClickListener(new Button.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                Log.e(TAG, "s2send ");
+                isBigData_Remote = false;
+                isVirtualScope = false;
+                isCheckmode=false;
+                isBigData_Local = false;
+                ifZscanSeries=false;
+                // ifGetRoiPoint = true;
+                isS2Start = false;
+                isCamera = true;
+                setButtons();
+
+                myS2renderer.clearView(isCamera);  //clean view before showing new image
+                myS2GLSurfaceView.requestRender();
+
+                shutFileName();
+                //ServerConnectorForScope.sendMsg("s2start:");
+                ServerConnector.getInstance().sendMsg("Pvcam:");
+                //ServerConnector.getInstance().sendMsg("s2start:");
+
+                Toast_in_Thread("Pvcam!");
+            }
+        });
 
         S2start.setOnClickListener(new Button.OnClickListener() {
 
@@ -1770,8 +1581,35 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View view) {
                 //showSyncBar();
-                String eswcPath=s2EswcPath.replace(".tif",".eswc");
-                loadBigDataSwc(eswcPath);
+                String eswcPath=null;
+                Log.e(TAG, "eswc_sync" +s2EswcPath+"  "+s2EswcPath.split("\\.")[1]);
+                if(s2EswcPath.endsWith("tif")) {
+                    eswcPath = s2EswcPath.replace(".tif", ".eswc");
+                    Log.e(TAG, "eswc_sync" +eswcPath);
+                }else if(s2EswcPath.endsWith("v3draw"))
+                {
+                     eswcPath = s2EswcPath.replace(".v3draw", ".eswc");
+                    Log.e(TAG, "eswc_sync" +eswcPath);
+                }
+                else
+                {
+                    //ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + s2EswcPath.split("/")[1]);
+                    Log.e(TAG, "error file format!" );
+                    return;
+                }
+                File  eswc_f = new File(eswcPath);
+                if(!eswc_f.exists())
+                {
+                    String[] str;
+                    str=eswcPath.split("/");
+                    String eswc=str[str.length-1];
+                    ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + eswc);
+                    Log.e(TAG, "eswc is not existed!" +eswc);
+                    return;
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    loadBigDataSwc(eswcPath);
+                }
 
             }
         });
@@ -1825,6 +1663,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(zseries_scan, lp_rotation);
         this.addContentView(S2start, lp_hide);
 
+
+        this.addContentView(Camera_open, lp_camera);
+
         this.addContentView(Hide_i, lp_hide);
 
         this.addContentView(imgs2stack, lp_img2stack);
@@ -1861,6 +1702,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         zseries_scan.setVisibility(View.GONE);
         S2start.setVisibility(View.GONE);
+        Camera_open.setVisibility(View.GONE);
         Hide_i.setVisibility(View.GONE);
         imgs2stack.setVisibility(View.GONE);
         Zoom_in_Big.setVisibility(View.GONE);
@@ -1897,9 +1739,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             String dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2";
             S2path   =    dir_str_server;
-            File dir_server = new File(dir_str_server);
+            File  dir_server = new File(dir_str_server);
             if (!dir_server.exists()) {
                 dir_server.mkdirs();
+            }
+
+            String dir_PVCAM_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2/Pvcam";
+
+            File PVCAM_server = new File(dir_PVCAM_server);
+            if (!PVCAM_server.exists()) {
+                PVCAM_server.mkdirs();
             }
 
         } catch (IOException e) {
@@ -2111,7 +1960,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         return;
                                     }
 
-                                    if(getFiles(finalDir_str_server).contains(text)&&text.contains(".tif"))
+                                    if(getFiles(finalDir_str_server).contains(text)&&(text.contains(".v3draw")||text.contains(".tif")))
                                     {
 
                                         String filepath=finalDir_str_server+"/"+text;
@@ -4077,6 +3926,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 }
 
                 S2start.setVisibility(View.VISIBLE);
+                Camera_open.setVisibility(View.VISIBLE);
                 myS2renderer.clearView(isS2Start);  //clean view before showing new image
                 myS2GLSurfaceView.requestRender();
                 Toast_in_Thread("Confirm down!");
@@ -5176,6 +5026,27 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
+
+    /*
+ load pvcam image after downloading data  ---------------------------------------------------------------
+ added by ld for pvcam
+ 2022.4.13
+  */
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void loadPvcamData(byte [] a) {
+        isBigData_Remote = true;
+        isBigData_Local = false;
+        ifZooming = false;
+        Log.e(TAG, "loadPvcamData: "+a.length);
+
+
+        myS2renderer.setPvData(a);
+        myS2renderer.zoom(2f);
+        myS2GLSurfaceView.requestRender();
+
+        setButtons();
+    }
+
     public void loadBigDataApo(String filepath) {
 
         try {
@@ -5362,7 +5233,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             }
 
+        if (isCamera) {
+            //eswc_sync.setVisibility(View.VISIBLE);
 
+            S2start.setVisibility(View.VISIBLE);
+            Camera_open.setVisibility(View.VISIBLE);
+            navigation_left.setVisibility(View.VISIBLE);
+            navigation_right.setVisibility(View.VISIBLE);
+            navigation_up.setVisibility(View.VISIBLE);
+            navigation_down.setVisibility(View.VISIBLE);
+            navigation_front.setVisibility(View.VISIBLE);
+            navigation_back.setVisibility(View.VISIBLE);
+
+        }
 
 
             if (isS2Start) {
@@ -5370,13 +5253,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Zoom_out_Big.setVisibility(View.VISIBLE);
                 zseries_scan.setVisibility(View.VISIBLE);
                 S2start.setVisibility(View.VISIBLE);
+                Camera_open.setVisibility(View.VISIBLE);
+                navigation_left.setVisibility(View.VISIBLE);
+                navigation_right.setVisibility(View.VISIBLE);
+                navigation_up.setVisibility(View.VISIBLE);
+                navigation_down.setVisibility(View.VISIBLE);
+                navigation_front.setVisibility(View.VISIBLE);
+                navigation_back.setVisibility(View.VISIBLE);
 
             }
             if (ifZscanSeries) {
 
 
                 zseries_scan.setVisibility(View.VISIBLE);
-                S2start.setVisibility(View.VISIBLE);
+                S2start.setVisibility(View.GONE);
+                Camera_open.setVisibility(View.VISIBLE);
                 Zslice_up.setVisibility(View.VISIBLE);
                 Zslice_down.setVisibility(View.VISIBLE);
 
@@ -5461,6 +5352,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             zseries_scan.setVisibility(View.GONE);
             S2start.setVisibility(View.GONE);
+            Camera_open.setVisibility(View.GONE);
             Zslice_up.setVisibility(View.GONE);
             Zslice_down.setVisibility(View.GONE);
             imgs2stack.setVisibility(View.GONE);

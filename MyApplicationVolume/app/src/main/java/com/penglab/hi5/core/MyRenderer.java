@@ -50,11 +50,15 @@ import com.penglab.hi5.game.GameCharacter;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,7 +86,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 
 //@android.support.annotation.RequiresApi(api = Build.VERSION_CODES.CUPCAKE)
 public class MyRenderer implements GLSurfaceView.Renderer {
-    public enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, NotSupport }
+    public enum FileType { V3draw, SWC, ESWC, APO, ANO, TIF, JPG, PNG, V3dPBD, bindata,NotSupport }
 
     private enum Operate {DRAWCURVE, DELETECURVE, DRAWMARKER, DELETEMARKER, CHANGELINETYPE, SPLIT}
 
@@ -1084,7 +1088,6 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setPath(String message){
 
-
         curSwcList.clear();
         syncSwcList.clear();
         markerList.clear();
@@ -1136,6 +1139,15 @@ public class MyRenderer implements GLSurfaceView.Renderer {
             zoom(1.1f);
         }
 
+
+        else if (fileType == FileType.bindata){
+            //loadBinData2D();
+            ifFileLoaded = true;
+            ifFileSupport = true;
+            zoom(1.1f);
+        }
+
+
         else if (fileType == FileType.APO){
             bitmap2D = null;
             myPattern2D = null;
@@ -1172,43 +1184,69 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
     }
 
-//    public void loaDemoFile(String message){
-//
-//
-//        curSwcList.clear();
-//        markerList.clear();
-//        cur_scale = 1.0f;
-//
-//        undoCurveList.clear();
-//        undoMarkerList.clear();
-//
-//        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
-//        MarkerList markerList = new MarkerList();
-//
-//        undoCurveList.add(v_neuronSWC_list);
-//        undoMarkerList.add(markerList);
-//        curUndo = 0;
-//
-//        filepath = message.split(":")[1];
-//        fileType = FileType.V3dPBD;
-//
-//        Log.v(TAG,"Before setImageDemo()");
-//        setImageDemo();
-//        ifFileLoaded = true;
-//        ifFileSupport = true;
-//
-//        Log.v("SetPath", Arrays.toString(mz));
-//
-//        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
-//        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
-//        Matrix.setIdentityM(zoomAfterMatrix, 0);
-//        Matrix.setIdentityM(rotationMatrix, 0);
-//        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
-////        Matrix.setIdentityM(translateAfterMatrix, 0);
-//        // Set the camera position (View matrix)
-//        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-//
-//    }
+   /*
+    About load img -----------------------------------------------------------------------------
+     */
+
+    // 设置文件路径
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void setPvData(byte [] a){
+
+        curSwcList.clear();
+        syncSwcList.clear();
+        markerList.clear();
+        syncMarkerList.clear();
+        cur_scale = 1.0f;
+
+        undoCurveList.clear();
+        undoMarkerList.clear();
+
+        V_NeuronSWC_list v_neuronSWC_list = new V_NeuronSWC_list();
+        MarkerList markerList = new MarkerList();
+
+        undoCurveList.add(v_neuronSWC_list);
+        undoMarkerList.add(markerList);
+        curUndo = 0;
+
+        //setFileType();
+        fileType=FileType.bindata;
+        if (myAxis != null){
+            myAxis.setNeedReleaseMemory(true);
+        }
+
+        if (myDraw != null){
+            myDraw.freeLine();
+            myDraw.freeMarker();
+        }
+
+
+
+        if (fileType == FileType.bindata){
+
+            loadBinData2D(a);
+            ifFileLoaded = true;
+            ifFileSupport = true;
+            zoom(1.1f);
+        }
+
+
+        else {
+            return;
+        }
+
+
+        Log.v(TAG,"mz: " + Arrays.toString(mz));
+
+        Matrix.setIdentityM(translateMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomMatrix,0);//建立单位矩阵
+        Matrix.setIdentityM(zoomAfterMatrix, 0);
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.setRotateM(rotationMatrix, 0, 0, -1.0f, -1.0f, 0.0f);
+
+        // Set the camera position (View matrix)
+        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
+    }
 
 
     // 游戏模式下 设置文件路径
@@ -1397,6 +1435,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         degree = getBitmapDegree(new FilePath<>(filepath));
         bitmap2D = BitmapFactory.decodeStream(is);
 
+        //Log.v(TAG,"loadImage2D: bitmap2D " +  bitmap2D.getAllocationByteCount());
         if (bitmap2D != null){
             Log.v(TAG,"loadImage2D: degree " + degree);
             bitmap2D = rotateBitmapByDegree(bitmap2D, degree);
@@ -1415,22 +1454,95 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
         img = Image4DSimple.loadImage2D(bitmap2D, filepath);
+
         if (img == null){
             Log.e(TAG, "img == null");
             return;
         }
-//
-//        fileType = FileType.V3draw;
-//        resetImg(img);
 
         if (myPattern2D != null){
             myPattern2D.setNeedReleaseMemory(true);
         }
     }
 
+    public static InputStream byte2InputStream(byte[] bytes) {
+        return new ByteArrayInputStream(bytes);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private void loadBinData2D(byte [] a){
+
+        //InputStream input = new ByteArrayInputStream(a);
+//        if(input==null)
+//        {
+//            Log.e(TAG, "input==null");
+//            return;
+//        }
+        //decodeByteArray
+       // bitmap2D = BitmapFactory.decodeStream(input);
+        //bitmap2D = BitmapFactory.decodeByteArray(a,0,a.length);
+                if(a==null)
+        {
+            Log.e(TAG, "a==null");
+            return;
+        }
+        Log.e(TAG, "a="+a.length);
+        bitmap2D = byteToBitmap(a);
+        //Log.e(TAG, String.format("bitmap2D%d", bitmap2D.getByteCount()));
 
 
 
+            sz[0] = 688;
+            sz[1] = 512;
+            sz[2] = Math.max(sz[0], sz[1]);
+
+            Integer[] num = {sz[0], sz[1]};
+            float max_dim = (float) Collections.max(Arrays.asList(num));
+            Log.v(TAG,"loadImage2D: max_dim " + Float.toString(max_dim));
+
+            mz[0] = (float) sz[0]/max_dim;
+            mz[1] = (float) sz[1]/max_dim;
+            mz[2] = Math.max(mz[0], mz[1]);
+
+
+        img = Image4DSimple.loadPvImage2D(a);
+
+        if (img == null){
+            Log.e(TAG, "img == null");
+            return;
+        }else
+        {
+            Log.e(TAG, "img msg"+img.getTotalBytes());
+        }
+
+        if (myPattern2D != null){
+            myPattern2D.setNeedReleaseMemory(true);
+        }
+    }
+
+    public static Bitmap byteToBitmap(byte[] imgByte) {
+        InputStream input = null;
+        Bitmap bitmap = null;
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inSampleSize = 1;
+        input = new ByteArrayInputStream(imgByte);
+        SoftReference softRef = new SoftReference(BitmapFactory.decodeStream(
+                input, null, options));  //软引用防止OOM
+        bitmap = (Bitmap) softRef.get();
+        if (imgByte != null) {
+            imgByte = null;
+        }
+
+        try {
+            if (input != null) {
+                input.close();
+            }
+        } catch (IOException e) {
+            // 异常捕获
+            e.printStackTrace();
+        }
+        return bitmap;
+    }
     private void setFileType(){
         String filetype;
         File file = new File(filepath);

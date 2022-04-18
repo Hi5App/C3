@@ -50,10 +50,10 @@ public class MsgSender {
                      */
                     String header = String.format("DataTypeWithSize:%d;;%s\n",0, dataLength);
 
-                    if (!data.startsWith("HeartBeat")){
-                        Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
-//                        Logcat.w("sender", data);
-                    }
+//                    if (!data.startsWith("HeartBeat")){
+//                        Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
+////                        Logcat.w("sender", data);
+//                    }
 
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
@@ -62,9 +62,9 @@ public class MsgSender {
                     /*
                      * show the progressbar
                      */
-                    if (message.startsWith("/Imgblock:")){
-                        MainActivity.showDownloadingPopupView();
-                    }
+//                    if (message.startsWith("/Imgblock:")){
+//                        MainActivity.showDownloadingPopupView();
+//                    }
 
                 }catch (Exception e){
                     Log.d(TAG, "Something wrong when send message to server");
