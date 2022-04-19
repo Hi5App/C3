@@ -816,16 +816,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
             qualityInspectionViewModel.previousFile();
         }
     }
-//        if (needUpload) {
-//            qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
-//                    annotationGLSurfaceView.getMarkerListToDelete());
-//        }
-//        if (nextFile) {
-//            qualityInspectionViewModel.nextFile();
-//        } else {
-//            qualityInspectionViewModel.previousFile();
-//        }
-//    }
 
     private void warning4ChangeFile(boolean nextFile) {
         new XPopup.Builder(this)
