@@ -129,7 +129,7 @@
             android:layout_height = "40dp"
             android:layout_weight = "1"
             android:layout_gravity="center"
-            android:background="@drawable/circle_normal"
+            android:background="@drawable/button_ripple"
             android:src = "@drawable/ic_verygood"/>
 
         <com.penglab.hi5.basic.utils.view.ImageButtonExt
@@ -138,8 +138,8 @@
             android:layout_height = "40dp"
             android:layout_weight = "1"
             android:layout_gravity="center"
-            android:background="@drawable/circle_normal"
-            android:src = "@drawable/ic_good"/>
+            android:background="@drawable/button_ripple"
+            android:src = "@drawable/ic_suprised2"/>
 
         <com.penglab.hi5.basic.utils.view.ImageButtonExt
             android:id ="@+id/ignore_file"
@@ -147,7 +147,7 @@
             android:layout_height="40dp"
             android:layout_weight="1"
             android:layout_gravity="center"
-            android:background="@drawable/circle_normal"
+            android:background="@drawable/button_ripple"
             android:src = "@drawable/ic_normal2"/>
 
         <com.penglab.hi5.basic.utils.view.ImageButtonExt
@@ -156,7 +156,8 @@
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_weight="1"
-            android:background="@drawable/circle_normal"
+            android:layout_centerInParent="true"
+            android:background="@drawable/button_ripple"
             android:src = "@drawable/ic_boring">
 
         </com.penglab.hi5.basic.utils.view.ImageButtonExt>
