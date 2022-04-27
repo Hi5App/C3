@@ -925,7 +925,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void getJokeDialog() {
         final int[] jokeNum = new int[]{R.raw.gif4, R.raw.gif5, R.raw.gif6, R.raw.gif7, R.raw.gif8,
-                R.raw.gif10, R.raw.gif12, R.raw.gif13, R.raw.gif15, R.raw.gif20};
+                R.raw.gif10, R.raw.gif12, R.raw.gif13, R.raw.gif15, R.raw.gif20,R.raw.gif2};
 //        final int[] bgColor = new int[]{};
         final String[] messNum = new String[]{
                 "我虽然不能为你上天揽月但是我能为你下海底捞,捞鱼丸捞虾捞肥牛",
@@ -937,6 +937,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 "刚刚点外卖的时候，突然想起来自己160斤，我猛地扇了自己一耳光，点外卖的时候怎么可以分心",
                 "跟公司说完，“我身体不舒服今天请假”，之后身体就好多了，比药有效5000倍",
                 "曾经我的一位同事到公司面试，HR问他：“今天来面试有做什么准备工作吗”，同事一本正经的回答：有的，用飘柔洗了个头",
+                "小时候看古装剧，很羡慕那些拿令牌出入的人，长大后梦想成真了，去哪儿都要掏出手机给保安看",
                 "排队做核酸的朋友们，一定要仔细看清楚!别像我，排了半天，买了一杯奶茶"};
         int randomNum = new Random().nextInt(10);
         Log.e(TAG,"randomNum"+randomNum);
