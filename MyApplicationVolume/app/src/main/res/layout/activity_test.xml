@@ -78,7 +78,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/user_age"
+                        android:id="@+id/check_swc_number"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/navigate"
@@ -88,7 +88,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Usage"
+                        android:text="Check Swc"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
 

@@ -8,6 +8,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Environment;
+import android.os.FileUtils;
 import android.text.PrecomputedText;
 import android.util.Log;
 import android.widget.Toast;
@@ -16,6 +17,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
 
+import com.huawei.hms.push.utils.DateUtil;
+
+import com.netease.nim.uikit.common.util.file.FileUtil;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.MyActivityLifeCycleCallbacks;
 import com.penglab.hi5.core.Myapplication;
@@ -25,6 +29,7 @@ import org.apache.commons.io.IOExceptionWithCause;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -40,6 +45,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
+import java.io.FilenameFilter;
 import cn.carbs.android.library.BuildConfig;
 import io.agora.rtm.jni.LOGIN_ERR_CODE;
 
@@ -103,6 +109,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         application.registerActivityLifecycleCallbacks(mMyActivityLifeCycleCallbacks);
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
+//        autoClear(5);
     }
 
     public class ThreadCollector {
@@ -183,6 +190,8 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
             System.gc();
         }
     }
+
+
 
 
 
@@ -323,4 +332,24 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
         return path;
     }
+//
+//    public static String getGlobalpath() {
+//        return Environment.getExternalStorageDirectory().getAbsolutePath()
+//                + File.separator + "crash" + File.separator;
+//    }
+//
+//    public void autoClear(final int autoClearDay) {
+//        FileUtil.delete(getGlobalpath(), new FilenameFilter() {
+//
+//            @Override
+//            public boolean accept(File file, String filename) {
+//                String s = FileUtil.getFileNameNoEx(filename);
+//                long day = autoClearDay < 0 ? autoClearDay : -1 * autoClearDay;
+//                String date = "crash-" + DateUtil.parseMilliSecondToString(day);
+//                return date.compareTo(s) >= 0;
+//            }
+//        });
+//    }
+
+
 }
