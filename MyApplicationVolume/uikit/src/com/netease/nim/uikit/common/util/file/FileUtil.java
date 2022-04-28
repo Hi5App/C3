@@ -8,6 +8,7 @@ import com.netease.nim.uikit.R;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.util.string.StringUtil;
 
+import java.io.FilenameFilter;
 import java.util.Locale;
 
 public class FileUtil {

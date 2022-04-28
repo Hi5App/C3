@@ -22,6 +22,7 @@ import com.penglab.hi5.data.model.user.LoggedInUser;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -33,6 +34,8 @@ public class MyViewModel extends ViewModel {
     private MutableLiveData<Integer> score = new MutableLiveData<>();
     private MutableLiveData<Integer> somaCount = new MutableLiveData<>();
     private MutableLiveData<Integer> dailySomaCount = new MutableLiveData<>();
+    private MutableLiveData<Integer> checkCount = new MutableLiveData<>();
+    private MutableLiveData<Integer> dailyCheckCount = new MutableLiveData<>();
 
     private final UserInfoRepository userInfoRepository;
     private final UserDataSource userDataSource;
@@ -46,6 +49,8 @@ public class MyViewModel extends ViewModel {
     public void getUserPerformance(){
         userPerformanceDataSource.getUserPerformance();
     }
+
+
 
     public UserInfoRepository getUserInfoRepository() {
         return userInfoRepository;
@@ -81,6 +86,13 @@ public class MyViewModel extends ViewModel {
 
     public boolean isLogged() {
         return logStatus.getValue() != null && logStatus.getValue() == LOGIN;
+    }
+
+    public MutableLiveData<Integer> getCheckCount() {
+        return checkCount;
+    }
+    public MutableLiveData<Integer> getDailyCheckCount() {
+        return dailyCheckCount;
     }
 
     public void logout() {
@@ -145,6 +157,23 @@ public class MyViewModel extends ViewModel {
                     Log.e("MyViewModel","dailySomaCount: " + performanceResult.getInt("dailysoma"));
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
+                }
+            }
+        } else {
+            ToastEasy(result.toString());
+        }
+    }
+
+    public void updateCheckAndDailyCheck(Result result) {
+        if(result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if(data instanceof JSONObject) {
+                JSONObject checkPerformanceResult = (JSONObject) data;
+                try {
+                    checkCount.postValue(checkPerformanceResult.getInt("totalCheckSwc"));
+                    dailyCheckCount.postValue(checkPerformanceResult.getInt("dailyCheckSwc"));
+                } catch (JSONException e) {
+                    ToastEasy("Fail to parse jsonArray when get user check performance ! ");
                 }
             }
         } else {

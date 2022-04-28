@@ -35,8 +35,6 @@ public class RewardActivity extends AppCompatActivity {
             verticalSeekBar.setProgress(score);
         }
 
-
-
         ImageButton imageButton2 = findViewById(R.id.reward_button_2);
         ImageButton imageButton1 = findViewById(R.id.reward_button_1);
         ImageView check2 = findViewById(R.id.reward_button2_check);
