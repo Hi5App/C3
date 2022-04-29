@@ -66,7 +66,7 @@ public class MarkerFactoryViewModel extends ViewModel {
     }
 
     public enum EditImageTodayStatus {
-        ZERO,FORTY,EIGHTY,LONG_HUNDRED
+        ZERO,FORTY,EIGHTY,LONG_HUNDRED,FIVE_HUNDRED
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -116,6 +116,7 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         somaNum.setValue(0);
         somaNumStatus = SomaNumStatus.ZERO;
+        editImageTodayStatus= EditImageTodayStatus.ZERO;
 //        editImageNum.setValue(0);
     }
 

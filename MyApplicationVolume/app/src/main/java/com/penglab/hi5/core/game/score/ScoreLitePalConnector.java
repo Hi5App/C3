@@ -98,7 +98,7 @@ public class ScoreLitePalConnector {
     }
 
 
-    private boolean updateScore(String userid, int score){
+    private boolean updateScore(String userid, int score) {
         List<User> users = LitePal.where("userid = ?", userid).find(User.class);
         if (users.size() == 0){
             User user = new User();
@@ -116,7 +116,7 @@ public class ScoreLitePalConnector {
         return true;
     }
 
-    public boolean updateEditImageNumtoday(MutableLiveData<Integer> editImageNumToday) {
+    public boolean updateEditImageNumToday(MutableLiveData<Integer> editImageNumToday) {
         return updateEditImageNumToday(userId,editImageNumToday);
 
     }

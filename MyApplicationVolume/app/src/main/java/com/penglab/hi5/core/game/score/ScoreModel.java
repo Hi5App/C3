@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.lifecycle.MutableLiveData;
 
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
 import com.penglab.hi5.data.dataStore.database.User;
@@ -154,15 +155,16 @@ public class ScoreModel {
 
         dailyQuestsModel.initFromLitePal();
 
+        RewardLitePalConnector.initUserId(id);
+
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
             editImageNumToday.setValue(0);
-            scoreLitePalConnector.updateEditImageNumtoday(editImageNumToday);
+            scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
         }
-
         return result;
     }
 
