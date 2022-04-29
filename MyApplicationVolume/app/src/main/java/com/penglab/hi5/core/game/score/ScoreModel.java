@@ -163,9 +163,8 @@ public class ScoreModel {
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
             editImageNumToday.setValue(0);
-            scoreLitePalConnector.updateEditImageNumtoday(editImageNumToday);
+            scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
         }
-
         return result;
     }
 

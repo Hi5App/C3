@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceManager;
-
 import com.huawei.hms.push.utils.DateUtil;
 
 import com.netease.nim.uikit.common.util.file.FileUtil;

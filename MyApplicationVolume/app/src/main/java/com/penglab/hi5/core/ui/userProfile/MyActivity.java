@@ -157,7 +157,6 @@ public class MyActivity extends AppCompatActivity {
         person_reward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getBaseContext(),"Reward activity is under maintenance!",Toast.LENGTH_SHORT).show();
                 Intent intent = new Intent(MyActivity.this, RewardActivity.class);
                 startActivity(intent);
             }

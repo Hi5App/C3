@@ -325,15 +325,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer somaNum) {
                 MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
-                if (somaNum >= 50 && somaNum < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                if (somaNum >= 1 && somaNum < 2 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
                     playRewardSound(1);
                     showRewardDialog(1);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
-                } else if (somaNum >= 100 && somaNum < 200 && somaNumStatus.ordinal() < 2) {
+                } else if (somaNum >= 2 && somaNum < 3 && somaNumStatus.ordinal() < 2) {
                     playRewardSound(2);
                     showRewardDialog(2);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
-                } else if (somaNum >= 200 && somaNumStatus.ordinal() < 3) {
+                } else if (somaNum >= 3 && somaNumStatus.ordinal() < 3) {
                     playRewardSound(3);
                     showRewardDialog(3);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
@@ -345,14 +345,21 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer editImageToday) {
                 MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
-                if(editImageToday >= 40 && editImageToday < 80 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
+                if(editImageToday >=2 && editImageToday < 3 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
                     TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                } else if (editImageToday >= 80 && editImageToday <120 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.FORTY) {
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FORTY);
+
+                } else if (editImageToday >= 3 && editImageToday <4 && editImageTodayStatus.ordinal() < 2) {
                     TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
-                } else if(editImageToday >= 120 && editImageToday < 200 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY) {
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY);
+
+                } else if(editImageToday >= 4 && editImageToday < 5&& editImageTodayStatus.ordinal() < 3) {
                     TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
-                }else if (editImageToday >= 200 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED) {
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED);
+
+                }else if (editImageToday >= 5  && editImageTodayStatus.ordinal() <4) {
                     TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FIVE_HUNDRED);
                 }
             }
         });
@@ -1044,7 +1051,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 if(firstAnswer.getText() == rightName[randomNum]) {
                     playRightAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
+
                     markerFactoryViewModel.winScoreByGuessMusic();
+
                 }else {
                     playWrongAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(211,211,211));
