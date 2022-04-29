@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.huawei.hms.utils.IOUtils;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.DataType;
@@ -227,7 +228,18 @@ public abstract class BasicService extends Service {
             }
         }
 
+        //将指定byte数组以16进制的形式打印到控制台
+        public void printHexString( byte[] b) {
+            for (int i = 0; i < 4; i++) {
+                String hex = Integer.toHexString(b[i] & 0xFF);
+                if (hex.length() == 1) {
+                    hex = '0' + hex;
+                }
+                //System.out.print(hex.toUpperCase() );
+                Log.e(TAG, "aaaaaaaaString="+hex.toUpperCase());
+            }
 
+        }
         private void onRead(String tag) {
 
 
@@ -302,6 +314,7 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
+
                             out.write(File_Content);
                         }
 
@@ -346,7 +359,7 @@ public abstract class BasicService extends Service {
                     // process file
                     if (is.available() > 0) {
                         int ret = 0;
-
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()) {
                             if (dir.mkdirs()) {
@@ -374,7 +387,7 @@ public abstract class BasicService extends Service {
 
                         byte[] File_Content = new byte[1024];
                         byte[] File_Content_End = new byte[End];
-
+                        //byte[] recordData= new byte[End]
                         for (int i = 0; i < Loop; i++) {
 
                             if (is.available() < 1024) {
@@ -382,8 +395,14 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
-
-                            hashes.add(File_Content);
+                            if(i==0) {
+                                printHexString(File_Content);
+                            }
+                            //hashes.add(File_Content);
+                            byteArrayOutputStream.write(File_Content);
+//                            if(i==1) {
+//                                printHexString(hashes.get(1));
+//                            }
                             Log.v(TAG, "hashes.add(File_Content); " + hashes.size());
 
 
@@ -400,17 +419,18 @@ public abstract class BasicService extends Service {
                                 }
                                 is.read(File_Content_End, 0, End);
                             }
-                            hashes.add(File_Content_End);
+                            byteArrayOutputStream.write(File_Content);
                             Log.v(TAG, "hashes.add(File_Content); " + hashes.size());
                         }
 
-                        byte[] array = byteMerger(hashes);
-                        Log.v(TAG, "array = byteMerger(hashes); " + array.length+' ');
+                       // byte[] array = byteMerger(hashes);
+                        //Log.v(TAG, "array = byteMerger(hashes); " + array.length+' ');
 
-
+                        byte[] recordData = byteArrayOutputStream.toByteArray();
+                        printHexString(recordData);
                         if (dataType.filename.endsWith("pvcam")) {
 
-                            receiveMsgInterface.onRecBinData("pvcam:", array);
+                            receiveMsgInterface.onRecBinData("pvcam:", recordData);
                         }
 
 //                        Log.e(TAG,"Finish process file !");
@@ -434,13 +454,22 @@ public abstract class BasicService extends Service {
             int lengthByte = 0;
             for (int i = 0; i < byteList.size(); i++) {
                 lengthByte += byteList.get(i).length;
+                if(i==0) {
+                    printHexString(byteList.get(i));
+                }
                 Log.v(TAG, "byteMerger; " + lengthByte);
             }
             byte[] allByte = new byte[lengthByte];
             int countLength = 0;
             for (int i = 0; i < byteList.size(); i++) {
                 byte[] b = byteList.get(i);
+                if(i==0) {
+                    printHexString(b);
+                }
                 System.arraycopy(b, 0, allByte, countLength, b.length);
+                if(i==0) {
+                    printHexString(allByte);
+                }
                 countLength += b.length;
 
             }
@@ -528,7 +557,7 @@ public abstract class BasicService extends Service {
                             Log.e(TAG, "This is a s2 file !");
                         }
 
-                        ret = 3;
+                        ret =0;
                     }
                 } else {
                     Log.e(TAG, "msgggggggggggggg: " + msg);

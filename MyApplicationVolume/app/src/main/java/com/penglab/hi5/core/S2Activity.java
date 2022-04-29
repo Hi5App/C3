@@ -16,6 +16,8 @@ import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -53,6 +55,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
@@ -118,7 +121,10 @@ import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -152,7 +158,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private Timer timer = null;
     private TimerTask timerTask;
 
-
+    private static Bitmap bitmap2D = null;
     private static MyGLSurfaceView myS2GLSurfaceView;
     private static MyRenderer myS2renderer;
     private static Context S2Context;
@@ -182,6 +188,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean[] temp_mode = new boolean[8];
     private float[] locationFor2dImg = new float[2];
 
+
+    private View pvcamModeView;
+    
     private static Button Zoom_in;
     private static Button Zoom_out;
 
@@ -214,7 +223,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private ImageButton classify_i;
     private static TextView filenametext;
 
-
+    private static ImageView PV_imageView;
+    private static ImageButton MoveXtop;
     private static ImageButton navigation_left;
     private static ImageButton navigation_right;
     private static ImageButton navigation_up;
@@ -231,11 +241,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton user_list;
     private static ImageButton room_id;
 
+
 //    private static ImageButton neuron_list;
 //    private static ImageButton sync_push;
 //    private static ImageButton sync_pull;
 
-
+    private FrameLayout ll;
     private FrameLayout.LayoutParams lp_undo_i;
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
@@ -537,6 +548,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Log.e(TAG, "File: .jpg");
                  loadBigDataImg(msg.split(":")[1]);
 
+                //PV_imageView.setImageBitmap(bitmap); //设置Bitmap
             }
             if (msg.endsWith(".jpg")) {
 
@@ -593,8 +605,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void onRecBinData(String msg,byte[] a) {
         if (msg.startsWith("pvcam")) {
 
-            Log.e(TAG, "onRecBinData");
-            loadPvcamData(a);
+            Log.e(TAG, "onRecBinData"+msg);
+            //loadPvcamData(a);
+            bitmap2D = BitmapFactory.decodeByteArray(a, 0, a.length);
+            puiHandler.sendEmptyMessage(11);
 
         }
     }
@@ -671,7 +685,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 case 10:
                     popupViewSync.dismiss();
                     break;
-
+                case 11:
+                    PV_imageView.setImageBitmap(bitmap2D); //设置Bitmap
+                    break;
                 default:
                     break;
             }
@@ -919,16 +935,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         acceptInvitation(path, soma);
     }
 
-
-    /*
-     * init buttons
-     */
-    private void initButtons() {
-        /*
-        basic Layout ------------------------------------------------------------------------------------------------------------------------
-         */
-
-        FrameLayout ll = (FrameLayout) findViewById(R.id.container1);
+    private void initBasicLayout()
+    {
+        ll = (FrameLayout) findViewById(R.id.container1);
         ll.addView(myS2GLSurfaceView);
 
         LinearLayout ll_up = new LinearLayout(this);
@@ -973,6 +982,115 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         ll_bottom.setLayoutParams(lp);
 
         hs_top.addView(ll_top);
+    }
+
+    private void showUI4BigDataMode(){
+        if (isCamera){
+            // load layout view
+            hideButtons();
+            ll.setVisibility(View.GONE);
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            pvcamModeView = getLayoutInflater().inflate(R.layout.activity_s2_pvcam, null);
+            this.addContentView(pvcamModeView, lp4BigDataMode);
+
+             MoveXtop = findViewById(R.id.pv_top);
+            //ImageButton MoveX = findViewById(R.id.zoomOut);
+             PV_imageView = (ImageView)findViewById(R.id.imageView2);
+
+
+
+            Toolbar toolbar = findViewById(R.id.toolbar2);
+
+            setSupportActionBar(toolbar);
+
+            MoveXtop.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: MoveXtop");
+                    //Switch();
+                }
+            });
+
+           // MoveXtop.setOnClickListener(this::MoveXtop());
+            //zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
+
+        } else {
+            pvcamModeView.setVisibility(View.VISIBLE);
+        }
+    }
+    private void initPvcamLayout()
+    {
+//        View view = (View) findViewById(R.layout.current_layout); //the layout you set in `setContentView()`
+//
+//        LinearLayout picLL = new LinearLayout(CurrentActivity.this);
+//
+//        picLL.layout(0, 0, 100, 0);
+//
+//        picLL.setLayoutParams(new LayoutParams(1000, 60));
+//
+//        picLL.setOrientation(LinearLayout.HORIZONTAL);
+//
+//        ((ViewGroup) view).addView(picLL);
+//
+//
+//
+//        FrameLayout ll = (FrameLayout) findViewById(R.id.container1);
+//
+//        ll.addView(myS2GLSurfaceView);
+//
+//        LinearLayout ll_up = new LinearLayout(this);
+//        ll_up.setOrientation(LinearLayout.VERTICAL);
+//
+//        LinearLayout ll_hs_back = new LinearLayout(this);
+//        ll_hs_back.setOrientation(LinearLayout.HORIZONTAL);
+//        ll_hs_back.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT));
+//
+//        LinearLayout ll_space = new LinearLayout(this);
+//        ll_space.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
+//
+//
+//        ll_file = new LinearLayout(this);
+//        FrameLayout.LayoutParams lp_filename = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
+//        ll_file.setLayoutParams(lp_filename);
+//        ll_file.setBackgroundColor(Color.YELLOW);
+//
+//        filenametext = new TextView(this);
+//        filenametext.setText("");
+//
+//        filenametext.setTextColor(Color.BLACK);
+//        ll_file.addView(filenametext);
+//        ll_file.setVisibility(View.GONE);
+//
+//        ll_top = new LinearLayout(this);
+//        ll_bottom = new LinearLayout(this);
+//
+//        HorizontalScrollView hs_top = new HorizontalScrollView(this);
+//
+//        ll_up.addView(ll_file);
+//
+//        ll_hs_back.addView(hs_top, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//        ll_hs_back.addView(ll_space);
+//
+//        ll_up.addView(ll_hs_back);
+//        ll.addView(ll_up);
+//
+//        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(1080, ViewGroup.LayoutParams.WRAP_CONTENT);
+//        lp.gravity = Gravity.BOTTOM;
+//        this.addContentView(ll_bottom, lp);
+//        ll_bottom.setLayoutParams(lp);
+//
+//        hs_top.addView(ll_top);
+    }
+    /*
+     * init buttons
+     */
+    private void initButtons() {
+        /*
+        basic Layout ------------------------------------------------------------------------------------------------------------------------
+         */
+
+        initBasicLayout();
 
 
         /*
@@ -1114,7 +1232,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         lp_rotation.setMargins(0, 0, 180, 20);
 
 
-        FrameLayout.LayoutParams lp_si_logo = new FrameLayout.LayoutParams(170, 170);
+        FrameLayout.LayoutParams lp_si_logo = new FrameLayout.LayoutParams(150, 150);
         lp_si_logo.gravity = Gravity.TOP | Gravity.LEFT;
         lp_si_logo.setMargins(0, 0, 0, 0);
 
@@ -1395,6 +1513,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "s2send ");
+
                 isBigData_Remote = false;
                 isVirtualScope = false;
                 isCheckmode=false;
@@ -1403,17 +1522,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 // ifGetRoiPoint = true;
                 isS2Start = false;
                 isCamera = true;
-                setButtons();
 
-                myS2renderer.clearView(isCamera);  //clean view before showing new image
-                myS2GLSurfaceView.requestRender();
 
-                shutFileName();
-                //ServerConnectorForScope.sendMsg("s2start:");
-                ServerConnector.getInstance().sendMsg("Pvcam:");
-                //ServerConnector.getInstance().sendMsg("s2start:");
-
-                Toast_in_Thread("Pvcam!");
+                //image1.setImageBitmap(bitmap); //设置Bitmap
+//                setButtons();
+//
+//                myS2renderer.clearView(isCamera);  //clean view before showing new image
+//                myS2GLSurfaceView.requestRender();
+//
+//                shutFileName();
+//                //ServerConnectorForScope.sendMsg("s2start:");
+//                ServerConnector.getInstance().sendMsg("Pvcam:");
+//                //ServerConnector.getInstance().sendMsg("s2start:");
+//
+//                Toast_in_Thread("Pvcam!");
+                showUI4BigDataMode();
             }
         });
 
@@ -1472,16 +1595,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
 
-        Switch = new Button(this);
-        Switch.setText("Pause");
+//        Switch = new Button(this);
+//        Switch.setText("Pause");
+//
+//        Switch.setOnClickListener(new Button.OnClickListener() {
+//            public void onClick(View v) {
+//
+//
+//                Switch();
+//            }
+//        });
 
-        Switch.setOnClickListener(new Button.OnClickListener() {
-            public void onClick(View v) {
 
-
-                Switch();
-            }
-        });
 
         Hide_i.setOnClickListener(new Button.OnClickListener() {
 
@@ -5003,25 +5128,47 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         isBigData_Remote = true;
         isBigData_Local = false;
         ifZooming = false;
-        Log.e(TAG, "loadBigDataImg: "+filepath);
+        Log.e(TAG, "loadBigDataImg: " + filepath);
         if (ifZscanSeries) {
             progressDialog_zscan.dismiss();
-            ifZscanSeries=false;
-            Log.e(TAG, "loadBigDataImg:ifZscanSeries "+ifZscanSeries);
+            ifZscanSeries = false;
+            Log.e(TAG, "loadBigDataImg:ifZscanSeries " + ifZscanSeries);
         }
 
         String[] list = filepath.split("/");
         String file_Name = list[list.length - 1];
-        Log.e(TAG, "loadBigDataImg file_Name: "+file_Name);
-        s2filename=file_Name;
-        s2EswcPath=filepath;
+        Log.e(TAG, "loadBigDataImg file_Name: " + file_Name);
+        s2filename = file_Name;
+        s2EswcPath = filepath;
         puiHandler.sendEmptyMessage(7);
         //progressDialog_zscan.dismiss();
         myS2renderer.setPath(filepath);
         myS2renderer.zoom(2f);
         myS2GLSurfaceView.requestRender();
-
-
+//        if(isCamera){
+//            File file = new File(filepath);
+//            InputStream is = null;
+//            if (file.exists()) {
+//                try {
+//
+//                    is = new FileInputStream(file);
+//
+//                    Log.v("getIntensity_3d", filepath);
+//                } catch (FileNotFoundException e) {
+//                    e.printStackTrace();
+//                }
+//
+//
+//                bitmap2D = BitmapFactory.decodeStream(is);
+//                PV_imageView.setImageBitmap(bitmap2D); //设置Bitmap
+//
+//            }
+//        }else
+//        {
+//        myS2renderer.setPath(filepath);
+//        myS2renderer.zoom(2f);
+//        myS2GLSurfaceView.requestRender();
+//        }
         setButtons();
     }
 
@@ -5253,7 +5400,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Zoom_out_Big.setVisibility(View.VISIBLE);
                 zseries_scan.setVisibility(View.VISIBLE);
                 S2start.setVisibility(View.VISIBLE);
-                Camera_open.setVisibility(View.VISIBLE);
+                Camera_open.setVisibility(View.GONE);
                 navigation_left.setVisibility(View.VISIBLE);
                 navigation_right.setVisibility(View.VISIBLE);
                 navigation_up.setVisibility(View.VISIBLE);

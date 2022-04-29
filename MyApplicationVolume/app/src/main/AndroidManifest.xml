@@ -53,10 +53,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+        <activity android:name=".core.MainActivity2"></activity>
         <activity
             android:name=".core.game.leaderBoard.LeaderBoardActivity"
             android:exported="false"
-            android:theme="@style/AppTheme.NoActionBar.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar.NoActionBar" />
         <activity android:name=".core.ui.userProfile.UserInfoActivity" />
         <activity
             android:name=".core.ui.userProfile.MyActivity"
@@ -98,10 +99,12 @@
         <activity android:name=".core.ui.password.FindPasswordActivity" />
         <activity android:name=".core.ui.login.LoginActivity" />
         <activity android:name=".core.ui.check.CheckActivity" />
-        <activity android:name=".core.ui.annotation.AnnotationActivity"
-            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
-        <activity android:name=".core.ui.marker.MarkerFactoryActivity"
-            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
+        <activity
+            android:name=".core.ui.annotation.AnnotationActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize" />
+        <activity
+            android:name=".core.ui.marker.MarkerFactoryActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize" />
         <activity
             android:name=".core.ui.splash.SplashScreenActivity"
             android:configChanges="keyboardHidden|orientation"
@@ -112,6 +115,7 @@
             android:windowSoftInputMode="adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
                 <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
             </intent-filter>
