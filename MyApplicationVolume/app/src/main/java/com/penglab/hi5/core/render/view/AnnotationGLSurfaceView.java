@@ -395,8 +395,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                 Image4DSimple curImage = Image4DSimple.loadImage(filePath, fileType);
                 if (curImage != null){
                     image4DSimple = curImage;
-                            update3DFileSize(new Integer[]{
-                            (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
+                    update3DFileSize(new Integer[]{(int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     renderOptions.initOptions();
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);

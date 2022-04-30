@@ -49,6 +49,10 @@ public abstract class BasicConnector {
 
                     // 服务器的ip和端口号
                     Log.e(TAG,String.format("ip: %s,  port: %s", ip, port));
+                    if(ip==null||port==null)
+                    {
+                        return;
+                    }
                     mSocket = new Socket(ip, Integer.parseInt(port));
 
                     /*

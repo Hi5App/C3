@@ -614,6 +614,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }
     }
 
+    @Override
+    public void onRecBinData(String msg, byte[] a) {
+
+    }
+
 
     @SuppressLint("HandlerLeak")
     private static Handler puiHandler = new Handler(){
@@ -5039,7 +5044,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         }catch (Exception e){
             e.printStackTrace();
         }
-        hideDownloadingPopupView();
+       // hideDownloadingPopupView();
     }
 
     /*

@@ -533,4 +533,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
             }
         }
     }
+
+    @Override
+    public void onRecBinData(String msg, byte[] a) {
+
+    }
 }

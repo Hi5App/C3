@@ -591,8 +591,8 @@ public class Image4DSimple {
 
                 switch (fileType){
                     case V3DRAW:
-                            image4DSimple =  new RawReader().read(length, is);
-                            is.close();
+                        image4DSimple =  new RawReader().read(length, is);
+                        is.close();
                         break;
                     case TIFF:
                         // create a new file
@@ -697,12 +697,22 @@ public class Image4DSimple {
         return bitmap2D;
     }
 
-    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin, FilePath filePath){
+    public static Image4DSimple loadImage2D(Bitmap bitmapOrigin){
         Image4DSimple image = new Image4DSimple();
         BitmapReader bmr = new BitmapReader();
 
         if (bitmapOrigin != null){
             image = bmr.read(bitmapOrigin);
+        }
+        return image;
+    }
+
+    public static Image4DSimple loadPvImage2D(byte[] bitmapOrigin){
+        Image4DSimple image = new Image4DSimple();
+        BitmapReader bmr = new BitmapReader();
+
+        if (bitmapOrigin != null){
+            image = bmr.readpvdata(bitmapOrigin);
         }
         return image;
     }
@@ -720,9 +730,10 @@ public class Image4DSimple {
 
             if (file.exists()){
                 try {
+                    Log.v(TAG,"file.exists()!");
                     length = file.length();
                     is = new FileInputStream(file);
-                    image = rr.read(length, is);
+                    image = rr.read(length,true, is);
                     is.close();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -730,12 +741,13 @@ public class Image4DSimple {
             } else {
                 Uri uri = Uri.parse(filepath);
                 try {
+                    Log.v(TAG,"file.!!!exists()!");
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContext().getContentResolver().openFileDescriptor(uri, "r");
 
                     is = new ParcelFileDescriptor.AutoCloseInputStream(parcelFileDescriptor);
                     length = (int)parcelFileDescriptor.getStatSize();
-                    image =  rr.read(length, is);
+                    image =  rr.read(length,true, is);
                     is.close();
 
                 } catch (Exception e){
@@ -845,6 +857,7 @@ public class Image4DSimple {
         InputStream is = null;
         if (file.exists()){
             try {
+                Log.v(TAG,"file.exists()!");
                 length = file.length();
                 is = new FileInputStream(file);
                 image = bfr.loadRawRegion(length, is, index[0], index[1], index[2], index[3], index[4], index[5]);
@@ -858,7 +871,7 @@ public class Image4DSimple {
 
         else {
             Uri uri = Uri.parse(filepath);
-
+            Log.v(TAG,"file.!!!exists()!");
             try {
                 ParcelFileDescriptor parcelFileDescriptor =
                         getContext().getContentResolver().openFileDescriptor(uri, "r");
@@ -888,10 +901,13 @@ public class Image4DSimple {
 
         if (bitmapOrigin != null){
             image = bmr.read(bitmapOrigin);
+
+            Log.v("loadImage2D","bitmapOrigin");
         }
 
         if (image != null) {
             image.setImgSrcFile(filepath);
+            Log.v("loadImage2D","image");
         }
         return image;
     }

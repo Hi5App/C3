@@ -1,32 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<!--    <item-->
-<!--        android:id="@+id/action_setting1"-->
-<!--        android:orderInCategory="1"-->
-<!--        android:title="tools"-->
-<!--        app:showAsAction="always"-->
-<!--        android:icon="@drawable/ic_folder_black_24dp"/>-->
-<!--    <item-->
-<!--        android:id ="@id/home"-->
-<!--        android:orderInCategory ="1"-->
-<!--        android:title="@string/home"-->
-<!--        app:showAsAction="always"-->
-<!--        android:icon="@drawable/ic_menu"/>-->
 
-    <item
-        android:id ="@id/Undo"
-        android:orderInCategory ="1"
-        android:title="@string/undo"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_undo_1"/>
 
-    <item
-        android:id="@id/Redo"
-        android:orderInCategory="2"
-        android:title="@string/redo"
-        app:showAsAction="always"
-        android:icon="@drawable/ic_redo_1"/>
+
+
 
     <item
         android:id="@+id/file"
