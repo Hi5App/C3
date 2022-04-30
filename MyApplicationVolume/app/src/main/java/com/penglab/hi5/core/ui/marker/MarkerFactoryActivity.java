@@ -2,27 +2,40 @@ package com.penglab.hi5.core.ui.marker;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
+import static com.penglab.hi5.core.Myapplication.playMusicReward;
+import static com.penglab.hi5.core.Myapplication.playRewardSound;
+import static com.penglab.hi5.core.Myapplication.playRightAnswerSound;
+import static com.penglab.hi5.core.Myapplication.playWrongAnswerSound;
+import static com.penglab.hi5.core.Myapplication.stopMusicRewardPlay;
 import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -38,11 +51,14 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.amrdeveloper.lottiedialog.LottieDialog;
+import com.example.flatdialoglibrary.dialog.FlatDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.basic.utils.xpopupExt.ConfirmPopupViewExt;
@@ -61,18 +77,23 @@ import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.robinhood.ticker.TickerView;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialog;
+import com.shashank.sony.fancygifdialoglib.FancyGifDialogListener;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
 import org.jetbrains.annotations.Contract;
 
+import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import cn.carbs.android.library.MDDialog;
-
+import co.mobiwise.library.MusicPlayerView;
+import com.sdsmdg.tastytoast.TastyToast;
 /**
  * Created by Jackiexing on 01/10/21
  */
@@ -95,6 +116,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         put(EditMode.ZOOM_IN_ROI, R.drawable.ic_roi);
     }};
     private final PreferenceSoma preferenceSoma = PreferenceSoma.getInstance();
+    private final ExecutorService executorService = Executors.newFixedThreadPool(1);
 
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private MarkerFactoryViewModel markerFactoryViewModel;
@@ -111,6 +133,10 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     private TextView imageIdLocationTextView;
     private boolean needSyncSomaList = false;
     private boolean switchMarkerMode = true;
+    private LottieDialog lottieDialog;
+    private MusicPlayerView mpv;
+    private Dialog dialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -295,6 +321,49 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
+        markerFactoryViewModel.getSomaNum().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer somaNum) {
+                MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
+                if (somaNum >= 1 && somaNum < 2 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                    playRewardSound(1);
+                    showRewardDialog(1);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
+                } else if (somaNum >= 2 && somaNum < 3 && somaNumStatus.ordinal() < 2) {
+                    playRewardSound(2);
+                    showRewardDialog(2);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
+                } else if (somaNum >= 3 && somaNumStatus.ordinal() < 3) {
+                    playRewardSound(3);
+                    showRewardDialog(3);
+                    markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
+                }
+            }
+        });
+
+        markerFactoryViewModel.getEditImageNumToday().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer editImageToday) {
+                MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
+                if(editImageToday >=2 && editImageToday < 3 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FORTY);
+
+                } else if (editImageToday >= 3 && editImageToday <4 && editImageTodayStatus.ordinal() < 2) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY);
+
+                } else if(editImageToday >= 4 && editImageToday < 5&& editImageTodayStatus.ordinal() < 3) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED);
+
+                }else if (editImageToday >= 5  && editImageTodayStatus.ordinal() <4) {
+                    TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
+                    markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FIVE_HUNDRED);
+                }
+            }
+        });
+
         initScoreTickerView();
         startMusicService();
     }
@@ -415,7 +484,16 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
     private void openFile(){
         // TODO: download image
+
+
+
+//        playGuessMusicGame();
+//        showRewardDialog(1);
+
+//        getMusicPlayReward();
         markerFactoryViewModel.openNewFile();
+//        executorService.submit(() -> showRewardDialog());
+
     }
 
     private void screenCapture(Uri uri){
@@ -462,6 +540,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
+                        SwitchCompat pinpointStrokeSwitch = contentView.findViewById(R.id.switch_marker_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -469,6 +548,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
+                        pinpointStrokeSwitch.setChecked(preferenceSetting.getPointStrokeMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -487,6 +567,20 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 preferenceSetting.setDownSampleMode(isChecked);
                                 annotationGLSurfaceView.updateRenderOptions();
                                 annotationGLSurfaceView.requestRender();
+                            }
+                        });
+
+                        pinpointStrokeSwitch.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                                preferenceSetting.setPointStroke(isChecked);
+                                if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
+                                    if (isChecked) {
+                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
+                                    } else {
+                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
+                                    }
+                                }
                             }
                         });
 
@@ -570,7 +664,6 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             markerFactoryView = getLayoutInflater().inflate(R.layout.marker_factory_annotation, null);
             this.addContentView(markerFactoryView, lpMarkerFactoryView);
-
             editModeIndicator = findViewById(R.id.edit_mode_indicator);
             addMarker = findViewById(R.id.add_marker);
             deleteMarker = findViewById(R.id.delete_marker);
@@ -581,7 +674,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             ImageButtonExt nextFile = findViewById(R.id.next_file);
             ImageButtonExt boringFile = findViewById(R.id.boring_file);
             ImageButtonExt ignoreFile = findViewById(R.id.ignore_file);
-            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
+//            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
+            ImageButtonExt goodFile = findViewById(R.id.good_file);
 
             addMarker.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
@@ -589,7 +683,8 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
             ignoreFile.setOnClickListener(v -> ignoreFile());
-            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
+            goodFile.setOnClickListener(v -> goodFile());
+//            pinpointStroke.setOnCheckedChangeListener(this::OnCheckChanged);
 
             contrastSeekBar.setProgress(preferenceSetting.getContrast());
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -677,10 +772,14 @@ public class MarkerFactoryActivity extends AppCompatActivity {
     }
 
     private void ignoreFile() {
-            navigateFile(true, true, 2);
+        navigateFile(true, true, 2);
     }
 
-    private void previousFile(){
+    private void goodFile() {
+        navigateFile(true, true, 3);
+    }
+
+    private void previousFile() {
         if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
             navigateFile(true, false, 1);
         } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
@@ -707,11 +806,18 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             -1: boringFile,
              0: default, no update
              1: normalFile with annotation,
-             1: normalFile without annotation
+             2: normalFile without annotation
+             3: goodFile with annotation
          */
         if (needUpload) {
-            markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
-                    annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            if (locationType == -1) {
+                // boringFile: can not add; only can delete
+                markerFactoryViewModel.updateSomaList(new MarkerList(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            } else {
+                markerFactoryViewModel.updateSomaList(annotationGLSurfaceView.getMarkerListToAdd(),
+                        annotationGLSurfaceView.getMarkerListToDelete(), locationType);
+            }
         }
         if (nextFile) {
             markerFactoryViewModel.nextFile();
@@ -729,9 +835,9 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                                 () -> navigateFile(true, nextFile, 1),
                                 () -> navigateFile(false, nextFile, 0),
                                 null)
-                        .setConfirmText("Upload")
-                        .setIgnoreText("Don't upload")
-                        .setCancelText("Cancel")
+                                .setConfirmText("Upload")
+                                .setIgnoreText("Don't upload")
+                                .setCancelText("Cancel")
                 ).show();
     }
 
@@ -771,6 +877,235 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         if (markerFactoryView != null){
             markerFactoryView.setVisibility(View.GONE);
         }
+    }
+
+    private void showRewardDialog(int level) {
+        final int [] gifId = new int [] {R.raw.success_like,R.raw.present,R.raw.achievement};
+        final int [] somaNum = new int [] {50,100,200,500};
+        int randomNumber = new Random().nextInt(10);
+        Button okButton = new Button(MarkerFactoryActivity.this);
+        okButton.setText("OK");
+        okButton.setTextColor(Color.rgb(60,179,113));
+        okButton.setOnClickListener(view -> {
+            switch (level){
+                case 1:
+                    markerFactoryViewModel.winScoreByReward(1);
+                    break;
+                case 2:
+                    markerFactoryViewModel.winScoreByReward(2);
+                    break;
+                case 3:
+                    markerFactoryViewModel.winScoreByReward(3);
+                    break;
+            }
+            if(randomNumber %2 == 0){
+                playGuessMusicGame();
+            }else{
+                getJokeDialog();
+            }
+            lottieDialog.dismiss();
+        });
+        Button cancelButton = new Button(MarkerFactoryActivity.this);
+            cancelButton.setText("No Need");
+        cancelButton.setOnClickListener(view -> {
+            lottieDialog.dismiss();
+
+        });
+        lottieDialog = new LottieDialog(MarkerFactoryActivity.this)
+                .setAnimation(gifId[level-1])
+                .setAnimationRepeatCount(10)
+                .setAutoPlayAnimation(true)
+                .setTitle("")
+                .setTitleColor(R.color.account_lock_bg)
+                .setMessage(String.format("You have finished over %s soma! There is a present for you...",somaNum[level-1]))
+                .setMessageTextSize(20f)
+                .setMessageColor(Color.BLACK)
+                .setDialogBackground(Color.WHITE)
+                .setCancelable(false)
+                .addActionButton(cancelButton)
+                .addActionButton(okButton)
+                .setOnShowListener(dialogInterface -> {})
+                .setOnDismissListener(dialogInterface -> {})
+                .setOnCancelListener(dialogInterface -> {});
+        lottieDialog.show();
+    }
+
+    private void getJokeDialog() {
+        final int[] jokeNum = new int[]{R.raw.gif4, R.raw.gif5, R.raw.gif6, R.raw.gif7, R.raw.gif8,
+                R.raw.gif10, R.raw.gif12, R.raw.gif13, R.raw.gif15, R.raw.gif20,R.raw.gif2};
+//        final int[] bgColor = new int[]{};
+        final String[] messNum = new String[]{
+                "我虽然不能为你上天揽月但是我能为你下海底捞,捞鱼丸捞虾捞肥牛",
+                "特别能吃苦，这句话我想了想，我只能做到前四个",
+                "安全感是什么？安全感就是你在快迟到的路上,碰到了你的同事,但他跑的比你慢",
+                "我呼唤星期五的频率古今中外，只有鲁滨逊可与我比肩",
+                "和人吵架的时候最好去楼梯吵，这样的好处是，吵完了双方都有台阶下",
+                "其实之前也考虑过劳斯莱斯和宾利，到最后还是选择了公交，因为人多热闹",
+                "刚刚点外卖的时候，突然想起来自己160斤，我猛地扇了自己一耳光，点外卖的时候怎么可以分心",
+                "跟公司说完，“我身体不舒服今天请假”，之后身体就好多了，比药有效5000倍",
+                "曾经我的一位同事到公司面试，HR问他：“今天来面试有做什么准备工作吗”，同事一本正经的回答：有的，用飘柔洗了个头",
+                "小时候看古装剧，很羡慕那些拿令牌出入的人，长大后梦想成真了，去哪儿都要掏出手机给保安看",
+                "排队做核酸的朋友们，一定要仔细看清楚!别像我，排了半天，买了一杯奶茶"};
+        int randomNum = new Random().nextInt(10);
+        Log.e(TAG,"randomNum"+randomNum);
+        new FancyGifDialog.Builder(this)
+                .setTitle(messNum[randomNum]) // You can also send title like R.string.from_resources
+//                .setMessage("") // or pass like R.string.description_from_resources
+                .setTitleTextColor(R.color.black)
+                .setDescriptionTextColor(R.color.descriptionText)
+                .setNegativeBtnText("Cancel") // or pass it like android.R.string.cancel
+                .setPositiveBtnBackground(R.color.positiveButton)
+                .setPositiveBtnText("Ok") // or pass it like android.R.string.ok
+                .setNegativeBtnBackground(R.color.negativeButton)
+                .setGifResource(jokeNum[randomNum])   //Pass your Gif here
+                .isCancellable(true)
+                .OnPositiveClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(MarkerFactoryActivity.this,"Ok",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .OnNegativeClicked(new FancyGifDialogListener() {
+                    @Override
+                    public void OnClick() {
+                        Toast.makeText(MarkerFactoryActivity.this,"Cancel",Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .build();
+
+    }
+
+    private void getMusicPlayReward() {
+        String musicName[] = new String[]{"克罗地亚狂想曲","天空之城","偷功","瓦妮莎的微笑","一千个伤心的理由","遇见","冢森的大树"};
+        int randomNum = new Random().nextInt(7);
+        final FlatDialog flatDialog = new FlatDialog(MarkerFactoryActivity.this);
+        flatDialog.setTitle("A Music for you")
+                .setSubtitle(musicName[randomNum])
+                .setFirstTextFieldHint("Write here everything")
+                .setFirstButtonText("Play")
+                .setSecondButtonText("Stop")
+                .setThirdButtonText("Cancel")
+                .withFirstButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        playMusicReward(randomNum);
+                    }
+                })
+                .withSecondButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        stopMusicRewardPlay();
+                    }
+                })
+                .withThirdButtonListner(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        stopMusicRewardPlay();
+                        flatDialog.dismiss();
+                    }
+                })
+                .show();
+    }
+
+    private void playGuessMusicGame() {
+        int randomNum = new Random().nextInt(7);
+        String arrayName[][] = new String[][]{
+                {"克罗地亚狂想曲","亡灵序曲","悲怆"},
+                {"天空之城","天空","城堡"},
+                {"醉拳","随缘","偷功"},
+                {"遇见","听见","再见"},
+                {"龙猫","冢森的大树","风之谷"},
+                {"the day you went away","the day you leave me","One day"},
+                {"梦中的婚礼","婚礼","水边的阿狄丽娜"}
+        };
+        String rightName[] = new String[]{"克罗地亚狂想曲","天空之城","偷功","遇见","冢森的大树","the day you went away","梦中的婚礼"};
+
+        dialog = new Dialog(MarkerFactoryActivity.this);
+        dialog.setContentView(R.layout.guess_music);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        ImageView imageViewClose = dialog.findViewById(R.id.imageViewClose);
+        mpv = dialog.findViewById(R.id.mpv);
+        mpv.setMax(12);
+        Button firstAnswer = dialog.findViewById(R.id.firstAnswer);
+        Button secondAnswer = dialog.findViewById(R.id.secondAnswer);
+        Button thirdAnswer = dialog.findViewById(R.id.thirdAnswer);
+        mpv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mpv.isRotating()){
+                    mpv.stop();
+                    stopMusicRewardPlay();
+                }else{
+                    mpv.start();
+                    playMusicReward(randomNum);
+                }
+            }
+        });
+
+        firstAnswer.setText(arrayName[randomNum][0]);
+        secondAnswer.setText(arrayName[randomNum][1]);
+        thirdAnswer.setText(arrayName[randomNum][2]);
+        firstAnswer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(firstAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
+                    firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
+
+                    markerFactoryViewModel.winScoreByGuessMusic();
+
+                }else {
+                    playWrongAnswerSound();
+                    firstAnswer.setBackgroundColor(Color.rgb(211,211,211));
+                }
+                firstAnswer.setEnabled(false);
+                secondAnswer.setEnabled(false);
+                thirdAnswer.setEnabled(false);
+            }
+        });
+
+        secondAnswer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(secondAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
+                    secondAnswer.setBackgroundColor(Color.rgb(69,179,113));
+                    markerFactoryViewModel.winScoreByGuessMusic();
+                }else{
+                    playWrongAnswerSound();
+                    secondAnswer.setBackgroundColor(Color.rgb(211,211,211));
+                }
+                firstAnswer.setEnabled(false);
+                secondAnswer.setEnabled(false);
+                thirdAnswer.setEnabled(false);
+            }
+        });
+
+        thirdAnswer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(thirdAnswer.getText() == rightName[randomNum]) {
+                    playRightAnswerSound();
+                    thirdAnswer.setBackgroundColor(Color.rgb(69,179,113));
+                    markerFactoryViewModel.winScoreByGuessMusic();
+                }else{
+                    playWrongAnswerSound();
+                    thirdAnswer.setBackgroundColor(Color.rgb(211,211,211));
+                }
+                firstAnswer.setEnabled(false);
+                secondAnswer.setEnabled(false);
+                thirdAnswer.setEnabled(false);
+            }
+        });
+
+        imageViewClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+        dialog.show();
+
     }
 
     private void showDownloadingProgressBar() {

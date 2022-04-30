@@ -10,6 +10,7 @@ import okhttp3.RequestBody;
  */
 public class HttpUtilsUserPerformance extends HttpUtils{
     private static String URL_SOMA_COUNT = SERVER_IP + "/dynamic/user/getuserperformance";
+    private static String URL_CHECK_COUNT = SERVER_IP + "/dynamic/user/getuserCheckperformance";
     private static String URL_SOMA_COUNT_TOP_K = SERVER_IP + "/dynamic/user/getuserperformancetopk";
 
     public static void getUserPerformance(JSONObject userInfo, Callback callback) {
@@ -17,6 +18,16 @@ public class HttpUtilsUserPerformance extends HttpUtils{
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("user", userInfo)));
             asyncPostRequest(URL_SOMA_COUNT, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void getUserCheckModePerformance(JSONObject userInfo, Callback callback) {
+        try{
+            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
+                    .put("user",userInfo)));
+            asyncPostRequest(URL_CHECK_COUNT,body,callback);
         } catch (Exception e) {
             e.printStackTrace();
         }

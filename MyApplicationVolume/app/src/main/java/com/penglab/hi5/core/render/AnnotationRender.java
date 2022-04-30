@@ -73,8 +73,10 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private int screenWidth;
     private int screenHeight;
     private float[] fingerTrajectory;
-
+    private boolean ifShowSWC = true;
     private String imageInfo;
+
+
 
     public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions){
         this.annotationDataManager = annotationDataManager;
@@ -236,7 +238,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         if (myAxis.isNeedDraw()){
             myAxis.draw(matrixManager.getFinalMatrix());
         }
-        if (myDraw.isNeedDraw()){
+        if (myDraw.isNeedDraw() && renderOptions.getIfShowSWC()){
             drawNeuronSwc(annotationDataManager.getCurSwcList());
             drawNeuronSwc(annotationDataManager.getSyncSwcList());
             drawMarker(annotationDataManager.getMarkerList());
@@ -328,6 +330,159 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
             }
         }
     }
+
+    public void showSwc()
+    {
+        if (ifShowSWC) {
+            V_NeuronSWC_list curSwcList = annotationDataManager.getCurSwcList();
+
+                    /*
+                    show swc
+                     */
+            if (curSwcList.nsegs() > 0) {
+                ArrayList<Float> lines = new ArrayList<Float>();
+                int type = 0;
+                for (int i = 0; i < curSwcList.seg.size(); i++) {
+                    V_NeuronSWC seg = curSwcList.seg.get(i);
+                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                    lines.clear();
+                    for (int j = 0; j < seg.row.size(); j++) {
+                        if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                            swcUnitMap.put(j, parent);
+                        }
+                    }
+                    for (int j = 0; j < seg.row.size(); j++) {
+                        V_NeuronSWC_unit child = seg.row.get(j);
+                        int parentid = (int) child.parent;
+                        if (parentid == -1 || seg.getIndexofParent(j) == -1) {
+                            continue;
+                        }
+                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                        if (parent == null){
+                            continue;
+                        }
+                        lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
+                        lines.add((float) ((originalSize[1] - parent.y) / originalSize[1] * normalizedSize[1]));
+                        lines.add((float) ((parent.z) / originalSize[2] * normalizedSize[2]));
+                        lines.add((float) ((originalSize[0] - child.x) / originalSize[0] * normalizedSize[0]));
+                        lines.add((float) ((originalSize[1] - child.y) / originalSize[1] * normalizedSize[1]));
+                        lines.add((float) ((child.z) / originalSize[2] * normalizedSize[2]));
+                        type = (int) parent.type;
+                    }
+                    myDraw.drawLine(matrixManager.getFinalMatrix(), lines, type);
+                    lines.clear();
+                }
+            }
+
+//            if (newSwcList.nsegs() > 0) {
+//                ArrayList<Float> lines = new ArrayList<Float>();
+//                int type = 0;
+//                for (int i = 0; i < newSwcList.seg.size(); i++) {
+//                    V_NeuronSWC seg = newSwcList.seg.get(i);
+//                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+//                    lines.clear();
+//                    for (int j = 0; j < seg.row.size(); j++) {
+//                        if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+//                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+//                            swcUnitMap.put(j, parent);
+//                        }
+//                    }
+//                    for (int j = 0; j < seg.row.size(); j++) {
+//                        V_NeuronSWC_unit child = seg.row.get(j);
+//                        int parentid = (int) child.parent;
+//                        if (parentid == -1 || seg.getIndexofParent(j) == -1) {
+//                            // Log.v(TAG,"parent == -1;");
+//                            float x = (float) child.x;
+//                            float y = (float) child.y;
+//                            float z = (float) child.z;
+////                            float[] position = volumetoModel(new float[]{x, y, z});
+//                            float[] position = volumeToModel(new float[]{x, y, z});
+//
+//                            myDraw.drawSplitPoints(matrixManager.getFinalMatrix(), position[0], position[1], position[2], (int) child.type);
+//                            continue;
+//                        }
+//
+//                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
+//
+//                        lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
+//                        lines.add((float) ((originalSize[1] - parent.y) / originalSize[1] * normalizedSize[1]));
+//                        lines.add((float) ((parent.z) / originalSize[2] * normalizedSize[2]));
+//                        lines.add((float) ((originalSize[0] - child.x) / originalSize[0] * normalizedSize[0]));
+//                        lines.add((float) ((originalSize[1] - child.y) / originalSize[1] * normalizedSize[1]));
+//                        lines.add((float) ((child.z) / originalSize[2] * normalizedSize[2]));
+//                        type = (int) parent.type;
+//                    }
+//
+//
+//                    myDraw.drawLine(matrixManager.getFinalMatrix(), lines, type);
+//                    lines.clear();
+//                }
+//
+//            }
+            V_NeuronSWC_list syncSwcList = annotationDataManager.getSyncSwcList();
+
+            if (syncSwcList.nsegs() > 0) {
+                ArrayList<Float> lines = new ArrayList<Float>();
+                int type = 0;
+                for (int i = 0; i < syncSwcList.seg.size(); i++) {
+                    V_NeuronSWC seg = syncSwcList.seg.get(i);
+                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                    lines.clear();
+                    for (int j = 0; j < seg.row.size(); j++) {
+                        if (seg.row.get(j).parent != -1 && seg.getIndexofParent(j) != -1) {
+                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(j));
+                            swcUnitMap.put(j, parent);
+                        }
+                    }
+
+                    for (int j = 0; j < seg.row.size(); j++) {
+                        V_NeuronSWC_unit child = seg.row.get(j);
+                        int parentid = (int) child.parent;
+                        if (parentid == -1 || seg.getIndexofParent(j) == -1) {
+                            continue;
+                        }
+                        V_NeuronSWC_unit parent = swcUnitMap.get(j);
+                        if (parent == null){
+                            continue;
+                        }
+//                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
+                        lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
+                        lines.add((float) ((originalSize[1] - parent.y) / originalSize[1] * normalizedSize[1]));
+                        lines.add((float) ((parent.z) / originalSize[2] * normalizedSize[2]));
+                        lines.add((float) ((originalSize[0] - child.x) / originalSize[0] * normalizedSize[0]));
+                        lines.add((float) ((originalSize[1] - child.y) / originalSize[1] * normalizedSize[1]));
+                        lines.add((float) ((child.z) / originalSize[2] * normalizedSize[2]));
+                        type = (int) parent.type;
+
+                    }
+                    myDraw.drawLine(matrixManager.getFinalMatrix(), lines, type);
+                    lines.clear();
+                }
+            }
+
+                    /*
+                    draw the marker
+                    */
+            MarkerList markerList = annotationDataManager.getMarkerList();
+
+            if (markerList.size() > 0) {
+                float radius = is2DImage ? 0.01f : 0.02f;
+                for (int i = 0; i < markerList.size(); i++) {
+                    ImageMarker imageMarker = markerList.get(i);
+                    float[] markerModel = volumeToModel(new float[]{imageMarker.x, imageMarker.y, imageMarker.z});
+
+                    if (imageMarker.radius == 5) {
+                        myDraw.drawMarker(matrixManager.getFinalMatrix(), matrixManager.getModelMatrix(), markerModel[0], markerModel[1], markerModel[2], imageMarker.type, 0.01f);
+                    } else {
+                        myDraw.drawMarker(matrixManager.getFinalMatrix(), matrixManager.getModelMatrix(), markerModel[0], markerModel[1], markerModel[2], imageMarker.type, radius);
+                    }
+                }
+            }
+        }
+
+    }
+
 
     private void drawMarker(MarkerList markerList) {
         if (markerList.size() > 0) {

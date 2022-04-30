@@ -126,6 +126,27 @@ public class MarkerList implements Cloneable {
         return jsonArray;
     }
 
+    public static JSONArray toJSONArrayAddType(MarkerList markerList) throws JSONException {
+        if (markerList == null){
+            return null;
+        }
+
+        JSONArray jsonArray = new JSONArray();
+        for (int i=0; i<markerList.size(); i++){
+            ImageMarker imageMarker = markerList.get(i);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("x", formatDouble(imageMarker.x));
+            jsonObject.put("y", formatDouble(imageMarker.y));
+            jsonObject.put("z", formatDouble(imageMarker.z));
+            jsonObject.put("type",formatDouble(imageMarker.type));
+
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
+
     public static MarkerList parseFromJSONArray(JSONArray jsonArray) throws JSONException {
         if (jsonArray == null){
             return null;
@@ -148,6 +169,29 @@ public class MarkerList implements Cloneable {
         return markerList;
     }
 
+    public static MarkerList parseToJSONArray (JSONArray jsonArray)  throws JSONException{
+        if(jsonArray == null){
+            return null;
+        }
+        MarkerList markerList = new MarkerList();
+        for(int i =0;i<jsonArray.length();i++){
+            JSONObject jsonObject = jsonArray.getJSONObject(i);
+            JSONObject loc = jsonObject.getJSONObject("loc");
+            int type = jsonObject.getInt("Type");
+            String name = jsonObject.getString("name");
+            ImageMarkerExt imageMarker = new ImageMarkerExt(
+                    type,
+                    (float) loc.getDouble("x"),
+                    (float) loc.getDouble("y"),
+                    (float) loc.getDouble("z"),
+                    name);
+            markerList.add(imageMarker);
+        }
+        return markerList;
+    }
+
+
+
     public static MarkerList covertLocalToGlobal(MarkerList markerList, CoordinateConvert coordinateConvert) {
         if (markerList == null || coordinateConvert == null){
             return null;
@@ -156,7 +200,8 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarker oldMarker = markerList.get(i);
-            ImageMarker newMarker = new ImageMarker(DEFAULT_TYPE, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
+
+            ImageMarker newMarker = new ImageMarker(oldMarker.type, coordinateConvert.convertLocalToGlobal(oldMarker.x, oldMarker.y, oldMarker.z));
             resultList.add(newMarker);
         }
         return resultList;
@@ -169,7 +214,7 @@ public class MarkerList implements Cloneable {
         MarkerList resultList = new MarkerList();
         for (int i=0; i<markerList.size(); i++){
             ImageMarkerExt oldMarker = (ImageMarkerExt) markerList.get(i);
-            ImageMarkerExt newMarker = new ImageMarkerExt(DEFAULT_TYPE, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
+            ImageMarkerExt newMarker = new ImageMarkerExt(oldMarker.type, coordinateConvert.convertGlobalToLocal(oldMarker.x, oldMarker.y, oldMarker.z), oldMarker.getName());
             resultList.add(newMarker);
         }
         return resultList;

@@ -2,11 +2,14 @@ package com.penglab.hi5.core.music;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.media.SoundPool;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 
+import java.lang.ref.PhantomReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -18,6 +21,8 @@ import java.util.concurrent.Executors;
 public class MusicHelper {
 
     private final String TAG = "MusicHelper";
+
+    private static MediaPlayer mPlayer;
 
     public enum ActionType{
         CURVE, MARKER
@@ -32,13 +37,31 @@ public class MusicHelper {
             R.raw.marker,
             R.raw.curve,
             R.raw.button,
-            R.raw.fail };
+            R.raw.fail,
+            R.raw.nice,
+            R.raw.wonderful,
+            R.raw.unbelievable,
+            R.raw.right,
+            R.raw.wrong
+    };
+
+    private final int[] musicId = new int[]{
+            R.raw.kldykuangxiangqu,
+            R.raw.tiankongzhicheng,
+            R.raw.tougong,
+            R.raw.yujian,
+            R.raw.zhongsendedashu,
+            R.raw.thedayyouwentaway,
+            R.raw.mengzhongdehunli
+    };
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
     private final PreferenceMusic preferenceMusic;
     private final SoundPool soundPool;
-    private final int SOUND_NUM = 4;
+    private final int SOUND_NUM = 9;
     private final int[] soundId = new int[SOUND_NUM];
+    private final int MUSIC_NUM = 7;
+    private final int[] music_id = new int [MUSIC_NUM];
 
     private float bgmVolume;
     private float buttonVolume;
@@ -86,6 +109,29 @@ public class MusicHelper {
 
     public void playFailSound(){
         executorService.submit(() -> soundPool.play(soundId[3], buttonVolume, buttonVolume, 0, 0, 1.0f));
+    }
+
+    public void playRewardSound(int level) {
+        executorService.submit(() -> soundPool.play(soundId[3+level], 0.3f, 0.3f, 0, 0, 1.0f));
+    }
+
+    public void playMusicReward(int level) {
+        mPlayer = MediaPlayer.create(Myapplication.getContext(),musicId[level]);
+        mPlayer.setVolume(0.5f,0.5f);
+        mPlayer.start();
+
+    }
+
+    public void playRightAnswerSound() {
+        executorService.submit(()-> soundPool.play(soundId[7],0.3f,0.3f,0,0,1.0f));
+    }
+
+    public void playWrongAnswerSound() {
+        executorService.submit(()->soundPool.play(soundId[8],0.3f,0.3f,0,0,1.0f));
+    }
+
+    public void stopMusicRewardPlay() {
+        mPlayer.stop();
     }
 
     public void updateVolume(){

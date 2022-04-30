@@ -750,7 +750,7 @@ public class Image4DSimple {
                     image =  rr.read(length,true, is);
                     is.close();
 
-                }catch (Exception e){
+                } catch (Exception e){
                     e.printStackTrace();
                     Log.v(TAG,"Something wrong when open v3draw file !");
                 }

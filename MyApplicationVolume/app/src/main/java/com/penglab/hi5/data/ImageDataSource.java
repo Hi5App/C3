@@ -90,6 +90,7 @@ public class ImageDataSource {
                     try {
                         if (response.body() != null) {
                             JSONArray jsonArray = new JSONArray(response.body().string());
+                            Log.e(TAG,"getNeuonList"+jsonArray);
                             brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
                             brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
@@ -151,6 +152,7 @@ public class ImageDataSource {
                     try {
                         int responseCode = response.code();
                         if (responseCode == 200) {
+                            Log.e(TAG,"downloadImage_responseCode_200");
                             if (response.body() != null) {
                                 byte[] fileContent = response.body().bytes();
 
@@ -161,6 +163,7 @@ public class ImageDataSource {
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                                     downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
                                 }
+                                Log.e(TAG,"downloadImageResult");
                                 downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
                                 response.body().close();
                                 response.close();

@@ -57,6 +57,14 @@ public class PreferenceSetting {
         editor.apply();
     }
 
+    public void setPointStroke(boolean pointStroke){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("DownSampleMode",pref.getBoolean("DownSampleMode",true));
+        editor.putInt("Contrast", pref.getInt("Contrast",0));
+        editor.putBoolean("pointStroke",pointStroke);
+        editor.apply();
+    }
+
     public boolean getDownSampleMode(){
         return pref.getBoolean("DownSampleMode",true);
     }
@@ -64,5 +72,7 @@ public class PreferenceSetting {
     public int getContrast(){
         return pref.getInt("Contrast",0);
     }
+
+    public boolean getPointStrokeMode() {return pref.getBoolean("pointStroke",true);}
 
 }

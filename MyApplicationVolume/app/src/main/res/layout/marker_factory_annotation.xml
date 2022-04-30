@@ -53,15 +53,15 @@
         android:layout_height="40dp"
         android:background="@drawable/circle_normal"
         android:src="@drawable/ic_ignore_icon"
-        android:layout_marginStart="0dp"
+        android:layout_marginStart="10dp"
         android:layout_marginEnd="0dp"
         android:layout_marginBottom="20dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <ToggleButton
-        android:id="@+id/switch_marker_mode"
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/good_file"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:layout_marginStart="10dp"
@@ -72,7 +72,8 @@
         android:textOff="stroke"
         android:textOn="point"
         android:textSize="10sp"
-        android:background="@drawable/circle_normal"/>
+        android:background="@drawable/circle_normal"
+        app:srcCompat = "@drawable/ic_goods_favor" />
 
     <ImageButton
         android:id="@+id/add_marker"

@@ -90,6 +90,7 @@ public class MyActivity extends AppCompatActivity {
     private TextView scoreTextView;
     private TextView somaTextView;
     private TextView dailySomaTextView;
+    private TextView checkSwcTextView;
 
     private ImageView like;
     private ImageView person_chat;
@@ -122,6 +123,7 @@ public class MyActivity extends AppCompatActivity {
         scoreTextView = findViewById(R.id.score_textview);
         somaTextView = findViewById(R.id.soma_text_view);
         dailySomaTextView = findViewById(R.id.daily_soma_text_view);
+        checkSwcTextView = findViewById(R.id.check_swc_number);
         like = findViewById(R.id.like);
         infoEdit =findViewById(R.id.edit);
         person_chat =findViewById(R.id.person_chat);
@@ -155,11 +157,9 @@ public class MyActivity extends AppCompatActivity {
         person_reward.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getBaseContext(),"Reward activity is under maintenance!",Toast.LENGTH_SHORT).show();
-//                Intent intent = new Intent(MyActivity.this, RewardActivity.class);
-//                startActivity(intent);
+                Intent intent = new Intent(MyActivity.this, RewardActivity.class);
+                startActivity(intent);
             }
-
         });
 
         person_leaderboard.setOnClickListener(new View.OnClickListener() {
@@ -200,6 +200,24 @@ public class MyActivity extends AppCompatActivity {
                     myViewModel.updateSomaAndDailySoma(result);
                 }
 
+            }
+        });
+
+        myViewModel.getUserPerformanceDataSource().getPersonalCheckResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if(result == null) {
+                    return;
+                } else {
+                    myViewModel.updateCheckAndDailyCheck(result);
+                }
+            }
+        });
+
+        myViewModel.getCheckCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                checkSwcTextView.setText(Integer.toString(integer));
             }
         });
 

@@ -384,6 +384,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void openFile(){
         BasicFile basicFile = imageInfoRepository.getBasicImage();
         FilePath<?> filePath = basicFile.getFilePath();
+        Log.d("openfile", filePath.getData().toString());
         FileType fileType = basicFile.getFileType();
         this.fileType = fileType;
 
@@ -404,7 +405,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case JPG:
             case PNG:
                 Bitmap bitmap2D = Image4DSimple.loadImage2D(filePath);
-                Image4DSimple curImage2D = Image4DSimple.loadImage(filePath, fileType);
+                Image4DSimple curImage2D = Image4DSimple.loadImage2D(bitmap2D, filePath);
                 if (bitmap2D != null && curImage2D != null){
                     image4DSimple = curImage2D;
                     update2DImageSize(new Integer[]{
@@ -548,6 +549,17 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
+
+    public boolean setShowAnnotation() {
+        if (renderOptions.getIfShowSWC()) {
+            renderOptions.setIfShowSWC(false);
+            return false;
+        }else{
+            renderOptions.setIfShowSWC(true);
+            return true;
+        }
+    }
+
     public void pixelClassification(){
         if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
             NeuronTree neuronTree = annotationDataManager.getNeuronTree();
@@ -614,6 +626,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void syncMarkerList(MarkerList markerList) {
         annotationDataManager.syncMarkerList(markerList);
         requestRender();
+    }
+
+    public void syncNeuronTree(NeuronTree neuronTree) {
+        annotationDataManager.loadNeuronTree(neuronTree,true);
     }
 
     public MarkerList getMarkerListToAdd() {

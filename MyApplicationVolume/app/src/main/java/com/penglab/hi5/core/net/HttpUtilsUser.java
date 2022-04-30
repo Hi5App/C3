@@ -1,6 +1,8 @@
 package com.penglab.hi5.core.net;
 
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import okhttp3.Callback;
@@ -32,6 +34,11 @@ public class HttpUtilsUser extends HttpUtils {
                     .put("passwd", password)
                     .put("nickname", nickname)));
             asyncPostRequest(URL_REGISTER, body, callback);
+            Log.e("register",String.valueOf(new JSONObject()
+                    .put("name", username)
+                    .put("email", email)
+                    .put("passwd", password)
+                    .put("nickname", nickname)));
         } catch (Exception e) {
             e.printStackTrace();
         }

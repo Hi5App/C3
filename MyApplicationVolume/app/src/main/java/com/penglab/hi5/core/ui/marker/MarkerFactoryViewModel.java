@@ -21,6 +21,7 @@ import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.ui.ResourceResult;
+import com.penglab.hi5.core.ui.userProfile.PhotoUtils;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
@@ -53,11 +54,19 @@ public class MarkerFactoryViewModel extends ViewModel {
     private final int DEFAULT_RES_INDEX = 2;
 
     public enum AnnotationMode{
-       BIG_DATA, NONE
+        BIG_DATA, NONE
     }
 
     public enum WorkStatus{
         IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE, GET_SOMA_LIST_SUCCESSFULLY, UPLOAD_MARKERS_SUCCESSFULLY, NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
+    }
+
+    public enum SomaNumStatus{
+        ZERO, TEN, FIFTY, HUNDRED
+    }
+
+    public enum EditImageTodayStatus {
+        ZERO,FORTY,EIGHTY,LONG_HUNDRED,FIVE_HUNDRED
     }
 
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
@@ -86,6 +95,11 @@ public class MarkerFactoryViewModel extends ViewModel {
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
 
+    private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
+//    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
+    private SomaNumStatus somaNumStatus;
+    private EditImageTodayStatus editImageTodayStatus;
+
     public MarkerFactoryViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, MarkerFactoryDataSource markerFactoryDataSource, ImageDataSource imageDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
@@ -99,6 +113,11 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         initPreDownloadThread();
         initCheckFreshThread();
+
+        somaNum.setValue(0);
+        somaNumStatus = SomaNumStatus.ZERO;
+        editImageTodayStatus= EditImageTodayStatus.ZERO;
+//        editImageNum.setValue(0);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -139,6 +158,30 @@ public class MarkerFactoryViewModel extends ViewModel {
 
     public PotentialSomaInfo getCurPotentialSomaInfo() {
         return curPotentialSomaInfo;
+    }
+
+    public MutableLiveData<Integer> getSomaNum() {
+        return somaNum;
+    }
+
+    public MutableLiveData<Integer> getEditImageNumToday() {
+        return userInfoRepository.getScoreModel().getObserveEditImageToday();
+    }
+
+    public SomaNumStatus getSomaNumStatus() {
+        return somaNumStatus;
+    }
+
+    public void setSomaNumStatus(SomaNumStatus somaNumStatus) {
+        this.somaNumStatus = somaNumStatus;
+    }
+
+    public EditImageTodayStatus getEditImageTodayStatus() {
+        return editImageTodayStatus;
+    }
+
+    public void setEditImageTodayStatus (EditImageTodayStatus editImageTodayStatus) {
+        this.editImageTodayStatus = editImageTodayStatus;
     }
 
     public void updateImageResult(Result result) {
@@ -439,6 +482,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         } else {
             ToastEasy("Something wrong with curIndex");
         }
+
+//        editImageNum.setValue(editImageNum.getValue()+1);
     }
 
     private void getBrainList() {
@@ -455,6 +500,7 @@ public class MarkerFactoryViewModel extends ViewModel {
         String res = resMap.get(brainId);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
+            isDownloading = false;
             return;
         }
         imageDataSource.downloadImage(lastDownloadPotentialSomaInfo.getBrainId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
@@ -480,22 +526,34 @@ public class MarkerFactoryViewModel extends ViewModel {
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, locationType, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
+            somaNum.setValue(somaNum.getValue() + markerListToAdd.size());
+
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
                 winScoreByFinishConfirmAnImage();
+
             }
         } catch (JSONException e) {
             ToastEasy("Fail to convert MarkerList ot JSONArray !");
             e.printStackTrace();
         }
     }
-    
+
     public void winScoreByFinishConfirmAnImage() {
         userInfoRepository.getScoreModel().finishAnImage();
     }
 
+
     public void winScoreByPinPoint() {
         userInfoRepository.getScoreModel().pinpoint();
+    }
+
+    public void winScoreByReward(int level){
+        userInfoRepository.getScoreModel().getScorePerRewardLevel(level);
+    }
+
+    public void winScoreByGuessMusic(){
+        userInfoRepository.getScoreModel().getScorePerGuessMusic();
     }
 
     private void initPreDownloadThread() {

@@ -1,12 +1,16 @@
 package com.penglab.hi5.core.game.score;
 
+import android.util.Log;
+
 import androidx.lifecycle.MutableLiveData;
 
 import com.penglab.hi5.core.MainActivity;
+import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
 import com.penglab.hi5.data.dataStore.database.User;
 
+import java.lang.ref.PhantomReference;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -17,13 +21,15 @@ public class ScoreModel {
     private String id;
     private MutableLiveData<Integer> score = new MutableLiveData<>();
     private int curveNum;
-    private int markerNum;
+//    private int markerNum;
     private int lastLoginYear;
     private int lastLoginDay;
     private int curveNumToday;
-    private int markerNumToday;
-    private int editImageNum;
-    private int editImageNumToday;
+//    private int markerNumToday;
+    private MutableLiveData<Integer> markerNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> markerNumToday = new MutableLiveData<>();
+    private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> editImageNumToday = new MutableLiveData<>();
 
     private DailyQuestsModel dailyQuestsModel;
 
@@ -61,11 +67,11 @@ public class ScoreModel {
     }
 
     public int getMarkerNum() {
-        return markerNum;
+        return markerNum.getValue();
     }
 
     public void setMarkerNum(int markerNum) {
-        this.markerNum = markerNum;
+        this.markerNum.postValue(markerNum);
     }
 
     public int getLastLoginYear() {
@@ -93,27 +99,39 @@ public class ScoreModel {
     }
 
     public int getMarkerNumToday() {
-        return markerNumToday;
+        return markerNumToday.getValue();
     }
 
     public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday = markerNumToday;
+        this.markerNumToday.postValue(markerNumToday);;
     }
 
     public int getEditImageNum() {
-        return editImageNum;
+        return editImageNum.getValue();
     }
 
     public void setEditImageNum(int editImageNum) {
-        this.editImageNum = editImageNum;
+        this.editImageNum.postValue(editImageNum);
+    }
+//
+    public int getEditImageNumToday() {
+        return editImageNumToday.getValue();
     }
 
-    public int getEditImageNumToday() {
+    public MutableLiveData<Integer> getObserveEditImageToday(){
         return editImageNumToday;
     }
 
+    public MutableLiveData<Integer> getObserveMarkerNumToday(){
+        return markerNumToday;
+    }
+
+    public MutableLiveData<Integer> getObserveMarkerNum() {
+        return markerNum;
+    }
+
     public void setEditImageNumToday(int editImageNumToday) {
-        this.editImageNumToday = editImageNumToday;
+        this.editImageNumToday.postValue(editImageNumToday);
     }
 
     public DailyQuestsModel getDailyQuestsModel() {
@@ -128,6 +146,7 @@ public class ScoreModel {
         boolean result = true;
         ScoreLitePalConnector scoreLitePalConnector = new ScoreLitePalConnector(id);
         ScoreModel scoreModel = scoreLitePalConnector.getScoreModelFromLitePal();
+
         if (scoreModel == null) {
             result = false;
         } else {
@@ -136,13 +155,16 @@ public class ScoreModel {
 
         dailyQuestsModel.initFromLitePal();
 
+        RewardLitePalConnector.initUserId(id);
+
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
+            editImageNumToday.setValue(0);
+            scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
         }
-
         return result;
     }
 
@@ -173,29 +195,60 @@ public class ScoreModel {
     }
 
     public void pinpoint(){
-        markerNum += 1;
-        markerNumToday += 1;
+//        markerNum += 1;
+//        markerNumToday += 1;
+        markerNum.setValue(markerNum.getValue()+1);
+        markerNumToday.setValue(markerNumToday.getValue()+1);
         addScore(ScoreRule.getScorePerPinPoint());
 
-        dailyQuestsModel.updateMarkerNum(markerNumToday);
+        dailyQuestsModel.updateMarkerNum(markerNumToday.getValue());
 
         User user = new User();
         user.setScore(score.getValue());
-        user.setMarkerNum(markerNum);
-        user.setMarkerNumToday(markerNumToday);
+        user.setMarkerNum(markerNum.getValue());
+        user.setMarkerNumToday(markerNumToday.getValue());
         user.updateAll("userid = ?", id);
     }
 
-    public void finishAnImage(){
-        addScore(ScoreRule.getScorePerImage());
+    public void getScorePerRewardLevel (int level){
 
-        editImageNum += 1;
-        editImageNumToday += 1;
+        addScore(ScoreRule.getScorePerRewardLevel()*level);
 
         User user = new User();
         user.setScore(score.getValue());
-        user.setEditImageNum(editImageNum);
-        user.setEditImageNumToday(editImageNumToday);
+        user.updateAll("userid = ?", id);
+
+    }
+
+    public void getScorePerGuessMusic (){
+        addScore(ScoreRule.getScorePerGuessMusic());
+        User user = new User();
+        user.setScore(score.getValue());
+        user.updateAll("userid = ?", id);
+    }
+
+
+    public void finishAnImage(){
+        addScore(ScoreRule.getScorePerImage());
+        editImageNum.setValue(editImageNum.getValue()+1);
+
+//        Calendar calendar = Calendar.getInstance();
+//        int year = calendar.get(Calendar.YEAR);
+//        int date = calendar.get(Calendar.DAY_OF_YEAR);
+//        if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
+//            editImageNumToday.setValue(0);
+//        }
+        editImageNumToday.setValue(editImageNumToday.getValue()+1);
+
+//        editImageNum += 1;
+//        editImageNumToday += 1;
+
+        User user = new User();
+        user.setScore(score.getValue());
+        user.setEditImageNum(editImageNum.getValue());
+
+        user.setEditImageNumToday(editImageNumToday.getValue());
+        Log.e("editImageNumToday",editImageNumToday.getValue().toString());
         user.updateAll("userid = ?", id);
     }
 

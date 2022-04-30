@@ -87,6 +87,11 @@
     <color name="green_map">#00C814</color>
     <color name ="reward">#FF6557</color>
 
+    <color name="descriptionText">#777777</color>
+    <color name="positiveButton">#FF4081</color>
+    <color name="negativeButton">#A9A7A8</color>
+    <color name="jokebgColorFirst">#6495ED</color>
+
     <array name="colorMap">
         <item>@color/white_map</item>
         <item>@color/black_map</item>
@@ -94,7 +99,6 @@
         <item>@color/blue_map</item>
         <item>@color/purple_map</item>
         <item>@color/cyan_map</item>
-        <item>@color/yellow_map</item>
         <item>@color/green_map</item>
     </array>
 

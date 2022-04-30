@@ -21,6 +21,8 @@ public class RenderOptions {
 
     private float scale;
 
+    private boolean ifShowAnnotation = true;
+
     public RenderOptions(){
         preferenceSetting = PreferenceSetting.getInstance();
         initOptions();
@@ -80,6 +82,14 @@ public class RenderOptions {
 
     public void setImageChanging(boolean imageChanging) {
         this.imageChanging = imageChanging;
+    }
+
+    public void setIfShowSWC(boolean b){
+        ifShowAnnotation = b;
+    }
+
+    public boolean getIfShowSWC(){
+        return ifShowAnnotation;
     }
 
     public void update(){

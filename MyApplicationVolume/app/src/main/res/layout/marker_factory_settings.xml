@@ -68,6 +68,34 @@
                 android:layout_marginTop="10dp"
                 android:background="#33333333" />
 
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <androidx.appcompat.widget.SwitchCompat
+                android:id ="@+id/switch_marker_mode"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:text = "Point/Stroke"
+                android:textColor="#bb333333"
+                android:textOff="Stroke"
+                android:textOn="Point"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/switch_marker_mode"
+                android:layout_alignLeft="@id/switch_marker_mode"
+                android:layout_alignRight="@id/switch_marker_mode"
+                android:layout_marginTop="10dp"
+                android:background="#33333333" />
         </RelativeLayout>
 
         <LinearLayout
