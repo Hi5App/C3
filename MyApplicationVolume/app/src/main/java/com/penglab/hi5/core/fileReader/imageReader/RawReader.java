@@ -145,7 +145,7 @@ public class RawReader {
         }
     }
     public Image4DSimple read(long length,boolean downsample, InputStream is) {
-
+        Log.e(TAG, "1111111111111");
         // Read in the header values...
         try {
             FileInputStream fid = (FileInputStream)(is);
@@ -166,7 +166,7 @@ public class RawReader {
             // read the endianness
             by = new byte[1];
             fid.read(by);
-
+            Log.e(TAG, "444444444444444");
             if (by[0]!='B' && by[0]!='L')
                 throw new Exception("This program only supports big- or little- endian but not other format. Check your endian.");
 
@@ -191,7 +191,7 @@ public class RawReader {
                     throw new Exception("Unrecognized datatype code"+deCode+". The file is incorrect or this code is not supported in this version");
             }
             int unitSize = datatype;
-
+            Log.e(TAG, "55555555555555");
             // read the data size info (the data size is stored in either 2-byte or 4-byte space)
             long[] sz = new long[4];
             long totalUnit = 1;
@@ -203,7 +203,7 @@ public class RawReader {
                 sz[i] = bytes2int(by,isBig);
                 totalUnit *= sz[i];
             }
-
+            Log.e(TAG, "66666666666666");
             if ((totalUnit*unitSize+4*2+2+1+lenkey) != fileSize) {
                 // see if this is a 4-byte file
                 if (isBig)  {
@@ -226,7 +226,7 @@ public class RawReader {
                 if ((totalUnit*unitSize+4*4+2+1+lenkey) != fileSize)
                     throw new Exception("The input file has a size different from what specified in the header. Exit.");
             }
-
+            Log.e(TAG, "7777777777777777");
             byte [] data = new byte[(int)(totalUnit*unitSize)];
             fid.read(data);
             int w = (int) sz[0];
@@ -252,15 +252,29 @@ public class RawReader {
                 default:
                     dt = Image4DSimple.ImagePixelType.V3D_UNKNOWN;
             }
+            int l= (int) (sz[2]%2);
+            Log.e(TAG, "8888888888888"+downsample+l);
             if(downsample) {
                 byte[] data_n = new byte[(int) (totalUnit * unitSize / 8)];
-                downsampledata(data, data_n, w, h, (int) sz[2]);
-                image.setDataFromImage(data_n, sz[0]/2, sz[1]/2, sz[2]/2, sz[3], dt, isBig);
+
+
+                Log.e(TAG, "dfsfssadf");
+                if(l==1){
+                    Log.e(TAG, "z is odd"+(int) sz[2]);
+                    Log.e(TAG, "asdfsadf");
+                    downsampledata(data, data_n, w, h, (int) sz[2]-1);
+                    image.setDataFromImage(data_n, sz[0]/2, sz[1]/2, sz[2]/2, sz[3], dt, isBig);
+                }else {
+                    Log.e(TAG, "z is no odd");
+                    Log.e(TAG, "sdfasdf");
+                    downsampledata(data, data_n, w, h, (int) sz[2]);
+                    image.setDataFromImage(data_n, sz[0] / 2, sz[1] / 2, sz[2] / 2, sz[3], dt, isBig);
+                }
             }else
             {
                 image.setDataFromImage(data, sz[0], sz[1], sz[2], sz[3], dt, isBig);
             }
-
+            Log.e(TAG, "99999999999999");
 
 
             if (isBig){

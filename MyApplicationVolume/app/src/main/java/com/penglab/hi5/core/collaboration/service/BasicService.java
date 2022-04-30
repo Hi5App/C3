@@ -303,7 +303,7 @@ public abstract class BasicService extends Service {
                         int Loop = File_Content_Int / 1024;
                         int End = File_Content_Int % 1024;
 
-//                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
+                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
                         byte[] File_Content = new byte[1024];
                         byte[] File_Content_End = new byte[End];
 
@@ -314,11 +314,11 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
-
+                            Log.e(TAG, "Start to read !"+(Loop-i));
                             out.write(File_Content);
                         }
 
-//                        Log.e(TAG, "Start to read end content !");
+                        Log.e(TAG, "Start to read end content !");
                         if (End > 0) {
 
 //                            Log.e(TAG, "Wait for the data !");
@@ -334,7 +334,7 @@ public abstract class BasicService extends Service {
                         }
                         out.close();
 
-                        if (dataType.filename.endsWith(".v3draw") || dataType.filename.endsWith("v3dpbd")) {
+                        if (dataType.filename.endsWith("v3dpbd")) {
                             receiveMsgInterface.onRecMessage("Block:" + dataType.filepath + "/" + dataType.filename);
 //                            MainActivity.hideProgressBar();
                         } else {
@@ -552,7 +552,7 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else if (dataType.filename.endsWith(".tif") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
+                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc")  || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
                             dataType.filepath = dir_str_server;
                             Log.e(TAG, "This is a s2 file !");
                         }

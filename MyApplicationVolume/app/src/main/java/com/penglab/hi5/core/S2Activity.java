@@ -18,7 +18,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Camera;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.media.SoundPool;
@@ -70,7 +69,6 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.netease.nim.uikit.api.NimUIKit;
 import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
 import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.friend.FriendService;
@@ -190,9 +188,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     private View pvcamModeView;
-    
-    private static Button Zoom_in;
-    private static Button Zoom_out;
 
     private static Button Zslice_up;
     private static Button Zslice_down;
@@ -210,17 +205,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static ImageButton S2start;
     private static ImageButton imgs2stack;
 
-    private static ImageButton Undo_i;
-    private static ImageButton Redo_i;
-    private ImageButton Sync_i;
-    private Button Sync;
+
     private Button Switch;
-    private Button Remoteleft;
-    private Button Share;
+
     private ImageButton animation_i;
     private ImageButton draw_i;
-    private ImageButton tracing_i;
-    private ImageButton classify_i;
+
     private static TextView filenametext;
 
     private static ImageView PV_imageView;
@@ -247,7 +237,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //    private static ImageButton sync_pull;
 
     private FrameLayout ll;
-    private FrameLayout.LayoutParams lp_undo_i;
+
     private FrameLayout.LayoutParams lp_left_i;
     private FrameLayout.LayoutParams lp_right_i;
     private static FrameLayout.LayoutParams lp_up_i;
@@ -256,16 +246,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private FrameLayout.LayoutParams lp_back_i;
     private static FrameLayout.LayoutParams lp_nacloc_i;
     private static FrameLayout.LayoutParams lp_sync_i;
-    //    private static FrameLayout.LayoutParams lp_sync_push;
-//    private static FrameLayout.LayoutParams lp_sync_pull;
-//    private static FrameLayout.LayoutParams lp_neuron_list;
-//    private static FrameLayout.LayoutParams lp_blue_color;
-//    private static FrameLayout.LayoutParams lp_red_color;
+
     private static FrameLayout.LayoutParams lp_res_list;
     private FrameLayout.LayoutParams lp_animation_i;
-    private static FrameLayout.LayoutParams lp_undo;
-    private static FrameLayout.LayoutParams lp_redo;
-    private static FrameLayout.LayoutParams lp_score;
+
     private static FrameLayout.LayoutParams lp_x_pos;
     private static FrameLayout.LayoutParams lp_y_pos;
     private static FrameLayout.LayoutParams lp_z_pos;
@@ -273,13 +257,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static FrameLayout.LayoutParams lp_room_id;
     private static FrameLayout.LayoutParams lp_user_list;
 
-    private Button PixelClassification;
-    private boolean[][] select = {{true, true, true, false, false, false, false},
-            {true, true, true, false, false, false, false},
-            {false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, false},
-            {false, false, false, false, false, false, false},
-            {true, true, true, false, false, false, false}};
+
+
 
 
     private BigImgReader bigImgS2Reader;
@@ -289,7 +268,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private LinearLayout ll_bottom;
     private static LinearLayout ll_file;
 
-    private int measure_count = 0;
+
     private List<double[]> fl;
 
     private static boolean isBigData_Remote;
@@ -300,10 +279,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean isCamera;
     private static ProgressBar progressBar;
     private static ProgressDialog progressDialog_zscan;
+    private static ProgressDialog progressDialog_loadimg;
 
     private CircleImageView wave;
 
-    private int eswc_length;
+
     // 读写权限
     private static String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -312,22 +292,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             Manifest.permission.RECORD_AUDIO};
     private static final int REQUEST_PERMISSION_CODE = 1;
     private static final int REQUEST_IMAGE_CAPTURE = 2;
-    private static final int REQUEST_TAKE_PHOTO = 3;
 
-    private static final int PERMISSION_REQ_ID_RECORD_AUDIO = 22;
     private static final int TOAST_INFO_STATIC = 5;
 
     //    private int Paintmode = 0;
     private ArrayList<Float> lineDrawed = new ArrayList<Float>();
 
-    private ArrayList<Float> loactionOf2dImg = new ArrayList<Float>();
 
-    private BroadcastReceiver broadcastReceiver;
-
-    private String currentPhotoPath; // 指定一个不会跟其他文件产生冲突的文件名，用于后面相机拍照的图片的保存
-
-    private File showPic;
-    private Uri picUri;
 
     private static BasePopupView popupView;
     private static BasePopupView popupViewSync;
@@ -335,7 +306,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static final int animation_id = 0;
     private int rotation_speed = 36;
 
-    private long exitTime = 0;
+
 
     private static String filename = "";
     private static String s2filename = "";
@@ -346,9 +317,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
     }
 
-    private enum VoicePattern {
-        PEER_TO_PEER, CHAT_ROOM, UNCERTAIN
-    }
+
 
 
     private BasePopupView drawPopupView;
@@ -361,14 +330,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     public static String username;
 
-    private static float[] gamePositionForIntent = {0.5f, 0.5f, 0.5f};
-    private static float[] gameDirForIntent = {1, 1, 1};
-    private static float[] gameHeadForIntent = {1, 0, -1};
-    private static int gameLastIndexForIntent = -1;
-    private static boolean gameIfNewForIntent = true;
-    private static int gameScoreForIntent = 0;
-    private SoundPool soundPool;
-    private final int SOUNDNUM = 4;
+
 
 
     //    private boolean mBoundAgora = false;
@@ -380,20 +342,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private static String conPath = "";
 
-    private float bgmVolume = 0f;
-    private float buttonVolume = 1.0f;
-    private float actionVolume = 1.0f;
+
     public static boolean firstLoad = true;
-    private boolean firstJoinRoom = true;
-    private boolean copyFile = false;
+
     private boolean  ifgetTest = false;
     private boolean ifSmartControl = false;
 
-    private int score = 0;
-    private String scoreString = "00000";
-
-    private static TextView scoreText;
-    private int selectedBGM = 0;
 
     private TextView x_pos_Text;
     private TextView y_pos_Text;
@@ -543,9 +497,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("File:")) {
-            if (msg.endsWith(".jpg")) {
+            if (msg.endsWith(".v3draw")) {
 
-                Log.e(TAG, "File: .jpg");
+                Log.e(TAG, "File: .v3draw");
                  loadBigDataImg(msg.split(":")[1]);
 
                 //PV_imageView.setImageBitmap(bitmap); //设置Bitmap
@@ -580,9 +534,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 loadBigDataImg(msg.split(":")[1]);
 
             }
-            if (msg.endsWith(".eswc")) {
+            if (msg.endsWith(".swc")) {
 
-                Log.e(TAG, "File: .eswc");
+                Log.e(TAG, "File: .swc");
                 loadBigDataSwc(msg.split(":")[1]);
 
             }
@@ -771,8 +725,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         progressDialog_zscan.setCancelable(true);
 
 
+        progressDialog_loadimg = new ProgressDialog(S2Activity.this);
+        progressDialog_loadimg.setTitle("Loading Image .....");
+        progressDialog_loadimg.setMessage("Wait about 1 minute");
+        progressDialog_loadimg.setCancelable(true);
+
         initDir();
-        initNim();
+        //initNim();
 
         initServerConnector();
         initService();
@@ -849,8 +808,66 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
 
 
-        S2Context = null;
+         ll_top=null;
+         ll_bottom=null;
+        ll_file=null;
+        lineDrawed =null;
+        popupView=null;
+       popupViewSync=null;
+        drawPopupView=null;
 
+         si_logo=null;
+       Hide_i=null;
+
+        bitmap2D = null;
+       pvcamModeView=null;
+
+        progressBar=null;
+        progressDialog_zscan=null;
+        progressDialog_loadimg=null;
+
+
+       Zslice_up=null;
+        Zslice_down=null;
+
+       Zoom_in_Big=null;
+        bigImgS2Reader=null;
+        Zoom_out_Big=null;
+        zseries_scan=null;
+        Camera_open=null;
+        S2start=null;
+        imgs2stack=null;
+
+        Switch=null;
+
+        animation_i=null;
+         draw_i=null;
+
+        filenametext=null;
+
+        PV_imageView=null;
+       MoveXtop=null;
+      navigation_left=null;
+        navigation_right=null;
+        navigation_up=null;
+        navigation_down=null;
+        navigation_location=null;
+       eswc_sync=null;
+      ROI_i=null;
+       navigation_front=null;
+         navigation_back=null;
+//    private static Button blue_pen;
+//    private static Button red_pen;
+
+       res_list=null;
+       user_list=null;
+       room_id=null;
+
+        pvcamModeView=null;
+        myS2GLSurfaceView=null;
+        myS2renderer=null;
+        S2Context = null;
+        //serverConnector.closeSender();
         if (timer != null) {
             timer.cancel();
             timer = null;
@@ -926,13 +943,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Intent intent = new Intent(context, S2Activity.class);
         intent.putExtra(USERNAME, username);
         context.startActivity(intent);
-    }
-
-    public static void actionStart(Context context, String invitor, String path, String soma) {
-        Intent intent = new Intent(context, S2Activity.class);
-        context.startActivity(intent);
-        username = InfoCache.getAccount();
-        acceptInvitation(path, soma);
     }
 
     private void initBasicLayout()
@@ -1096,9 +1106,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         /*
         init buttons ------------------------------------------------------------------------------------------------------------------------
          */
-        si_logo = new ImageButton(this);
-        si_logo.setImageResource(R.drawable.si_logo);
-        si_logo.setBackgroundResource(R.drawable.circle_normal);
+//        si_logo = new ImageButton(this);
+//        si_logo.setImageResource(R.drawable.si_logo);
+//        si_logo.setBackgroundResource(R.drawable.circle_normal);
 
 //        eswc_sync = new ImageButton(this);
 //        eswc_sync.setImageResource(R.drawable.ic_baseline_autorenew_24);
@@ -1232,9 +1242,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         lp_rotation.setMargins(0, 0, 180, 20);
 
 
-        FrameLayout.LayoutParams lp_si_logo = new FrameLayout.LayoutParams(150, 150);
-        lp_si_logo.gravity = Gravity.TOP | Gravity.LEFT;
-        lp_si_logo.setMargins(0, 0, 0, 0);
+//        FrameLayout.LayoutParams lp_si_logo = new FrameLayout.LayoutParams(150, 150);
+//        lp_si_logo.gravity = Gravity.TOP | Gravity.LEFT;
+//        lp_si_logo.setMargins(0, 0, 0, 0);
 
         FrameLayout.LayoutParams lp_hide = new FrameLayout.LayoutParams(120, 120);
         lp_hide.gravity = Gravity.BOTTOM | Gravity.RIGHT;
@@ -1709,11 +1719,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 String eswcPath=null;
                 Log.e(TAG, "eswc_sync" +s2EswcPath+"  "+s2EswcPath.split("\\.")[1]);
                 if(s2EswcPath.endsWith("tif")) {
-                    eswcPath = s2EswcPath.replace(".tif", ".eswc");
+                    eswcPath = s2EswcPath.replace(".tif", "_refined_pruned.swc");
                     Log.e(TAG, "eswc_sync" +eswcPath);
                 }else if(s2EswcPath.endsWith("v3draw"))
                 {
-                     eswcPath = s2EswcPath.replace(".v3draw", ".eswc");
+                     eswcPath = s2EswcPath.replace(".v3draw", "_refined_pruned.swc");
                     Log.e(TAG, "eswc_sync" +eswcPath);
                 }
                 else
@@ -1784,7 +1794,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         this.addContentView(Zoom_out_Big, lp_zoom_out_no);
 
 
-        this.addContentView(si_logo, lp_si_logo);
+//        this.addContentView(si_logo, lp_si_logo);
         this.addContentView(zseries_scan, lp_rotation);
         this.addContentView(S2start, lp_hide);
 
@@ -1994,7 +2004,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             String childName = childFile.getName();
 
             //String fileSizeString = formetFileSize(childFile);
-            Log.e("iiii", "getFiles: "+childName);
+            //Log.e("iiii", "getFiles: "+childName);
             arr.add(childName);
            // Log.e("iiii", "fileLength="+fileSizeString);
         }
@@ -2067,6 +2077,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 public void onSelect(int position, String text) {
                                     ifZscanSeries=false;
                                     isS2Start = false;
+
+                                    Log.e(TAG, " ServerConnector.text;" + text);
                                     if(text.contains(".tif")||(text.contains(".v3draw")))
                                     {
                                         isVirtualScope=false;
@@ -2075,7 +2087,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     }else if (text.contains("img2d_")) {
                                         isVirtualScope=true;
                                         isCheckmode=false;
-                                    }else if (text.contains(".eswc")) {
+                                    }else if (text.contains(".swc")) {
                                         isCheckmode=true;
                                     }
                                     if(text.contains("Update all data from microscope"))
@@ -2093,7 +2105,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         loadBigDataImg(filepath);
                                         return;
                                     }
-                                    if(getFiles(finalDir_str_server).contains(text)&&text.contains(".eswc"))
+                                    if(getFiles(finalDir_str_server).contains(text)&&text.contains(".swc"))
                                     {
                                         String filepathgg=finalDir_str_server+"/"+text;
                                         Log.e(TAG, "loadBigDataSwc" + filepathgg);
@@ -2106,6 +2118,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     conPath = conPath + "/" + text;
                                     ServerConnector.getInstance().sendMsg("getimglist:" + conPath);
                                     Log.e(TAG, " ServerConnector.getInstance().sendMsg;" + conPath);
+                                    if(!text.contains("img_stack")&&text.length()>10)
+                                    {
+                                        progressDialog_loadimg.show();
+                                    }
 
                                     Toast_in_Thread("VirtualScope Mode!");
 
@@ -2192,37 +2208,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /**
-     * create the new file & input the name of file
-     *
-     * @param oldname oldname of file
-     * @param mode    work mode
-     */
-    private void CreateFile(String oldname, String mode) {
-        new XPopup.Builder(this)
-                .asInputConfirm("CreateRoom", "Input the name of the new Room",
-                        new OnInputConfirmListener() {
-                            @Override
-                            public void onConfirm(String text) {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                switch (mode) {
-                                    case "0":
-                                        Communicator.getInstance().setPath(conPath + "/" + text);
-                                        serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
-                                        serverConnector.setRoomName(text);
-                                        copyFile = true;
-                                        break;
-                                    case "1":
-                                        Communicator.getInstance().setPath(conPath + "/" + text);
-                                        serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
-                                        serverConnector.setRoomName(text);
-                                        copyFile = true;
-                                        break;
-                                }
-                            }
-                        })
-                .show();
-    }
 
 
     /**
@@ -2367,114 +2352,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     for IM module ------------------------------------------------------------------------------------
      */
 
-    private void initNim() {
-        registerSystemMessageObservers(true);
-    }
 
 
-    /**
-     * 注册/注销系统消息未读数变化
-     */
-    private void registerSystemMessageObservers(boolean register) {
-        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
-                sysMsgUnreadCountChangedObserver, register);
-
-        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
-    }
-
-    private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
-        Log.e("Observer<Integer>", "Observer unreadCount");
-        SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
-        ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
-    };
-
-
-    private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
-        @Override
-        public void onEvent(List<IMMessage> imMessages) {
-//            Toast_in_Thread_static("Receive Msg");
-            if (isTopActivity()) {
-                for (int i = 0; i < imMessages.size(); i++) {
-                    if (imMessages.get(i).getMsgType() == MsgTypeEnum.custom) {
-                        MsgAttachment attachment = imMessages.get(i).getAttachment();
-                        if (attachment instanceof InviteAttachment) {
-//                        Toast_in_Thread_static("Receive Invite");
-                            String data = attachment.toJson(false);
-//                        Toast_in_Thread_static(data);
-                            Log.d(TAG, "Invite data: " + data);
-
-                            data = data.replaceAll("\"", "");
-                            data = data.replaceAll("\\u007B", "");
-                            data = data.replaceAll("\\}", "");
-                            Log.d(TAG, "Invite data: " + data);
-
-                            String[] informs = data.split(",");
-                            String invitor = informs[0].split(":")[2];
-                            String path = informs[1].split(":")[1];
-                            String soma = informs[2].split(":")[1];
-
-                            invitePopup(getContext(), invitor, path, soma);
-                        }
-                    }
-                }
-            }
-        }
-    };
-
-
-    private static void invitePopup(Context context, String invitor, String path, String soma) {
-        Log.d(TAG, "invitePopup: " + invitor + " " + path + " " + soma);
-        String[] list = path.split("/");
-        String roomName = list[list.length - 1];
-        new XPopup.Builder(context)
-                .dismissOnTouchOutside(false)
-                .dismissOnBackPressed(false)
-                .asConfirm("INVITE", invitor + " is inviting you to join game in room " + roomName, "Reject", "Join",
-                        new OnConfirmListener() {
-                            @Override
-                            public void onConfirm() {
-
-                                Communicator communicator = Communicator.getInstance();
-                                communicator.initSoma(soma);
-                                //    communicator.setConPath(path);
-                                Communicator.Path = path;
-                                Communicator.BrainNum = path.split("/")[1];
-                                conPath = path;
-                                firstLoad = true;
-
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                serverConnector.sendMsg("LOADFILES:2 " + path);
-
-//                                String[] list = path.split("/");
-                                serverConnector.setRoomName(roomName);
-                            }
-                        }, new OnCancelListener() {
-                            @Override
-                            public void onCancel() {
-
-                            }
-                        }, false)
-                .show();
-    }
-
-
-    private static void acceptInvitation(String path, String soma) {
-
-        String[] list = path.split("/");
-        String roomName = list[list.length - 1];
-
-        Communicator communicator = Communicator.getInstance();
-        communicator.initSoma(soma);
-//        communicator.setConPath(path);
-        Communicator.Path = path;
-        Communicator.BrainNum = path.split("/")[1];
-        conPath = path;
-        firstLoad = true;
-
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg("LOADFILES:2 " + path);
-        serverConnector.setRoomName(roomName);
-    }
 
 
     @Override
@@ -3091,87 +2970,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    /**
-     * function for the Tracing button
-     *
-     * @param v the button: tracing
-     */
-    private void Tracing(final View v) {
-
-        Image4DSimple img = myS2renderer.getImg();
-        if (img == null || !img.valid()) {
-            ToastEasy("Please load a 3d image first !");
-            return;
-        }
-
-        new XPopup.Builder(this)
-                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"APP2", "GD", "Save SwcFile"},
-                        new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-
-
-                                switch (text) {
-                                    case "GD":
-                                        try {
-                                            Log.v(TAG, "GD-Tracing start ~");
-                                            ToastEasy("GD-Tracing start !");
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        GDTracing();
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 1000);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-
-                                        break;
-
-                                    case "APP2":
-                                        try {
-                                            Log.v(TAG, "APP2-Tracing start~");
-                                            ToastEasy("APP2-Tracing start !");
-                                            progressBar.setVisibility(View.VISIBLE);
-                                            timer = new Timer();
-                                            timerTask = new TimerTask() {
-                                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                                @Override
-                                                public void run() {
-                                                    try {
-                                                        APP2();
-                                                    } catch (Exception e) {
-                                                        e.printStackTrace();
-                                                    }
-                                                }
-                                            };
-                                            timer.schedule(timerTask, 1000);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        break;
-
-                                    case "Save SwcFile":
-                                        SaveSWC();
-                                        break;
-
-                                    default:
-                                        break;
-                                }
-                            }
-                        })
-                .show();
-    }
 
     private void SaveSWC() {
         MDDialog mdDialog = new MDDialog.Builder(this)
@@ -3260,189 +3058,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setTitle("Save SWC File")
                 .create();
         mdDialog.show();
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.N)
-    private void APP2() throws Exception {
-        Image4DSimple img = myS2renderer.getImg();
-        if (img == null || !img.valid()) {
-            ToastEasy("Please load image first !");
-            progressBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        float imgZ = 0;
-        boolean is2D = false;
-        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
-            imgZ = Math.max((int) img.getSz0(), (int) img.getSz1()) / 2;
-            is2D = true;
-        }
-
-        ArrayList<ImageMarker> markers = myS2renderer.getMarkerList().getMarkers();
-        try {
-            ParaAPP2 p = new ParaAPP2();
-            p.p4dImage = img;
-            p.xc0 = p.yc0 = p.zc0 = 0;
-            p.xc1 = (int) p.p4dImage.getSz0() - 1;
-            p.yc1 = (int) p.p4dImage.getSz1() - 1;
-            p.zc1 = (int) p.p4dImage.getSz2() - 1;
-            p.landmarks = new LocationSimple[markers.size()];
-            p.bkg_thresh = -1;
-            for (int i = 0; i < markers.size(); i++) {
-                p.landmarks[i] = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0) :
-                        new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
-            }
-            System.out.println("---------------start---------------------");
-            V3dNeuronAPP2Tracing.proc_app2(p);
-            NeuronTree nt = p.resultNt;
-            for (int i = 0; i < nt.listNeuron.size(); i++) {
-                nt.listNeuron.get(i).type = 4;
-                if (is2D) nt.listNeuron.get(i).z = imgZ;
-//                if (nt.listNeuron.get(i).parent == -1) {s
-//                    NeuronSWC s = nt.listNeuron.get(i);
-//                    ImageMarker m = new ImageMarker(s.x, s.y, s.z);
-//                    m.type = 2;
-//                    myS2renderer.getMarkerList().add(m);
-//                }
-            }
-            System.out.println("size: " + nt.listNeuron.size());
-
-            ToastEasy("APP2-Tracing finish, size of result swc: " + Integer.toString(nt.listNeuron.size()));
-            myS2renderer.importNeuronTree(nt, isBigData_Remote);
-            myS2renderer.saveUndo();
-            myS2GLSurfaceView.requestRender();
-            progressBar.setVisibility(View.INVISIBLE);
-
-        } catch (Exception e) {
-            ToastEasy(e.getMessage());
-            progressBar.setVisibility(View.INVISIBLE);
-        }
-
-
-    }
-
-    private void GDTracing() throws Exception {
-        Image4DSimple img = myS2renderer.getImg();
-        if (img == null || !img.valid()) {
-            ToastEasy("Please load image first !");
-            progressBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        ArrayList<ImageMarker> markers = myS2renderer.getMarkerList().getMarkers();
-        if (markers.size() <= 1) {
-            Log.v("GDTracing", "Please generate at least two markers!");
-            ToastEasy("Please produce at least two markers !");
-            progressBar.setVisibility(View.INVISIBLE);
-            return;
-        }
-
-        boolean is2D = false;
-        float imgZ = 0;
-        if (myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG) {
-            is2D = true;
-            imgZ = markers.get(0).z;
-        }
-
-
-        LocationSimple p0;
-        p0 = is2D ? new LocationSimple(markers.get(0).x, markers.get(0).y, 0) :
-                new LocationSimple(markers.get(0).x, markers.get(0).y, markers.get(0).z);
-        Vector<LocationSimple> pp = new Vector<LocationSimple>();
-        for (int i = 1; i < markers.size(); i++) {
-            LocationSimple p = is2D ? new LocationSimple(markers.get(i).x, markers.get(i).y, 0) :
-                    new LocationSimple(markers.get(i).x, markers.get(i).y, markers.get(i).z);
-            pp.add(p);
-        }
-
-        NeuronTree outswc = new NeuronTree();
-        CurveTracePara curveTracePara = new CurveTracePara();
-
-        try {
-            outswc = V3dNeuronGDTracing.v3dneuron_GD_tracing(img, p0, pp, curveTracePara, 1.0);
-        } catch (Exception e) {
-            ToastEasy(e.getMessage());
-            progressBar.setVisibility(View.INVISIBLE);
-        }
-        for (int i = 0; i < outswc.listNeuron.size(); i++) {
-            outswc.listNeuron.get(i).type = 5;
-            if (is2D) outswc.listNeuron.get(i).z = imgZ;
-        }
-
-        ToastEasy("GD-Tracing finished, size of result swc: " + Integer.toString(outswc.listNeuron.size()));
-        myS2renderer.importNeuronTree(outswc, isBigData_Remote);
-        myS2renderer.saveUndo();
-        myS2GLSurfaceView.requestRender();
-        progressBar.setVisibility(View.INVISIBLE);
-
-    }
-
-
-    private void PixelClassification(final View v) {
-
-        Image4DSimple img = myS2renderer.getImg();
-        if (img == null || !img.valid()) {
-            ToastEasy("Please load a 3d image first !");
-            return;
-        }
-
-        new XPopup.Builder(this)
-                .atView(v)  // 依附于所点击的View，内部会自动判断在上方或者下方显示
-                .asAttachList(new String[]{"Filter by example"}, new int[]{},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-
-
-                                switch (text) {
-                                    case "Filter by example":
-                                        //调用像素分类接口，显示分类结果
-                                        progressBar.setVisibility(View.VISIBLE);
-
-                                        new Thread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                pixelClassification();
-                                                puiHandler.sendEmptyMessage(6);
-                                            }
-                                        }).start();
-                                        break;
-                                }
-                            }
-                        })
-                .show();
-    }
-
-    private void pixelClassification() {
-
-        Image4DSimple img = myS2renderer.getImg();
-        if (img == null) {
-
-            ToastEasy("Please load image first !");
-            return;
-        }
-        Image4DSimple outImg = new Image4DSimple();
-
-        NeuronTree nt = myS2renderer.getNeuronTree();
-        PixelClassification p = new PixelClassification();
-
-        boolean[][] selections = select;
-        System.out.println("select is");
-        System.out.println(select);
-        p.setSelections(selections);
-
-        ToastEasy("pixel  classification start !");
-
-        try {
-            outImg = p.getPixelClassificationResult(img, nt);
-            System.out.println("outImg: " + outImg.getSz0() + " " + outImg.getSz1() + " " + outImg.getSz2() + " " + outImg.getSz3());
-            System.out.println(outImg.getData().length);
-
-            myS2renderer.resetImg(outImg);
-            myS2GLSurfaceView.requestRender();
-        } catch (Exception e) {
-            ToastEasy(e.getMessage());
-        }
     }
 
 
@@ -3721,180 +3336,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void AnalyzeSwc() {
-        new XPopup.Builder(this)
-                .asCenterList("morphology calculate", new String[]{"Analyze a Swc file", "Analyze current tracing"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Analyze a Swc file":
-                                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                                        intent.setType("*/*");    //设置类型，我这里是任意类型，任意后缀的可以这样写。
-                                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                        startActivityForResult(intent, 1);
-                                        ifAnalyze = true;
-                                        ifImport = false;
-                                        ifUpload = false;
-                                        break;
 
-                                    case "Analyze current tracing":
-                                        NeuronTree nt = myS2renderer.getNeuronTree();
-                                        if (nt.listNeuron.isEmpty()) {
-                                            ToastEasy("Empty tracing, do nothing");
-                                            break;
-                                        }
-                                        MorphologyCalculate morphologyCalculate = new MorphologyCalculate();
-                                        List<double[]> features = morphologyCalculate.calculatefromNT(nt, false);
-                                        fl = new ArrayList<double[]>(features);
-                                        if (features.size() != 0) displayResult(features);
-                                        else ToastEasy("The file is empty");
-                                        break;
-
-                                    default:
-                                        ToastEasy("Default in analysis");
-
-                                }
-                            }
-                        })
-                .show();
-
-
-    }
 
     MDDialog.Builder ar_mdDialog_bd = new MDDialog.Builder(this).setContentView(R.layout.analysis_result);
     MDDialog ar_mdDialog = null;
-
-    /**
-     * display the result of morphology calculate
-     *
-     * @param featureList the features of result
-     */
-    @SuppressLint("DefaultLocale")
-    private void displayResult(final List<double[]> featureList) {
-        final String[] title;
-        final int[] id_title;
-        final int[] id_content;
-        final int[] id_rl;
-        if (measure_count > featureList.size() - 1) {
-            measure_count = 0;
-        } else if (measure_count < 0) {
-            measure_count = featureList.size() - 1;
-        }
-        double[] result = featureList.get(measure_count);
-        String[] subtitle = new String[featureList.size()];
-        for (int i = 0; i < featureList.size(); i++) {
-            if (featureList.size() > 1) {
-                subtitle[i] = String.format("Tree %d/%d", i + 1, featureList.size());
-            } else {
-                subtitle[i] = "";
-            }
-        }
-
-        title = new String[]{
-                "number of nodes",
-                "soma surface",
-                "number of stems",
-                "number of bifurcations",
-                "number of branches",
-                "number of tips",
-                "overall width",
-                "overall height",
-                "overall depth",
-                "average diameter",
-                "total length",
-                "total surface",
-                "total volume",
-                "max euclidean distance",
-                "max path distance",
-                "max branch order",
-                "average contraction",
-                "average fragmentation",
-                "average parent-daughter ratio",
-                "average bifurcation angle local",
-                "average bifurcation angle remote",
-                "Hausdorff dimension"
-        };
-
-        id_title = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
-                R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
-                R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
-                R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
-                R.id.title20, R.id.title21};
-
-        id_content = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
-                R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
-                R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
-                R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
-                R.id.content20, R.id.content21};
-
-        id_rl = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4,
-                R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9,
-                R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
-                R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
-                R.id.RL20, R.id.RL21};
-        ar_mdDialog = ar_mdDialog_bd
-                .setContentView(R.layout.analysis_result)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {//这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        //analysis_result next page
-                        Button ar_right = (Button) contentView.findViewById(R.id.ar_right);
-                        ar_right.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (featureList.size() > 1) {
-                                    measure_count++;
-                                    ar_mdDialog.dismiss();
-                                    displayResult(fl);
-                                }
-                            }
-                        });
-                        Button ar_left = (Button) contentView.findViewById(R.id.ar_left);
-                        ar_left.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (featureList.size() > 1) {
-                                    measure_count--;
-                                    ar_mdDialog.dismiss();
-                                    displayResult(fl);
-                                }
-                            }
-                        });
-                        if (title.length == 8) {
-                            for (int i = 8; i < id_rl.length; i++) {
-                                contentView.findViewById(id_rl[i]).setVisibility(View.GONE);
-                            }
-                        } else if (title.length == 22) {
-                            for (int i = 8; i < id_rl.length; i++) {
-                                contentView.findViewById(id_rl[i]).setVisibility(View.VISIBLE);
-                            }
-                        }
-
-
-                        String result_str;
-                        int num;
-                        for (int i = 0; i < title.length; i++) {
-                            TextView tx = contentView.findViewById(id_title[i]);
-                            tx.setText(title[i]);
-
-                            TextView ct = contentView.findViewById(id_content[i]);
-                            if (title[i].substring(0, 6).equals("number") || title[i].substring(0, 6).equals("max br")) {
-                                result_str = ": " + String.format("%d", (int) result[i + 1]);
-                            } else {
-                                num = Value_Display_Length(result[i + 1]);
-                                result_str = ": " + String.format("%." + String.format("%d", num) + "f", (float) result[i + 1]);
-                            }
-                            ct.setText(result_str);
-
-                        }
-                    }
-
-                })
-                .setTitle("Measured features " + subtitle[measure_count])
-                .create();
-        ar_mdDialog.show();
-    }
 
 
     /**
@@ -4488,11 +3933,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         super.onActivityResult(requestCode, resultCode, data);
 
         Log.e(TAG, "onActivityResult start");
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            myS2renderer.setPath(showPic.getAbsolutePath());
-            myS2GLSurfaceView.requestRender();
-            return;
-        }
+//        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+//            myS2renderer.setPath(showPic.getAbsolutePath());
+//            myS2GLSurfaceView.requestRender();
+//            return;
+//        }
 
         if (resultCode == RESULT_OK) {
             Uri uri = data.getData();
@@ -5133,6 +4578,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             progressDialog_zscan.dismiss();
             ifZscanSeries = false;
             Log.e(TAG, "loadBigDataImg:ifZscanSeries " + ifZscanSeries);
+        }
+        if (isCheckmode) {
+            progressDialog_loadimg.dismiss();
+            //isCheckmode = false;
+            Log.e(TAG, "loadBigDataImg:isVirtualScope " + isVirtualScope);
         }
 
         String[] list = filepath.split("/");

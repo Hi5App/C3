@@ -730,9 +730,10 @@ public class Image4DSimple {
 
             if (file.exists()){
                 try {
+                    Log.v(TAG,"file.exists()!");
                     length = file.length();
                     is = new FileInputStream(file);
-                    image = rr.read(length, is);
+                    image = rr.read(length,true, is);
                     is.close();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -740,6 +741,7 @@ public class Image4DSimple {
             } else {
                 Uri uri = Uri.parse(filepath);
                 try {
+                    Log.v(TAG,"file.!!!exists()!");
                     ParcelFileDescriptor parcelFileDescriptor =
                             getContext().getContentResolver().openFileDescriptor(uri, "r");
 
@@ -855,6 +857,7 @@ public class Image4DSimple {
         InputStream is = null;
         if (file.exists()){
             try {
+                Log.v(TAG,"file.exists()!");
                 length = file.length();
                 is = new FileInputStream(file);
                 image = bfr.loadRawRegion(length, is, index[0], index[1], index[2], index[3], index[4], index[5]);
@@ -868,7 +871,7 @@ public class Image4DSimple {
 
         else {
             Uri uri = Uri.parse(filepath);
-
+            Log.v(TAG,"file.!!!exists()!");
             try {
                 ParcelFileDescriptor parcelFileDescriptor =
                         getContext().getContentResolver().openFileDescriptor(uri, "r");
