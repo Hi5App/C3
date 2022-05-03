@@ -189,7 +189,7 @@ public class QualityInspectionDataSource {
     }
 
 
-    public void getArborMarkerList(String arborName){
+    public void getArborMarkerList(String  arborName){
         try{
 
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());

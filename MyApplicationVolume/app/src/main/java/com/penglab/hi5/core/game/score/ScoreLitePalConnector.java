@@ -117,6 +117,7 @@ public class ScoreLitePalConnector {
     }
 
     public boolean updateEditImageNumToday(MutableLiveData<Integer> editImageNumToday) {
+        Log.e(TAG,"updateEditImageNumToday"+editImageNumToday.getValue().toString());
         return updateEditImageNumToday(userId,editImageNumToday);
 
     }
@@ -127,6 +128,7 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setUserid(userid);
             user.setEditImageNumToday(editImageNumToday.getValue());
+            Log.e(TAG,"updateEditImageNumToday_user"+editImageNumToday.getValue().toString());
             user.save();
         } else if(users.size() ==1) {
             User user = new User();

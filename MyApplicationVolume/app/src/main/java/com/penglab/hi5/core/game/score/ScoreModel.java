@@ -163,6 +163,7 @@ public class ScoreModel {
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
             editImageNumToday.setValue(0);
+            Log.e("editImageNumtodayinit",editImageNumToday.getValue().toString());
             scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
         }
         return result;
@@ -240,6 +241,8 @@ public class ScoreModel {
 //        }
         editImageNumToday.setValue(editImageNumToday.getValue()+1);
 
+        Log.e("editImageNumToday",editImageNumToday.getValue().toString());
+
 //        editImageNum += 1;
 //        editImageNumToday += 1;
 
@@ -248,7 +251,6 @@ public class ScoreModel {
         user.setEditImageNum(editImageNum.getValue());
 
         user.setEditImageNumToday(editImageNumToday.getValue());
-        Log.e("editImageNumToday",editImageNumToday.getValue().toString());
         user.updateAll("userid = ?", id);
     }
 
