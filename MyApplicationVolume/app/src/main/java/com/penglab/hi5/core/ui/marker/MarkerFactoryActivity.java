@@ -345,7 +345,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer editImageToday) {
                 MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
-                if(editImageToday >=2 && editImageToday < 3 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
+                if(editImageToday >=1 && editImageToday < 2 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
                     TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FORTY);
 
