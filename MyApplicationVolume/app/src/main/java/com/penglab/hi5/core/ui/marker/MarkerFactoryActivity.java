@@ -1051,9 +1051,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
                 if(firstAnswer.getText() == rightName[randomNum]) {
                     playRightAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
-
                     markerFactoryViewModel.winScoreByGuessMusic();
-
                 }else {
                     playWrongAnswerSound();
                     firstAnswer.setBackgroundColor(Color.rgb(211,211,211));

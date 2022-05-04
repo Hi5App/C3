@@ -49,12 +49,12 @@ public class AnnotationHelper {
     private int dataLength;
     private boolean isBig;
 
-    public AnnotationHelper(AnnotationDataManager annotationDataManager, MatrixManager matrixManager){
+    public AnnotationHelper(AnnotationDataManager annotationDataManager, MatrixManager matrixManager) {
         this.annotationDataManager = annotationDataManager;
         this.matrixManager = matrixManager;
     }
 
-    public void initImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize){
+    public void initImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize) {
         this.grayScale = image4DSimple.getData();
         this.dataLength = image4DSimple.getDatatype().ordinal();
         this.isBig = image4DSimple.getIsBig();
@@ -958,6 +958,11 @@ public class AnnotationHelper {
         } catch (Exception e){
             e.printStackTrace();
         }
+    }
+
+    public void addMarkerInSwc(ArrayList<Float>line, boolean isBigData) {
+
+
     }
 
     public void deleteMarker(float x, float y, boolean isBigData) throws CloneNotSupportedException {

@@ -91,7 +91,30 @@ public class ScoreLitePalConnector {
         return scoreModel;
     }
 
+    public boolean updateTime(int year,int day){
+        return updateTime(userId,year,day);
+    }
 
+    public boolean updateTime(String userId, int year,int day){
+        List<User> users =LitePal.where("userid = ?",userId).find(User.class);
+        if(users.size() == 0){
+            User user = new User();
+            user.setUserid(userId);
+            user.setLastLoginDay(day);
+            user.setLastLoginYear(year);
+            user.save();
+        } else if(users.size() == 1){
+            User user = new User();
+            user.setUserid(userId);
+            user.setLastLoginDay(day);
+            user.setLastLoginYear(year);
+            user.updateAll("userid = ?", userId);
+        }else{
+            Toast_in_Thread_static("Something wrong with database !");
+            return false;
+        }
+        return true;
+    }
 
     public boolean updateScore(int score){
         return updateScore(userId, score);
@@ -132,7 +155,8 @@ public class ScoreLitePalConnector {
             user.save();
         } else if(users.size() ==1) {
             User user = new User();
-            user.setEditImageNumToday(editImageNumToday.getValue());
+            user.setToDefault("editImageNumToday");
+//            user.setEditImageNumToday(editImageNumToday.getValue());
             user.updateAll("userid=?",userid);
         }else {
             Toast_in_Thread_static("Something wrong with database !");
