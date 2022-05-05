@@ -1045,54 +1045,26 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         firstAnswer.setText(arrayName[randomNum][0]);
         secondAnswer.setText(arrayName[randomNum][1]);
         thirdAnswer.setText(arrayName[randomNum][2]);
+        Button[] answerList = new Button[]{firstAnswer,secondAnswer,thirdAnswer};
+
         firstAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(firstAnswer.getText() == rightName[randomNum]) {
-                    playRightAnswerSound();
-                    firstAnswer.setBackgroundColor(Color.rgb(69,179,113));
-                    markerFactoryViewModel.winScoreByGuessMusic();
-                }else {
-                    playWrongAnswerSound();
-                    firstAnswer.setBackgroundColor(Color.rgb(211,211,211));
-                }
-                firstAnswer.setEnabled(false);
-                secondAnswer.setEnabled(false);
-                thirdAnswer.setEnabled(false);
+                answerOnClick(answerList,(Button) view,rightName[randomNum]);
             }
         });
 
         secondAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(secondAnswer.getText() == rightName[randomNum]) {
-                    playRightAnswerSound();
-                    secondAnswer.setBackgroundColor(Color.rgb(69,179,113));
-                    markerFactoryViewModel.winScoreByGuessMusic();
-                }else{
-                    playWrongAnswerSound();
-                    secondAnswer.setBackgroundColor(Color.rgb(211,211,211));
-                }
-                firstAnswer.setEnabled(false);
-                secondAnswer.setEnabled(false);
-                thirdAnswer.setEnabled(false);
+                answerOnClick(answerList,(Button) view,rightName[randomNum]);
             }
         });
 
         thirdAnswer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(thirdAnswer.getText() == rightName[randomNum]) {
-                    playRightAnswerSound();
-                    thirdAnswer.setBackgroundColor(Color.rgb(69,179,113));
-                    markerFactoryViewModel.winScoreByGuessMusic();
-                }else{
-                    playWrongAnswerSound();
-                    thirdAnswer.setBackgroundColor(Color.rgb(211,211,211));
-                }
-                firstAnswer.setEnabled(false);
-                secondAnswer.setEnabled(false);
-                thirdAnswer.setEnabled(false);
+                answerOnClick(answerList,(Button) view,rightName[randomNum]);
             }
         });
 
@@ -1104,6 +1076,26 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         });
         dialog.show();
 
+    }
+
+    private void answerOnClick(Button[] answerList, Button currentButton, String rightAnswerString) {
+        Button rightAnswerButton = new Button(this);
+        for(Button answerButton: answerList) {
+            if(answerButton.getText() == rightAnswerString) {
+                rightAnswerButton = answerButton;
+                answerButton.setEnabled(false);
+            }
+        }
+
+        if(currentButton.getText() == rightAnswerString){
+            playRightAnswerSound();
+            currentButton.setBackgroundColor(Color.rgb(69,179,113));
+            markerFactoryViewModel.winScoreByGuessMusic();
+        } else {
+            playWrongAnswerSound();
+            currentButton.setBackgroundColor(Color.rgb(211,211,211));
+            rightAnswerButton.setBackgroundColor(Color.rgb(69,179,113));
+        }
     }
 
     private void showDownloadingProgressBar() {
