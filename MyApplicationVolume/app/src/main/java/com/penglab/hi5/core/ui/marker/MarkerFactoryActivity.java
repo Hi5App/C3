@@ -1071,6 +1071,7 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         imageViewClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                stopMusicRewardPlay();
                 dialog.dismiss();
             }
         });
