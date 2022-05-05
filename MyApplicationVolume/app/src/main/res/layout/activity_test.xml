@@ -78,7 +78,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/check_swc_number"
+                        android:id="@+id/check_swc_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/navigate"
@@ -88,7 +88,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Check Swc"
+                        android:text="Check"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
 
@@ -100,7 +100,7 @@
                     android:orientation="vertical">
 
                     <TextView
-                        android:id="@+id/score_textview"
+                        android:id="@+id/daily_check_text_view"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:textColor="@color/navigate"
@@ -110,7 +110,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Score"
+                        android:text="Daily Check"
                         android:textColor="@color/navigate" />
                 </LinearLayout>
 

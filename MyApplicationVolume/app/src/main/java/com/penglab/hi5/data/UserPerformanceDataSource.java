@@ -71,37 +71,6 @@ public class UserPerformanceDataSource {
         }
     }
 
-    public void getUserCheckModePerformance() {
-        try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsUserPerformance.getUserCheckModePerformance(userInfo, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    personalCheckResult.postValue(new Result.Error(new Exception("Connect failed when get User performance")));
-                }
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    if(response.code() == 200) {
-                        if(response.body()!=null) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.body().string());
-                                personalCheckResult.postValue(new Result.Success<JSONObject>(jsonObject));
-                            } catch (Exception exception) {
-                                exception.printStackTrace();
-                                personalCheckResult.postValue(new Result.Error(new Exception("Fail to parse JsonObject")));
-                            }
-                        }else {
-                            personalCheckResult.postValue(new Result.Error(new Exception("Response from server is null !")));
-                        }
-                    } else {
-                        personalCheckResult.postValue(new Result.Error(new Exception("Response code from server is error !")));
-                    }
-                }
-            });
-        } catch (Exception exception) {
-            personalCheckResult.postValue(new Result.Error(new IOException("Check the network please !",exception)));
-        }
-    }
 
     public void getUserPerformanceTopK(int k) {
         try {

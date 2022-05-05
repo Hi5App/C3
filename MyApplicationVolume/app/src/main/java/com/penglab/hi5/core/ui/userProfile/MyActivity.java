@@ -91,6 +91,7 @@ public class MyActivity extends AppCompatActivity {
     private TextView somaTextView;
     private TextView dailySomaTextView;
     private TextView checkSwcTextView;
+    private TextView dailyCheckSwcTextView;
 
     private ImageView like;
     private ImageView person_chat;
@@ -120,10 +121,11 @@ public class MyActivity extends AppCompatActivity {
         name.setText(UserInfoRepository.getInstance().getUser().getNickName());
 //        email.setText(UserInfoRepository.getInstance().getUser().getEmail());
 
-        scoreTextView = findViewById(R.id.score_textview);
+//        scoreTextView = findViewById(R.id.score_textview);
         somaTextView = findViewById(R.id.soma_text_view);
         dailySomaTextView = findViewById(R.id.daily_soma_text_view);
-        checkSwcTextView = findViewById(R.id.check_swc_number);
+        checkSwcTextView = findViewById(R.id.check_swc_view);
+        dailyCheckSwcTextView =findViewById(R.id.daily_check_text_view);
         like = findViewById(R.id.like);
         infoEdit =findViewById(R.id.edit);
         person_chat =findViewById(R.id.person_chat);
@@ -178,18 +180,18 @@ public class MyActivity extends AppCompatActivity {
         });
         myViewModel.getUserPerformance();
 
-        myViewModel.getUserInfoRepository().getScoreModel().getObservableScore().observe(this, new Observer<Integer>() {
-            @Override
-            public void onChanged(Integer integer) {
-                if(integer == null) {
-                    return;
-                }
-                else {
-                    scoreTextView.setText(Integer.toString(integer));
-                }
-
-            }
-        });
+//        myViewModel.getUserInfoRepository().getScoreModel().getObservableScore().observe(this, new Observer<Integer>() {
+//            @Override
+//            public void onChanged(Integer integer) {
+//                if(integer == null) {
+//                    return;
+//                }
+//                else {
+//                    scoreTextView.setText(Integer.toString(integer));
+//                }
+//
+//            }
+//        });
 
         myViewModel.getUserPerformanceDataSource().getPersonalResult().observe(this, new Observer<Result>() {
             @Override
@@ -203,16 +205,6 @@ public class MyActivity extends AppCompatActivity {
             }
         });
 
-        myViewModel.getUserPerformanceDataSource().getPersonalCheckResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if(result == null) {
-                    return;
-                } else {
-                    myViewModel.updateCheckAndDailyCheck(result);
-                }
-            }
-        });
 
         myViewModel.getCheckCount().observe(this, new Observer<Integer>() {
             @Override
@@ -232,6 +224,13 @@ public class MyActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer integer) {
                 dailySomaTextView.setText(Integer.toString(integer));
+            }
+        });
+
+        myViewModel.getDailyCheckCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer integer) {
+                dailyCheckSwcTextView.setText(Integer.toString(integer));
             }
         });
 
