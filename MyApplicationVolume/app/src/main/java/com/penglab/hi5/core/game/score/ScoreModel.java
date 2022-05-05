@@ -160,13 +160,13 @@ public class ScoreModel {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
-        User user = new User();
-        user.setLastLoginYear(year);
-        user.setLastLoginDay(date);
+        scoreLitePalConnector.updateTime(year,date);
 
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
             editImageNumToday.setValue(0);
+            Log.e("lastloginDay","lastLoginDay"+lastLoginDay);
+            Log.e("lastloginyear","lastLoginyear"+lastLoginDay);
             Log.e("editImageNumtodayinit",editImageNumToday.getValue().toString());
             scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
         } else {

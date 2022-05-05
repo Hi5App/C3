@@ -84,16 +84,19 @@ public class MyViewModel extends ViewModel {
         return dailySomaCount;
     }
 
+    public MutableLiveData<Integer> getCheckCount() {
+        return checkCount;
+    }
+
+    public MutableLiveData<Integer> getDailyCheckCount() {
+        return dailyCheckCount;
+    }
+
     public boolean isLogged() {
         return logStatus.getValue() != null && logStatus.getValue() == LOGIN;
     }
 
-    public MutableLiveData<Integer> getCheckCount() {
-        return checkCount;
-    }
-    public MutableLiveData<Integer> getDailyCheckCount() {
-        return dailyCheckCount;
-    }
+
 
     public void logout() {
         userDataSource.logout();
@@ -153,6 +156,9 @@ public class MyViewModel extends ViewModel {
                 try {
                     somaCount.postValue(performanceResult.getInt("totalsoma"));
                     dailySomaCount.postValue(performanceResult.getInt("dailysoma"));
+                    checkCount.postValue(performanceResult.getInt("totalCheck"));
+                    dailyCheckCount.postValue(performanceResult.getInt("dailyCheck"));
+                    Log.e("MyViewModel", "totalCheck: " + performanceResult.getInt("totalCheck"));
                     Log.e("MyViewModel", "totalSoma: " + performanceResult.getInt("totalsoma"));
                     Log.e("MyViewModel","dailySomaCount: " + performanceResult.getInt("dailysoma"));
                 } catch (Exception e) {
@@ -164,22 +170,6 @@ public class MyViewModel extends ViewModel {
         }
     }
 
-    public void updateCheckAndDailyCheck(Result result) {
-        if(result instanceof Result.Success) {
-            Object data = ((Result.Success<?>) result).getData();
-            if(data instanceof JSONObject) {
-                JSONObject checkPerformanceResult = (JSONObject) data;
-                try {
-                    checkCount.postValue(checkPerformanceResult.getInt("totalCheckSwc"));
-                    dailyCheckCount.postValue(checkPerformanceResult.getInt("dailyCheckSwc"));
-                } catch (JSONException e) {
-                    ToastEasy("Fail to parse jsonArray when get user check performance ! ");
-                }
-            }
-        } else {
-            ToastEasy(result.toString());
-        }
-    }
 }
 
 
