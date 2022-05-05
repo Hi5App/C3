@@ -161,11 +161,8 @@ public class ScoreModel {
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         User user = new User();
-        user.setCurrentLoginDay(date);
-        user.setCurrentLoginYear(year);
-
-        lastLoginYear = scoreModel.getLastLoginYear();
-        lastLoginDay = scoreModel.getLastLoginDay();
+        user.setLastLoginYear(year);
+        user.setLastLoginDay(date);
 
         if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);

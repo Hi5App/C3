@@ -35,12 +35,6 @@ public class User extends LitePalSupport {
     @Column(defaultValue = "0")
     private int editImageNumToday;
 
-    @Column(defaultValue = "0")
-    private int currentLoginDay;
-
-    @Column(defaultValue = "0")
-    private int currentLoginYear;
-
 
 
 
@@ -76,9 +70,6 @@ public class User extends LitePalSupport {
         this.lastLoginDay = lastLoginDay;
     }
 
-    public void setCurrentLoginDay(int currentLoginDay){this.currentLoginDay = currentLoginDay;}
-
-    public void setCurrentLoginYear(int currentLoginYear){this.currentLoginYear = currentLoginYear;}
 
     public void setCurveNumToday(int curveNumToday) {
         this.curveNumToday = curveNumToday;
