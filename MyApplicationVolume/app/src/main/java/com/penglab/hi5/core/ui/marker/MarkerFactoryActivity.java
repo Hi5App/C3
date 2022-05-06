@@ -345,19 +345,19 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer editImageToday) {
                 MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
-                if(editImageToday >=5 && editImageToday < 8 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
+                if(editImageToday >=5 && editImageToday < 10 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
                     TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FORTY);
 
-                } else if (editImageToday >= 8 && editImageToday <10 && editImageTodayStatus.ordinal() < 2) {
+                } else if (editImageToday >= 10 && editImageToday <15 && editImageTodayStatus.ordinal() < 2) {
                     TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY);
 
-                } else if(editImageToday >= 10 && editImageToday < 12&& editImageTodayStatus.ordinal() < 3) {
+                } else if(editImageToday >= 15 && editImageToday < 20 && editImageTodayStatus.ordinal() < 3) {
                     TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED);
 
-                }else if (editImageToday >= 12  && editImageTodayStatus.ordinal() <4) {
+                }else if (editImageToday >= 20 && editImageTodayStatus.ordinal() <4) {
                     TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FIVE_HUNDRED);
                 }
@@ -1071,8 +1071,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         imageViewClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopMusicRewardPlay();
-                dialog.dismiss();
+                if (mpv.isRotating()){
+                    mpv.stop();
+                    stopMusicRewardPlay();
+                    dialog.dismiss();
+                }else{
+                    dialog.dismiss();
+                }
+
+
             }
         });
         dialog.show();

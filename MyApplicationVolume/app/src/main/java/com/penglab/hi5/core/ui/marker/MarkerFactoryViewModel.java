@@ -119,14 +119,16 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         int editImageNumToday = userInfoRepository.getScoreModel().getEditImageNumToday();
 
-        if (editImageNumToday >= 5 && editImageNumToday < 8)
+        editImageTodayStatus = EditImageTodayStatus.ZERO;
+
+        if (editImageNumToday >= 5 && editImageNumToday < 10)
         {
             editImageTodayStatus= EditImageTodayStatus.FORTY;
-        } else if (editImageNumToday >= 8 && editImageNumToday < 10) {
+        } else if (editImageNumToday >= 10 && editImageNumToday < 15) {
             editImageTodayStatus = EditImageTodayStatus.EIGHTY;
-        } else if (editImageNumToday >= 10 && editImageNumToday < 12) {
+        } else if (editImageNumToday >= 15 && editImageNumToday < 20) {
             editImageTodayStatus = EditImageTodayStatus.LONG_HUNDRED;
-        } else if (editImageNumToday >= 12) {
+        } else if (editImageNumToday >= 20) {
             editImageTodayStatus = EditImageTodayStatus.FIVE_HUNDRED;
         }
 
