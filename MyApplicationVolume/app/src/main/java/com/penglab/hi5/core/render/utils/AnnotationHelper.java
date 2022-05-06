@@ -960,8 +960,102 @@ public class AnnotationHelper {
         }
     }
 
-    public void addMarkerInSwc(ArrayList<Float>line, boolean isBigData) {
+    public void addMarkerInSwc (ArrayList<Float>line, boolean isBigData) {
 
+        try{
+            V_NeuronSWC_list swcList = annotationDataManager.getCurSwcList();
+            boolean found = false;
+            float[] center = new float[3];
+            Vector<Integer> toSplit = new Vector<Integer>();
+            for (int i = 0; i < line.size() / 3 - 1; i++){
+                if (found){
+                    break;
+                }
+                float x1 = line.get(i * 3);
+                float y1 = line.get(i * 3 + 1);
+                float x2 = line.get(i * 3 + 3);
+                float y2 = line.get(i * 3 + 4);
+                for(int j=0; j<swcList.nsegs(); j++){
+                    if (found){
+                        break;
+                    }
+                    V_NeuronSWC seg = swcList.seg.get(j);
+                    if(seg.to_be_deleted)
+                        continue;
+                    Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
+                    for(int k=0; k<seg.row.size(); k++){
+                        if(seg.row.get(k).parent != -1 && seg.getIndexofParent(k) != -1){
+                            V_NeuronSWC_unit parent = seg.row.get(seg.getIndexofParent(k));
+                            swcUnitMap.put(k,parent);
+                        }
+                    }
+
+                    for(int k=0; k<seg.row.size(); k++){
+                        V_NeuronSWC_unit child = seg.row.get(k);
+                        int parentid = (int) child.parent;
+                        if (parentid == -1 || seg.getIndexofParent(k) == -1){
+//                        System.out.println("parent -1");
+                            continue;
+                        }
+                        V_NeuronSWC_unit parent = swcUnitMap.get(k);
+                        float[] pchild = {(float) child.x, (float) child.y, (float) child.z};
+                        float[] pparent = {(float) parent.x, (float) parent.y, (float) parent.z};
+                        float[] pchildm = volumeToModel(pchild);
+                        float[] pparentm = volumeToModel(pparent);
+                        float[] p2 = {pchildm[0],pchildm[1],pchildm[2],1.0f};
+                        float[] p1 = {pparentm[0],pparentm[1],pparentm[2],1.0f};
+
+                        float [] p1Volumne = new float[4];
+                        float [] p2Volumne = new float[4];
+                        Matrix.multiplyMV(p1Volumne, 0, matrixManager.getFinalMatrix(), 0, p1, 0);
+                        Matrix.multiplyMV(p2Volumne, 0, matrixManager.getFinalMatrix(), 0, p2, 0);
+                        divideByW(p1Volumne);
+                        divideByW(p2Volumne);
+                        float x3 = p1Volumne[0];
+                        float y3 = p1Volumne[1];
+                        float x4 = p2Volumne[0];
+                        float y4 = p2Volumne[1];
+
+                        double m=(x2-x1)*(y3-y1)-(x3-x1)*(y2-y1);
+                        double n=(x2-x1)*(y4-y1)-(x4-x1)*(y2-y1);
+                        double p=(x4-x3)*(y1-y3)-(x1-x3)*(y4-y3);
+                        double q=(x4-x3)*(y2-y3)-(x2-x3)*(y4-y3);
+
+                        if( (Math.max(x1, x2) >= Math.min(x3, x4))
+                                && (Math.max(x3, x4) >= Math.min(x1, x2))
+                                && (Math.max(y1, y2) >= Math.min(y3, y4))
+                                && (Math.max(y3, y4) >= Math.min(y1, y2))
+                                && ((m * n) <= 0) && (p * q <= 0)){
+
+                            found = true;
+                            int cur = k;
+                            while (seg.getIndexofParent(cur) != -1){
+                                cur = seg.getIndexofParent(cur);
+                                toSplit.add(cur);
+                            }
+
+                            V_NeuronSWC_unit first = seg.row.get(k);
+
+                            center[0] = (float) first.x;
+                            center[1] = (float) first.y;
+                            center[2] = (float) first.z;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (center != null){
+                ImageMarker imageMarker = new ImageMarker(lastMarkerType,
+                        center[0], center[1], center[2]);
+                annotationDataManager.getMarkerList().add(imageMarker);
+                annotationDataManager.saveUndo();
+                if (isBigData) {
+                    updateAddMarker(imageMarker);
+                }
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
 
     }
 

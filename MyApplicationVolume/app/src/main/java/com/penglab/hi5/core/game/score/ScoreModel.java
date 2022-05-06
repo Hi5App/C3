@@ -113,7 +113,7 @@ public class ScoreModel {
     public void setEditImageNum(int editImageNum) {
         this.editImageNum.postValue(editImageNum);
     }
-//
+
     public int getEditImageNumToday() {
         return editImageNumToday.getValue();
     }
@@ -162,15 +162,14 @@ public class ScoreModel {
         int date = calendar.get(Calendar.DAY_OF_YEAR);
         scoreLitePalConnector.updateTime(year,date);
 
-        if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
+        if (year > scoreModel.lastLoginYear || (year == scoreModel.lastLoginYear && date > scoreModel.lastLoginDay)){
             dailyQuestsModel.updateNDailyQuest(0, 1);
-            editImageNumToday.setValue(0);
+            scoreModel.setEditImageNumToday(0);
             Log.e("lastloginDay","lastLoginDay"+lastLoginDay);
             Log.e("lastloginyear","lastLoginyear"+lastLoginDay);
             Log.e("editImageNumtodayinit",editImageNumToday.getValue().toString());
-            scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
-        } else {
-            scoreLitePalConnector.updateEditImageNumToday(editImageNumToday);
+            scoreLitePalConnector.updateEditImageNumToday(scoreModel.editImageNumToday);
+
         }
         if (scoreModel == null) {
             result = false;
@@ -244,19 +243,8 @@ public class ScoreModel {
     public void finishAnImage(){
         addScore(ScoreRule.getScorePerImage());
         editImageNum.setValue(editImageNum.getValue()+1);
-
-//        Calendar calendar = Calendar.getInstance();
-//        int year = calendar.get(Calendar.YEAR);
-//        int date = calendar.get(Calendar.DAY_OF_YEAR);
-//        if (year > lastLoginYear || (year == lastLoginYear && date > lastLoginDay)){
-//            editImageNumToday.setValue(0);
-//        }
         editImageNumToday.setValue(editImageNumToday.getValue()+1);
-
         Log.e("editImageNumToday",editImageNumToday.getValue().toString());
-
-//        editImageNum += 1;
-//        editImageNumToday += 1;
 
         User user = new User();
         user.setScore(score.getValue());
