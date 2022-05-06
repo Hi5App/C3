@@ -115,6 +115,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     switch (Objects.requireNonNull(editMode.getValue())){
                         case PAINT_CURVE:
                         case PINPOINT_STROKE:
+                        case PINPOINT_CHECK:
                         case DELETE_CURVE:
                         case SPLIT:
                         case CHANGE_CURVE_TYPE:
@@ -186,6 +187,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                 switch (Objects.requireNonNull(editMode.getValue())){
                                     case PINPOINT:
                                     case PINPOINT_STROKE:
+                                    case PINPOINT_CHECK:
                                     case DELETE_MARKER:
                                     case CHANGE_MARKER_TYPE:
                                     case ZOOM_IN_ROI:
@@ -261,6 +263,13 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                     }
                                     requestRender();
                                     break;
+
+                                case PINPOINT_CHECK:
+                                    annotationHelper.addMarkerInSwc(fingerTrajectory,isBigData);
+                                    onScoreWinWithTouchEventListener.run();
+                                    requestRender();
+                                    break;
+
                                 case DELETE_MARKER:
                                     annotationHelper.deleteMarker(currentX, currentY, isBigData);
                                     requestRender();

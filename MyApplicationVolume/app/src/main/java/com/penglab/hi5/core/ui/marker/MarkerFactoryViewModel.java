@@ -116,8 +116,20 @@ public class MarkerFactoryViewModel extends ViewModel {
 
         somaNum.setValue(0);
         somaNumStatus = SomaNumStatus.ZERO;
-        editImageTodayStatus= EditImageTodayStatus.ZERO;
-//        editImageNum.setValue(0);
+
+        int editImageNumToday = userInfoRepository.getScoreModel().getEditImageNumToday();
+
+        if (editImageNumToday >= 5 && editImageNumToday < 8)
+        {
+            editImageTodayStatus= EditImageTodayStatus.FORTY;
+        } else if (editImageNumToday >= 8 && editImageNumToday < 10) {
+            editImageTodayStatus = EditImageTodayStatus.EIGHTY;
+        } else if (editImageNumToday >= 10 && editImageNumToday < 12) {
+            editImageTodayStatus = EditImageTodayStatus.LONG_HUNDRED;
+        } else if (editImageNumToday >= 12) {
+            editImageTodayStatus = EditImageTodayStatus.FIVE_HUNDRED;
+        }
+
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
