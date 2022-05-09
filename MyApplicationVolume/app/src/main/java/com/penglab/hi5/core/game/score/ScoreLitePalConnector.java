@@ -158,6 +158,7 @@ public class ScoreLitePalConnector {
             user.setToDefault("editImageNumToday");
 //            user.setEditImageNumToday(editImageNumToday.getValue());
             user.updateAll("userid=?",userid);
+            Log.e(TAG,"updateEditImageToday_user2"+editImageNumToday.getValue().toString());
         }else {
             Toast_in_Thread_static("Something wrong with database !");
             return false;
