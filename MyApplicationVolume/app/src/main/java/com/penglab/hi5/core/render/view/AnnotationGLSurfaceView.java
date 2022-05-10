@@ -639,6 +639,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     public void syncNeuronTree(NeuronTree neuronTree) {
         annotationDataManager.loadNeuronTree(neuronTree,true);
+        requestRender();
     }
 
     public MarkerList getMarkerListToAdd() {

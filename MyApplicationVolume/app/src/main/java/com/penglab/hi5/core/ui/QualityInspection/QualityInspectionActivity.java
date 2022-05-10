@@ -7,7 +7,6 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.OvershootInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -26,7 +24,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -161,8 +158,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     case UPLOAD_MARKERS_SUCCESSFULLY:
                         ToastEasy("Upload successfully");
                         if (needSyncSomaList) {
-                            qualityInspectionViewModel.getArborMarkerList();
-//                            qualityInspectionViewModel.getSwc();
+                            qualityInspectionViewModel.queryArborMarkerList();
                             needSyncSomaList = false;
                         }
                         break;
@@ -180,12 +176,11 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         Log.e(TAG,"downloadImageFinished");
                         hideDownloadingProgressBar();
                         qualityInspectionViewModel.openNewFile();
-                        qualityInspectionViewModel.getSwc();
                         break;
 
                     case GET_SWC_SUCCESSFULLY:
 //                        annotationGLSurfaceView.loadFile();
-                        qualityInspectionViewModel.getArborMarkerList();
+                        qualityInspectionViewModel.queryArborMarkerList();
                         Log.e(TAG,"get swc successfully");
                         break;
 
@@ -250,6 +245,16 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
+        qualityInspectionViewModel.getQualityInspectionDataSource().getQueryArborResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if(result == null){
+                    return;
+                }
+                qualityInspectionViewModel.handleQueryArborResult(result);
+            }
+        });
+
         qualityInspectionViewModel.getSwcResult().observe(this, new Observer<NeuronTree>() {
             @Override
             public void onChanged(NeuronTree neuronTree) {
@@ -257,8 +262,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     return;
                 }
                 annotationGLSurfaceView.syncNeuronTree(neuronTree);
-                qualityInspectionViewModel.getArborMarkerList();
-
+                qualityInspectionViewModel.queryArborMarkerList();
             }
         });
 
@@ -273,7 +277,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     Log.e(TAG,"getImageResultSuccessfully");
                     annotationGLSurfaceView.openFile();
                     qualityInspectionViewModel.getSwc();
-                    qualityInspectionViewModel.getArborMarkerList();
                     PotentialArborMarkerInfo arborMarkerInfo = qualityInspectionViewModel.getCurPotentialArborMarkerInfo();
                     imageIdLocationTextView.setText(arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
                     Log.e(TAG,"image text view content"+arborMarkerInfo.getBrianId() + "_" + arborMarkerInfo.getLocation().toString());
@@ -330,8 +333,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
-//        initScoreTickerView();
         startMusicService();
+        qualityInspectionViewModel.cacheImage();
     }
 
     @Override
@@ -362,7 +365,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         stopMusicService();
-        qualityInspectionViewModel.shutDownThreadPool();
     }
 
     private void startMusicService() {
@@ -620,6 +622,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
             ImageButtonExt veryGoodFile = findViewById(R.id.very_good_file);
 //            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
             ImageButton hideSwc = findViewById(R.id.hide_swc);
+            ImageButton showArborResult = findViewById(R.id.show_arbor_result);
+            showArborResult.setVisibility(View.INVISIBLE);
 
             addMarkerBlue.setOnClickListener(this::onButtonClick);
             addMarkerYellow.setOnClickListener(this::onButtonClick);
@@ -630,8 +634,9 @@ public class QualityInspectionActivity extends AppCompatActivity {
             boringFile.setOnClickListener(v -> boringFile());
             goodFile.setOnClickListener(v -> goodFile());
             ignoreFile.setOnClickListener(v -> ignoreFile());
-            veryGoodFile.setOnClickListener(v ->veryGoodFile());
-            hideSwc.setOnClickListener(v ->hideSwc());
+            veryGoodFile.setOnClickListener(v -> veryGoodFile());
+            hideSwc.setOnClickListener(v -> hideSwc());
+            showArborResult.setOnClickListener(v -> showArborResult());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -655,17 +660,24 @@ public class QualityInspectionActivity extends AppCompatActivity {
         }
     }
 
+    private void showArborResult() {
+        qualityInspectionViewModel.queryArborResult();
+    }
+
+    private void showCurrentArborResult() {
+
+    }
+
     private void hideSwc() {
         ImageButton hideSwc = findViewById(R.id.hide_swc);
         if (annotationGLSurfaceView.setShowAnnotation()){
             annotationGLSurfaceView.requestRender();
-            hideSwc.setImageResource(R.drawable.ic_hide);
+            hideSwc.setImageResource(R.drawable.ic_not_hide);
         } else {
             annotationGLSurfaceView.requestRender();
-            hideSwc.setImageResource(R.drawable.ic_not_hide);
+            hideSwc.setImageResource(R.drawable.ic_hide);
         }
     }
-
 
     private void OnCheckChanged(CompoundButton compoundButton,boolean isChecked){
         switchMarkerMode = (isChecked ? true:false);
@@ -819,7 +831,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
         if (needUpload) {
             if (locationType == -1) {
                 // boringFile: can not add; only can delete
-                qualityInspectionViewModel.updateCheckResult(new MarkerList(),
+                qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                         annotationGLSurfaceView.getMarkerListToDelete(), locationType);
             } else {
                 qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),

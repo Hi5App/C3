@@ -69,9 +69,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new MarkerFactoryViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new MarkerFactoryDataSource(), new ImageDataSource());
         } else if (modelClass.isAssignableFrom(MyViewModel.class)) {
             return (T) new MyViewModel(UserInfoRepository.getInstance(), new UserDataSource(), new UserPerformanceDataSource());
-        } else if(modelClass.isAssignableFrom(QualityInspectionViewModel.class)){
-            return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(),ImageInfoRepository.getInstance(),new QualityInspectionDataSource(),new ImageDataSource(),new AnnotationDataSource());
-
+        } else if(modelClass.isAssignableFrom(QualityInspectionViewModel.class)) {
+            return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new QualityInspectionDataSource(), new ImageDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
