@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -141,6 +142,7 @@ public class LoginActivity extends AppCompatActivity{
         });
 
         loginViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onChanged(Result result) {
                 if (result == null){

@@ -156,6 +156,7 @@ public class ScoreLitePalConnector {
         } else if(users.size() ==1) {
             User user = new User();
             user.setToDefault("editImageNumToday");
+            user.setEditImageNumToday(0);
 //            user.setEditImageNumToday(editImageNumToday.getValue());
             user.updateAll("userid=?",userid);
             Log.e(TAG,"updateEditImageToday_user2"+editImageNumToday.getValue().toString());
