@@ -85,7 +85,8 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     }
 
     @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+    public void
+    onSurfaceCreated(GL10 gl, EGLConfig config) {
         GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
 
         // init shader program

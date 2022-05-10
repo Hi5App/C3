@@ -55,7 +55,7 @@ public class ScoreModel {
     }
 
     public void setScore(int score) {
-        this.score.postValue(score);
+        this.score.setValue(score);
     }
 
     public int getCurveNum() {
@@ -71,7 +71,7 @@ public class ScoreModel {
     }
 
     public void setMarkerNum(int markerNum) {
-        this.markerNum.postValue(markerNum);
+        this.markerNum.setValue(markerNum);
     }
 
     public int getLastLoginYear() {
@@ -103,7 +103,7 @@ public class ScoreModel {
     }
 
     public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday.postValue(markerNumToday);;
+        this.markerNumToday.setValue(markerNumToday);;
     }
 
     public int getEditImageNum() {
@@ -111,7 +111,7 @@ public class ScoreModel {
     }
 
     public void setEditImageNum(int editImageNum) {
-        this.editImageNum.postValue(editImageNum);
+        this.editImageNum.setValue(editImageNum);
     }
 
     public int getEditImageNumToday() {
@@ -131,7 +131,7 @@ public class ScoreModel {
     }
 
     public void setEditImageNumToday(int editImageNumToday) {
-        this.editImageNumToday.postValue(editImageNumToday);
+        this.editImageNumToday.setValue(editImageNumToday);
     }
 
     public DailyQuestsModel getDailyQuestsModel() {
@@ -154,35 +154,28 @@ public class ScoreModel {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
+//        int date = scoreModel.lastLoginDay+1;
         scoreLitePalConnector.updateTime(year, date);
 
+//        Log.d("initfromlitePal", "" + scoreModel.editImageNumToday.getValue());
+//        Log.d("lastloginday", ""+ scoreModel.lastLoginDay + " " + scoreModel.lastLoginYear);
+//        Log.d("today", "" + date + " " + year);
+
         if (year > scoreModel.lastLoginYear || (year == scoreModel.lastLoginYear && date > scoreModel.lastLoginDay)){
+//            Log.d("initfromlitepal", "newday");
             dailyQuestsModel.updateNDailyQuest(0, 1);
             scoreModel.editImageNumToday.setValue(0);
             scoreLitePalConnector.updateEditImageNumToday(scoreModel.editImageNumToday);
 //            scoreModel.setEditImageNumToday(0);
-
         }
         if (scoreModel == null) {
             result = false;
         } else {
             updateWithNewScoreModel(scoreModel);
         }
-
+//        Log.d("initfromlitePal", "" + editImageNumToday.getValue());
 
         return result;
-    }
-
-    public boolean serverUpdateScore(int serverScore){
-        ScoreLitePalConnector scoreLitePalConnector = new ScoreLitePalConnector(id);
-        if (score.getValue() < serverScore){
-            score.postValue(serverScore);
-            scoreLitePalConnector.updateScore(serverScore);
-            return true;
-        } else if (score.getValue() >= serverScore){
-            return false;
-        }
-        return true;
     }
 
     public void drawACurve(){

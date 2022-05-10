@@ -1,5 +1,6 @@
 package com.penglab.hi5.core.ui.splash;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -54,6 +56,7 @@ public class SplashScreenActivity extends AppCompatActivity {
         });
 
         splashScreenViewModel.getUserDataSource().getResult().observe(this, new Observer<Result>() {
+            @SuppressLint("RestrictedApi")
             @Override
             public void onChanged(Result result) {
                 if (result == null) {
