@@ -223,7 +223,7 @@ public class AnnotationDataManager {
         for (int i=0; i<startStatus.size(); i++){
             ImageMarkerExt marker = (ImageMarkerExt) startStatus.get(i);
             if (!endStatus.getMarkers().contains(marker)){
-                markerListToDelete.put(marker.getName());
+                markerListToDelete.put(marker.getId());
             }
         }
         return markerListToDelete;

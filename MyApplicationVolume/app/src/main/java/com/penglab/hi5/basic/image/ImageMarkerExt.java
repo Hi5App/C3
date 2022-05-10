@@ -1,42 +1,39 @@
 package com.penglab.hi5.basic.image;
 
-import com.penglab.hi5.basic.image.ImageMarker;
-import com.penglab.hi5.basic.image.XYZ;
-
 /**
  * Created by Jackiexing on 01/15/21
  *
  * Add parameter name to support MarkerFactory Mode
  */
 public class ImageMarkerExt extends ImageMarker {
-    private final String name;
+    private final int id;
 
-    public ImageMarkerExt(XYZ pos, String name) {
+    public ImageMarkerExt(XYZ pos, int id) {
         super(pos);
-        this.name = name;
+        this.id = id;
     }
 
-    public ImageMarkerExt(int type, XYZ pos, String name) {
+    public ImageMarkerExt(int type, XYZ pos, int id) {
         super(type, pos);
-        this.name = name;
+        this.id = id;
     }
 
-    public ImageMarkerExt(float x, float y, float z, String name) {
+    public ImageMarkerExt(float x, float y, float z, int id) {
         super(x, y, z);
-        this.name = name;
+        this.id = id;
     }
 
-    public ImageMarkerExt(int type, float x, float y, float z, String name) {
+    public ImageMarkerExt(int type, float x, float y, float z, int id) {
         super(type, x, y, z);
-        this.name = name;
+        this.id = id;
     }
 
-    public ImageMarkerExt(int type, int shape, float x, float y, float z, float radius, String name) {
+    public ImageMarkerExt(int type, int shape, float x, float y, float z, float radius, int id) {
         super(type, shape, x, y, z, radius);
-        this.name = name;
+        this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public int getId() {
+        return id;
     }
 }
