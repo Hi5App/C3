@@ -721,6 +721,7 @@ public class AnnotationHelper {
 
         boolean found = false;
         Vector<Integer> toSplit = new Vector<Integer>();
+        Log.e("test for split in swc SWCLIST",""+swcList.nsegs());
         for (int i = 0; i < line.size() / 3 - 1; i++){
             if (found){
                 break;
@@ -792,6 +793,7 @@ public class AnnotationHelper {
                         V_NeuronSWC newSeg2 = new V_NeuronSWC();
                         int newSegid = swcList.nsegs();
                         V_NeuronSWC_unit first = seg.row.get(k);
+                        Log.e("FIRST",""+seg.row.get(k));
                         try {
                             V_NeuronSWC_unit firstClone2 = first.clone();
                             firstClone2.parent = -1;
@@ -960,13 +962,18 @@ public class AnnotationHelper {
         }
     }
 
-    public void addMarkerInSwc (ArrayList<Float>line, boolean isBigData) {
+    public void addMarkerInSWC(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
+        addMarkerInSwc(line, isBigData, annotationDataManager.getCurSwcList());
 
+    }
+
+
+    public void addMarkerInSwc (ArrayList<Float>line, boolean isBigData,V_NeuronSWC_list swcList) {
         try{
-            V_NeuronSWC_list swcList = annotationDataManager.getCurSwcList();
             boolean found = false;
             float[] center = new float[3];
             Vector<Integer> toSplit = new Vector<Integer>();
+            Log.e("test for add marker in swc SWCLIST",""+swcList.nsegs());
             for (int i = 0; i < line.size() / 3 - 1; i++){
                 if (found){
                     break;
@@ -975,11 +982,13 @@ public class AnnotationHelper {
                 float y1 = line.get(i * 3 + 1);
                 float x2 = line.get(i * 3 + 3);
                 float y2 = line.get(i * 3 + 4);
+                Log.e("test for add marker in swc y2",""+y2);
                 for(int j=0; j<swcList.nsegs(); j++){
                     if (found){
                         break;
                     }
                     V_NeuronSWC seg = swcList.seg.get(j);
+                    Log.e("test for add marker in swc seg",""+seg);
                     if(seg.to_be_deleted)
                         continue;
                     Map<Integer, V_NeuronSWC_unit> swcUnitMap = new HashMap<Integer, V_NeuronSWC_unit>();
@@ -992,6 +1001,7 @@ public class AnnotationHelper {
 
                     for(int k=0; k<seg.row.size(); k++){
                         V_NeuronSWC_unit child = seg.row.get(k);
+                        Log.e("test for add marker in swc child",""+child);
                         int parentid = (int) child.parent;
                         if (parentid == -1 || seg.getIndexofParent(k) == -1){
 //                        System.out.println("parent -1");
@@ -1035,6 +1045,7 @@ public class AnnotationHelper {
                             }
 
                             V_NeuronSWC_unit first = seg.row.get(k);
+                            Log.e("first",""+seg.row.get(k));
 
                             center[0] = (float) first.x;
                             center[1] = (float) first.y;
