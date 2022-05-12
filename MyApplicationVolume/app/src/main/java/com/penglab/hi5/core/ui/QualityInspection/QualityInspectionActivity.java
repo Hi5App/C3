@@ -701,58 +701,58 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
         switch (view.getId()){
             case R.id.add_marker_blue:
-//                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
-//                annotationGLSurfaceView.setLastMarkerType(3);
-//                Toasty.info(this,"Missing Tracing",Toast.LENGTH_SHORT,true).show();
-//                addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
+                annotationGLSurfaceView.setLastMarkerType(3);
+                Toasty.info(this,"Missing Tracing",Toast.LENGTH_SHORT,true).show();
+                addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
 
-                if(switchMarkerMode) {
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-                        annotationGLSurfaceView.setLastMarkerType(3);
-                        Toasty.info(this,"Missing Tracing",Toast.LENGTH_SHORT,true).show();
-                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }else{
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }
+//                if(switchMarkerMode) {
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+//                        annotationGLSurfaceView.setLastMarkerType(3);
+//                        Toasty.info(this,"Missing Tracing",Toast.LENGTH_SHORT,true).show();
+//                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }else{
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+//                        addMarkerBlue.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }
                 break;
             case R.id.add_marker_red:
-//                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
-//                annotationGLSurfaceView.setLastMarkerType(2);
-//                Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
-//                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
+                annotationGLSurfaceView.setLastMarkerType(2);
+                Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
+                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
 
-                if(switchMarkerMode) {
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-                        annotationGLSurfaceView.setLastMarkerType(2);
-                        Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
-                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }else{
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }
+//                if(switchMarkerMode) {
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+//                        annotationGLSurfaceView.setLastMarkerType(2);
+//                        Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
+//                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }else{
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+//                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }
                 break;
             case R.id.add_marker_yellow:
-//                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
-//                annotationGLSurfaceView.setLastMarkerType(6);
-//                Toasty.error(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
-//                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
+                annotationGLSurfaceView.setLastMarkerType(6);
+                Toasty.error(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
+                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
 
-                if(switchMarkerMode) {
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-                        annotationGLSurfaceView.setLastMarkerType(6);
-                        Toasty.warning(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
-                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }else{
-                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
-                    }
-                }
+//                if(switchMarkerMode) {
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
+//                        annotationGLSurfaceView.setLastMarkerType(6);
+//                        Toasty.warning(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
+//                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }else{
+//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
+//                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
+//                    }
+//                }
                 break;
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){

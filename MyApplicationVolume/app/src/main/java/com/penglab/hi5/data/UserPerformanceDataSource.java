@@ -24,16 +24,12 @@ import okhttp3.Response;
  */
 public class UserPerformanceDataSource {
     private final MutableLiveData<Result> personalResult = new MutableLiveData<>();
-    private final MutableLiveData<Result> personalCheckResult = new MutableLiveData<>();
     private final MutableLiveData<Result> leaderboardResult = new MutableLiveData<>();
 
     public LiveData<Result> getPersonalResult() {
         return personalResult;
     }
 
-    public LiveData<Result> getPersonalCheckResult() {
-        return personalCheckResult;
-    }
     public LiveData<Result> getLeaderBoardResult() {
         return  leaderboardResult;
     }

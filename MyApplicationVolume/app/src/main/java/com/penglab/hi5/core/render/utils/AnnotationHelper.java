@@ -963,7 +963,7 @@ public class AnnotationHelper {
     }
 
     public void addMarkerInSWC(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
-        addMarkerInSwc(line, isBigData, annotationDataManager.getCurSwcList());
+        addMarkerInSwc(line, isBigData, annotationDataManager.getSyncSwcList());
 
     }
 

@@ -161,6 +161,7 @@ public class MyViewModel extends ViewModel {
                     Log.e("MyViewModel", "totalCheck: " + performanceResult.getInt("totalCheck"));
                     Log.e("MyViewModel", "totalSoma: " + performanceResult.getInt("totalsoma"));
                     Log.e("MyViewModel","dailySomaCount: " + performanceResult.getInt("dailysoma"));
+                    Log.e("MyViewModel","dailyCheck:"+performanceResult.getInt("dailyCheck"));
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
                 }
