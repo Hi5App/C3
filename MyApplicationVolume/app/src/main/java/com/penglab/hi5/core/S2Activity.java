@@ -731,7 +731,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         progressDialog_loadimg.setCancelable(true);
 
         initDir();
-        //initNim();
+
 
         initServerConnector();
         initService();
@@ -1738,7 +1738,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     String[] str;
                     str=eswcPath.split("/");
                     String eswc=str[str.length-1];
-                    ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + eswc);
+                    ServerConnector.getInstance().sendMsg("getimglist:/mouse_img_stack/" + eswc);
                     Log.e(TAG, "eswc is not existed!" +eswc);
                     return;
                 }
@@ -1870,24 +1870,22 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void initDir() {
 
-        try {
+        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
+        //String dir_str_server="/storage/emulated/0/Hi 5/S2";
+        Log.e(TAG, " dir_str_server.text;" + dir_str_server);
+        S2path   =    dir_str_server.getAbsolutePath();
+        File  dir_server = dir_str_server;
+        if (!dir_server.exists()) {
+            dir_server.mkdirs();
 
-            String dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2";
-            S2path   =    dir_str_server;
-            File  dir_server = new File(dir_str_server);
-            if (!dir_server.exists()) {
-                dir_server.mkdirs();
-            }
-
-            String dir_PVCAM_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2/Pvcam";
-
-            File PVCAM_server = new File(dir_PVCAM_server);
-            if (!PVCAM_server.exists()) {
-                PVCAM_server.mkdirs();
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        }
+        //String dir_PVCAM_server="/storage/emulated/0/Hi 5/S2/Pvcam";
+        File dir_PVCAM_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Pvcam");
+        //String dir_PVCAM_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/S2/Pvcam";
+        Log.e(TAG, " dir_PVCAM_server;" + dir_PVCAM_server);
+        File PVCAM_server = dir_PVCAM_server;
+        if (!PVCAM_server.exists()) {
+            PVCAM_server.mkdirs();
         }
 
     }
@@ -2023,12 +2021,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
         ArrayList<String> arr = new ArrayList<>();
-        String dir_str_server = null;
-        try {
-            dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        String dir_str_server = S2path;
+//        try {
+//            dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         boolean isFile = false;
         String[] fileName = new String[1];
@@ -2095,6 +2093,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         ServerConnector.getInstance().sendMsg("Update_data:");
                                         Toast_in_Thread("Request for data! ");
                                         return;
+                                    }
+                                    File f = new File(finalDir_str_server);
+
+                                    if (!f.exists()) {
+                                        Toast_in_Thread("failed to create folder! ");
+                                            return;
                                     }
 
                                     if(getFiles(finalDir_str_server).contains(text)&&(text.contains(".v3draw")||text.contains(".tif")))
