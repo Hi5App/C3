@@ -21,7 +21,10 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.VIBRATE" /> <!-- 8.0+系统需要 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!--SDCard写权限-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> <!--SDCard读权限-->
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"
+        tools:ignore="ProtectedPermissions" /> <!--在SDCard中创建与删除文件权限-->
     <permission
         android:name="com.penglab.hi5.permission.RECEIVE_MSG"
         android:protectionLevel="signature" />
@@ -94,7 +97,9 @@
         <activity android:name=".chat.nim.main.activity.TeamListActivity" />
         <activity android:name=".chat.nim.main.activity.SettingsActivity" />
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
-        <activity android:name=".core.S2Activity" />
+        <activity android:name=".core.S2Activity"
+            android:label="S2"
+            android:requestLegacyExternalStorage="true"/>
         <activity android:name=".core.ui.register.RegisterActivity" />
         <activity android:name=".core.ui.password.FindPasswordActivity" />
         <activity android:name=".core.ui.login.LoginActivity" />

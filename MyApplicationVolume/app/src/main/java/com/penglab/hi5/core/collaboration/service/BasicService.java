@@ -514,12 +514,9 @@ public abstract class BasicService extends Service {
             int ret = 0;
             String dir_str_server = null;
             String dir_Pvcam_server = null;
-            try {
-                dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
-                dir_Pvcam_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2" + "/Pvcam";
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            //File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
+            dir_str_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2").getAbsolutePath();
+            dir_Pvcam_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Pvcam").getAbsolutePath();
             if (rmsg.endsWith("\n")) {
                 String msg = rmsg.trim();
 //                msg.replaceAll("deviceError","");
