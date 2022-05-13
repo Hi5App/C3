@@ -38,6 +38,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -47,6 +48,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -114,15 +116,20 @@ import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
+import com.penglab.hi5.core.game.RewardLitePalConnector;
+import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -3520,6 +3527,119 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         mdDialog.show();
     }
 
+//    private void setSettings(){
+//        boolean [] downsample = new boolean[1];
+//
+//        MDDialog mdDialog = new MDDialog.Builder(this)
+//                .setContentView(R.layout.settings)
+//                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+//                    @Override
+//                    public void operate(View contentView) {
+//
+//                        Switch downsample_on_off = contentView.findViewById(R.id.downSample_mode);
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
+//                        TextView clean_cache = contentView.findViewById(R.id.clean_cache);
+//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+//
+//                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
+//                        int contrast = preferenceSetting.getContrast();
+//
+//                        downsample_on_off.setChecked(ifDownSample);
+//                        seekbar.setProgress(contrast);
+//
+//
+//
+//                        downsample[0] = downsample_on_off.isChecked();
+//
+//                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//                            @Override
+//                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                                downsample[0] = isChecked;
+//                            }
+//                        });
+//
+//
+//                        clean_cache.setOnClickListener(new View.OnClickListener() {
+//                            @Override
+//                            public void onClick(View view) {
+//                                cleanCache();
+//                            }
+//                        });
+//
+//                    }
+//                })
+//                .setNegativeButton("Cancel", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//
+//                    }
+//                })
+//                .setPositiveButton("Confirm", new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//
+//                    }
+//                })
+//                .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_indicator_seekbar);
+//                        int contrast = seekbar.getProgress();
+//
+//                        myS2renderer.setIfNeedDownSample(downsample[0]);
+//                        myS2renderer.resetContrast(contrast);
+//
+//                        Log.v(TAG,"downsample: " + downsample[0] + ",contrast: " + contrast);
+//                        preferenceSetting.setPref(downsample[0], contrast);
+//                        myS2GLSurfaceView.requestRender();
+//
+//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+//
+//
+//
+//
+//
+//
+//
+//
+//                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+//                        File settingsFile = new File(settingsPath);
+//                        if (!settingsFile.exists()){
+//                            settingsFile.mkdir();
+//                        }
+//
+//                        String volumePath = settingsPath + "/volume.txt";
+//                        File volumeFile = new File(volumePath);
+//                        if (!volumeFile.exists()){
+//                            try {
+//                                volumeFile.createNewFile();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//
+//
+//
+//
+//                    }
+//                })
+//                .setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+//                    @Override
+//                    public void onClick(View clickedView, View contentView) {
+//
+//                    }
+//                })
+//                .setTitle("Settings")
+//                .create();
+//        mdDialog.show();
+//    }
+//
+
     private void startSmartControl() {
 
 
@@ -3568,58 +3688,39 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         s2initialization();
     }
     private void setSettings() {
-        //  boolean[] downsample = new boolean[1];
+        boolean[] downsample = new boolean[1];
 
-        MDDialog mdDialog = new MDDialog.Builder(this)
-                .setContentView(R.layout.s2settings)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-//                        //Switch downsample_on_off = contentView.findViewById(R.id.switch_rotation_mode);
-//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2settings);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+                        Switch downsample_on_off = contentView.findViewById(R.id.s2downSample_mode);
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_s2indicator_seekbar);
                         TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_1cache);
-//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+
 //
-//                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
-//                        int contrast = preferenceSetting.getContrast();
+                        boolean ifDownSample = preferenceSetting.getDownSampleMode();
+                        int contrast = preferenceSetting.getContrast();
 //
-//                        //downsample_on_off.setChecked(ifDownSample);
-//                        seekbar.setProgress(contrast);
-//                        bgmVolumeBar.setProgress((int) (bgmVolume * 100));
-//                        buttonVolumeBar.setProgress((int) (buttonVolume * 100));
-//                        actionVolumeBar.setProgress((int) (actionVolume * 100));
-//
-//                        RewardLitePalConnector rewardLitePalConnector = RewardLitePalConnector.getInstance();
-//                        List<Integer> rewards = rewardLitePalConnector.getRewards();
-//                        List<String> list = new ArrayList<>();
-//                        list.add("BGM0");
-//                        for (int i = 0; i < rewards.size(); i++) {
-//                            if (rewards.get(i) == 1)
-//                                list.add("BGM" + Integer.toString(i + 1));
-//                        }
-//                        String[] spinnerItems = new String[list.size()];
-//                        for (int i = 0; i < list.size(); i++) {
-//                            spinnerItems[i] = list.get(i);
-//                        }
-//
-//
-//                        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(S2Context, R.layout.support_simple_spinner_dropdown_item, spinnerItems);
-//                        bgmSpinner.setAdapter(spinnerAdapter);
-//                        bgmSpinner.setSelection(selectedBGM);
-//
-//                       // downsample[0] = downsample_on_off.isChecked();
-//
-////                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-////                            @Override
-////                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-////                                downsample[0] = isChecked;
-////                            }
-////                        });
-//
-//
+                        downsample_on_off.setChecked(ifDownSample);
+                        seekbar.setProgress(contrast);
+
+
+
+
+                        downsample[0] = downsample_on_off.isChecked();
+
+                        downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                downsample[0] = isChecked;
+                            }
+                        });
+
+
                         clean_S2_cache.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -3644,69 +3745,34 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
                     @Override
                     public void onClick(View clickedView, View contentView) {
-//                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.indicator_seekbar);
-//                        int contrast = seekbar.getProgress();
-//
-//                        myS2renderer.setIfNeedDownSample(downsample[0]);
-//                        myS2renderer.resetContrast(contrast);
-//
-//                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
-//                        preferenceSetting.setPref(downsample[0], contrast);
-//                        myS2GLSurfaceView.requestRender();
+                        IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_s2indicator_seekbar);
+                        int contrast = seekbar.getProgress();
 
-//                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-//                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-//                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-//
-//                        bgmVolume = (float) (bgmVolumeBar.getProgress()) / 100.0f;
-//                        buttonVolume = (float) (buttonVolumeBar.getProgress()) / 100.0f;
-//                        actionVolume = (float) (actionVolumeBar.getProgress()) / 100.0f;
 
-//                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
-//                        String selected = bgmSpinner.getSelectedItem().toString();
-//                        if (selectedBGM != bgmSpinner.getSelectedItemPosition()) {
-////                            if (selected.equals("BGM1"))
-////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/CoyKoi.mp3");
-////
-////                            else if (selected.equals("BGM2"))
-////                              //  MusicServer.setBgmSource(getApplicationContext().getExternalFilesDir(null) + "/Resources/Music/DelRioBravo.mp3");
-////
-////                            else
-////                              //  MusicServer.defaultBgmSource();
-//
-//                            selectedBGM = bgmSpinner.getSelectedItemPosition();
-//
-//                        }
 
-//                        MusicServer.setBgmVolume(bgmVolume);
-//                        MusicServer.setVolume(bgmVolume);
 
-//                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
-//                        File settingsFile = new File(settingsPath);
-//                        if (!settingsFile.exists()) {
-//                            settingsFile.mkdir();
-//                        }
-//
-//                        String volumePath = settingsPath + "/volume.txt";
-//                        File volumeFile = new File(volumePath);
-//                        if (!volumeFile.exists()) {
-//                            try {
-//                                volumeFile.createNewFile();
-//                            } catch (IOException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//
-//                        try {
-//                            BufferedWriter volumeWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(volumeFile)));
-//                            volumeWriter.write(Float.toString(bgmVolume) + " " + Float.toString(buttonVolume) + " " + Float.toString(actionVolume));
-//                            volumeWriter.flush();
-//                            volumeWriter.close();
-//                        } catch (FileNotFoundException e) {
-//                            e.printStackTrace();
-//                        } catch (IOException e) {
-//                            e.printStackTrace();
-//                        }
+                        preferenceSetting.setPref(downsample[0], contrast);
+                        myS2renderer.setIfNeedDownSample(downsample[0]);
+                        myS2renderer.resetContrast(contrast);
+
+                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
+                        preferenceSetting.setPref(downsample[0], contrast);
+                        myS2GLSurfaceView.requestRender();
+
+
+
+
+
+
+
+                        String settingsPath = context.getExternalFilesDir(null).toString() + "/Settings";
+                        File settingsFile = new File(settingsPath);
+                        if (!settingsFile.exists()) {
+                            settingsFile.mkdir();
+                        }
+
+
+
 
                         Toast_in_Thread("Confirm down!");
                     }
@@ -3716,8 +3782,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     public void onClick(View clickedView, View contentView) {
                         Toast_in_Thread("Cancel down!");
                     }
-                })
-                .setTitle("s2settings")
+                });
+        builder.setTitle("S2 setting");
+        MDDialog mdDialog = builder
                 .create();
         mdDialog.show();
     }

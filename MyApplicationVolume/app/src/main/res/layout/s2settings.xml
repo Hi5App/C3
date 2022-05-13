@@ -82,6 +82,34 @@
             android:paddingLeft="16dp"
             android:paddingRight="16dp" >
 
+            <Switch
+                android:id="@+id/s2downSample_mode"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textColor="#bb333333"
+                android:textOff="OFF"
+                android:textOn="ON"
+                android:text="DownSample When Rotate ON/OFF" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_alignLeft="@id/downSample_mode"
+                android:layout_alignRight="@id/downSample_mode"
+                android:layout_below="@id/downSample_mode"
+                android:layout_marginTop="10dp"
+                android:background="#33333333" />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
             <TextView
                 android:id="@+id/clean_S2_1cache"
                 android:layout_width="match_parent"
@@ -105,7 +133,6 @@
 
 
 
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -118,18 +145,18 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Set the distance of each step(XY)"
+                android:text="Set Contrast"
                 android:paddingBottom="10dp"/>
 
             <com.warkiz.widget.IndicatorSeekBar
-                android:id="@+id/indicator_XY_seekbar1"
+                android:id="@+id/contrast_s2indicator_seekbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:isb_max="10"
-                app:isb_min="0"
+                app:isb_max="150"
+                app:isb_min="-50"
                 app:isb_progress="0"
                 app:isb_seek_smoothly="true"
-                app:isb_ticks_count="10"
+                app:isb_ticks_count="5"
                 app:isb_show_tick_marks_type="oval"
                 app:isb_tick_marks_size="7dp"
                 app:isb_tick_marks_color="@color/colorAccent_light"
@@ -149,49 +176,6 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="15dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" >
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Set the distance of each step(Z)"
-                android:paddingBottom="10dp"
-                tools:ignore="HardcodedText" />
-
-            <com.warkiz.widget.IndicatorSeekBar
-                android:id="@+id/indicator_Z_seekbar1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:isb_max="10"
-                app:isb_min="0"
-                app:isb_progress="0"
-                app:isb_seek_smoothly="true"
-                app:isb_ticks_count="10"
-                app:isb_show_tick_marks_type="oval"
-                app:isb_tick_marks_size="7dp"
-                app:isb_tick_marks_color="@color/colorAccent_light"
-                app:isb_show_tick_texts="true"
-                app:isb_tick_texts_size="15sp"
-                app:isb_tick_texts_color="@color/colorAccent_light"
-                app:isb_thumb_color="@color/colorAccent"
-                app:isb_thumb_size="12dp"
-                app:isb_show_indicator="rounded_rectangle"
-                app:isb_indicator_color="@color/button_normal"
-                app:isb_indicator_text_color="@color/colorAccent"
-                app:isb_indicator_text_size="18sp"
-                app:isb_track_background_color="@color/button_normal"
-                app:isb_track_background_size="2dp"
-                app:isb_track_progress_color="@color/colorAccent"
-                app:isb_track_progress_size="4dp" />
-
-        </LinearLayout>
 
 
         <RelativeLayout
@@ -226,53 +210,10 @@
         </RelativeLayout>
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingTop="15dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Background Sound"
-                android:paddingBottom="10dp" />
-
-            <SeekBar
-                android:id="@+id/bgSoundBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:max="100"/>
-
-        </LinearLayout>
 
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingTop="15dp"
-            android:paddingBottom="10dp"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp" >
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Action Sound"
-                android:paddingBottom="10dp"
-                android:paddingRight="64dp"/>
 
-            <Spinner
-                android:id="@+id/bgm_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
-
-        </LinearLayout>
 
     </LinearLayout>
 
