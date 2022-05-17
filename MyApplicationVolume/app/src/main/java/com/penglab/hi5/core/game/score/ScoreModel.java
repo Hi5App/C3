@@ -8,11 +8,15 @@ import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.quest.DailyQuestsModel;
 import com.penglab.hi5.core.game.quest.Quest;
+import com.penglab.hi5.core.ui.userProfile.PhotoUtils;
 import com.penglab.hi5.data.dataStore.database.User;
+
+import org.litepal.LitePal;
 
 import java.lang.ref.PhantomReference;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 /**
  * Created by Yihang zhu 12/29/21
@@ -26,8 +30,9 @@ public class ScoreModel {
     private int lastLoginDay;
     private int curveNumToday;
 //    private int markerNumToday;
-    private MutableLiveData<Integer> markerNum = new MutableLiveData<>();
-    private MutableLiveData<Integer> markerNumToday = new MutableLiveData<>();
+
+    private MutableLiveData<Integer> somaNum = new MutableLiveData<>();
+    private MutableLiveData<Integer> somaNumToday = new MutableLiveData<>();
     private MutableLiveData<Integer> editImageNum = new MutableLiveData<>();
     private MutableLiveData<Integer> editImageNumToday = new MutableLiveData<>();
 
@@ -66,13 +71,6 @@ public class ScoreModel {
         this.curveNum = curveNum;
     }
 
-    public int getMarkerNum() {
-        return markerNum.getValue();
-    }
-
-    public void setMarkerNum(int markerNum) {
-        this.markerNum.setValue(markerNum);
-    }
 
     public int getLastLoginYear() {
         return lastLoginYear;
@@ -98,41 +96,28 @@ public class ScoreModel {
         this.curveNumToday = curveNumToday;
     }
 
-    public int getMarkerNumToday() {
-        return markerNumToday.getValue();
-    }
 
-    public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday.setValue(markerNumToday);;
-    }
+    public void setSomaNum (int somaNum){ this.somaNum.setValue(somaNum);}
 
-    public int getEditImageNum() {
-        return editImageNum.getValue();
-    }
+    public void setSomaNumToday(int somaNumToday) { this.somaNumToday.setValue(somaNumToday); }
+
+    public int getSomaNumToday() {return somaNumToday.getValue();}
+
+    public MutableLiveData<Integer> getObserveSomaNumToday(){ return somaNumToday; }
+
+
 
     public void setEditImageNum(int editImageNum) {
         this.editImageNum.setValue(editImageNum);
     }
 
-    public int getEditImageNumToday() {
-        return editImageNumToday.getValue();
-    }
+    public void setEditImageNumToday(int editImageNumToday) { this.editImageNumToday.setValue(editImageNumToday); }
 
-    public MutableLiveData<Integer> getObserveEditImageToday(){
-        return editImageNumToday;
-    }
+    public int getEditImageNumToday() { return editImageNumToday.getValue(); }
 
-    public MutableLiveData<Integer> getObserveMarkerNumToday(){
-        return markerNumToday;
-    }
+    public MutableLiveData<Integer> getObserveEditImageToday(){ return editImageNumToday; }
 
-    public MutableLiveData<Integer> getObserveMarkerNum() {
-        return markerNum;
-    }
 
-    public void setEditImageNumToday(int editImageNumToday) {
-        this.editImageNumToday.setValue(editImageNumToday);
-    }
 
     public DailyQuestsModel getDailyQuestsModel() {
         return dailyQuestsModel;
@@ -165,7 +150,9 @@ public class ScoreModel {
 //            Log.d("initfromlitepal", "newday");
             dailyQuestsModel.updateNDailyQuest(0, 1);
             scoreModel.editImageNumToday.setValue(0);
+            scoreModel.somaNumToday.setValue(0);
             scoreLitePalConnector.updateEditImageNumToday(scoreModel.editImageNumToday);
+            scoreLitePalConnector.updateSomaNumToday(scoreModel.somaNumToday);
 //            scoreModel.setEditImageNumToday(0);
         }
         if (scoreModel == null) {
@@ -192,26 +179,38 @@ public class ScoreModel {
         user.updateAll("userid = ?", id);
     }
 
-    public void pinpoint(){
-//        markerNum += 1;
-//        markerNumToday += 1;
-        markerNum.setValue(markerNum.getValue()+1);
-        markerNumToday.setValue(markerNumToday.getValue()+1);
-        addScore(ScoreRule.getScorePerPinPoint());
+//    public void pinpoint(){
+////        markerNum += 1;
+////        markerNumToday += 1;
+////        markerNum.setValue(markerNum.getValue()+1);
+////        markerNumToday.setValue(markerNumToday.getValue()+1);
+//        addScore(ScoreRule.getScorePerPinPoint());
+//
+////        dailyQuestsModel.updateMarkerNum(markerNumToday.getValue());
+//
+//        User user = new User();
+//        user.setScore(score.getValue());
+////        user.setMarkerNum(markerNum.getValue());
+////        user.setMarkerNumToday(markerNumToday.getValue());
+//        user.updateAll("userid = ?", id);
+//    }
 
-        dailyQuestsModel.updateMarkerNum(markerNumToday.getValue());
-
+    public void pinpointSoma (int somaNumSize) {
+        addScore(ScoreRule.getScorePerSoma(somaNumSize));
+        somaNumToday.setValue(somaNumToday.getValue()+somaNumSize);
+        Log.e("somaNumToday",""+somaNumToday.getValue());
         User user = new User();
         user.setScore(score.getValue());
-        user.setMarkerNum(markerNum.getValue());
-        user.setMarkerNumToday(markerNumToday.getValue());
+        user.setSomaNumToday(somaNumToday.getValue());
+        List<User> users = LitePal.where("userid = ?", id).find(User.class);
+
         user.updateAll("userid = ?", id);
+
     }
 
     public void getScorePerRewardLevel (int level){
 
         addScore(ScoreRule.getScorePerRewardLevel()*level);
-
         User user = new User();
         user.setScore(score.getValue());
         user.updateAll("userid = ?", id);
@@ -251,9 +250,8 @@ public class ScoreModel {
     private void updateWithNewScoreModel(ScoreModel scoreModel) {
         this.score = scoreModel.score;
         this.curveNum = scoreModel.curveNum;
-        this.markerNum = scoreModel.markerNum;
+        this.somaNumToday = scoreModel.somaNumToday;
         this.curveNumToday = scoreModel.curveNumToday;
-        this.markerNumToday = scoreModel.markerNumToday;
         this.lastLoginDay = scoreModel.lastLoginDay;
         this.lastLoginYear = scoreModel.lastLoginYear;
         this.editImageNum = scoreModel.editImageNum;

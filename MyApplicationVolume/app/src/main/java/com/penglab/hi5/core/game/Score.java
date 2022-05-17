@@ -42,11 +42,11 @@ public class Score {
     private static String id;
     private int score;
     private int curveNum;
-    private int markerNum;
+    private int somaNum;
     private int lastLoginYear;
     private int lastLoginDay;
     private int curveNumToday;
-    private int markerNumToday;
+    private int somaNumToday;
     private int editImageNum;
     private int editImageNumToday;
 
@@ -205,12 +205,12 @@ public class Score {
         this.curveNum = curveNum;
     }
 
-    public int getMarkerNum() {
-        return markerNum;
+    public int getSomaNum() {
+        return somaNum;
     }
 
-    public void setMarkerNum(int markerNum) {
-        this.markerNum = markerNum;
+    public void setSomaNum(int somaNum) {
+        this.somaNum = somaNum;
     }
 
     public int getLastLoginYear() {
@@ -237,12 +237,12 @@ public class Score {
         this.curveNumToday = curveNumToday;
     }
 
-    public int getMarkerNumToday() {
-        return markerNumToday;
+    public int getSomaNumToday() {
+        return somaNumToday;
     }
 
-    public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday = markerNumToday;
+    public void setSomaNumToday(int somaNumToday) {
+        this.somaNumToday = somaNumToday;
     }
 
     public int getEditImageNum() {

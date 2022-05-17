@@ -55,9 +55,9 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setUserid(userId);
             user.setCurveNum(0);
-            user.setMarkerNum(0);
+            user.setSomaNum(0);
             user.setCurveNumToday(0);
-            user.setMarkerNumToday(0);
+            user.setSomaNumToday(0);
             user.setEditImageNum(0);
             user.setEditImageNumToday(0);
             user.setLastLoginDay(0);
@@ -68,11 +68,11 @@ public class ScoreLitePalConnector {
             scoreModel.setId(userId);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
-            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setSomaNum(user.getSomaNum());
             scoreModel.setLastLoginDay(user.getLastLoginDay());
             scoreModel.setLastLoginYear(user.getLastLoginYear());
             scoreModel.setCurveNumToday(user.getCurveNumToday());
-            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
+            scoreModel.setSomaNumToday(user.getSomaNumToday());
             scoreModel.setEditImageNum(user.getEditImageNum());
             scoreModel.setEditImageNumToday(user.getEditImageNumToday());
         } else {
@@ -80,11 +80,11 @@ public class ScoreLitePalConnector {
             scoreModel.setId(userId);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
-            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setSomaNum(user.getSomaNum());
             scoreModel.setLastLoginDay(user.getLastLoginDay());
             scoreModel.setLastLoginYear(user.getLastLoginYear());
             scoreModel.setCurveNumToday(user.getCurveNumToday());
-            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
+            scoreModel.setSomaNumToday(user.getSomaNumToday());
             scoreModel.setEditImageNum(user.getEditImageNum());
             scoreModel.setEditImageNumToday(user.getEditImageNumToday());
         }
@@ -151,17 +151,37 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setUserid(userid);
             user.setEditImageNumToday(editImageNumToday.getValue());
-            Log.e(TAG,"updateEditImageNumToday_user"+editImageNumToday.getValue().toString());
             user.save();
         } else if(users.size() ==1) {
             User user = new User();
             user.setToDefault("editImageNumToday");
             user.setEditImageNumToday(0);
-//            user.setEditImageNumToday(editImageNumToday.getValue());
             user.updateAll("userid=?",userid);
-            Log.e(TAG,"updateEditImageToday_user2"+editImageNumToday.getValue().toString());
         }else {
             Toast_in_Thread_static("Something wrong with database !");
+            return false;
+        }
+        return true;
+    }
+
+    public boolean updateSomaNumToday(MutableLiveData<Integer> somaNumToday){
+        return updateSomaNumToday(userId,somaNumToday);
+    }
+
+    private boolean updateSomaNumToday(String userid, MutableLiveData<Integer> somaNumToday) {
+        List<User> users = LitePal.where("userid = ?",userid).find(User.class);
+        if(users.size() == 0) {
+            User user = new User();
+            user.setUserid(userid);
+            user.setSomaNumToday(somaNumToday.getValue());
+            user.save();
+        }else if(users.size() == 1) {
+            User user = new User();
+            user.setToDefault("somaNumToday");
+            user.setSomaNumToday(0);
+            user.updateAll("userid =?",userid);
+        }else{
+            Toast_in_Thread_static("Something Wrong with database !");
             return false;
         }
         return true;
