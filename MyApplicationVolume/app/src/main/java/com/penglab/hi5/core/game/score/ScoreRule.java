@@ -6,6 +6,7 @@ package com.penglab.hi5.core.game.score;
 public class ScoreRule {
     private static int scorePerPinPoint = 1;
     private static int scorePerCurve = 2;
+    private static int scorePerSoma = 1;
     private static int scorePerImage = 20;
     private static int scorePerRewardLevel = 30;
     private static int scorePerGuessMusic = 50;
@@ -13,6 +14,8 @@ public class ScoreRule {
     public static int getScorePerPinPoint() {
         return scorePerPinPoint;
     }
+
+    public static int getScorePerSoma(int somaNum) {return scorePerSoma*somaNum;}
 
     public static int getScorePerCurve() {
         return scorePerCurve;

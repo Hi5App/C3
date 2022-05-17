@@ -115,14 +115,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_quality_inspection);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_quality_inspection);
-        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-            @Override
-            public void run() {
-                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
-                    qualityInspectionViewModel.winScoreByPinPoint();
-                }
-            }
-        });
+//        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+//            @Override
+//            public void run() {
+//                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
+//                    qualityInspectionViewModel.winScoreByPinPoint();
+//                }
+//            }
+//        });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_quality_control);
         setSupportActionBar(toolbar);
@@ -176,12 +176,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
                         Log.e(TAG,"downloadImageFinished");
                         hideDownloadingProgressBar();
                         qualityInspectionViewModel.openNewFile();
-                        break;
-
-                    case GET_SWC_SUCCESSFULLY:
-//                        annotationGLSurfaceView.loadFile();
-                        qualityInspectionViewModel.queryArborMarkerList();
-                        Log.e(TAG,"get swc successfully");
                         break;
 
                     case IMAGE_FILE_EXPIRED:
@@ -723,36 +717,12 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 annotationGLSurfaceView.setLastMarkerType(2);
                 Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
                 addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-
-//                if(switchMarkerMode) {
-//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-//                        annotationGLSurfaceView.setLastMarkerType(2);
-//                        Toasty.error(this,"Wrong Tracing",Toast.LENGTH_SHORT,true).show();
-//                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-//                    }
-//                }else{
-//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-//                        addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-//                    }
-//                }
                 break;
             case R.id.add_marker_yellow:
                 annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
                 annotationGLSurfaceView.setLastMarkerType(6);
                 Toasty.error(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
                 addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-
-//                if(switchMarkerMode) {
-//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
-//                        annotationGLSurfaceView.setLastMarkerType(6);
-//                        Toasty.warning(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
-//                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
-//                    }
-//                }else{
-//                    if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE)) {
-//                        addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
-//                    }
-//                }
                 break;
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){

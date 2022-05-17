@@ -38,7 +38,6 @@ public class ApoReader {
     public static MarkerList readFromUri(Uri uri) {
         // ##n, orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
         MarkerList markerList = new MarkerList();
-
         try {
             ParcelFileDescriptor parcelFileDescriptor =
                     getContext().getContentResolver().openFileDescriptor(uri, "r");

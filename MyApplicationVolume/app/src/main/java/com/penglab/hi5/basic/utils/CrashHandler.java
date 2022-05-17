@@ -330,20 +330,4 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
         return path;
     }
-
-//public void autoClear(Context ctx,final int autoClearDay) {
-//        String path = null;
-//        path = getCrashFilePath(ctx);
-//        File file = new File(path);
-//
-//
-//        String s = FileUtil.getFileNameNoEx(file.getName());
-//        int day = autoClearDay < 0 ? autoClearDay : -1 * autoClearDay;
-//        String date = "crash-" + DateUtil.getOtherDay(day);
-//        if(date.compareTo(s) >=0){
-//            file.delete();
-//        }
-//}
-
-
 }

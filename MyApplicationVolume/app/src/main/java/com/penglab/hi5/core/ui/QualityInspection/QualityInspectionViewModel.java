@@ -345,7 +345,7 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
-        if (lastIndex + 2 >= potentialArborMarkerInfoList.size()) {
+        if (lastIndex + 4 >= potentialArborMarkerInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
             if (!isDownloading) {
                 cacheImage();
@@ -495,9 +495,9 @@ public class QualityInspectionViewModel extends ViewModel {
         userInfoRepository.getScoreModel().finishAnImage();
     }
 
-    public void winScoreByPinPoint() {
-        userInfoRepository.getScoreModel().pinpoint();
-    }
+//    public void winScoreByPinPoint() {
+//        userInfoRepository.getScoreModel().pinpoint();
+//    }
 
     public void cacheImage() {
         executorService.submit(new Runnable() {

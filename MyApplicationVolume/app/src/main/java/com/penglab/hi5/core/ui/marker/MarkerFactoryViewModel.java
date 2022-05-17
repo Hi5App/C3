@@ -114,11 +114,11 @@ public class MarkerFactoryViewModel extends ViewModel {
         initPreDownloadThread();
         initCheckFreshThread();
 
-        somaNum.setValue(0);
-        somaNumStatus = SomaNumStatus.ZERO;
 
+        int somaNumToday = userInfoRepository.getScoreModel().getSomaNumToday();
         int editImageNumToday = userInfoRepository.getScoreModel().getEditImageNumToday();
 
+        somaNumStatus = SomaNumStatus.ZERO;
         editImageTodayStatus = EditImageTodayStatus.ZERO;
 
         if (editImageNumToday >= 40 && editImageNumToday < 80)
@@ -130,6 +130,14 @@ public class MarkerFactoryViewModel extends ViewModel {
             editImageTodayStatus = EditImageTodayStatus.LONG_HUNDRED;
         } else if (editImageNumToday >= 500) {
             editImageTodayStatus = EditImageTodayStatus.FIVE_HUNDRED;
+        }
+
+        if(somaNumToday > 50 && somaNumToday < 100){
+            somaNumStatus = SomaNumStatus.TEN;
+        } else if (somaNumToday >= 100 && somaNumToday < 200){
+            somaNumStatus = SomaNumStatus.FIFTY;
+        } else if (somaNumToday >=200 ){
+            somaNumStatus = SomaNumStatus.HUNDRED;
         }
 
     }
@@ -174,8 +182,8 @@ public class MarkerFactoryViewModel extends ViewModel {
         return curPotentialSomaInfo;
     }
 
-    public MutableLiveData<Integer> getSomaNum() {
-        return somaNum;
+    public MutableLiveData<Integer> getSomaNumToday() {
+        return userInfoRepository.getScoreModel().getObserveSomaNumToday();
     }
 
     public MutableLiveData<Integer> getEditImageNumToday() {
@@ -540,7 +548,8 @@ public class MarkerFactoryViewModel extends ViewModel {
             String username = loggedInUser.getUserId();
             markerFactoryDataSource.updateSomaList(brainId, locationId, locationType, username,
                     MarkerList.toJSONArray(MarkerList.covertLocalToGlobal(markerListToAdd, coordinateConvert)), markerListToDelete);
-            somaNum.setValue(somaNum.getValue() + markerListToAdd.size());
+//            somaNum.setValue(somaNum.getValue() + markerListToAdd.size());
+            winScoreByPinPointSoma(markerListToAdd.size());
 
             if (!curPotentialSomaInfo.isAlreadyUpload()) {
                 curPotentialSomaInfo.setAlreadyUpload(true);
@@ -557,9 +566,12 @@ public class MarkerFactoryViewModel extends ViewModel {
         userInfoRepository.getScoreModel().finishAnImage();
     }
 
+//    public void winScoreByPinPoint() {
+//        userInfoRepository.getScoreModel().pinpoint();
+//    }
 
-    public void winScoreByPinPoint() {
-        userInfoRepository.getScoreModel().pinpoint();
+    public void winScoreByPinPointSoma(int somaNumSize) {
+        userInfoRepository.getScoreModel().pinpointSoma(somaNumSize);
     }
 
     public void winScoreByReward(int level){

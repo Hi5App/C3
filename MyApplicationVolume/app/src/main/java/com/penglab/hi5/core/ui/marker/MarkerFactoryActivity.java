@@ -144,14 +144,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_marker_factory);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
-        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-            @Override
-            public void run() {
-                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
-                    markerFactoryViewModel.winScoreByPinPoint();
-                }
-            }
-        });
+//        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+//            @Override
+//            public void run() {
+//                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
+////                    markerFactoryViewModel.winScoreByPinPoint();
+//
+//                }
+//            }
+//        });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
@@ -321,19 +322,19 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
-        markerFactoryViewModel.getSomaNum().observe(this, new Observer<Integer>() {
+        markerFactoryViewModel.getSomaNumToday().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(Integer somaNum) {
+            public void onChanged(Integer somaNumToday) {
                 MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
-                if (somaNum >= 50 && somaNum < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                if (somaNumToday >= 50 && somaNumToday < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
                     playRewardSound(1);
                     showRewardDialog(1);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
-                } else if (somaNum >= 100 && somaNum < 200 && somaNumStatus.ordinal() < 2) {
+                } else if (somaNumToday >= 100 && somaNumToday< 200 && somaNumStatus.ordinal() < 2) {
                     playRewardSound(2);
                     showRewardDialog(2);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
-                } else if (somaNum >= 200 && somaNumStatus.ordinal() < 3) {
+                } else if (somaNumToday >= 200 && somaNumStatus.ordinal() < 3) {
                     playRewardSound(3);
                     showRewardDialog(3);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
