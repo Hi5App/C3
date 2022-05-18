@@ -258,6 +258,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean isBigData_Local;
     private static boolean isS2Start = false;
     private static boolean isCamera;
+    private static boolean ifTouchCamera = false;
 
     private static ProgressBar progressBar;
     private static ProgressDialog progressDialog_zscan;
@@ -836,11 +837,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2GLSurfaceView = null;
         myS2renderer = null;
         S2Context = null;
-        mVideoView.stopPlayback();
-        mVideoView.release(true);
-        mVideoView.stopBackgroundPlay();
-
-        IjkMediaPlayer.native_profileEnd();
+        ifTouchCamera=false;
         //serverConnector.closeSender();
         if (timer != null) {
             timer.cancel();
@@ -877,12 +874,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        Intent bgmIntent = new Intent(S2Activity.this, MusicServer.class);
 //        stopService(bgmIntent);
         super.onStop();
-
-        mVideoView.stopPlayback();
-        mVideoView.release(true);
-        mVideoView.stopBackgroundPlay();
-
-        IjkMediaPlayer.native_profileEnd();
+        if (ifTouchCamera) {
+            mVideoView.stopPlayback();
+            mVideoView.release(true);
+            mVideoView.stopBackgroundPlay();
+            ifTouchCamera=false;
+            IjkMediaPlayer.native_profileEnd();
+        }
 
     }
 
@@ -1014,12 +1012,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             s2rocekerview_xy.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
 
 
-            if (TextUtils.isEmpty(mVideoPath)) {
+            if (TextUtils.isEmpty(mPvcamPath)) {
                 Toast.makeText(this,
                         "No Video Found! Press Back Button To Exit",
                         Toast.LENGTH_LONG).show();
             } else {
-                mVideoView.setVideoURI(Uri.parse(mVideoPath));
+                mVideoView.setVideoURI(Uri.parse(mPvcamPath));
                 mVideoView.start();
             }
 
@@ -1164,7 +1162,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 if (ifz) {
                     message = Direction[5];
                 } else {
-                    message = Direction[2];
+                    message = Direction[3];
                 }
                 break;
             case DIRECTION_UP_LEFT:
@@ -1609,15 +1607,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 //myS2GLSurfaceView.requestRender();
 
                 isZscanSeries = true;
-                isS2Start=false;
+                isS2Start = false;
                 if (!isZscanSeries) {
 //                    x_pos_Text.setLayoutParams(lp_x_pos);
 //                    y_pos_Text.setLayoutParams(lp_y_pos);
 //                    z_pos_Text.setLayoutParams(lp_z_pos);
                     progressDialog_zscan.show();
-     
 
-                 
+
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -1626,7 +1623,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     }).start();
 
                 } else {
-        
+
 
                     Log.e(TAG, "zseries_scan already push ! ");
                 }
@@ -1647,12 +1644,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             public void onClick(View v) {
                 Log.e(TAG, "s2send ");
 
-    
+
                 isCamera = true;
 
 
                 //image1.setImageBitmap(bitmap); //设置Bitmap
-               setButtons();
+                setButtons();
 //
 //                myS2renderer.clearView(isCamera);  //clean view before showing new image
 //                myS2GLSurfaceView.requestRender();
@@ -1672,7 +1669,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "s2send ");
-   
+
                 isS2Start = true;
                 setButtons();
 
@@ -1693,9 +1690,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @Override
             public void onClick(View v) {
                 Log.e(TAG, "get imgs stack ");
-             
+
                 isVirtualScope = true;
-      
+
                 setButtons();
 
                 myS2renderer.clearView(true);  //clean view before showing new image
@@ -4177,7 +4174,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
                 String[] Direction = {"Left", "Right", "Top", "Bottom", "Front", "Back", "Lefttop", "leftbottom", "Righttop", "Rightbottom"};
-                if ((isBigData_Remote && !isVirtualScope && isCamera)||s2workstate=="Camera") {
+                if ((isBigData_Remote && !isVirtualScope && isCamera) || s2workstate == "Camera") {
 
                     if (Arrays.asList(Direction).contains(text)) {
                         Log.e("S2_Block_navigate", text);
@@ -4948,41 +4945,42 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         if (isCheckmode) {
             s2workstate = "Checkmode";
-           // cleans2workstate();
+            // cleans2workstate();
         } else if (isVirtualScope) {
 
             s2workstate = "VirtualScope";
-           // cleans2workstate();
+            // cleans2workstate();
 
 
         } else if (isCamera) {
             s2workstate = "Camera";
-          //  cleans2workstate();
+            ifTouchCamera = true;
+            //  cleans2workstate();
 
 
         } else if (isS2Start) {
             s2workstate = "S2Start";
-           // cleans2workstate();
+            // cleans2workstate();
 
 
         } else if (isZscanSeries) {
 
             s2workstate = "ZscanSeries";
-           // cleans2workstate();
+            // cleans2workstate();
 
-        }else if (isBigData_Remote) {
+        } else if (isBigData_Remote) {
 
             s2workstate = "BigData_Remote";
             //cleans2workstate();
 
-        }else if (isBigData_Local) {
+        } else if (isBigData_Local) {
 
             s2workstate = "BigData_Local";
             //cleans2workstate();
 
-        }else{
+        } else {
 
-            s2workstate="";
+            s2workstate = "";
             cleans2workstate();
         }
         Log.v(TAG, "s2workstate: " + s2workstate);
@@ -4991,16 +4989,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public static void setButtonsAndState() {
 
 
-
         hideButtons();
         updates2workstate();
-        switch (s2workstate)
-        {
+        switch (s2workstate) {
             case "Checkmode":
                 eswc_sync.setVisibility(View.VISIBLE);
                 Hide_i.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isCheckmode=true;
+                isCheckmode = true;
 
                 break;
             case "VirtualScope":
@@ -5008,11 +5004,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Zoom_in_Big.setVisibility(View.VISIBLE);
                 Zoom_out_Big.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isVirtualScope=true;
+                isVirtualScope = true;
                 break;
             case "Camera":
                 cleans2workstate();
-                isCamera=true;
+                isCamera = true;
                 break;
             case "S2Start":
                 Zoom_in_Big.setVisibility(View.VISIBLE);
@@ -5027,7 +5023,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 navigation_front.setVisibility(View.VISIBLE);
                 navigation_back.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isS2Start=true;
+                isS2Start = true;
                 break;
             case "ZscanSeries":
                 zseries_scan.setVisibility(View.VISIBLE);
@@ -5036,26 +5032,25 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Zslice_up.setVisibility(View.VISIBLE);
                 Zslice_down.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isZscanSeries=true;
+                isZscanSeries = true;
                 break;
             case "BigData_Remote":
 
                 Zoom_in_Big.setVisibility(View.VISIBLE);
                 Zoom_out_Big.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isBigData_Remote=true;
+                isBigData_Remote = true;
                 break;
             case "BigData_Local":
 
                 Zoom_in_Big.setVisibility(View.VISIBLE);
                 Zoom_out_Big.setVisibility(View.VISIBLE);
                 cleans2workstate();
-                isBigData_Local=true;
+                isBigData_Local = true;
                 break;
             default:
                 break;
         }
-
 
 
     }

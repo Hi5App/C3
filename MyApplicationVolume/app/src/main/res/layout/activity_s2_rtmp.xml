@@ -111,7 +111,7 @@
             android:id="@+id/textViews_xy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text="XY Stage"
             android:layout_marginTop="370dp"
             android:layout_marginStart="70dp"/>
 
@@ -131,7 +131,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="235dp"
             android:layout_marginTop="370dp"
-            android:text="TextView" />
+            android:text="Z Stage" />
 
         <com.penglab.hi5.basic.utils.view.ImageButtonExt
             android:id="@+id/pv_zoom_in"
