@@ -51,7 +51,6 @@ import com.penglab.hi5.game.GameCharacter;
 import org.apache.commons.io.IOUtils;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -492,6 +491,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         if (ifGame) {
                             myPatternGame.drawMarker(finalMatrix, modelMatrix);
                         } else {
+                            assert myPattern != null;
                             myPattern.drawVolume_3d(finalMatrix, ifDownSampling, contrast);
                         }
                 }
