@@ -73,6 +73,9 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
+    implementation project(path: ':ijkplayer-exo')
+    implementation project(path: ':ijkplayer-java')
+    implementation project(path: ':ijkplayer-example')
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -163,5 +166,8 @@ dependencies {
     compile 'com.sdsmdg.tastytoast:tastytoast:0.1.1'
     implementation 'com.github.mejdi14:Flat-Dialog-Android:1.0.5'
     compile 'com.github.iammert:MusicPlayerView:e3b937c729'
+
+    //The virtual joystick
+    compile 'com.github.kongqw:AndroidRocker:1.0.1'
 
 }

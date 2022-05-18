@@ -2,5 +2,4 @@
 <resources>
     <item name="Undo" type="id" />
     <item name="Redo" type="id" />
-    <item name="nestedScrollView" type="id"/>
 </resources>
