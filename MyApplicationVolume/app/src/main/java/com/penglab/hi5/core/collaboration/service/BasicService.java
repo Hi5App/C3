@@ -3,13 +3,10 @@ package com.penglab.hi5.core.collaboration.service;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Environment;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.huawei.hms.utils.IOUtils;
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.DataType;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.BasicConnector;
@@ -17,7 +14,6 @@ import com.penglab.hi5.core.collaboration.connector.BasicConnector;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -334,12 +330,9 @@ public abstract class BasicService extends Service {
                         }
                         out.close();
 
-                        if (dataType.filename.endsWith("v3dpbd")) {
-                            receiveMsgInterface.onRecMessage("Block:" + dataType.filepath + "/" + dataType.filename);
-//                            MainActivity.hideProgressBar();
-                        } else {
-                            receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
-                        }
+
+                        receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
+
 
 //                        Log.e(TAG,"Finish process file !");
                         resetDataType();
@@ -549,7 +542,7 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc")  || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
+                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc") || dataType.filename.endsWith(".v3dpbd") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
                             dataType.filepath = dir_str_server;
                             Log.e(TAG, "This is a s2 file !");
                         }
