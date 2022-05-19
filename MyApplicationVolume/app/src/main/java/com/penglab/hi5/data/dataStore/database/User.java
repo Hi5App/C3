@@ -15,7 +15,7 @@ public class User extends LitePalSupport {
     private int curveNum;
 
     @Column(defaultValue = "0")
-    private int markerNum;
+    private int somaNum;
 
     @Column(defaultValue = "0")
     private int lastLoginYear;
@@ -27,14 +27,13 @@ public class User extends LitePalSupport {
     private int curveNumToday;
 
     @Column(defaultValue = "0")
-    private int markerNumToday;
+    private int somaNumToday;
 
     @Column(defaultValue = "0")
     private int editImageNum;
 
     @Column(defaultValue = "0")
     private int editImageNumToday;
-
 
 
 
@@ -58,8 +57,8 @@ public class User extends LitePalSupport {
         this.curveNum = curveNum;
     }
 
-    public void setMarkerNum(int markerNum) {
-        this.markerNum = markerNum;
+    public void setSomaNum(int somaNum) {
+        this.somaNum = somaNum;
     }
 
     public void setLastLoginYear(int lastLoginYear) {
@@ -75,25 +74,20 @@ public class User extends LitePalSupport {
         this.curveNumToday = curveNumToday;
     }
 
-    public void setMarkerNumToday(int markerNumToday) {
-        this.markerNumToday = markerNumToday;
-    }
+    public void setSomaNumToday(int somaNumToday) {this.somaNumToday = somaNumToday; }
+
+    public void setEditImageNumToday(int editImageNumToday) { this.editImageNumToday = editImageNumToday; }
 
     public void setEditImageNum(int editImageNum) {
         this.editImageNum = editImageNum;
     }
 
-    public void setEditImageNumToday(int editImageNumToday) {
-        this.editImageNumToday = editImageNumToday;
-    }
 
     public int getCurveNum() {
         return curveNum;
     }
 
-    public int getMarkerNum() {
-        return markerNum;
-    }
+    public int getSomaNum() { return somaNum; }
 
     public int getLastLoginYear() {
         return lastLoginYear;
@@ -107,8 +101,8 @@ public class User extends LitePalSupport {
         return curveNumToday;
     }
 
-    public int getMarkerNumToday() {
-        return markerNumToday;
+    public int getSomaNumToday() {
+        return somaNumToday;
     }
 
     public int getEditImageNum() {
@@ -118,5 +112,6 @@ public class User extends LitePalSupport {
     public int getEditImageNumToday() {
         return editImageNumToday;
     }
+
 }
 

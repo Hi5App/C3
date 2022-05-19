@@ -73,9 +73,9 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setUserid(userid);
             user.setCurveNum(0);
-            user.setMarkerNum(0);
+            user.setSomaNum(0);
             user.setCurveNumToday(0);
-            user.setMarkerNumToday(0);
+            user.setSomaNumToday(0);
             user.setEditImageNum(0);
             user.setEditImageNumToday(0);
             user.setLastLoginDay(0);
@@ -87,11 +87,11 @@ public class ScoreLitePalConnector {
             score.setId(userid);
             score.setScore(user.getScore());
             score.setCurveNum(user.getCurveNum());
-            score.setMarkerNum(user.getMarkerNum());
+            score.setSomaNum(user.getSomaNum());
             score.setLastLoginDay(user.getLastLoginDay());
             score.setLastLoginYear(user.getLastLoginYear());
             score.setCurveNumToday(user.getCurveNumToday());
-            score.setMarkerNumToday(user.getMarkerNumToday());
+            score.setSomaNumToday(user.getSomaNumToday());
             score.setEditImageNum(user.getEditImageNum());
             score.setEditImageNumToday(user.getEditImageNumToday());
         } else {
@@ -100,11 +100,11 @@ public class ScoreLitePalConnector {
             score.setId(userid);
             score.setScore(user.getScore());
             score.setCurveNum(user.getCurveNum());
-            score.setMarkerNum(user.getMarkerNum());
+            score.setSomaNum(user.getSomaNum());
             score.setLastLoginDay(user.getLastLoginDay());
             score.setLastLoginYear(user.getLastLoginYear());
             score.setCurveNumToday(user.getCurveNumToday());
-            score.setMarkerNumToday(user.getMarkerNumToday());
+            score.setSomaNumToday(user.getSomaNumToday());
             score.setEditImageNum(user.getEditImageNum());
             score.setEditImageNumToday(user.getEditImageNumToday());
         }
@@ -120,9 +120,9 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setUserid(userid);
             user.setCurveNum(0);
-            user.setMarkerNum(0);
+            user.setSomaNum(0);
             user.setCurveNumToday(0);
-            user.setMarkerNumToday(0);
+            user.setSomaNumToday(0);
             user.setEditImageNum(0);
             user.setEditImageNumToday(0);
             user.setLastLoginDay(0);
@@ -133,11 +133,11 @@ public class ScoreLitePalConnector {
             scoreModel.setId(userid);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
-            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setSomaNum(user.getSomaNum());
+            scoreModel.setSomaNumToday(user.getSomaNumToday());
             scoreModel.setLastLoginDay(user.getLastLoginDay());
             scoreModel.setLastLoginYear(user.getLastLoginYear());
             scoreModel.setCurveNumToday(user.getCurveNumToday());
-            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
             scoreModel.setEditImageNum(user.getEditImageNum());
             scoreModel.setEditImageNumToday(user.getEditImageNumToday());
         } else {
@@ -145,11 +145,11 @@ public class ScoreLitePalConnector {
             scoreModel.setId(userid);
             scoreModel.setScore(user.getScore());
             scoreModel.setCurveNum(user.getCurveNum());
-            scoreModel.setMarkerNum(user.getMarkerNum());
+            scoreModel.setSomaNum(user.getSomaNum());
+            scoreModel.setSomaNumToday(user.getSomaNumToday());
             scoreModel.setLastLoginDay(user.getLastLoginDay());
             scoreModel.setLastLoginYear(user.getLastLoginYear());
             scoreModel.setCurveNumToday(user.getCurveNumToday());
-            scoreModel.setMarkerNumToday(user.getMarkerNumToday());
             scoreModel.setEditImageNum(user.getEditImageNum());
             scoreModel.setEditImageNumToday(user.getEditImageNumToday());
         }

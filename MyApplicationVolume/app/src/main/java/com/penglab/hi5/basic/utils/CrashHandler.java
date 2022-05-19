@@ -108,7 +108,6 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         application.registerActivityLifecycleCallbacks(mMyActivityLifeCycleCallbacks);
         mDefaultHandler = Thread.getDefaultUncaughtExceptionHandler();
         Thread.setDefaultUncaughtExceptionHandler(this);
-//        autoClear(5);
     }
 
     public class ThreadCollector {
@@ -331,24 +330,4 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
         }
         return path;
     }
-//
-//    public static String getGlobalpath() {
-//        return Environment.getExternalStorageDirectory().getAbsolutePath()
-//                + File.separator + "crash" + File.separator;
-//    }
-//
-//    public void autoClear(final int autoClearDay) {
-//        FileUtil.delete(getGlobalpath(), new FilenameFilter() {
-//
-//            @Override
-//            public boolean accept(File file, String filename) {
-//                String s = FileUtil.getFileNameNoEx(filename);
-//                long day = autoClearDay < 0 ? autoClearDay : -1 * autoClearDay;
-//                String date = "crash-" + DateUtil.parseMilliSecondToString(day);
-//                return date.compareTo(s) >= 0;
-//            }
-//        });
-//    }
-
-
 }

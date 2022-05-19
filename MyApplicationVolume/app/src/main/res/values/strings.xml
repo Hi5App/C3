@@ -351,4 +351,6 @@
     <string name="xpopup_confirm">ok</string>
     <string name="MoveZup">Z+</string>
     <string name="MoveZdown">Z-</string>
+    <string name="pv_zoom_in">-</string>
+    <string name="pv_zoom_out">-</string>
 </resources>

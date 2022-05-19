@@ -103,5 +103,9 @@
     </array>
 
     <color name="navigate">#666</color>
+    <color name="pv_rocker_xy_big">#FF757575</color>
+    <color name="pv_rocker_xy_small">#07F8D2</color>
+    <color name="pv_rocker_z_big">#D67F7F</color>
+    <color name="pv_rocker_z_small">#F10303</color>
 
 </resources>

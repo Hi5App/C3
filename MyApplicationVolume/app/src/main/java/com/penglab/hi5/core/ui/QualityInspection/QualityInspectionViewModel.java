@@ -501,9 +501,9 @@ public class QualityInspectionViewModel extends ViewModel {
         userInfoRepository.getScoreModel().finishAnImage();
     }
 
-    public void winScoreByPinPoint() {
-        userInfoRepository.getScoreModel().pinpoint();
-    }
+//    public void winScoreByPinPoint() {
+//        userInfoRepository.getScoreModel().pinpoint();
+//    }
 
     public void cacheImage() {
         executorService.submit(new Runnable() {

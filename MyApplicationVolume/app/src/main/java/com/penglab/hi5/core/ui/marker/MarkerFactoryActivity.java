@@ -144,14 +144,15 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_marker_factory);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
-        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-            @Override
-            public void run() {
-                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
-                    markerFactoryViewModel.winScoreByPinPoint();
-                }
-            }
-        });
+//        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+//            @Override
+//            public void run() {
+//                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
+////                    markerFactoryViewModel.winScoreByPinPoint();
+//
+//                }
+//            }
+//        });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
@@ -321,19 +322,19 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             }
         });
 
-        markerFactoryViewModel.getSomaNum().observe(this, new Observer<Integer>() {
+        markerFactoryViewModel.getSomaNumToday().observe(this, new Observer<Integer>() {
             @Override
-            public void onChanged(Integer somaNum) {
+            public void onChanged(Integer somaNumToday) {
                 MarkerFactoryViewModel.SomaNumStatus somaNumStatus = markerFactoryViewModel.getSomaNumStatus();
-                if (somaNum >= 1 && somaNum < 2 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
+                if (somaNumToday >= 50 && somaNumToday < 100 && somaNumStatus == MarkerFactoryViewModel.SomaNumStatus.ZERO) {
                     playRewardSound(1);
                     showRewardDialog(1);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.TEN);
-                } else if (somaNum >= 2 && somaNum < 3 && somaNumStatus.ordinal() < 2) {
+                } else if (somaNumToday >= 100 && somaNumToday< 200 && somaNumStatus.ordinal() < 2) {
                     playRewardSound(2);
                     showRewardDialog(2);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.FIFTY);
-                } else if (somaNum >= 3 && somaNumStatus.ordinal() < 3) {
+                } else if (somaNumToday >= 200 && somaNumStatus.ordinal() < 3) {
                     playRewardSound(3);
                     showRewardDialog(3);
                     markerFactoryViewModel.setSomaNumStatus(MarkerFactoryViewModel.SomaNumStatus.HUNDRED);
@@ -345,19 +346,19 @@ public class MarkerFactoryActivity extends AppCompatActivity {
             @Override
             public void onChanged(Integer editImageToday) {
                 MarkerFactoryViewModel.EditImageTodayStatus editImageTodayStatus = markerFactoryViewModel.getEditImageTodayStatus();
-                if(editImageToday >=5 && editImageToday < 10 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
+                if(editImageToday >= 40 && editImageToday < 80 && editImageTodayStatus == MarkerFactoryViewModel.EditImageTodayStatus.ZERO) {
                     TastyToast.makeText(getApplicationContext(), String.format("Nice! you have scanned %s images,cheer up!",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FORTY);
 
-                } else if (editImageToday >= 10 && editImageToday <15 && editImageTodayStatus.ordinal() < 2) {
+                } else if (editImageToday >= 80 && editImageToday < 120 && editImageTodayStatus.ordinal() < 2) {
                     TastyToast.makeText(getApplicationContext(), String.format("Great! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.EIGHTY);
 
-                } else if(editImageToday >= 15 && editImageToday < 20 && editImageTodayStatus.ordinal() < 3) {
+                } else if(editImageToday >= 120 && editImageToday < 500 && editImageTodayStatus.ordinal() < 3) {
                     TastyToast.makeText(getApplicationContext(), String.format("Wonderful! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.WARNING);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.LONG_HUNDRED);
 
-                }else if (editImageToday >= 20 && editImageTodayStatus.ordinal() <4) {
+                }else if (editImageToday >= 500 && editImageTodayStatus.ordinal() <4) {
                     TastyToast.makeText(getApplicationContext(), String.format("Unbelievable! you have scanned %s images",editImageToday), TastyToast.LENGTH_LONG, TastyToast.SUCCESS);
                     markerFactoryViewModel.setEditImageTodayStatus(MarkerFactoryViewModel.EditImageTodayStatus.FIVE_HUNDRED);
                 }

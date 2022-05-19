@@ -19,8 +19,8 @@ public class DailyQuestLitePalConnector {
             new Quest("Login",  0, 1, 20),
             new Quest("Draw a line", 0, 1, 20),
             new Quest("Draw 100 lines", 0, 100, 100),
-            new Quest("Draw a marker", 0, 1, 20),
-            new Quest("Draw 100 markers", 0, 100, 100),
+//            new Quest("Draw a marker", 0, 1, 20),
+//            new Quest("Draw 100 markers", 0, 100, 100),
     };
 
     public List<Quest> getDailyQuests(String userId){
