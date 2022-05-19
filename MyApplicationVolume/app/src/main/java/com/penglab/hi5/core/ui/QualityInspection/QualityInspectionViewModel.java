@@ -345,11 +345,11 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
-        if (lastIndex + 2 >= potentialArborMarkerInfoList.size()) {
+        if (lastIndex + 4 >= potentialArborMarkerInfoList.size() && !isDownloading) {
+            cacheImage();
+        }
+        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
-            if (!isDownloading) {
-                cacheImage();
-            }
         } else {
             curIndex = ++lastIndex;
             openFileWithCurIndex();
@@ -418,24 +418,30 @@ public class QualityInspectionViewModel extends ViewModel {
     }
 
     public void nextFile() {
-        int tempCurIndex = curIndex;
-        while (tempCurIndex < potentialArborMarkerInfoList.size() - 1) {
-            if (!potentialArborMarkerInfoList.get(tempCurIndex + 1).isBoring()) {
-                break;
-            }
-            tempCurIndex++;
-        }
-        if (tempCurIndex == potentialArborMarkerInfoList.size()-1) {
-            // open new file
+//        int tempCurIndex = curIndex;
+//        while (tempCurIndex < potentialArborMarkerInfoList.size() - 1) {
+//            if (!potentialArborMarkerInfoList.get(tempCurIndex + 1).isBoring()) {
+//                break;
+//            }
+//            tempCurIndex++;
+//        }
+//        if (tempCurIndex > lastIndex) {
+//            // open new file
+//            openNewFile();
+//        } else if (tempCurIndex < potentialArborMarkerInfoList.size()-1 && tempCurIndex >= 0) {
+//            curIndex = tempCurIndex+1;
+//            if (curIndex > lastIndex) {
+//                lastIndex = curIndex;
+//            }
+//            openFileWithCurIndex();
+//        } else {
+//            ToastEasy("Something wrong with curIndex");
+//        }
+
+        if (curIndex + 1 > lastIndex) {
             openNewFile();
-        } else if (tempCurIndex < potentialArborMarkerInfoList.size()-1 && tempCurIndex >= 0) {
-            curIndex = tempCurIndex+1;
-            if (curIndex > lastIndex) {
-                lastIndex = curIndex;
-            }
-            openFileWithCurIndex();
         } else {
-            ToastEasy("Something wrong with curIndex");
+            curIndex++;
         }
     }
 
