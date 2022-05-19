@@ -476,6 +476,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 //PV_imageView.setImageBitmap(bitmap); //设置Bitmap
             }
+            if (msg.endsWith(".v3dpbd")) {
+
+                Log.e(TAG, "File: .v3dpbd");
+                loadBigDataImg(msg.split(":")[1]);
+
+                //PV_imageView.setImageBitmap(bitmap); //设置Bitmap
+            }
             if (msg.endsWith(".jpg")) {
 
                 Log.e(TAG, "File: .jpg");
@@ -1826,7 +1833,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 } else if (s2EswcPath.endsWith("v3draw")) {
                     eswcPath = s2EswcPath.replace(".v3draw", "_refined_pruned.swc");
                     Log.e(TAG, "eswc_sync" + eswcPath);
-                } else {
+                } else if (s2EswcPath.endsWith("v3dpbd")) {
+                    eswcPath = s2EswcPath.replace(".v3dpbd", "_refined_pruned.swc");
+                    Log.e(TAG, "eswc_sync" + eswcPath);
+                }else {
                     //ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + s2EswcPath.split("/")[1]);
                     Log.e(TAG, "error file format!");
                     return;
@@ -2168,7 +2178,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
                                     Log.e(TAG, " ServerConnector.text;" + text);
-                                    if (text.contains(".tif") || (text.contains(".v3draw"))) {
+                                    if (text.contains(".tif") || (text.contains(".v3draw")|| text.contains(".v3dpbd"))) {
                                         isVirtualScope = false;
                                         isCheckmode = true;
 
@@ -2190,7 +2200,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         return;
                                     }
 
-                                    if (getFiles(finalDir_str_server).contains(text) && (text.contains(".v3draw") || text.contains(".tif"))) {
+                                    if (getFiles(finalDir_str_server).contains(text) && (text.contains(".v3draw") || text.contains(".v3dpbd")|| text.contains(".tif"))) {
 
                                         String filepath = finalDir_str_server + "/" + text;
                                         Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepath);
