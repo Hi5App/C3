@@ -710,7 +710,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         //s2initialization();
-
+        s2Confirm_Password();
 
         /*
         init database for score module
@@ -3602,6 +3602,115 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         mdDialog.show();
     }
+
+
+    private void s2Confirm_Password(){
+        boolean[] isif_flag = new boolean[3];
+
+        isif_flag[0] = false;
+        isif_flag[1] = false;
+        isif_flag[2] = false;
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_confirm_password);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+                IndicatorSeekBar s2_password1 = contentView.findViewById(R.id.s2_password_1);
+                IndicatorSeekBar s2_password2 = contentView.findViewById(R.id.s2_password_2);
+                IndicatorSeekBar s2_password3 = contentView.findViewById(R.id.s2_password_3);
+                IndicatorSeekBar s2_password4 = contentView.findViewById(R.id.s2_password_4);
+                IndicatorSeekBar s2_password5 = contentView.findViewById(R.id.s2_password_5);
+
+
+
+
+
+
+
+
+                s2_password1.setProgress(0);
+                s2_password2.setProgress(0);
+                s2_password3.setProgress(0);
+                s2_password4.setProgress(0);
+                s2_password5.setProgress(0);
+
+
+
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+
+                IndicatorSeekBar s2_password1 = contentView.findViewById(R.id.s2_password_1);
+                int password1 = s2_password1.getProgress();
+
+                IndicatorSeekBar s2_password2 = contentView.findViewById(R.id.s2_password_2);
+                int password2 = s2_password2.getProgress();
+
+                IndicatorSeekBar s2_password3 = contentView.findViewById(R.id.s2_password_3);
+                int password3 = s2_password3.getProgress();
+
+                IndicatorSeekBar s2_password4 = contentView.findViewById(R.id.s2_password_4);
+                int password4 = s2_password4.getProgress();
+
+                IndicatorSeekBar s2_password5 = contentView.findViewById(R.id.s2_password_5);
+                int password5 = s2_password5.getProgress();
+
+                //s2paraSetting.setPara(isif_flag[0], isif_flag[1], isif_flag[2], XY_Per_Step, Z_Per_Step);
+
+                if(password1==5&&password2==2&&password3==0&&password4==1&&password5==3)
+                {
+                    myS2renderer.clearView(true);  //clean view before showing new image
+                    myS2GLSurfaceView.requestRender();
+                    Toast_in_Thread("Confirm down!");
+                }else
+                {
+                    finish();
+                    System.exit(0);
+                }
+                //Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
+
+
+
+
+
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("s2_confirm_password");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+
 
 //    private void setSettings(){
 //        boolean [] downsample = new boolean[1];

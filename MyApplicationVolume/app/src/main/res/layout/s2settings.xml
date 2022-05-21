@@ -94,9 +94,9 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1px"
-                android:layout_alignLeft="@id/downSample_mode"
-                android:layout_alignRight="@id/downSample_mode"
-                android:layout_below="@id/downSample_mode"
+                android:layout_alignLeft="@id/s2downSample_mode"
+                android:layout_alignRight="@id/s2downSample_mode"
+                android:layout_below="@id/s2downSample_mode"
                 android:layout_marginTop="10dp"
                 android:background="#33333333" />
 
