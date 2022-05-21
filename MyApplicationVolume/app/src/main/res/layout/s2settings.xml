@@ -72,7 +72,34 @@
                 tools:ignore="RtlHardcoded" />
 
         </RelativeLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
 
+            <Switch
+                android:id="@+id/s2force_updateImg"
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:textColor="#bb333333"
+                android:textOff="OFF"
+                android:textOn="ON"
+                android:text="Forcing to update images OFF/ON" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:layout_alignLeft="@id/s2force_updateImg"
+                android:layout_alignRight="@id/s2force_updateImg"
+                android:layout_below="@id/s2force_updateImg"
+                android:layout_marginTop="10dp"
+                android:background="#33333333" />
+
+        </RelativeLayout>
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
