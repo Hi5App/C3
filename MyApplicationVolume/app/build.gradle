@@ -170,4 +170,9 @@ dependencies {
     //The virtual joystick
     compile 'com.github.kongqw:AndroidRocker:1.0.1'
 
+    compile 'com.github.chaychan:PowerfulViewLibrary:1.2.2'
+
+
+
+
 }
