@@ -161,6 +161,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifButtonShowed = true;
     private boolean ifAnimation = false;
     private boolean ifSettingROI = false;
+    private boolean isforceupdate = false;
+
     private static boolean isZscanSeries = false;
 
     private boolean[] temp_mode = new boolean[8];
@@ -293,7 +295,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String filename = "";
     private static String s2filename = "";
     private static String s2EswcPath = "";
-    private String S2path = "";
+    private String S2CheckImgpath = "";
 
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
@@ -1976,10 +1978,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void initDir() {
 
-        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
+        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Checkdata");
         //String dir_str_server="/storage/emulated/0/Hi 5/S2";
         Log.e(TAG, " dir_str_server.text;" + dir_str_server);
-        S2path = dir_str_server.getAbsolutePath();
+        S2CheckImgpath = dir_str_server.getAbsolutePath();
         File dir_server = dir_str_server;
         if (!dir_server.exists()) {
             dir_server.mkdirs();
@@ -2123,7 +2125,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
         ArrayList<String> arr = new ArrayList<>();
-        String dir_str_server = S2path;
+        String dir_str_server = S2CheckImgpath;
 //        try {
 //            dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
 //        } catch (IOException e) {
@@ -2199,6 +2201,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         Toast_in_Thread("failed to create folder! ");
                                         return;
                                     }
+                                    Log.e(TAG, "isforceupdate" + isforceupdate);
+                                    if(!isforceupdate)
+                                    {
 
                                     if (getFiles(finalDir_str_server).contains(text) && (text.contains(".v3draw") || text.contains(".v3dpbd")|| text.contains(".tif"))) {
 
@@ -2215,12 +2220,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         }
                                         return;
                                     }
+                                    }
                                     // ServerConnector serverConnector = ServerConnector.getInstance();
                                     conPath = conPath + "/" + text;
                                     ServerConnector.getInstance().sendMsg("getimglist:" + conPath);
                                     Log.e(TAG, " ServerConnector.getInstance().sendMsg;" + conPath);
                                     if (!text.contains("img_stack") && text.length() > 10) {
                                         progressDialog_loadimg.show();
+                                        isforceupdate=false;
                                     }
 
                                     Toast_in_Thread("VirtualScope Mode!");
@@ -3469,7 +3476,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 Switch Connect_Server = contentView.findViewById(R.id.Connect_Server_mode);
                 Switch Connect_Scope = contentView.findViewById(R.id.Connect_Scope_mode);
-                TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_cache);
+                //TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_cache);
                 IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
                 IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
                 Switch Start_smart_control = contentView.findViewById(R.id.Start_smart_control_mode);
@@ -3538,12 +3545,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 });
 //
 //
-                clean_S2_cache.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast_in_Thread("clean_cache setting!");
-                    }
-                });
+//                clean_S2_cache.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Toast_in_Thread("clean_cache setting!");
+//
+//                    }
+//                });
 
             }
         }).setNegativeButton("Cancel", new View.OnClickListener() {
@@ -3872,7 +3880,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     private void setSettings() {
         boolean[] downsample = new boolean[1];
-
+        boolean[] forceupdate = new boolean[1];
         MDDialog.Builder builder = new MDDialog.Builder(this);
         builder.setContentView(R.layout.s2settings);
         builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -3881,6 +3889,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 Switch downsample_on_off = contentView.findViewById(R.id.s2downSample_mode);
+                Switch force_updateImg = contentView.findViewById(R.id.s2force_updateImg);
                 IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_s2indicator_seekbar);
                 TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_1cache);
 
@@ -3889,10 +3898,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 int contrast = preferenceSetting.getContrast();
 //
                 downsample_on_off.setChecked(ifDownSample);
+                force_updateImg.setChecked(false);
                 seekbar.setProgress(contrast);
 
 
                 downsample[0] = downsample_on_off.isChecked();
+                //forceupdate[0] = force_updateImg.isChecked();
+
 
                 downsample_on_off.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -3901,11 +3913,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     }
                 });
 
+                force_updateImg.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        forceupdate[0] = true;
+                    }
+                });
+
 
                 clean_S2_cache.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Toast_in_Thread("clean_cache setting!");
+                        cleanCache(S2CheckImgpath);
                     }
                 });
 
@@ -3929,12 +3949,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                         IndicatorSeekBar seekbar = contentView.findViewById(R.id.contrast_s2indicator_seekbar);
                         int contrast = seekbar.getProgress();
 
-
+                        setifforceupdate(forceupdate[0]);
                         preferenceSetting.setPref(downsample[0], contrast);
                         myS2renderer.setIfNeedDownSample(downsample[0]);
                         myS2renderer.resetContrast(contrast);
 
-                        Log.v(TAG, "downsample: " + downsample[0] + ",contrast: " + contrast);
+                        Log.v(TAG, "downsample: " + downsample[0] +"forceupdate: " + forceupdate[0]+ ",contrast: " + contrast);
                         preferenceSetting.setPref(downsample[0], contrast);
                         myS2GLSurfaceView.requestRender();
 
@@ -3960,9 +3980,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         mdDialog.show();
     }
+    public void setifforceupdate(boolean ifforceupdate)
+    {
+        isforceupdate=ifforceupdate;
+        Toast_in_Thread("forceupdate");
+    }
 
-
-    public void cleanCache() {
+    public void cleanCache(String img_path) {
         AlertDialog aDialog = new AlertDialog.Builder(S2Context)
                 .setTitle("Clean All The Img Cache")
                 .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
@@ -3970,7 +3994,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        deleteImg();
+                        
+                        deleteImg(img_path);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -3983,9 +4008,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void deleteImg() {
+    
+    private void deleteImg(String img_path) {
         Log.v("BaseActivity", "deleteImg()");
-        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
+       
         Log.v("BaseActivity", "img_path" + img_path);
 
         File file = new File(img_path);

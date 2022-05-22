@@ -508,7 +508,7 @@ public abstract class BasicService extends Service {
             String dir_str_server = null;
             String dir_Pvcam_server = null;
             //File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
-            dir_str_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2").getAbsolutePath();
+            dir_str_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Checkdata").getAbsolutePath();
             dir_Pvcam_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Pvcam").getAbsolutePath();
             if (rmsg.endsWith("\n")) {
                 String msg = rmsg.trim();
