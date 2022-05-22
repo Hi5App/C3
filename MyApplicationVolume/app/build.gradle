@@ -172,7 +172,7 @@ dependencies {
 
     compile 'com.github.chaychan:PowerfulViewLibrary:1.2.2'
 
-
+    compile 'com.eminayar.panterdialog:panter-dialog:0.0.2.1'
 
 
 }
