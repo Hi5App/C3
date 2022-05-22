@@ -873,7 +873,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         super.onPause();
         Log.v(TAG, "onPause start");
         myS2GLSurfaceView.onPause();
-
+        s2filename=null;
     }
 
     @Override
@@ -897,7 +897,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ifTouchCamera=false;
             IjkMediaPlayer.native_profileEnd();
         }
-
+        s2filename=null;
     }
 
     @Override
@@ -3625,8 +3625,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
-
-
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to tag!");
+            return;
+        }
+        if(s2filename.equals(""))
+        {
+            Toast_in_Thread("No data to tag!");
+            return;
+        }
 
         MDDialog.Builder builder = new MDDialog.Builder(this);
         builder.setContentView(R.layout.s2_tag_imgcheckmode);
@@ -3638,7 +3647,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 PowerfulEditText tag_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
 
                 tag_userid.setText(account);
-                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
+
+                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_filename);
 
                 tag_filename.setText(s2filename);
 
@@ -3649,6 +3659,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 image_quality.setProgress(0);
                 swc_quality.setProgress(0);
+
+
 
 
 
@@ -3677,8 +3689,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_filename);
 
 
-                int image_quality_score = image_quality.getProgress();
-                int swc_quality_score = swc_quality.getProgress();
+                int image_quality_int = image_quality.getProgress();
+                int swc_quality_int = swc_quality.getProgress();
+                String image_quality_score=Integer.toString(image_quality_int);
+                String swc_quality_score=Integer.toString(swc_quality_int);
                 String user_id="";
                 String notes="";
                 String file_name="";
@@ -3691,6 +3705,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 Log.v(TAG, "user_id: " + user_id + ",file_name: " + file_name+ ",notes: " + notes);
 
+                String alltag= s2paraSetting.getAllTags();
+
+                ServerConnector.getInstance().sendMsg("data_tag:" + alltag);
+
+                Log.v(TAG, "alltag:" + alltag );
 
             }
         });

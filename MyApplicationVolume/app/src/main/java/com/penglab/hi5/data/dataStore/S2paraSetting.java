@@ -26,11 +26,11 @@ public class S2paraSetting {
 
     }
 
-    public void setTag(int img_score, int swc_score,String id ,String name,String note){
+    public void setTag(String img_score, String swc_score,String id ,String name,String note){
         editor = pref.edit();
 
-        editor.putInt("image_quality_score",img_score);
-        editor.putInt("swc_quality_score",swc_score);
+        editor.putString("image_quality_score",img_score);
+        editor.putString("swc_quality_score",swc_score);
         editor.putString("user_id",id);
         editor.putString("file_name",name);
         editor.putString("notes",note);
@@ -40,6 +40,34 @@ public class S2paraSetting {
 
     public boolean getConnect_ServerMode(){
         return pref.getBoolean("Connect_ServerMode",false);
+    }
+
+    public String getAllTags()
+    {
+        String alltags="";
+
+
+
+        int i=0;
+        String[] list = new String[]{"image_quality_score","swc_quality_score","user_id","file_name","notes"};
+        String[] strings = new String[list.length];
+        for(i=0;i<list.length;i++)
+        {
+
+            strings[i]=pref.getString(list[i],String.valueOf(0));
+
+        }
+        alltags=doJoin(strings);
+
+        return alltags;
+    }
+
+    public String doJoin(String[] strings) {
+        String result= null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            result = String.join(";;", strings);
+        }
+        return result;
     }
 
     public int getImage_quality_score(){
