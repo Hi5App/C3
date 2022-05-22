@@ -31,7 +31,7 @@ allprojects {
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
         maven { url "https://jitpack.io" }
         maven { url 'https://developer.huawei.com/repo/'}
-
+        maven { url 'https://jitpack.io' }//添加jitpack仓库地址
         google()
         jcenter()
     }

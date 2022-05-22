@@ -57,6 +57,7 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import com.chaychan.viewlib.PowerfulEditText;
 import com.kongqw.rockerlibrary.view.RockerView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
@@ -95,6 +96,7 @@ import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.fileReader.imageReader.BigImgReader;
 import com.penglab.hi5.core.game.AchievementPopup;
 import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 import com.warkiz.widget.IndicatorSeekBar;
 
@@ -681,7 +683,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
             }
         }
-
+        PreferenceLogin.init(getApplicationContext());
 
         myS2GLSurfaceView.requestRender();
         bigImgS2Reader = new BigImgReader();
@@ -3231,7 +3233,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"liveScan", "Settings"},
+                .asCenterList("More Functions...", new String[]{"liveScan", "Settings","Tag data"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3244,6 +3246,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                                     case "Settings":
                                         setSettings();
+                                        break;
+                                    case "Tag data":
+                                        s2Tagimg();
                                         break;
 
 //                                    case "Crash Info":
@@ -3610,6 +3615,97 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         mdDialog.show();
     }
+    private void s2Tagimg(){
+        boolean[] isif_flag = new boolean[3];
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+
+
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_tag_imgcheckmode);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+                PowerfulEditText tag_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
+
+                tag_userid.setText(account);
+                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
+
+                tag_filename.setText(s2filename);
+
+                IndicatorSeekBar image_quality = contentView.findViewById(R.id.s2_tag_image_quality);
+                IndicatorSeekBar swc_quality = contentView.findViewById(R.id.s2_tag_swc_quality);
+
+                PowerfulEditText tag_notes = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_notes);
+
+                image_quality.setProgress(0);
+                swc_quality.setProgress(0);
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+                IndicatorSeekBar image_quality = contentView.findViewById(R.id.s2_tag_image_quality);
+                IndicatorSeekBar swc_quality = contentView.findViewById(R.id.s2_tag_swc_quality);
+                PowerfulEditText tag_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
+                PowerfulEditText tag_notes = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_notes);
+                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_filename);
+
+
+                int image_quality_score = image_quality.getProgress();
+                int swc_quality_score = swc_quality.getProgress();
+                String user_id="";
+                String notes="";
+                String file_name="";
+                user_id=tag_userid.getText().toString();
+                notes=tag_notes.getText().toString();
+                file_name=tag_filename.getText().toString();
+                s2paraSetting.setTag(image_quality_score, swc_quality_score, user_id, file_name, notes);
+
+
+                Log.v(TAG, "image_quality_score: " + image_quality_score + ",swc_quality_score: " + swc_quality_score);
+
+                Log.v(TAG, "user_id: " + user_id + ",file_name: " + file_name+ ",notes: " + notes);
+
+
+
+
+
+
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("s2_tag_data");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
 
 
     private void s2Confirm_Password(){
@@ -3621,12 +3717,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         MDDialog.Builder builder = new MDDialog.Builder(this);
         builder.setContentView(R.layout.s2_confirm_password);
-        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+        //builder.setCancelable(false);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator()
+        {
             @Override
             public void operate(View contentView) {
 
-
-
+                builder.setCancelable(false);
                 IndicatorSeekBar s2_password1 = contentView.findViewById(R.id.s2_password_1);
                 IndicatorSeekBar s2_password2 = contentView.findViewById(R.id.s2_password_2);
                 IndicatorSeekBar s2_password3 = contentView.findViewById(R.id.s2_password_3);
@@ -3695,7 +3792,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 }else
                 {
                     finish();
-                    System.exit(0);
+                   // System.exit(0);
                 }
                 //Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
 
