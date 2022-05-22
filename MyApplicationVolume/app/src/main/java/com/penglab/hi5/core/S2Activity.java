@@ -295,7 +295,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String filename = "";
     private static String s2filename = "";
     private static String s2EswcPath = "";
-    private String S2path = "";
+    private String S2CheckImgpath = "";
 
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
@@ -1978,10 +1978,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void initDir() {
 
-        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
+        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Checkdata");
         //String dir_str_server="/storage/emulated/0/Hi 5/S2";
         Log.e(TAG, " dir_str_server.text;" + dir_str_server);
-        S2path = dir_str_server.getAbsolutePath();
+        S2CheckImgpath = dir_str_server.getAbsolutePath();
         File dir_server = dir_str_server;
         if (!dir_server.exists()) {
             dir_server.mkdirs();
@@ -2125,7 +2125,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
         ArrayList<String> arr = new ArrayList<>();
-        String dir_str_server = S2path;
+        String dir_str_server = S2CheckImgpath;
 //        try {
 //            dir_str_server = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + "Hi 5" + "/S2";
 //        } catch (IOException e) {
@@ -3476,7 +3476,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 Switch Connect_Server = contentView.findViewById(R.id.Connect_Server_mode);
                 Switch Connect_Scope = contentView.findViewById(R.id.Connect_Scope_mode);
-                TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_cache);
+                //TextView clean_S2_cache = contentView.findViewById(R.id.clean_S2_cache);
                 IndicatorSeekBar indicator_XY = contentView.findViewById(R.id.indicator_XY_seekbar);
                 IndicatorSeekBar indicator_Z = contentView.findViewById(R.id.indicator_Z_seekbar);
                 Switch Start_smart_control = contentView.findViewById(R.id.Start_smart_control_mode);
@@ -3545,12 +3545,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 });
 //
 //
-                clean_S2_cache.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast_in_Thread("clean_cache setting!");
-                    }
-                });
+//                clean_S2_cache.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        Toast_in_Thread("clean_cache setting!");
+//
+//                    }
+//                });
 
             }
         }).setNegativeButton("Cancel", new View.OnClickListener() {
@@ -3924,6 +3925,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     @Override
                     public void onClick(View view) {
                         Toast_in_Thread("clean_cache setting!");
+                        cleanCache(S2CheckImgpath);
                     }
                 });
 
@@ -3984,7 +3986,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Toast_in_Thread("forceupdate");
     }
 
-    public void cleanCache() {
+    public void cleanCache(String img_path) {
         AlertDialog aDialog = new AlertDialog.Builder(S2Context)
                 .setTitle("Clean All The Img Cache")
                 .setMessage("Are you sure to CLEAN ALL IMG CACHE?")
@@ -3992,7 +3994,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        deleteImg();
+                        
+                        deleteImg(img_path);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -4005,9 +4008,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private void deleteImg() {
+    
+    private void deleteImg(String img_path) {
         Log.v("BaseActivity", "deleteImg()");
-        String img_path = context.getExternalFilesDir(null).toString() + "/Img";
+       
         Log.v("BaseActivity", "img_path" + img_path);
 
         File file = new File(img_path);
