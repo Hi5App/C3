@@ -58,6 +58,9 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
 import com.chaychan.viewlib.PowerfulEditText;
+import com.eminayar.panter.DialogType;
+import com.eminayar.panter.PanterDialog;
+import com.eminayar.panter.interfaces.OnTextInputConfirmListener;
 import com.kongqw.rockerlibrary.view.RockerView;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
@@ -150,6 +153,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifChangeMarkerType = false;
     private boolean ifPainting = false;
     private boolean ifPoint = false;
+    private boolean isConfirmPassword = false;
     private boolean ifImport = false;
     private boolean ifAnalyze = false;
     private boolean ifUpload = false;
@@ -704,6 +708,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         progressDialog_loadimg = new ProgressDialog(S2Activity.this);
         progressDialog_loadimg.setTitle("Loading Image .....");
         progressDialog_loadimg.setMessage("Wait about 1 minute");
+
         progressDialog_loadimg.setCancelable(true);
 
         initDir();
@@ -3682,15 +3687,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 file_name=tag_filename.getText().toString();
                 s2paraSetting.setTag(image_quality_score, swc_quality_score, user_id, file_name, notes);
 
-
                 Log.v(TAG, "image_quality_score: " + image_quality_score + ",swc_quality_score: " + swc_quality_score);
 
                 Log.v(TAG, "user_id: " + user_id + ",file_name: " + file_name+ ",notes: " + notes);
-
-
-
-
-
 
 
             }
@@ -3715,104 +3714,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         isif_flag[1] = false;
         isif_flag[2] = false;
 
-        MDDialog.Builder builder = new MDDialog.Builder(this);
-        builder.setContentView(R.layout.s2_confirm_password);
-        //builder.setCancelable(false);
-        builder.setContentViewOperator(new MDDialog.ContentViewOperator()
-        {
-            @Override
-            public void operate(View contentView) {
 
-                builder.setCancelable(false);
-                IndicatorSeekBar s2_password1 = contentView.findViewById(R.id.s2_password_1);
-                IndicatorSeekBar s2_password2 = contentView.findViewById(R.id.s2_password_2);
-                IndicatorSeekBar s2_password3 = contentView.findViewById(R.id.s2_password_3);
-                IndicatorSeekBar s2_password4 = contentView.findViewById(R.id.s2_password_4);
-                IndicatorSeekBar s2_password5 = contentView.findViewById(R.id.s2_password_5);
+        new PanterDialog(this)
+                .setHeaderBackground(R.drawable.bg_login_navigation_bar)
+                .setHeaderLogo(R.drawable.si_logo)
+                .setDialogType(DialogType.INPUT)
+                .isCancelable(false)
+                .input("PLEASE ENTER PASSWORD",
+                        "ERROR PASSWORD AND CONTACT DILIU", new
+                                OnTextInputConfirmListener() {
+                                    @Override
+                                    public void onTextInputConfirmed(String text) {
 
-
-
-
-
-
-
-
-                s2_password1.setProgress(0);
-                s2_password2.setProgress(0);
-                s2_password3.setProgress(0);
-                s2_password4.setProgress(0);
-                s2_password5.setProgress(0);
+                                        Log.v(TAG, "user_id: " + text);
+                                        if(!text.equals("52013"))finish();
+                                        else
+                                        {
+                                            Toast_in_Thread("welcome to si!");
+                                        }
+                                    }
+                                })
+                .show();
 
 
 
 
-
-
-            }
-        }).setNegativeButton("Cancel", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast_in_Thread("Cancel setting!");
-            }
-        });
-        builder.setPositiveButton("Confirm", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Toast_in_Thread("Confirm setting!");
-
-            }
-        });
-        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
-            @Override
-            public void onClick(View clickedView, View contentView) {
-
-
-                IndicatorSeekBar s2_password1 = contentView.findViewById(R.id.s2_password_1);
-                int password1 = s2_password1.getProgress();
-
-                IndicatorSeekBar s2_password2 = contentView.findViewById(R.id.s2_password_2);
-                int password2 = s2_password2.getProgress();
-
-                IndicatorSeekBar s2_password3 = contentView.findViewById(R.id.s2_password_3);
-                int password3 = s2_password3.getProgress();
-
-                IndicatorSeekBar s2_password4 = contentView.findViewById(R.id.s2_password_4);
-                int password4 = s2_password4.getProgress();
-
-                IndicatorSeekBar s2_password5 = contentView.findViewById(R.id.s2_password_5);
-                int password5 = s2_password5.getProgress();
-
-                //s2paraSetting.setPara(isif_flag[0], isif_flag[1], isif_flag[2], XY_Per_Step, Z_Per_Step);
-
-                if(password1==5&&password2==2&&password3==0&&password4==1&&password5==3)
-                {
-                    myS2renderer.clearView(true);  //clean view before showing new image
-                    myS2GLSurfaceView.requestRender();
-                    Toast_in_Thread("Confirm down!");
-                }else
-                {
-                    finish();
-                   // System.exit(0);
-                }
-                //Log.v(TAG, "indicator_XY: " + XY_Per_Step + ",indicator_Z: " + Z_Per_Step);
-
-
-
-
-
-
-            }
-        });
-        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
-            @Override
-            public void onClick(View clickedView, View contentView) {
-                Toast_in_Thread("Cancel down!");
-            }
-        });
-        builder.setTitle("s2_confirm_password");
-        MDDialog mdDialog = builder
-                .create();
-        mdDialog.show();
     }
 
 
@@ -4619,7 +4545,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 if (motionEvent != null) {
                     final float normalizedX = toOpenGLCoord(this, motionEvent.getX(), true);
                     final float normalizedY = toOpenGLCoord(this, motionEvent.getY(), false);
-//
+                    Log.e("motionEvent.getX()", String.valueOf(motionEvent.getX()));
+                    Log.e("motionEvent.getY()", String.valueOf(motionEvent.getY()));
+                    Log.e("normalizedX", String.valueOf(normalizedX));
+                    Log.e("normalizedY", String.valueOf(normalizedY));
+
 //                final float normalizedX =motionEvent.getX();
 //                final float normalizedY =motionEvent.getY();
 
@@ -4639,6 +4569,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             }
                             if (ifPoint) {
 
+                            }
+                            if (isConfirmPassword) {
+                                finish();
+                                isConfirmPassword=false;
                             }
                             if (ifPainting) {
 
