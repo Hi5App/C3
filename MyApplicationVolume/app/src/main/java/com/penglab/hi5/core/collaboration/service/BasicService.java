@@ -542,7 +542,7 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc") || dataType.filename.endsWith(".v3dpbd") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
+                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc") || dataType.filename.endsWith(".txt") || dataType.filename.endsWith(".v3dpbd") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
                             dataType.filepath = dir_str_server;
                             Log.e(TAG, "This is a s2 file !");
                         }

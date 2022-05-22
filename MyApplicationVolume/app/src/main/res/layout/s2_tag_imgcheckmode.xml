@@ -39,6 +39,7 @@
 
             <com.chaychan.viewlib.PowerfulEditText
                 android:id="@+id/s2_tag_userid"
+                android:text="default"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
@@ -69,6 +70,7 @@
 
             <com.chaychan.viewlib.PowerfulEditText
             android:id="@+id/s2_tag_filename"
+                android:text="default"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:funcType="canClear"
