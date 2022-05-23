@@ -57,6 +57,8 @@ import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 
+import com.bifan.txtreaderlib.main.TxtConfig;
+import com.bifan.txtreaderlib.ui.HwTxtPlayActivity;
 import com.chaychan.viewlib.PowerfulEditText;
 import com.eminayar.panter.DialogType;
 import com.eminayar.panter.PanterDialog;
@@ -477,6 +479,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("File:")) {
+            progressDialog_loadimg.dismiss();
             if (msg.endsWith(".v3draw")) {
 
                 Log.e(TAG, "File: .v3draw");
@@ -525,6 +528,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                 Log.e(TAG, "File: .swc");
                 loadBigDataSwc(msg.split(":")[1]);
+
+            }
+
+            if (msg.endsWith(".txt")) {
+
+                Toast_in_Thread_static("The tag file was downloaded successfully" );
+                Log.e(TAG, "File: .txt"+ msg);
+               // loadBigDataSwc(msg.split(":")[1]);
+                TxtConfig.saveIsOnVerticalPageMode(this,false);
+                HwTxtPlayActivity.loadTxtFile(this, msg.split(":")[1]);
 
             }
 
@@ -2194,7 +2207,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     } else if (text.contains("img2d_")) {
                                         isVirtualScope = true;
                                         isCheckmode = false;
-                                    } else if (text.contains(".swc")) {
+                                    } else if (text.contains(".swc")||text.contains(".txt")){
                                         isCheckmode = true;
                                     }
                                     if (text.contains("Update all data from microscope")) {
@@ -3631,7 +3644,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             Toast_in_Thread("No right to tag!");
             return;
         }
-        if(s2filename.equals(""))
+        String filename=s2filename;
+        if(filename.equals(""))
         {
             Toast_in_Thread("No data to tag!");
             return;
@@ -4895,7 +4909,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             Log.e(TAG, "loadBigDataImg:isZscanSeries " + isZscanSeries);
         }
         if (isCheckmode) {
-            progressDialog_loadimg.dismiss();
+            //progressDialog_loadimg.dismiss();
             //isCheckmode = false;
             Log.e(TAG, "loadBigDataImg:isVirtualScope " + isVirtualScope);
         }
