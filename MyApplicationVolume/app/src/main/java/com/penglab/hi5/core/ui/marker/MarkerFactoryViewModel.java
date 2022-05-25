@@ -132,7 +132,7 @@ public class MarkerFactoryViewModel extends ViewModel {
             editImageTodayStatus = EditImageTodayStatus.FIVE_HUNDRED;
         }
 
-        if(somaNumToday > 50 && somaNumToday < 100){
+        if(somaNumToday >=50 && somaNumToday < 100){
             somaNumStatus = SomaNumStatus.TEN;
         } else if (somaNumToday >= 100 && somaNumToday < 200){
             somaNumStatus = SomaNumStatus.FIFTY;
