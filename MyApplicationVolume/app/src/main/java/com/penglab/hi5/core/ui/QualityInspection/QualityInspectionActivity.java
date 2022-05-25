@@ -5,8 +5,11 @@ import static com.penglab.hi5.core.Myapplication.playButtonSound;
 import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,8 +23,11 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,7 +67,10 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import cn.carbs.android.library.MDDialog;
 import es.dmoral.toasty.Toasty;
@@ -108,6 +117,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
     private boolean needSyncSomaList = false;
     private boolean switchMarkerMode = true;
     private View QualityInspectionView;
+    private Dialog dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,14 +125,14 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_quality_inspection);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_quality_inspection);
-//        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-//            @Override
-//            public void run() {
+        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
+            @Override
+            public void run() {
 //                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
 //                    qualityInspectionViewModel.winScoreByPinPoint();
 //                }
-//            }
-//        });
+            }
+        });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_quality_control);
         setSupportActionBar(toolbar);
@@ -245,6 +255,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 if(result == null){
                     return;
                 }
+                Log.e("getQueryArborResult",result.toString());
                 qualityInspectionViewModel.handleQueryArborResult(result);
             }
         });
@@ -305,6 +316,17 @@ public class QualityInspectionActivity extends AppCompatActivity {
             }
         });
 
+
+        qualityInspectionViewModel.getQueryCheckerResult().observe(this, new Observer<List<QueryCheckerResult>>() {
+            @Override
+            public void onChanged(List<QueryCheckerResult> queryCheckerResults) {
+                if(queryCheckerResults == null){
+                    return;
+                }
+                showCurrentArborResult(queryCheckerResults);
+            }
+        });
+
         annotationGLSurfaceView.getEditMode().observe(this, new Observer<EditMode>() {
             @Override
             public void onChanged(EditMode editMode) {
@@ -329,6 +351,9 @@ public class QualityInspectionActivity extends AppCompatActivity {
 
         startMusicService();
         qualityInspectionViewModel.cacheImage();
+
+
+
     }
 
     @Override
@@ -617,7 +642,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
 //            ToggleButton pinpointStroke = findViewById(R.id.switch_marker_mode);
             ImageButton hideSwc = findViewById(R.id.hide_swc);
             ImageButton showArborResult = findViewById(R.id.show_arbor_result);
-            showArborResult.setVisibility(View.INVISIBLE);
+//            showArborResult.setVisibility(View.INVISIBLE);
 
             addMarkerBlue.setOnClickListener(this::onButtonClick);
             addMarkerYellow.setOnClickListener(this::onButtonClick);
@@ -658,8 +683,43 @@ public class QualityInspectionActivity extends AppCompatActivity {
         qualityInspectionViewModel.queryArborResult();
     }
 
-    private void showCurrentArborResult() {
+    private void showCurrentArborResult(List<QueryCheckerResult> queryCheckerResultArrayList) {
 
+        final Map<Integer, Integer> resultMap= new HashMap<>();
+        resultMap.put(-1,R.drawable.ic_boring);
+        resultMap.put(2,R.drawable.ic_normal);
+        resultMap.put(3,R.drawable.ic_suprised2);
+        resultMap.put(4,R.drawable.ic_verygood);
+
+        final int[] checker = new int[]{R.id.checker,R.id.checker02,R.id.checker03};
+        final int[] result = new int[]{R.id.check_result,R.id.check_result02,R.id.check_result03};
+        final int[] tableRowId = new int[]{R.id.first_checker,R.id.second_checker,R.id.third_checker};
+
+        dialog = new Dialog(QualityInspectionActivity.this);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setContentView(R.layout.show_arbor_result);
+        TableLayout tableLayout = dialog.findViewById(R.id.tablelayout);
+        ImageView closeDialog = dialog.findViewById(R.id.dialogClose);
+
+        for (int i =0;i<queryCheckerResultArrayList.size();i++) {
+            TableRow row = tableLayout.findViewById(tableRowId[i]);
+            row.setVisibility(View.VISIBLE);
+            TextView checkerName = tableLayout.findViewById(checker[i]);
+            ImageView checkerResult = tableLayout.findViewById(result[i]);
+            checkerName.setText(queryCheckerResultArrayList.get(i).getOwner());
+            for(Integer key:resultMap.keySet()){
+                checkerResult.setImageResource(resultMap.get(queryCheckerResultArrayList.get(i).getCheckResult()));
+            }
+        }
+
+        closeDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
     private void hideSwc() {

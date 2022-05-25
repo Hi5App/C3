@@ -67,6 +67,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private final MutableLiveData<ResourceResult> uploadResult = new MutableLiveData<>();
     private final MutableLiveData<ResourceResult> annotationResult = new MutableLiveData<>();
     private final MutableLiveData<NeuronTree> swcResult = new MutableLiveData<>();
+    private final MutableLiveData<List<QueryCheckerResult>> queryCheckerResultList = new MutableLiveData<>();
 
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
@@ -147,6 +148,8 @@ public class QualityInspectionViewModel extends ViewModel {
     public MutableLiveData<ResourceResult> getAnnotationResult() {
         return annotationResult;
     }
+
+    public MutableLiveData<List<QueryCheckerResult>> getQueryCheckerResult () {return queryCheckerResultList;}
 
     public void handleBrainListResult(Result result) {
         if (result == null) {
@@ -252,6 +255,23 @@ public class QualityInspectionViewModel extends ViewModel {
         if(result instanceof Result.Success){
             Log.e(TAG,"begin to handle query arbor result");
             Object data = ((Result.Success<?>) result).getData();
+            if(data instanceof JSONArray) {
+                JSONArray queryArborResult =(JSONArray) data;
+                ArrayList<QueryCheckerResult> checkerResultArrayList = new ArrayList<>();
+                for (int i = 0; i < queryArborResult.length(); i++){
+                    try{
+                        JSONObject jsonObject = queryArborResult.getJSONObject(i);
+                        checkerResultArrayList.add(new QueryCheckerResult(jsonObject.getString("Owner"),jsonObject.getInt("Result")));
+                        Log.e("checkResultArraylist",checkerResultArrayList.toString());
+                    } catch (Exception exception) {
+                        exception.printStackTrace();
+                    }
+                }
+                queryCheckerResultList.setValue(checkerResultArrayList);
+            }
+        }else {
+            ToastEasy("failed to get query arbor result");
+
         }
     }
 

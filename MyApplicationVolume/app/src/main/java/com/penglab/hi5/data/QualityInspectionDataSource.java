@@ -11,6 +11,7 @@ import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.net.HttpUtilsQualityInspection;
+import com.penglab.hi5.core.ui.QualityInspection.QueryCheckerResult;
 import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 
 import org.json.JSONArray;
@@ -188,15 +189,34 @@ public class QualityInspectionDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG,"responseCode"+response.code());
                     int responseCode = response.code();
+                    responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG,"response queryArborResult: "+response.body().string());
+                        Log.e(TAG,"response queryArborResult: "+responseData);
                         // process response
-                        queryArborResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+                        try{
+                            JSONArray queryCheckInfoArray = new JSONArray(responseData);
+//                            List<QueryCheckerResult> queryCheckInfoList = new ArrayList<>();
+//                            for (int i=0; i<queryCheckInfoArray.length(); i++){
+//                                JSONObject queryCheckInfo = queryCheckInfoArray.getJSONObject(i);
+//                                queryCheckInfoList.add(new QueryCheckerResult(queryCheckInfo.getString("Owner"),queryCheckInfo.getInt("Result")));
+//                            }
+                            queryArborResult.postValue(new Result.Success<JSONArray>(queryCheckInfoArray));
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                            queryArborResult.postValue(new Result.Error(new Exception("Fail to parse query arbor result !")));
+                        }
+                        response.body().close();
+                        response.close();
+                    } else if (responseCode == 502) {
+                        responseData = response.body().string();
+                        if (responseData.trim().equals("Empty")) {
+                            Log.e(TAG,"get Empty response");
+                            queryArborResult.postValue(new Result.Success<String>(NO_MORE_FILE));
+                        }
                     } else {
                         Log.e(TAG,"response update arbor result: " + response.body().string());
-                        queryArborResult.postValue(new Result.Error(new Exception("Fail to upload marker list !")));
+                        queryArborResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
                     }
-                    response.close();
                 }
             });
 
