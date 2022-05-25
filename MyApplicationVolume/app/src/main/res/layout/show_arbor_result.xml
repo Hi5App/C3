@@ -50,7 +50,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf = "@+id/circle_image_view"
                 android:layout_marginBottom="20dp"
-                android:stretchColumns="0,3">
+                android:stretchColumns="0,2">
                 <TableRow
                     android:padding="10dp"
                     android:id = "@+id/first_checker"
@@ -58,9 +58,9 @@
                     <ImageView
                         android:id="@+id/head"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="30dp"
                         android:layout_weight="0.3"
-                        android:src="@drawable/ic_person_black"
+                        android:src="@drawable/ic_person_girl_full"
                         android:layout_alignParentTop = "true" />
 
                     <TextView
@@ -76,12 +76,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.6"
                         android:text = "Rating"
+                        android:textStyle="bold"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="0.6"
                         android:src = "@drawable/ic_verygood"/>
 
 
@@ -95,9 +96,9 @@
                     <ImageView
                         android:id="@+id/head02"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="30dp"
                         android:layout_weight="0.3"
-                        android:src="@drawable/ic_person_black"
+                        android:src="@drawable/ic_person_girl_full"
                         android:layout_alignParentTop = "true" />
 
                     <TextView
@@ -113,12 +114,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.6"
                         android:text = "Rating"
+                        android:textStyle="bold"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result02"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="0.6"
                         android:src = "@drawable/ic_verygood"/>
                 </TableRow>
 
@@ -131,9 +133,9 @@
                     <ImageView
                         android:id="@+id/head03"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="30dp"
                         android:layout_weight="0.3"
-                        android:src="@drawable/ic_person_black"
+                        android:src="@drawable/ic_person_boy_full"
                         android:layout_alignParentTop = "true" />
 
                     <TextView
@@ -149,12 +151,13 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="0.6"
                         android:text = "Rating"
+                        android:textStyle="bold"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result03"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
+                        android:layout_weight="0.6"
                         android:src = "@drawable/ic_verygood"/>
                 </TableRow>
             </TableLayout>
