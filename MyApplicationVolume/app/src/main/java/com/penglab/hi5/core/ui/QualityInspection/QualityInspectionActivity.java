@@ -782,7 +782,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                 annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
                 annotationGLSurfaceView.setLastMarkerType(6);
                 Toasty.error(this,"Breaking Point",Toast.LENGTH_SHORT,true).show();
-                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
+                addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
                 break;
             case R.id.delete_marker:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){

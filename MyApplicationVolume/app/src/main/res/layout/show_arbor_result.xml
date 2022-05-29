@@ -58,6 +58,7 @@
                 <TableRow
                     android:padding="10dp"
                     android:id = "@+id/first_checker"
+                    android:visibility="invisible"
                     >
                     <ImageView
                         android:id="@+id/head"
@@ -73,20 +74,20 @@
                         android:layout_weight = "1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text = "Name"
+                        android:textSize = "18sp"
                         android:id="@+id/checker"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
-                        android:text = "Rating"
-                        android:textStyle="bold"
+                        android:layout_weight="0.5"
+                        android:text = "Rate"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
+                        android:layout_weight="0.5"
                         android:src = "@drawable/ic_verygood"/>
 
 
@@ -111,20 +112,20 @@
                         android:layout_weight = "1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text = "Name"
+                        android:textSize = "18sp"
                         android:id="@+id/checker02"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
-                        android:text = "Rating"
-                        android:textStyle="bold"
+                        android:layout_weight="0.5"
+                        android:text = "Rate"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result02"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
+                        android:layout_weight="0.5"
                         android:src = "@drawable/ic_verygood"/>
                 </TableRow>
 
@@ -148,28 +149,25 @@
                         android:layout_weight = "1"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:text = "Name"
+                        android:textSize = "18sp"
                         android:id="@+id/checker03"/>
 
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
-                        android:text = "Rating"
-                        android:textStyle="bold"
+                        android:layout_weight="0.5"
+                        android:text = "Rate"
                         android:textAppearance="?android:attr/textAppearanceLarge"/>
                     <ImageView
                         android:id="@+id/check_result03"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.6"
+                        android:layout_weight="0.5"
                         android:src = "@drawable/ic_verygood"/>
                 </TableRow>
             </TableLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
-
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
