@@ -265,7 +265,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                     break;
 
                                 case PINPOINT_CHECK:
-                                    annotationHelper.addMarkerInSWC(fingerTrajectory,isBigData);
+                                    annotationHelper.addMarkerInSWC(currentX, currentY,isBigData);
                                     onScoreWinWithTouchEventListener.run();
                                     requestRender();
                                     break;
