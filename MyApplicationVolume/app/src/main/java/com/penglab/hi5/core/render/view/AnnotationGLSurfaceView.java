@@ -37,6 +37,7 @@ import com.penglab.hi5.data.model.img.FileType;
 
 import org.json.JSONArray;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -102,260 +103,259 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     @Override
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean onTouchEvent(MotionEvent event) {
+        try{
+            // ACTION_DOWN 不 return true，就无触发后面的各个事件
+            if (event != null) {
+                final float currentX = toOpenGLCoord(this, event.getX(), true);
+                final float currentY = toOpenGLCoord(this, event.getY(), false);
 
-        // ACTION_DOWN 不 return true，就无触发后面的各个事件
-        if (event != null) {
-            final float currentX = toOpenGLCoord(this, event.getX(), true);
-            final float currentY = toOpenGLCoord(this, event.getY(), false);
-
-            switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    lastX = currentX;
-                    lastY = currentY;
-                    switch (Objects.requireNonNull(editMode.getValue())){
-                        case PAINT_CURVE:
-                        case PINPOINT_STROKE:
-                        case PINPOINT_CHECK:
-                        case DELETE_CURVE:
-                        case SPLIT:
-                        case CHANGE_CURVE_TYPE:
-                        case DELETE_MULTI_MARKER:
-                        case ZOOM_IN_ROI:
-                            updateFingerTrajectory(lastX, lastY);
-                            renderOptions.setShowFingerTrajectory(true);
-                            requestRender();
-                            break;
-                    }
-                    break;
-                case MotionEvent.ACTION_POINTER_DOWN:
-                    clearFingerTrajectory();
-                    requestRender();
-
-                    isZooming = true;
-                    isZoomingNotStop = true;
-                    float x1 = toOpenGLCoord(this, event.getX(1), true);
-                    float y1 = toOpenGLCoord(this, event.getY(1), false);
-
-                    dis_start = computeDis(currentX, x1, currentY, y1);
-                    dis_x_start = x1 - currentX;
-                    dis_y_start = y1 - currentY;
-
-                    x0_start = currentX;
-                    y0_start = currentY;
-                    x1_start = x1;
-                    y1_start = y1;
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    if (isZooming && isZoomingNotStop) {
-                        if (!is2DImage()){
-                            renderOptions.setImageChanging(true);
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        lastX = currentX;
+                        lastY = currentY;
+                        switch (Objects.requireNonNull(editMode.getValue())){
+                            case PAINT_CURVE:
+                            case PINPOINT_STROKE:
+                            case PINPOINT_CHECK:
+                            case DELETE_CURVE:
+                            case SPLIT:
+                            case CHANGE_CURVE_TYPE:
+                            case DELETE_MULTI_MARKER:
+                            case ZOOM_IN_ROI:
+                                updateFingerTrajectory(lastX, lastY);
+                                renderOptions.setShowFingerTrajectory(true);
+                                requestRender();
+                                break;
                         }
-
-                        float x2 = toOpenGLCoord(this, event.getX(1), true);
-                        float y2 = toOpenGLCoord(this, event.getY(1), false);
-                        double dis = computeDis(currentX, x2, currentY, y2);
-                        double scale = dis / dis_start;
-                        annotationRender.zoom((float) scale);
-
-                        float dis_x = x2 - currentX;
-                        float dis_y = y2 - currentY;
-                        float ave_x = (x2 - x1_start + currentX - x0_start) / 2;
-                        float ave_y = (y2 - y1_start + currentY - y0_start) / 2;
-                        annotationRender.rotate(ave_x, ave_y);
-
+                        break;
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        clearFingerTrajectory();
                         requestRender();
-                        dis_start = dis;
-                        dis_x_start = dis_x;
-                        dis_y_start = dis_y;
+
+                        isZooming = true;
+                        isZoomingNotStop = true;
+                        float x1 = toOpenGLCoord(this, event.getX(1), true);
+                        float y1 = toOpenGLCoord(this, event.getY(1), false);
+
+                        dis_start = computeDis(currentX, x1, currentY, y1);
+                        dis_x_start = x1 - currentX;
+                        dis_y_start = y1 - currentY;
+
                         x0_start = currentX;
                         y0_start = currentY;
-                        x1_start = x2;
-                        y1_start = y2;
-                    } else if (!isZooming) {
-                        if (editMode.getValue() == EditMode.NONE){
+                        x1_start = x1;
+                        y1_start = y1;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        if (isZooming && isZoomingNotStop) {
                             if (!is2DImage()){
                                 renderOptions.setImageChanging(true);
                             }
-                            annotationRender.rotate(currentX - lastX, currentY - lastY);
+
+                            float x2 = toOpenGLCoord(this, event.getX(1), true);
+                            float y2 = toOpenGLCoord(this, event.getY(1), false);
+                            double dis = computeDis(currentX, x2, currentY, y2);
+                            double scale = dis / dis_start;
+                            annotationRender.zoom((float) scale);
+
+                            float dis_x = x2 - currentX;
+                            float dis_y = y2 - currentY;
+                            float ave_x = (x2 - x1_start + currentX - x0_start) / 2;
+                            float ave_y = (y2 - y1_start + currentY - y0_start) / 2;
+                            annotationRender.rotate(ave_x, ave_y);
+
                             requestRender();
-                            lastX = currentX;
-                            lastY = currentY;
-                        } else {
-                            // play music when curve / marker action start
-                            // The step ACTION_DOWN will add 3 item into fingerTrajectory
-                            if (fingerTrajectory.size() <= 3){
+                            dis_start = dis;
+                            dis_x_start = dis_x;
+                            dis_y_start = dis_y;
+                            x0_start = currentX;
+                            y0_start = currentY;
+                            x1_start = x2;
+                            y1_start = y2;
+                        } else if (!isZooming) {
+                            if (editMode.getValue() == EditMode.NONE){
+                                if (!is2DImage()){
+                                    renderOptions.setImageChanging(true);
+                                }
+                                annotationRender.rotate(currentX - lastX, currentY - lastY);
+                                requestRender();
+                                lastX = currentX;
+                                lastY = currentY;
+                            } else {
+                                // play music when curve / marker action start
+                                // The step ACTION_DOWN will add 3 item into fingerTrajectory
+                                if (fingerTrajectory.size() <= 3){
+                                    switch (Objects.requireNonNull(editMode.getValue())){
+                                        case PINPOINT:
+                                        case PINPOINT_STROKE:
+                                        case PINPOINT_CHECK:
+                                        case DELETE_MARKER:
+                                        case CHANGE_MARKER_TYPE:
+                                        case ZOOM_IN_ROI:
+                                            playMarkerActionSound();
+                                            break;
+                                        case PAINT_CURVE:
+                                        case DELETE_CURVE:
+                                        case CHANGE_CURVE_TYPE:
+                                        case SPLIT:
+                                            playCurveActionSound();
+                                            break;
+                                    }
+                                }
+                                updateFingerTrajectory(currentX, currentY);
+                                annotationRender.updateFingerTrajectory(fingerTrajectory);
+                                requestRender();
+                            }
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_POINTER_UP:
+                        if (editMode.getValue() == EditMode.NONE){
+                            renderOptions.setImageChanging(false);
+                        }
+                        isZoomingNotStop = false;
+                        lastX = currentX;
+                        lastY = currentY;
+                        clearFingerTrajectory();
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        if (!isZooming) {
+                            try {
                                 switch (Objects.requireNonNull(editMode.getValue())){
-                                    case PINPOINT:
-                                    case PINPOINT_STROKE:
-                                    case PINPOINT_CHECK:
-                                    case DELETE_MARKER:
-                                    case CHANGE_MARKER_TYPE:
-                                    case ZOOM_IN_ROI:
-                                        playMarkerActionSound();
+                                    case ZOOM:
+                                        editMode.setValue(EditMode.NONE);
+                                        float [] center = annotationHelper.solveMarkerCenter(currentX, currentY);
+                                        if (center != null) {
+                                            Communicator communicator = Communicator.getInstance();
+                                            communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                            clearFingerTrajectory();
+                                            requestRender();
+                                        }
+                                        clearFingerTrajectory();
                                         break;
+
+                                    case ZOOM_IN_ROI:
+                                        editMode.setValue(EditMode.NONE);
+                                        float [] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
+                                        if (roiCenter != null) {
+                                            Communicator communicator = Communicator.getInstance();
+                                            communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
+                                            clearFingerTrajectory();
+                                            requestRender();
+                                        }
+                                        break;
+
+                                    case PINPOINT:
+                                        // TODO: set score
+                                        if (is2DImage()){
+                                            annotationHelper.add2DMarker(currentX, currentY);
+                                        } else {
+                                            annotationHelper.addMarker(currentX,currentY,isBigData);
+                                            onScoreWinWithTouchEventListener.run();
+                                        }
+                                        requestRender();
+                                        break;
+
+                                    case PINPOINT_STROKE:
+                                        if (is2DImage()){
+                                            annotationHelper.add2DMarker(currentX, currentY);
+                                        } else {
+                                            annotationHelper.addMarkerByStroke(fingerTrajectory, isBigData);
+                                            onScoreWinWithTouchEventListener.run();
+                                        }
+                                        requestRender();
+                                        break;
+
+                                    case PINPOINT_CHECK:
+                                        annotationHelper.addMarkerInSWC(currentX, currentY,isBigData);
+                                        onScoreWinWithTouchEventListener.run();
+                                        requestRender();
+                                        break;
+
+                                    case DELETE_MARKER:
+                                        annotationHelper.deleteMarker(currentX, currentY, isBigData);
+                                        requestRender();
+                                        break;
+
+                                    case DELETE_MULTI_MARKER:
+                                        annotationHelper.deleteMultiMarkerByStroke(fingerTrajectory, isBigData);
+                                        requestRender();
+                                        break;
+
+                                    case CHANGE_MARKER_TYPE:
+                                        annotationHelper.changeMarkerType(currentX, currentY, isBigData);
+                                        requestRender();
+                                        break;
+
                                     case PAINT_CURVE:
+                                        renderOptions.setShowFingerTrajectory(false);
+                                        // TODO: set score
+
+                                        if (is2DImage()){
+                                            annotationHelper.add2DCurve(fingerTrajectory);
+                                        } else {
+                                            Future<String> future = exeService.submit(new Callable<String>() {
+                                                @RequiresApi(api = Build.VERSION_CODES.N)
+                                                @Override
+                                                public String call() throws Exception {
+                                                    V_NeuronSWC_list[] v_neuronSWC_list = new V_NeuronSWC_list[1];
+                                                    V_NeuronSWC seg = annotationHelper.addBackgroundCurve(fingerTrajectory, v_neuronSWC_list);
+                                                    if (seg != null) {
+                                                        annotationHelper.addCurve(fingerTrajectory, seg, isBigData);
+                                                        annotationHelper.deleteFromCur(seg, v_neuronSWC_list[0]);
+                                                    }
+                                                    requestRender();
+                                                    return "success";
+                                                }
+                                            });
+                                            try {
+                                                String result = future.get(1500, TimeUnit.MILLISECONDS);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                                Log.e(TAG, "The curve is too complex, unfinished in 1.5 second");
+                                            }
+                                        }
+                                        requestRender();
+                                        break;
+
                                     case DELETE_CURVE:
-                                    case CHANGE_CURVE_TYPE:
+                                        annotationHelper.deleteCurve(fingerTrajectory, isBigData);
+                                        requestRender();
+                                        break;
+
                                     case SPLIT:
-                                        playCurveActionSound();
+                                        annotationHelper.splitCurve(fingerTrajectory, isBigData);
+                                        requestRender();
+                                        break;
+
+                                    case CHANGE_CURVE_TYPE:
+                                        annotationHelper.changeCurveType(fingerTrajectory, isBigData);
+                                        requestRender();
                                         break;
                                 }
+                            } catch (Exception e){
+                                e.printStackTrace();
                             }
-                            updateFingerTrajectory(currentX, currentY);
-                            annotationRender.updateFingerTrajectory(fingerTrajectory);
-                            requestRender();
                         }
-                    }
-                    break;
-                case MotionEvent.ACTION_POINTER_UP:
-                    if (editMode.getValue() == EditMode.NONE){
+                        clearFingerTrajectory();
+                        requestRender();
+                        isZooming = false;
                         renderOptions.setImageChanging(false);
-                    }
-                    isZoomingNotStop = false;
-                    lastX = currentX;
-                    lastY = currentY;
-                    clearFingerTrajectory();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (!isZooming) {
-                        try {
-                            switch (Objects.requireNonNull(editMode.getValue())){
-                                case ZOOM:
-                                    editMode.setValue(EditMode.NONE);
-                                    float [] center = annotationHelper.solveMarkerCenter(currentX, currentY);
-                                    if (center != null) {
-                                        Communicator communicator = Communicator.getInstance();
-                                        communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
-                                        clearFingerTrajectory();
-                                        requestRender();
-                                    }
-                                    clearFingerTrajectory();
-                                    break;
-
-                                case ZOOM_IN_ROI:
-                                    editMode.setValue(EditMode.NONE);
-                                    float [] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
-                                    if (roiCenter != null) {
-                                        Communicator communicator = Communicator.getInstance();
-                                        communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
-                                        clearFingerTrajectory();
-                                        requestRender();
-                                    }
-                                    break;
-
-                                case PINPOINT:
-                                    // TODO: set score
-                                    if (is2DImage()){
-                                        annotationHelper.add2DMarker(currentX, currentY);
-                                    } else {
-                                        annotationHelper.addMarker(currentX,currentY,isBigData);
-                                        onScoreWinWithTouchEventListener.run();
-                                    }
-                                    requestRender();
-                                    break;
-
-                                case PINPOINT_STROKE:
-                                    if (is2DImage()){
-                                        annotationHelper.add2DMarker(currentX, currentY);
-                                    } else {
-                                        annotationHelper.addMarkerByStroke(fingerTrajectory, isBigData);
-                                        onScoreWinWithTouchEventListener.run();
-                                    }
-                                    requestRender();
-                                    break;
-
-                                case PINPOINT_CHECK:
-                                    annotationHelper.addMarkerInSWC(currentX, currentY,isBigData);
-                                    onScoreWinWithTouchEventListener.run();
-                                    requestRender();
-                                    break;
-
-                                case DELETE_MARKER:
-                                    annotationHelper.deleteMarker(currentX, currentY, isBigData);
-                                    requestRender();
-                                    break;
-
-                                case DELETE_MULTI_MARKER:
-                                    annotationHelper.deleteMultiMarkerByStroke(fingerTrajectory, isBigData);
-                                    requestRender();
-                                    break;
-
-                                case CHANGE_MARKER_TYPE:
-                                    annotationHelper.changeMarkerType(currentX, currentY, isBigData);
-                                    requestRender();
-                                    break;
-
-                                case PAINT_CURVE:
-                                    renderOptions.setShowFingerTrajectory(false);
-                                    // TODO: set score
-
-                                    if (is2DImage()){
-                                        annotationHelper.add2DCurve(fingerTrajectory);
-                                    } else {
-                                        Future<String> future = exeService.submit(new Callable<String>() {
-                                            @RequiresApi(api = Build.VERSION_CODES.N)
-                                            @Override
-                                            public String call() throws Exception {
-                                                V_NeuronSWC_list[] v_neuronSWC_list = new V_NeuronSWC_list[1];
-                                                V_NeuronSWC seg = annotationHelper.addBackgroundCurve(fingerTrajectory, v_neuronSWC_list);
-                                                if (seg != null) {
-                                                    annotationHelper.addCurve(fingerTrajectory, seg, isBigData);
-                                                    annotationHelper.deleteFromCur(seg, v_neuronSWC_list[0]);
-                                                }
-                                                requestRender();
-                                                return "success";
-                                            }
-                                        });
-                                        try {
-                                            String result = future.get(1500, TimeUnit.MILLISECONDS);
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                            Log.e(TAG, "The curve is too complex, unfinished in 1.5 second");
-                                        }
-                                    }
-                                    requestRender();
-                                    break;
-
-                                case DELETE_CURVE:
-                                    annotationHelper.deleteCurve(fingerTrajectory, isBigData);
-                                    requestRender();
-                                    break;
-
-                                case SPLIT:
-                                    annotationHelper.splitCurve(fingerTrajectory, isBigData);
-                                    requestRender();
-                                    break;
-
-                                case CHANGE_CURVE_TYPE:
-                                    annotationHelper.changeCurveType(fingerTrajectory, isBigData);
-                                    requestRender();
-                                    break;
-                            }
-                        } catch (Exception e){
-                            e.printStackTrace();
-                        }
-                    }
-                    clearFingerTrajectory();
-                    requestRender();
-                    isZooming = false;
-                    renderOptions.setImageChanging(false);
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
+                return true;
             }
-            return true;
+            return false;
+        }catch (IllegalArgumentException e){
+            e.printStackTrace();
         }
         return false;
     }
-//    @Override
-//    public boolean onInterceptTouchEvent(MotionEvent motionEvent) {
-//        try {
-//            return super.onInterceptTouchEvent(motionEvent);
-//        } catch (IllegalArgumentException ex) {
-//            ex.printStackTrace();
-//        }
-//        return false;
-//    }
+
+
 
     private void clearFingerTrajectory(){
         fingerTrajectory.clear();

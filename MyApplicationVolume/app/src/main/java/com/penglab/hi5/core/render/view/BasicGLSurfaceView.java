@@ -6,6 +6,7 @@ import static java.lang.Math.sqrt;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -45,4 +46,5 @@ public class BasicGLSurfaceView extends GLSurfaceView {
     protected double computeDis(float x1, float x2, float y1, float y2) {
         return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2));
     }
+
 }

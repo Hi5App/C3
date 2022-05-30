@@ -422,7 +422,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         new XPopup.Builder(this)
                 .asConfirm("Hi5: VizAnalyze Big 3D Images", "By Peng lab @ BrainTell. \n\n" +
 
-                                "Version: 20220110a 11:39 UTC+8 build",
+                                "Version: 20220530p 17:02 UTC+8 build",
 
                         new OnConfirmListener() {
                             @Override
