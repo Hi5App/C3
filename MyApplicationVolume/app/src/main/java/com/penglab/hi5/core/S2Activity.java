@@ -472,6 +472,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             progressDialog_loadimg.dismiss();
             Toast_in_Thread_static(msgss[1]+" is not existed!");
         }
+
+
+        if (msg.startsWith("s2password:")) {
+            // loadBigDataImg(msg.split(":")[1]);
+            String msgs = msg.substring("s2password:".length());
+
+            Log.e(TAG, "s2password::" + msgs);
+
+            if(msgs.contains("failed"))
+            {
+                isConfirmPassword=false;
+                finish();
+                System.exit(0);
+
+                Toast_in_Thread_static("Password is wrong!");
+
+            }else
+            {
+                isConfirmPassword=true;
+                Toast_in_Thread("welcome to si!");
+            }
+
+
+        }
+
         if (msg.startsWith("get_data_tag:")) {
             // loadBigDataImg(msg.split(":")[1]);
             String msgs = msg.substring("get_data_tag:".length());
@@ -817,10 +842,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         ServerConnector.getInstance().sendMsg("ID:"+account);
         //s2initialization();
 
-
-        if(fileIsExists(S2Password)){
-            Log.e(TAG, "dir_password.exists()!");
-        }else s2Confirm_Password();
+        s2Confirm_Password();
+//        if(fileIsExists(S2Password)){
+//            Log.e(TAG, "dir_password.exists()!");
+//        }else s2Confirm_Password();
 
         /*
         init database for score module
@@ -1935,7 +1960,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Log.e("newimgnumstring", newimgnumstring);
 
 
-              // Log.e("s2lastmsgforimg", s2lastmsgforimg);
+                // Log.e("s2lastmsgforimg", s2lastmsgforimg);
                 if(isCheckmode)
                 {
                     lastmsg=lastmsg.replace(lastfilename,newimgnumstring);
@@ -1950,7 +1975,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     S2loadlogstream=lastmsg;
 
                 }else
-                Block_navigate("Left");
+                    Block_navigate("Left");
 
             }
         });
@@ -1993,7 +2018,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
                 }else
-                Block_navigate("Right");
+                    Block_navigate("Right");
             }
         });
 
@@ -2229,15 +2254,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Log.e(TAG, " S2Password;" + S2Password);
     }
 
-private void initpassword()
-{
+    private void initpassword()
+    {
 
-    File dir_password = new File(S2Password);
-    if (!dir_password.exists()) {
-        dir_password.mkdirs();
+        File dir_password = new File(S2Password);
+        if (!dir_password.exists()) {
+            dir_password.mkdirs();
 
+        }
     }
-}
 //    private void doLoginAgora(){
 //        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
 //            @Override
@@ -2272,7 +2297,7 @@ private void initpassword()
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("8511");//8511
+        serverConnector.setPort("8512");//8511
         serverConnector.initConnection();
 
     }
@@ -2449,21 +2474,21 @@ private void initpassword()
                                     if(!isforceupdate)
                                     {
 
-                                    if (getFiles(finalDir_str_server).contains(text) && (text.contains(".v3draw") || text.contains(".v3dpbd")|| text.contains(".tif"))) {
+                                        if (getFiles(finalDir_str_server).contains(text) && (text.contains(".v3draw") || text.contains(".v3dpbd")|| text.contains(".tif"))) {
 
-                                        String filepath = finalDir_str_server + "/" + text;
-                                        Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepath);
-                                        loadBigDataImg(filepath);
-                                        return;
-                                    }
-                                    if (getFiles(finalDir_str_server).contains(text) && text.contains(".swc")) {
-                                        String filepathgg = finalDir_str_server + "/" + text;
-                                        Log.e(TAG, "loadBigDataSwc" + filepathgg);
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            loadBigDataSwc(filepathgg);
+                                            String filepath = finalDir_str_server + "/" + text;
+                                            Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepath);
+                                            loadBigDataImg(filepath);
+                                            return;
                                         }
-                                        return;
-                                    }
+                                        if (getFiles(finalDir_str_server).contains(text) && text.contains(".swc")) {
+                                            String filepathgg = finalDir_str_server + "/" + text;
+                                            Log.e(TAG, "loadBigDataSwc" + filepathgg);
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                loadBigDataSwc(filepathgg);
+                                            }
+                                            return;
+                                        }
                                     }
                                     // ServerConnector serverConnector = ServerConnector.getInstance();
 
@@ -2497,6 +2522,11 @@ private void initpassword()
 
     private void loadvirtualscope() {
 
+        if(!isConfirmPassword)
+        {
+            finish();
+            System.exit(0);
+        }
         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
         Log.v(TAG, "account: " + account );
@@ -3857,14 +3887,23 @@ private void initpassword()
                                     @Override
                                     public void onTextInputConfirmed(String text) {
 
-                                        Log.v(TAG, "user_id: " + text);
-                                        if(!text.equals("52013"))finish();
-                                        else
-                                        {
-                                            initpassword();
+                                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+                                        String account = preferenceLogin.getUsername();
 
-                                            Toast_in_Thread("welcome to si!");
-                                        }
+                                        Log.v(TAG, "account: " + account );
+                                        Log.v(TAG, "user_id: " + text);
+
+
+                                        ServerConnector.getInstance().sendMsg("s2password:" + account+":"+text);
+
+
+//                                        if(!text.equals("202261"))finish();
+//                                        else
+//                                        {
+//                                            initpassword();
+//
+//                                            Toast_in_Thread("welcome to si!");
+//                                        }
                                     }
                                 })
                 .show();
@@ -4150,7 +4189,7 @@ private void initpassword()
                 .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        
+
                         deleteImg(img_path);
                     }
                 })
@@ -4164,10 +4203,10 @@ private void initpassword()
     }
 
 
-    
+
     private void deleteImg(String img_path) {
         Log.v("BaseActivity", "deleteImg()");
-       
+
         Log.v("BaseActivity", "img_path" + img_path);
 
         File file = new File(img_path);
@@ -4703,10 +4742,7 @@ private void initpassword()
                             if (ifPoint) {
 
                             }
-                            if (isConfirmPassword) {
-                                finish();
-                                isConfirmPassword=false;
-                            }
+
                             if (ifPainting) {
 
                             }
@@ -5053,7 +5089,7 @@ private void initpassword()
     }
     /*
 
-  */
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadTagsStream() {
 
@@ -5064,7 +5100,7 @@ private void initpassword()
     }
     /*
 
-*/
+     */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void setTagView(String tags) {
         String[] arr = {"null", "wrong", "fail", "pass", "good", "perfect"};
