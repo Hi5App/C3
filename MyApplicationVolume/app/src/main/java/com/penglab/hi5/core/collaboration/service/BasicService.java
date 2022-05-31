@@ -310,7 +310,7 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
-                            Log.e(TAG, "Start to read !"+(Loop-i));
+                            //Log.e(TAG, "Start to read !"+(Loop-i));
                             out.write(File_Content);
                         }
 
