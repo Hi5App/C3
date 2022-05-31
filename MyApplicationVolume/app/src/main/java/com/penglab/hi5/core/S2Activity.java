@@ -472,31 +472,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             progressDialog_loadimg.dismiss();
             Toast_in_Thread_static(msgss[1]+" is not existed!");
         }
-
-
-        if (msg.startsWith("s2password:")) {
-            // loadBigDataImg(msg.split(":")[1]);
-            String msgs = msg.substring("s2password:".length());
-
-            Log.e(TAG, "s2password::" + msgs);
-
-            if(msgs.contains("failed"))
-            {
-                isConfirmPassword=false;
-                finish();
-                System.exit(0);
-
-                Toast_in_Thread_static("Password is wrong!");
-
-            }else
-            {
-                isConfirmPassword=true;
-                Toast_in_Thread("welcome to si!");
-            }
-
-
-        }
-
         if (msg.startsWith("get_data_tag:")) {
             // loadBigDataImg(msg.split(":")[1]);
             String msgs = msg.substring("get_data_tag:".length());
@@ -842,10 +817,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         ServerConnector.getInstance().sendMsg("ID:"+account);
         //s2initialization();
 
-        s2Confirm_Password();
-//        if(fileIsExists(S2Password)){
-//            Log.e(TAG, "dir_password.exists()!");
-//        }else s2Confirm_Password();
+
+        if(fileIsExists(S2Password)){
+            Log.e(TAG, "dir_password.exists()!");
+        }else s2Confirm_Password();
 
         /*
         init database for score module
@@ -2297,7 +2272,7 @@ private void initpassword()
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("8512");//8511
+        serverConnector.setPort("8511");//8511
         serverConnector.initConnection();
 
     }
@@ -2522,11 +2497,6 @@ private void initpassword()
 
     private void loadvirtualscope() {
 
-        if(!isConfirmPassword)
-        {
-            finish();
-            System.exit(0);
-        }
         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
         Log.v(TAG, "account: " + account );
@@ -3887,23 +3857,14 @@ private void initpassword()
                                     @Override
                                     public void onTextInputConfirmed(String text) {
 
-                                        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                                        String account = preferenceLogin.getUsername();
-
-                                        Log.v(TAG, "account: " + account );
                                         Log.v(TAG, "user_id: " + text);
+                                        if(!text.equals("52013"))finish();
+                                        else
+                                        {
+                                            initpassword();
 
-
-                                        ServerConnector.getInstance().sendMsg("s2password:" + account+":"+text);
-
-
-//                                        if(!text.equals("202261"))finish();
-//                                        else
-//                                        {
-//                                            initpassword();
-//
-//                                            Toast_in_Thread("welcome to si!");
-//                                        }
+                                            Toast_in_Thread("welcome to si!");
+                                        }
                                     }
                                 })
                 .show();
@@ -4742,7 +4703,10 @@ private void initpassword()
                             if (ifPoint) {
 
                             }
-
+                            if (isConfirmPassword) {
+                                finish();
+                                isConfirmPassword=false;
+                            }
                             if (ifPainting) {
 
                             }
