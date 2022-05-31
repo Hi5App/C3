@@ -1,5 +1,13 @@
+import java.text.SimpleDateFormat
+
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
+def releaseTime() {
+    SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
+    Date curDate = new Date(System.currentTimeMillis());
+    return formatter.format(curDate);
+}
+
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.2"
@@ -11,7 +19,11 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
+<<<<<<< Updated upstream
         versionName "2.1.3"
+=======
+        versionName "2.2.2"
+>>>>>>> Stashed changes
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         javaCompileOptions {
@@ -30,6 +42,15 @@ android {
             targetCompatibility JavaVersion.VERSION_1_8
         }
     }
+
+    android.applicationVariants.all {
+        variant ->
+            variant.outputs.all {
+                outputFileName = "Hi5_V${defaultConfig.versionName}_${releaseTime()}.apk"
+
+            }
+    }
+
     buildTypes {
         debug {
         }
