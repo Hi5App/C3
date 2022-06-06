@@ -13,6 +13,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ConfigurationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -55,8 +56,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
-import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 
 import com.bifan.txtreaderlib.main.TxtConfig;
@@ -334,6 +335,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String s2lastmsgforimg = "";
 
     private static String data_tag = "";
+
+    private static String VersionName = "";
 
 
     public static boolean firstLoad = true;
@@ -843,6 +846,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         //s2initialization();
 
         s2Confirm_Password();
+
+
+        try {
+            VersionName=getVersionName();
+            Log.v(TAG, "versionname: " + VersionName);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
 //        if(fileIsExists(S2Password)){
 //            Log.e(TAG, "dir_password.exists()!");
 //        }else s2Confirm_Password();
@@ -989,7 +1002,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         navigation_back = null;
 //    private static Button blue_pen;
 //    private static Button red_pen;
-
+        VersionName=null;
         res_list = null;
         user_list = null;
         room_id = null;
@@ -1019,8 +1032,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         super.onPause();
         Log.v(TAG, "onPause start");
         myS2GLSurfaceView.onPause();
-        s2filename=null;
-        iffirstlogin=false;
+      //  s2filename=null;
+     //   iffirstlogin=false;
     }
 
     @Override
@@ -1029,7 +1042,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Log.v(TAG, "onResume start");
         Log.v("Path", filepath);
         myS2GLSurfaceView.onResume();
-        iffirstlogin=false;
+      //  iffirstlogin=false;
 
     }
 
@@ -1045,15 +1058,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ifTouchCamera=false;
             IjkMediaPlayer.native_profileEnd();
         }
-        s2filename=null;
-        iffirstlogin=false;
+//        s2filename=null;
+//        iffirstlogin=false;
     }
 
     @Override
     protected void onRestart() {
 //        initMusicService();
         super.onRestart();
-        iffirstlogin=false;
+       // iffirstlogin=false;
     }
 
     /**
@@ -1145,8 +1158,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             hideButtons();
             ll.setVisibility(View.GONE);
 
-            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            ConstraintLayout.LayoutParams lp4BigDataMode = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+
             // load layout view
             mSettings = new Settings(this);
             String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
@@ -1158,42 +1172,75 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             IjkMediaPlayer.loadLibrariesOnce(null);
             IjkMediaPlayer.native_profileBegin("libijkplayer.so");
 
-            pvcamRtmpModeView = getLayoutInflater().inflate(R.layout.activity_s2_rtmp, null);
+            pvcamRtmpModeView = getLayoutInflater().inflate(R.layout.activity_s2_rtmp_new, null);
             this.addContentView(pvcamRtmpModeView, lp4BigDataMode);
 
             // MoveXtop = findViewById(R.id.pv_top);
             //ImageButton MoveX = findViewById(R.id.zoomOut);
+
             mVideoView = (IjkVideoView) findViewById(R.id.si_videoView);
             mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
             mVideoView.setMediaController(mMediaController);
             mVideoView.setHudView(mHudView);
+            mVideoView.setBackgroundResource(R.drawable.mvideobg);
 
-            RockerView s2rocekerview_xy = (RockerView) findViewById(R.id.s2rockerView_xy);
+            RockerView s2rocekerview_xy = (RockerView) findViewById(R.id.s2rockerView_z);
 
             Toolbar toolbar = findViewById(R.id.toolbar2);
             TextView mLogLeft = findViewById(R.id.textViews_xy);
             TextView mLogright = findViewById(R.id.textViews_z);
+
+            ImageButton zoom_in = findViewById(R.id.pv_zoom_in);
+            ImageButton zscan = findViewById(R.id.startZscan);
+            ImageButton zoom_out = findViewById(R.id.pv_zoom_out);
+
+            zoom_in.setImageResource(R.drawable.ic_zoom_in);
+            zscan.setImageResource(R.drawable.ic_startzscan_foreground);
+            zoom_out.setImageResource(R.drawable.ic_baseline_zoom_out_24);
+
+            zoom_in.setVisibility(View.VISIBLE);
+            zoom_out.setVisibility(View.VISIBLE);
+            zscan.setVisibility(View.VISIBLE);
+
             setSupportActionBar(toolbar);
 
             s2rocekerview_xy.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
 
 
-            if (TextUtils.isEmpty(mPvcamPath)) {
+            if (TextUtils.isEmpty(mVideoPath)) {
                 Toast.makeText(this,
                         "No Video Found! Press Back Button To Exit",
                         Toast.LENGTH_LONG).show();
             } else {
-                mVideoView.setVideoURI(Uri.parse(mPvcamPath));
+                mVideoView.setVideoURI(Uri.parse(mVideoPath));
                 mVideoView.start();
             }
 
-//            MoveXtop.setOnClickListener(new Button.OnClickListener() {
-//                public void onClick(View v) {
-//
-//                    Log.e(TAG, "onClick: MoveXtop");
-//                    //Switch();
-//                }
-//            });
+            zscan.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zscan");
+                    startZscan();
+                }
+            });
+
+            zoom_in.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zoom_in");
+                    ServerConnector.getInstance().sendMsg("mszoomin:");
+                    //startZscan();
+                }
+            });
+
+            zoom_out.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zoom_out");
+                    ServerConnector.getInstance().sendMsg("mszoomout:");
+                    //startZscan();
+                }
+            });
 
 
 //            if (s2rocekerview_xy != null) {
@@ -1243,7 +1290,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     }
                 });
             }
-            s2rocekerview_z = (RockerView) findViewById(R.id.s2rockerView_z);
+            s2rocekerview_z = (RockerView) findViewById(R.id.s2rockerView_xy);
             if (s2rocekerview_z != null) {
                 s2rocekerview_z.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
                 s2rocekerview_z.setOnShakeListener(RockerView.DirectionMode.DIRECTION_2_VERTICAL, new RockerView.OnShakeListener() {
@@ -1272,6 +1319,30 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         } else {
             pvcamRtmpModeView.setVisibility(View.VISIBLE);
         }
+    }
+
+    private  boolean startZscan()
+    {
+        AlertDialog aDialog = new AlertDialog.Builder(S2Context)
+                .setTitle("Start Z-scanning with default parameters")
+                .setMessage("Are you sure you choose the right place to start the scan ?")
+                .setIcon(R.drawable.si_logo)
+                .setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.e(TAG, "Start Z-scanning with default parameters");
+                        ServerConnector.getInstance().sendMsg("startzscan:");
+                        //deleteImg(img_path);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                })
+                .create();
+        aDialog.show();
+        return true;
     }
 
     private String getDirection(RockerView.Direction direction) {
@@ -1350,40 +1421,40 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Block_navigate(message);
     }
 
-    private void initPvcamLayout() {
-        if (isCamera) {
-            // load layout view
-            hideButtons();
-            ll.setVisibility(View.GONE);
-            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-            pvcamModeView = getLayoutInflater().inflate(R.layout.activity_s2_pvcam, null);
-            this.addContentView(pvcamModeView, lp4BigDataMode);
-
-            MoveXtop = findViewById(R.id.pv_top);
-            //ImageButton MoveX = findViewById(R.id.zoomOut);
-            PV_imageView = (ImageView) findViewById(R.id.imageView2);
-
-
-            Toolbar toolbar = findViewById(R.id.toolbar2);
-
-            setSupportActionBar(toolbar);
-
-            MoveXtop.setOnClickListener(new Button.OnClickListener() {
-                public void onClick(View v) {
-
-                    Log.e(TAG, "onClick: MoveXtop");
-                    //Switch();
-                }
-            });
-
-            // MoveXtop.setOnClickListener(this::MoveXtop());
-            //zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
-
-        } else {
-            pvcamModeView.setVisibility(View.VISIBLE);
-        }
-    }
+//    private void initPvcamLayout() {
+//        if (isCamera) {
+//            // load layout view
+//            hideButtons();
+//            ll.setVisibility(View.GONE);
+//            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+//                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+//            pvcamModeView = getLayoutInflater().inflate(R.layout.activity_s2_rtmp_new, null);
+//            this.addContentView(pvcamModeView, lp4BigDataMode);
+//
+//            MoveXtop = findViewById(R.id.pv_top);
+//            //ImageButton MoveX = findViewById(R.id.zoomOut);
+//            PV_imageView = (ImageView) findViewById(R.id.imageView2);
+//
+//
+//            Toolbar toolbar = findViewById(R.id.toolbar2);
+//
+//            setSupportActionBar(toolbar);
+//
+//            MoveXtop.setOnClickListener(new Button.OnClickListener() {
+//                public void onClick(View v) {
+//
+//                    Log.e(TAG, "onClick: MoveXtop");
+//                    //Switch();
+//                }
+//            });
+//
+//            // MoveXtop.setOnClickListener(this::MoveXtop());
+//            //zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
+//
+//        } else {
+//            pvcamModeView.setVisibility(View.VISIBLE);
+//        }
+//    }
 
     /*
      * init buttons
@@ -3867,6 +3938,18 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         mdDialog.show();
     }
 
+    public String getVersionName() throws Exception
+    {
+
+        // 获取packagemanager的实例
+        PackageManager packageManager = getPackageManager();
+        // getPackageName()是你当前类的包名，0代表是获取版本信息
+        PackageInfo packInfo = packageManager.getPackageInfo(getPackageName(),0);
+        String version = packInfo.versionName;
+        return version;
+
+    }
+
 
     private void s2Confirm_Password(){
         boolean[] isif_flag = new boolean[3];
@@ -3894,7 +3977,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         Log.v(TAG, "user_id: " + text);
 
 
-                                        ServerConnector.getInstance().sendMsg("s2password:" + account+":"+text);
+                                        ServerConnector.getInstance().sendMsg("s2password:" + account+":"+text+":"+VersionName);
 
 
 //                                        if(!text.equals("202261"))finish();
