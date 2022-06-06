@@ -82,5 +82,13 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="mvideolayout">
+        <item name="android:layout_width">409dp</item>
+        <item name="android:layout_height">344dp</item>
+        <item name="android:layout_marginStart">1dp</item>
+        <item name="android:layout_marginBottom">332dp</item>
+        <item name="android:visibility">visible</item>
+    </style>
+
 
 </resources>

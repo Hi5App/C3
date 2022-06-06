@@ -2,4 +2,5 @@
 <resources>
     <item name="Undo" type="id" />
     <item name="Redo" type="id" />
+    <item name="startZscan" type="id" />
 </resources>

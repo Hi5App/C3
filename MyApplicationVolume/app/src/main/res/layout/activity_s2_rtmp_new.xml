@@ -1,0 +1,230 @@
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+    android:id="@+id/drawer_layout1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".core.S2Activity"
+    tools:ignore="MissingDefaultResource">
+
+    <com.google.android.material.appbar.AppBarLayout
+
+
+        android:id="@+id/appBarLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay"
+        tools:ignore="MissingConstraints">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar2"
+            android:layout_width="412dp"
+            android:layout_height="match_parent"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <!--        <com.shy.rockerview.MyRockerView-->
+    <!--            android:id="@+id/rocker_view"-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_marginTop="450dp"-->
+    <!--            android:layout_marginStart="30dp"-->
+    <!--            app:areaBackground="@color/black"-->
+    <!--            app:rockerBackground="@color/white"-->
+    <!--            app:rockerCallBackMode="CALL_BACK_MODE_STATE_CHANGE"-->
+    <!--            app:rockerScale="0.5"-->
+    <!--            app:rockerSpeedLevel="10" />-->
+
+    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+    <!--            android:id="@+id/pv_right"-->
+    <!--            android:layout_width="35dp"-->
+    <!--            android:layout_height="55dp"-->
+    <!--            android:layout_marginTop="500dp"-->
+    <!--            android:src="@drawable/ic_chevron_left_black_24dp"-->
+    <!--            android:layout_marginStart="50dp"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+
+    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+    <!--            android:id="@+id/pv_left"-->
+    <!--            android:layout_width="35dp"-->
+    <!--            android:layout_height="55dp"-->
+    <!--            android:layout_marginStart="150dp"-->
+    <!--            android:layout_marginTop="500dp"-->
+    <!--            android:src="@drawable/ic_chevron_right_black_24dp"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+    <!--            android:id="@+id/pv_top"-->
+    <!--            android:layout_width="35dp"-->
+    <!--            android:layout_height="55dp"-->
+    <!--            android:layout_marginRight="10dp"-->
+    <!--            android:layout_marginLeft="110dp"-->
+    <!--            android:layout_marginTop="450dp"-->
+    <!--            android:src="@drawable/ic_expand_less_black_24dp"-->
+    <!--            android:layout_marginStart="100dp"-->
+    <!--            app:layout_constraintStart_toStartOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+
+    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+    <!--            android:id="@+id/pv_down"-->
+    <!--            android:layout_width="35dp"-->
+    <!--            android:layout_height="55dp"-->
+    <!--            android:layout_marginTop="550dp"-->
+    <!--            android:layout_marginStart="100dp"-->
+    <!--            android:src="@drawable/ic_expand_more_black_24dp"-->
+    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--            app:layout_constraintEnd_toEndOf="parent"-->
+    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+
+    <tv.danmaku.ijk.media.example.widget.media.IjkVideoView
+        android:id="@+id/si_videoView"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints"
+        style="@style/mvideolayout">
+
+    </tv.danmaku.ijk.media.example.widget.media.IjkVideoView>
+
+    <TableLayout
+        android:id="@+id/hud_s2_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/ijk_transparent_dark"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout2"
+        android:layout_width="409dp"
+        android:layout_height="214dp"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="399dp"
+        android:layout_marginBottom="118dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        tools:ignore="MissingConstraints">
+
+
+        <TextView
+            android:id="@+id/textViews_xy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XY Stage"
+            app:layout_constraintBottom_toTopOf="@+id/s2rockerView_z"
+            app:layout_constraintEnd_toEndOf="@+id/s2rockerView_z"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/s2rockerView_z"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread" />
+
+        <TextView
+            android:id="@+id/textViews_z"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Z Stage"
+            app:layout_constraintBottom_toTopOf="@+id/s2rockerView_xy"
+            app:layout_constraintEnd_toEndOf="@+id/s2rockerView_xy"
+            app:layout_constraintStart_toStartOf="@+id/s2rockerView_xy"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="spread" />
+
+        <com.kongqw.rockerlibrary.view.RockerView
+            android:id="@+id/s2rockerView_xy"
+            android:layout_width="128dp"
+            android:layout_height="137dp"
+            app:areaBackground="@color/pv_rocker_xy_big"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/pv_zoom_in"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/s2rockerView_z"
+            app:layout_constraintTop_toBottomOf="@+id/textViews_z"
+            app:rockerBackground="@color/pv_rocker_xy_small"
+            app:rockerRadius="20dp"
+            tools:ignore="MissingConstraints" />
+
+        <com.penglab.hi5.basic.utils.view.ImageButtonExt
+            android:id="@+id/startZscan"
+            android:layout_width="89dp"
+            android:layout_height="44dp"
+            android:src="@null"
+            android:text="@string/zscan"
+            android:textColor="#cc0000"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints"
+            tools:srcCompat="@drawable/ic_startzscan_foreground" />
+
+        <com.penglab.hi5.basic.utils.view.ImageButtonExt
+            android:id="@+id/pv_zoom_in"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="@string/pv_zoom_in"
+            android:textColor="#cc0000"
+            app:layout_constraintBottom_toTopOf="@+id/pv_zoom_out"
+            app:layout_constraintEnd_toEndOf="@+id/pv_zoom_out"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/s2rockerView_xy"
+            app:layout_constraintStart_toStartOf="@+id/pv_zoom_out"
+            app:layout_constraintTop_toBottomOf="@+id/startZscan"
+            app:layout_constraintVertical_chainStyle="spread"
+            tools:ignore="MissingConstraints"
+            tools:srcCompat="@drawable/ic_zoom_in" />
+
+        <com.penglab.hi5.basic.utils.view.ImageButtonExt
+            android:id="@+id/pv_zoom_out"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@null"
+            android:text="@string/pv_zoom_out"
+            android:textColor="#cc0000"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pv_zoom_in"
+            tools:ignore="MissingConstraints"
+            tools:srcCompat="@drawable/ic_baseline_zoom_out_24" />
+
+        <com.kongqw.rockerlibrary.view.RockerView
+            android:id="@+id/s2rockerView_z"
+            android:layout_width="167dp"
+            android:layout_height="171dp"
+            app:areaBackground="@color/pv_rocker_z_big"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/s2rockerView_xy"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViews_xy"
+            app:rockerBackground="@color/pv_rocker_z_small"
+            app:rockerRadius="20dp"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+

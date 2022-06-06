@@ -353,4 +353,5 @@
     <string name="MoveZdown">Z-</string>
     <string name="pv_zoom_in">-</string>
     <string name="pv_zoom_out">-</string>
+    <string name="zscan">zscan</string>
 </resources>
