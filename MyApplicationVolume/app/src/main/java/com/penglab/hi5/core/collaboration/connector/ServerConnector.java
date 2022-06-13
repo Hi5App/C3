@@ -1,9 +1,7 @@
 package com.penglab.hi5.core.collaboration.connector;
 
 import android.content.Context;
-import android.util.Log;
 
-import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.collaboration.MsgReceiver;
 import com.penglab.hi5.core.collaboration.MsgSender;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;

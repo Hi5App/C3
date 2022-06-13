@@ -355,10 +355,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("TestSocketConnection")) {
-            //serverConnectorForScope.getInstance().sendMsg("HeartBeat");
+            ServerConnector.getInstance().sendMsg("HeartBeat");
         } else {
             Log.e(TAG, "onRecMessage()  " + msg);
 
+            PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+            String account = preferenceLogin.getUsername();
+            Log.v(TAG, "account: " + account );
+            ServerConnector.getInstance().sendMsg("ID:"+account);
         }
 
 
@@ -1006,7 +1010,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         res_list = null;
         user_list = null;
         room_id = null;
-
+        s2filename=null;
         pvcamModeView = null;
         pvcamRtmpModeView = null;
         myS2GLSurfaceView = null;
@@ -1058,7 +1062,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ifTouchCamera=false;
             IjkMediaPlayer.native_profileEnd();
         }
-//        s2filename=null;
+     //  s2filename=null;
 //        iffirstlogin=false;
     }
 
@@ -2010,12 +2014,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_left.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-                String lastfilename=s2filename;
-                Log.e("s2filename", s2filename);
-                if(s2lastmsgforimg.isEmpty())
+                if (s2filename == null||s2lastmsgforimg== null) {
+                    return;
+                }
+                if(s2filename.isEmpty()||s2lastmsgforimg.isEmpty())
                 {
                     return;
                 }
+                String lastfilename=s2filename;
+                Log.e("s2filename", s2filename);
+
                 String lastfilename_o=s2lastmsgforimg.split("/")[2];
                 s2lastmsgforimg=s2lastmsgforimg.replace(lastfilename_o,lastfilename);
                 Log.e("s2lastmsgforimg", s2lastmsgforimg);
@@ -2054,7 +2062,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         navigation_right.setOnClickListener(new Button.OnClickListener() {
             public void onClick(View v) {
-
+                if (s2filename == null||s2lastmsgforimg== null) {
+                    return;
+                }
+                if(s2filename.isEmpty()||s2lastmsgforimg.isEmpty())
+                {
+                    return;
+                }
                 String lastfilename=s2filename;
                 Log.e("s2filename", s2filename);
                 String lastfilename_o=s2lastmsgforimg.split("/")[2];
