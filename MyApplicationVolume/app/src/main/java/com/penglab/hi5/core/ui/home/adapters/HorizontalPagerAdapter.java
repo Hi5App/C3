@@ -35,6 +35,10 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     "Smart Imaging"
             ),
             new Utils.LibraryObject(
+                    R.drawable.ic_design,
+                    "Collaboration"
+            ),
+            new Utils.LibraryObject(
                     R.drawable.ic_chat_icon,
                     "Chat"
             ),

@@ -37,6 +37,8 @@ import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -190,9 +192,6 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
 
-
-
-
     /**
      * 自定义错误处理,收集错误信息
      * 发送错误报告等操作均在此完成.
@@ -243,22 +242,20 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 
 
     /**
-     * 获取错误报告文件路径
-     *
-     * @param ctx
-     * @return
+     * Get the crash report to show
      */
     public static CrashReports getCrashReportFiles(Context ctx) {
         CrashReports crashReportList = new CrashReports();
-        File filesDir = new File(getCrashFilePath(ctx));
-        String[] fileNames = filesDir.list();
-        if(fileNames != null && fileNames.length != 0){
-            for (int i = 0; i < fileNames.length; i++){
-                fileNames[i] = fileNames[i].substring(0, fileNames[i].indexOf("."));
+        List<File> fileList = getFileSort(getCrashFilePath(ctx));
+        String[] fileNames = new String[fileList.size()];
+        if (fileList.size() != 0) {
+            for (int i = 0; i < fileList.size(); i++){
+                String fileName = fileList.get(i).getName();
+                fileNames[i] = fileName.substring(0, fileName.indexOf("."));
             }
             crashReportList.isEmpty = false;
             crashReportList.reportNames = fileNames;
-        }else {
+        } else {
             crashReportList.isEmpty = true;
             crashReportList.reportNames = new String[] {"There is no crash report!"};
         }
@@ -266,10 +263,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * 保存错误信息到文件中
-     *
-     * @param ex
-     * @return
+     * Save crash info into local file
      */
     private void saveCrashInfoToFile(Throwable ex) {
         Writer info = new StringWriter();
@@ -308,26 +302,56 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * 获取文件夹路径
-     *
-     * @param context
-     * @return
+     * Get the path of Crash Report
      */
     public static String getCrashFilePath(Context context) {
-        String path = null;
-        try {
-            if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-                path = Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Crash/";
-                File file = new File(path);
-                if (!file.exists()) {
-                    if (!file.mkdirs()) {
-                        Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
-                    }
-                }
+        String path = context.getExternalFilesDir(null) + "/Crash/";
+        File file = new File(path);
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                Toast.makeText(context,"Fail to create the folder !",Toast.LENGTH_SHORT).show();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return path;
     }
+
+    /**
+     * Sort the file list by last modified time
+     */
+    public static List<File> getFileSort(String path) {
+        List<File> list = getFiles(path, new ArrayList<File>());
+        if (list.size() > 0) {
+            Collections.sort(list, new Comparator<File>() {
+                public int compare(File file, File newFile) {
+                    if (file.lastModified() < newFile.lastModified()) {
+                        return 1;
+                    } else if (file.lastModified() == newFile.lastModified()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+                }
+            });
+        }
+        return list;
+    }
+
+    /**
+     *  Get the original file list in rootPath recursively
+     */
+    public static List<File> getFiles(String rootPath, List<File> files) {
+        File realFile = new File(rootPath);
+        if (realFile.isDirectory()) {
+            File[] fileList = realFile.listFiles();
+            for (File file : fileList) {
+                if (file.isDirectory()) {
+                    getFiles(file.getAbsolutePath(), files);
+                } else {
+                    files.add(file);
+                }
+            }
+        }
+        return files;
+    }
+
 }

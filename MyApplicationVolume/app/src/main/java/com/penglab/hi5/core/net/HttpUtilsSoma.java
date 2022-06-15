@@ -56,13 +56,6 @@ public class HttpUtilsSoma extends HttpUtils {
                     .put("pa", updateInfo)
                     .put("user", userInfo)));
             asyncPostRequest(URL_INSERT_SOMA_LIST, body, callback);
-            Log.e("body","updatesomalist"+String.valueOf(new JSONObject()
-                    .put("locationId", locationId)
-                    .put("locationtype", locationType)
-                    .put("insertsomalist", insertSomaList)
-                    .put("deletesomalist", deleteSomaList)
-                    .put("owner", username)
-                    .put("image", image)));
         } catch (Exception e) {
             e.printStackTrace();
         }
