@@ -171,11 +171,7 @@ public class Myapplication extends Application {
     private void initLogcat(){
         Builder builder = Logcat.newBuilder();
         //设置Log 保存的文件夹
-        try {
-            builder.logSavePath(Environment.getExternalStorageDirectory().getCanonicalPath() + "/" + context.getResources().getString(R.string.app_name) + "/Logs/");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        builder.logSavePath(getExternalFilesDir(null) + "/Logs/");
         //设置输出日志等级
         if (BuildConfig.DEBUG) {
             builder.logCatLogLevel(Logcat.SHOW_ALL_LOG);

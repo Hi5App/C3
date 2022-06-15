@@ -784,7 +784,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 mBitmap = Bitmap.createBitmap(mBitmap, 0, 0, screen_w, screen_h, m, true);
 
                 Bitmap output_mBitmap = ImageUtil.drawTextToRightBottom(getContext(), mBitmap, "Hi5", 20, Color.RED, 40, 30);
-                String mCaptureDir = "/storage/emulated/0/" + getContext().getResources().getString(R.string.app_name) + "/screenCapture";
+                String mCaptureDir = Myapplication.getContext().getExternalFilesDir(null) + "/screenCapture";
                 File dir = new File(mCaptureDir);
                 if (!dir.exists()) {
                     dir.mkdirs();

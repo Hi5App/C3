@@ -96,6 +96,10 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+//
+//        File file = null;
+//        file.mkdirs();
+//
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 

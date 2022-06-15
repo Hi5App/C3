@@ -462,6 +462,7 @@ public class QualityInspectionViewModel extends ViewModel {
             openNewFile();
         } else {
             curIndex++;
+            openFileWithCurIndex();
         }
     }
 
@@ -485,7 +486,7 @@ public class QualityInspectionViewModel extends ViewModel {
         String arborName = curPotentialArborMarkerInfo.getArborName();
         XYZ loc =curPotentialArborMarkerInfo.getLocation();
         String res = "/"+curPotentialArborMarkerInfo.getBrianId()+"/"+curPotentialArborMarkerInfo.getSomaId();
-        qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, lastDownloadCoordinateConvert.getResIndex()-1),arborName);
+        qualityInspectionDataSource.getSwc(res,(float)loc.x,(float)loc.y,(float) loc.z,DEFAULT_IMAGE_SIZE * (int) Math.pow(2, lastDownloadCoordinateConvert.getResIndex()-1), arborName);
     }
 
     public void queryArborMarkerList() {

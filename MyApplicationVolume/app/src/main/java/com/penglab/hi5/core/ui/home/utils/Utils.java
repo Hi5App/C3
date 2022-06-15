@@ -59,6 +59,9 @@ public class Utils {
                     case "Smart Imaging":
                         S2Activity.start(context);
                         break;
+                    case "Collaboration":
+                        // TODO: start collaboration activity
+                        break;
                     case "Chat":
                         ChatActivity.start(context);
                         break;
