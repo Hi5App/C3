@@ -20,6 +20,7 @@ public class HttpUtilsUser extends HttpUtils {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("user", userInfo)));
             asyncPostRequest(URL_LOGIN, body, callback);
+            Log.e("loginwithokhttp",String.valueOf(new JSONObject().put("user",userInfo)));
         } catch (Exception e) {
             e.printStackTrace();
         }
