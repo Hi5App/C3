@@ -55,6 +55,7 @@ import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
 import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
@@ -72,6 +73,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private static final String TAG = "CollaborationActivity";
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private CollaborationViewModel collaborationViewModel;
+    private AnnotationRender annotationRender;
     private static String conPath = "";
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
@@ -113,7 +115,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             LoadFiles(msg.split(":")[1]);
         }
 
-
         /*
         After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
 
@@ -144,8 +145,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
 
 
-
-
         /*
         After msg:  "/login:xf"
 
@@ -170,64 +169,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         }
 
-
-        /*
-        After msg:  "/ImageRes:18454"
-
-        process the img resolution info; msg format: "Imgblock:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,msg);
-            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-        }
-
-
-        /*
-        After msg:  "/Imgblock:"
-
-        process the img block & swc apo file; msg format: "GetBBSwc:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-//        if (msg.startsWith("Block:")){
-//
-//            loadBigDataImg(msg.split(":")[1]);
-//            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-//
-//        }
-//
-//        if (msg.startsWith("File:")){
-//            if(msg.endsWith(".apo")){
-//
-//                Log.e(TAG, "File: .apo");
-//                loadBigDataApo(msg.split(":")[1]);
-//
-//            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-//
-//                Log.e(TAG, "File: .eswc");
-//                loadBigDataSwc(msg.split(":")[1]);
-//
-//                // for sync bar when click sync button
-//                if(timerSync != null){
-//                    hideSyncBar();
-//                }
-//
-//            }
-//        }
-
-
-//        if (msg.startsWith("Score:")){
-//            Log.e(TAG,"get score: " + msg);
-//            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-//            Score score = Score.getInstance();
-//            if (score.serverUpdateScore(serverScore)){
-//                updateScoreText();
-//            }
-////            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-//        }
-
-
-
         /*
         for collaboration -------------------------------------------------------------------
          */
@@ -240,7 +181,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
@@ -255,7 +196,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncDelSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
@@ -269,7 +210,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddMarker(communicator.syncMarker(marker));
+                annotationRender.syncAddMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
             }
         }
@@ -284,7 +225,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelMarker(communicator.syncMarker(marker));
+                annotationRender.syncDelMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
             }
         }
@@ -299,64 +240,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
         }
-
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
-
-//        if (msg.startsWith("GETFIRSTK:")){
-//            Log.d(TAG, msg);
-//            if (msg.split(":").length > 1) {
-//                String body = msg.split(":")[1];
-//                String [] accountsWithScore = body.split(";");
-////                Log.d(TAG, "accountsWithScore: " + Arrays.toString(accountsWithScore));
-//
-//                if (accountsWithScore.length % 2 == 0) {
-//                    ArrayList<String> accounts = new ArrayList<>();
-//                    for (int i = 0; i < accountsWithScore.length / 2; i++) {
-//                        accounts.add(accountsWithScore[i * 2]);
-//                    }
-//                    ArrayList<LeaderBoardItem> leaderBoardItems = new ArrayList<>();
-//
-//                    NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallback<List<NimUserInfo>>() {
-//                        @Override
-//                        public void onSuccess(List<NimUserInfo> param) {
-//                            if (param.size() == accounts.size()) {
-//                                for (int i = 0; i < param.size(); i++) {
-//                                    leaderBoardItems.add(new LeaderBoardItem(accountsWithScore[i * 2], param.get(i).getName(), Integer.parseInt(accountsWithScore[i * 2 + 1])));
-//                                }
-//                            } else {
-//                                Toast_in_Thread_static("LeaderBoard Account Error");
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailed(int code) {
-//                            Toast_in_Thread_static("LeaderBoard Account Error");
-//
-//                        }
-//
-//                        @Override
-//                        public void onException(Throwable exception) {
-//                            Toast_in_Thread_static("LeaderBoard Account Error");
-//
-//                        }
-//                    });
-//                    LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
-//                    leaderBoardContainer.setLeaderBoardItems(leaderBoardItems);
-//                } else {
-//                    Toast_in_Thread_static("LeaderBoard Message Error");
-//                }
-//            } else {
-//                Toast_in_Thread_static("LeaderBoard Message Error");
-//            }
-//        }
-
     }
 
     public static void Toast_in_Thread_static(String message){
