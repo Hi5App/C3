@@ -71,9 +71,10 @@ public class UserDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
+                    Log.e(TAG,"responsecode of login"+responseCode);
                     if (responseCode == 200) {
                         responseData = response.body().string();
-                        Log.e(TAG, "responseData: " + responseData);
+                        Log.e(TAG, "responseData_login: " + responseData);
                         try {
                             JSONObject userInfo = new JSONObject(responseData);
                             LoggedInUser loggedInUser = new LoggedInUser(

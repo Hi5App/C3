@@ -11,6 +11,7 @@ import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.core.ui.check.CheckViewModel;
+import com.penglab.hi5.core.ui.collaboration.CollaborationViewModel;
 import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
@@ -21,6 +22,7 @@ import com.penglab.hi5.core.ui.userProfile.MyViewModel;
 import com.penglab.hi5.data.AnnotationDataSource;
 import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.CheckDataSource;
+import com.penglab.hi5.data.CollorationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
@@ -29,6 +31,7 @@ import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.UserPerformanceDataSource;
+import com.penglab.hi5.data.model.user.LoggedInUser;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.
@@ -71,6 +74,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new MyViewModel(UserInfoRepository.getInstance(), new UserDataSource(), new UserPerformanceDataSource());
         } else if(modelClass.isAssignableFrom(QualityInspectionViewModel.class)) {
             return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new QualityInspectionDataSource(), new ImageDataSource());
+        } else if(modelClass.isAssignableFrom(CollaborationViewModel.class)){
+            return(T) new CollaborationViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new ImageDataSource(),new CollorationDataSource());
+
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
