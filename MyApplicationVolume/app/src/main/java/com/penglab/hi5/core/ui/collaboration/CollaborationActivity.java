@@ -20,6 +20,7 @@ import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -106,10 +107,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private static final int HANDLER_SET_FILENAME_BIGDATA = 4;
     private static final int HANDLER_TOAST_INFO_STATIC = 5;
     private static final int HANDLER_SHOW_PROGRESSBAR = 6;
-    private static final int HANDLER_UPDATE_SCORE_TEXT = 7;
     private static final int HANDLER_SHOW_SYNCING_POPUPVIEW = 9;
     private static final int HANDLER_HIDE_SYNCING_POPUPVIEW = 10;
-    private static final int HANDLER_DISPLAY_ANALYZE_RESULT = 11;
 
     public static String username;
 
@@ -379,6 +378,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
+
+        initNim();
+        initService();
+        initServerConnector();
 
 
     }
