@@ -17,18 +17,25 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -39,7 +46,11 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
@@ -55,14 +66,20 @@ import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.game.LeaderBoardContainer;
 import com.penglab.hi5.core.game.LeaderBoardItem;
 import com.penglab.hi5.core.game.Score;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
+import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import cn.carbs.android.library.MDDialog;
 
 /**
  * Created by Jackiexing on 05/17/21
@@ -72,6 +89,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private static final String TAG = "CollaborationActivity";
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private CollaborationViewModel collaborationViewModel;
+    private AnnotationRender annotationRender;
     private static String conPath = "";
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
@@ -94,6 +112,19 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     public static String username;
 
+    private View bigDataModeView;
+    private View commonView;
+
+    private TapBarMenu tapBarMenu;
+    private ImageView addCurve;
+    private ImageView addMarker;
+    private ImageView deleteCurve;
+    private ImageView deleteMarker;
+    private ImageButton editModeIndicator;
+
+
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
 
 
@@ -112,7 +143,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("GETFILELIST:")){
             LoadFiles(msg.split(":")[1]);
         }
-
 
         /*
         After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
@@ -144,8 +174,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
 
 
-
-
         /*
         After msg:  "/login:xf"
 
@@ -170,64 +198,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         }
 
-
-        /*
-        After msg:  "/ImageRes:18454"
-
-        process the img resolution info; msg format: "Imgblock:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,msg);
-            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-        }
-
-
-        /*
-        After msg:  "/Imgblock:"
-
-        process the img block & swc apo file; msg format: "GetBBSwc:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-//        if (msg.startsWith("Block:")){
-//
-//            loadBigDataImg(msg.split(":")[1]);
-//            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-//
-//        }
-//
-//        if (msg.startsWith("File:")){
-//            if(msg.endsWith(".apo")){
-//
-//                Log.e(TAG, "File: .apo");
-//                loadBigDataApo(msg.split(":")[1]);
-//
-//            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-//
-//                Log.e(TAG, "File: .eswc");
-//                loadBigDataSwc(msg.split(":")[1]);
-//
-//                // for sync bar when click sync button
-//                if(timerSync != null){
-//                    hideSyncBar();
-//                }
-//
-//            }
-//        }
-
-
-//        if (msg.startsWith("Score:")){
-//            Log.e(TAG,"get score: " + msg);
-//            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-//            Score score = Score.getInstance();
-//            if (score.serverUpdateScore(serverScore)){
-//                updateScoreText();
-//            }
-////            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-//        }
-
-
-
         /*
         for collaboration -------------------------------------------------------------------
          */
@@ -240,7 +210,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
@@ -255,7 +225,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncDelSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
@@ -269,7 +239,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddMarker(communicator.syncMarker(marker));
+                annotationRender.syncAddMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
             }
         }
@@ -284,7 +254,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelMarker(communicator.syncMarker(marker));
+                annotationRender.syncDelMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
             }
         }
@@ -299,64 +269,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             if (!userID.equals(username)){
                 Communicator communicator = Communicator.getInstance();
-                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
+                annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
 
         }
-
-        /*
-        for collaboration -------------------------------------------------------------------
-         */
-
-//        if (msg.startsWith("GETFIRSTK:")){
-//            Log.d(TAG, msg);
-//            if (msg.split(":").length > 1) {
-//                String body = msg.split(":")[1];
-//                String [] accountsWithScore = body.split(";");
-////                Log.d(TAG, "accountsWithScore: " + Arrays.toString(accountsWithScore));
-//
-//                if (accountsWithScore.length % 2 == 0) {
-//                    ArrayList<String> accounts = new ArrayList<>();
-//                    for (int i = 0; i < accountsWithScore.length / 2; i++) {
-//                        accounts.add(accountsWithScore[i * 2]);
-//                    }
-//                    ArrayList<LeaderBoardItem> leaderBoardItems = new ArrayList<>();
-//
-//                    NIMClient.getService(UserService.class).fetchUserInfo(accounts).setCallback(new RequestCallback<List<NimUserInfo>>() {
-//                        @Override
-//                        public void onSuccess(List<NimUserInfo> param) {
-//                            if (param.size() == accounts.size()) {
-//                                for (int i = 0; i < param.size(); i++) {
-//                                    leaderBoardItems.add(new LeaderBoardItem(accountsWithScore[i * 2], param.get(i).getName(), Integer.parseInt(accountsWithScore[i * 2 + 1])));
-//                                }
-//                            } else {
-//                                Toast_in_Thread_static("LeaderBoard Account Error");
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onFailed(int code) {
-//                            Toast_in_Thread_static("LeaderBoard Account Error");
-//
-//                        }
-//
-//                        @Override
-//                        public void onException(Throwable exception) {
-//                            Toast_in_Thread_static("LeaderBoard Account Error");
-//
-//                        }
-//                    });
-//                    LeaderBoardContainer leaderBoardContainer = LeaderBoardContainer.getInstance();
-//                    leaderBoardContainer.setLeaderBoardItems(leaderBoardItems);
-//                } else {
-//                    Toast_in_Thread_static("LeaderBoard Message Error");
-//                }
-//            } else {
-//                Toast_in_Thread_static("LeaderBoard Message Error");
-//            }
-//        }
-
     }
 
     public static void Toast_in_Thread_static(String message){
@@ -423,9 +340,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     progressBar.setVisibility(View.GONE);
                     break;
 
-                case HANDLER_UPDATE_SCORE_TEXT:
-                    updateScoreTextHandler();
-                    break;
 
                 case HANDLER_SHOW_SYNCING_POPUPVIEW:
                     syncingPopupView.show();
@@ -461,9 +375,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         getSupportActionBar().setHomeButtonEnabled(true);
 
         collaborationViewModel = new ViewModelProvider(this,new ViewModelFactory()).get(CollaborationViewModel.class);
-
-
-
 
 
     }
@@ -850,6 +761,169 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
         return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
     }
+
+    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
+        resetUI4AllMode();
+        switch (annotationMode){
+            case BIG_DATA:
+                showCommonUI();
+                showUI4BigDataMode();
+                break;
+            case NONE:
+                Log.e(TAG,"Default UI");
+                break;
+            default:
+                ToastEasy("Something wrong with annotation mode !");
+        }
+    }
+
+    private void resetUI4AllMode(){
+        hideUI4BigDataMode();
+        hideCommonUI();
+    }
+
+    private void hideUI4BigDataMode(){
+        if (bigDataModeView != null){
+            bigDataModeView.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideCommonUI(){
+        if (commonView != null){
+            commonView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showUI4BigDataMode(){
+        if (bigDataModeView == null){
+            // load layout view
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_collaborate_mode, null);
+            this.addContentView(bigDataModeView, lp4BigDataMode);
+
+        } else {
+            bigDataModeView.setVisibility(View.VISIBLE);
+        }
+    }
+    private void showCommonUI(){
+        if (commonView == null){
+            // load layout view
+            LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
+            this.addContentView(commonView, lpCommon);
+
+            editModeIndicator = findViewById(R.id.edit_mode_indicator);
+            tapBarMenu = findViewById(R.id.tapBarMenu);
+            addCurve = tapBarMenu.findViewById(R.id.draw_i);
+            addMarker = tapBarMenu.findViewById(R.id.pinpoint);
+            deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
+            deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
+            BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
+
+            tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
+            addCurve.setOnClickListener(this::onMenuItemClick);
+            addMarker.setOnClickListener(this::onMenuItemClick);
+            deleteCurve.setOnClickListener(this::onMenuItemClick);
+            deleteMarker.setOnClickListener(this::onMenuItemClick);
+
+            addCurve.setOnLongClickListener(this::onMenuItemLongClick);
+            addMarker.setOnLongClickListener(this::onMenuItemLongClick);
+
+            // All is lambda expression
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
+                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
+                    .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
+                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+
+        } else {
+            commonView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SuppressLint("NonConstantResourceId")
+    private void onMenuItemClick(View view) {
+        // resetUI
+        addCurve.setImageResource(R.drawable.ic_draw_main);
+        addMarker.setImageResource(R.drawable.ic_marker_main);
+        deleteCurve.setImageResource(R.drawable.ic_delete_curve_normal);
+        deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+
+        switch (view.getId()) {
+            case R.id.draw_i:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
+                    addCurve.setImageResource(R.drawable.ic_draw);
+                }
+                break;
+            case R.id.pinpoint:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
+                    addMarker.setImageResource(R.drawable.ic_add_marker);
+                }
+                break;
+            case R.id.delete_curve:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
+                    deleteCurve.setImageResource(R.drawable.ic_delete_curve);
+                }
+                break;
+            case R.id.delete_marker:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
+                    deleteMarker.setImageResource(R.drawable.ic_marker_delete);
+                }
+                break;
+        }
+    }
+    @SuppressLint("NonConstantResourceId")
+    private boolean onMenuItemLongClick(View view){
+        switch (view.getId()){
+            case R.id.draw_i:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.draw_i)
+                        .setDialogTitle(R.string.curve_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            case R.id.pinpoint:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.pinpoint)
+                        .setDialogTitle(R.string.marker_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+
 
 
 

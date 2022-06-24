@@ -46,6 +46,8 @@ import java.util.concurrent.Executors;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import io.agora.rtc.internal.RtcEngineMessage;
+
 /**
  * Created by Jackiexing on 12/20/21
  */
@@ -519,6 +521,38 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
         this.fingerTrajectory = data;
     }
+
+    /*
+    *for collaboration activity
+    *
+    * */
+
+    public void syncAddSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncAddSegSWC(seg);
+    }
+
+    public void syncRetypeSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncRetypeSegSWC(seg);
+    }
+
+    public void syncDelSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncDelSegSWC(seg);
+    }
+
+    public void syncAddMarker(ImageMarker imageMarker) {
+        annotationDataManager.syncAddMarker(imageMarker);
+    }
+
+    public void syncDelMarker(ImageMarker imageMarker) {
+        annotationDataManager.syncDelMarker(imageMarker);
+    }
+
+
+
+
+
+
+
 
     public NeuronTree getNeuronTree(){
         return annotationDataManager.getNeuronTree();
