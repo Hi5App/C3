@@ -31,6 +31,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
@@ -121,6 +122,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageView deleteCurve;
     private ImageView deleteMarker;
     private ImageButton editModeIndicator;
+    private static BasePopupView downloadingPopupView;
+    private static BasePopupView syncingPopupView;
 
 
 
@@ -349,11 +352,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     syncingPopupView.dismiss();
                     break;
 
-                case HANDLER_DISPLAY_ANALYZE_RESULT:
-                    List<double[]> features = (List<double[]>) msg.obj;
-                    if (features.size() != 0) displayResult(features);
-                    else ToastEasy("The file is empty");
-                    break;
 
                 default:
                     break;
@@ -375,6 +373,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         getSupportActionBar().setHomeButtonEnabled(true);
 
         collaborationViewModel = new ViewModelProvider(this,new ViewModelFactory()).get(CollaborationViewModel.class);
+
+        downloadingPopupView = new XPopup.Builder(this)
+                .asLoading("Downloading......");
+
+        syncingPopupView = new XPopup.Builder(this)
+                .asLoading("Syncing......");
 
 
     }
