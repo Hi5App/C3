@@ -78,6 +78,8 @@ import com.penglab.hi5.data.dataStore.SettingFileManager;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -124,6 +126,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private static BasePopupView downloadingPopupView;
     private static BasePopupView syncingPopupView;
 
+    static Timer timerDownload;
+    static Timer timerSync;
+    private Timer timer = null;
+    private TimerTask timerTask;
 
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
@@ -197,7 +203,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String[] users = msg.split(":")[1].split(";");
             List<String> newUserList = Arrays.asList(users);
             updateUserList(newUserList);
-
         }
 
         /*
@@ -215,7 +220,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
-
         }
 
 
@@ -230,7 +234,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 annotationRender.syncDelSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
-
         }
 
         if (msg.startsWith("/addmarker_norm:")){
@@ -246,8 +249,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         }
 
-
-
         if (msg.startsWith("/delmarker_norm:")){
             Log.e(TAG,"delmarker_norm");
 
@@ -261,8 +262,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         }
 
-
-
         if (msg.startsWith("/retypeline_norm:")){
             Log.e(TAG,"retypeline_norm");
 
@@ -274,7 +273,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
-
         }
     }
 
@@ -415,6 +413,47 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (mBoundManagement){
+            Log.e(TAG,"unbind management service !");
+            ManageService.setStop(true);
+            unbindService(connection_management);
+            Intent manageServiceIntent = new Intent(this, ManageService.class);
+            stopService(manageServiceIntent);
+
+            ServerConnector.getInstance().releaseConnection(false);
+        }
+        if (mBoundCollaboration){
+            Log.e(TAG,"unbind collaboration service !");
+            CollaborationService.setStop(true);
+            unbindService(connection_collaboration);
+            Intent collaborationServiceIntent = new Intent(this, CollaborationService.class);
+            stopService(collaborationServiceIntent);
+
+            MsgConnector.getInstance().releaseConnection(false);
+        }
+
+        mainContext = null;
+
+        if (timer != null){
+            timer.cancel();
+            timer = null;
+        }
+
+        if (timerTask != null){
+            timerTask.cancel();
+            timerTask = null;
+        }
+
+        if (timerDownload != null){
+            timerDownload.cancel();
+            timerDownload = null;
+        }
+
+        if (timerSync != null){
+            timerSync.cancel();
+            timerSync = null;
+        }
     }
 
 
