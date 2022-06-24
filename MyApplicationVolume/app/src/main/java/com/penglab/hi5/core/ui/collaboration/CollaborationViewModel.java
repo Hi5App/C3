@@ -36,8 +36,6 @@ public class CollaborationViewModel extends ViewModel {
     private final ImageInfoRepository imageInfoRepository;
     private final ImageDataSource imageDataSource;
     private final CollorationDataSource collorationDataSource;
-//
-//    private final LoggedInUser loggedInUser;
 
     public ImageDataSource getImageDataSource() {
         return imageDataSource;
@@ -45,9 +43,6 @@ public class CollaborationViewModel extends ViewModel {
     public boolean isLoggedIn(){
         return userInfoRepository.isLoggedIn();
     }
-
-
-
 
 
 

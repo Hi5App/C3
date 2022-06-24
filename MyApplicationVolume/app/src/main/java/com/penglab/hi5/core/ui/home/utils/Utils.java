@@ -18,6 +18,7 @@ import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionActivity;
 import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
+import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
@@ -60,7 +61,7 @@ public class Utils {
                         S2Activity.start(context);
                         break;
                     case "Collaboration":
-                        // TODO: start collaboration activity
+                        CollaborationActivity.start(context);
                         break;
                     case "Chat":
                         ChatActivity.start(context);
