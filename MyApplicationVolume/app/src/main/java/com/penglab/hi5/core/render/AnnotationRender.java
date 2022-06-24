@@ -271,7 +271,9 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
                     // add watermark
                     Bitmap outBitmap = ImageUtil.drawTextToRightBottom(getContext(),
                             bitmap, "Hi5", 20, Color.RED, 40, 30);
-                    outBitmap = ImageUtil.drawTextToLeftTop(getContext(), outBitmap, imageInfo, 20, Color.RED, 40, 30);
+                    if (imageInfo != null) {
+                        outBitmap = ImageUtil.drawTextToLeftTop(getContext(), outBitmap, imageInfo, 20, Color.RED, 40, 30);
+                    }
                     Uri shareUri = Uri.parse(MediaStore.Images.Media.insertImage(getContext().getContentResolver(), outBitmap,
                             "Image" + System.currentTimeMillis(), "ScreenCapture from Hi5"));
 
