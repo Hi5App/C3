@@ -17,18 +17,25 @@ import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.RequestCallback;
@@ -39,7 +46,11 @@ import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.netease.nimlib.sdk.uinfo.UserService;
 import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
+import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
+import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
@@ -59,11 +70,16 @@ import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
+import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import cn.carbs.android.library.MDDialog;
 
 /**
  * Created by Jackiexing on 05/17/21
@@ -96,6 +112,19 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     public static String username;
 
+    private View bigDataModeView;
+    private View commonView;
+
+    private TapBarMenu tapBarMenu;
+    private ImageView addCurve;
+    private ImageView addMarker;
+    private ImageView deleteCurve;
+    private ImageView deleteMarker;
+    private ImageButton editModeIndicator;
+
+
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
 
 
@@ -311,9 +340,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     progressBar.setVisibility(View.GONE);
                     break;
 
-                case HANDLER_UPDATE_SCORE_TEXT:
-                    updateScoreTextHandler();
-                    break;
 
                 case HANDLER_SHOW_SYNCING_POPUPVIEW:
                     syncingPopupView.show();
@@ -349,9 +375,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         getSupportActionBar().setHomeButtonEnabled(true);
 
         collaborationViewModel = new ViewModelProvider(this,new ViewModelFactory()).get(CollaborationViewModel.class);
-
-
-
 
 
     }
@@ -738,6 +761,169 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
         return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
     }
+
+    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
+        resetUI4AllMode();
+        switch (annotationMode){
+            case BIG_DATA:
+                showCommonUI();
+                showUI4BigDataMode();
+                break;
+            case NONE:
+                Log.e(TAG,"Default UI");
+                break;
+            default:
+                ToastEasy("Something wrong with annotation mode !");
+        }
+    }
+
+    private void resetUI4AllMode(){
+        hideUI4BigDataMode();
+        hideCommonUI();
+    }
+
+    private void hideUI4BigDataMode(){
+        if (bigDataModeView != null){
+            bigDataModeView.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideCommonUI(){
+        if (commonView != null){
+            commonView.setVisibility(View.GONE);
+        }
+    }
+
+    private void showUI4BigDataMode(){
+        if (bigDataModeView == null){
+            // load layout view
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_collaborate_mode, null);
+            this.addContentView(bigDataModeView, lp4BigDataMode);
+
+        } else {
+            bigDataModeView.setVisibility(View.VISIBLE);
+        }
+    }
+    private void showCommonUI(){
+        if (commonView == null){
+            // load layout view
+            LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
+                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
+            this.addContentView(commonView, lpCommon);
+
+            editModeIndicator = findViewById(R.id.edit_mode_indicator);
+            tapBarMenu = findViewById(R.id.tapBarMenu);
+            addCurve = tapBarMenu.findViewById(R.id.draw_i);
+            addMarker = tapBarMenu.findViewById(R.id.pinpoint);
+            deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
+            deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
+            BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
+
+            tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
+            addCurve.setOnClickListener(this::onMenuItemClick);
+            addMarker.setOnClickListener(this::onMenuItemClick);
+            deleteCurve.setOnClickListener(this::onMenuItemClick);
+            deleteMarker.setOnClickListener(this::onMenuItemClick);
+
+            addCurve.setOnLongClickListener(this::onMenuItemLongClick);
+            addMarker.setOnLongClickListener(this::onMenuItemLongClick);
+
+            // All is lambda expression
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
+                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
+                    .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
+                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+
+        } else {
+            commonView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @SuppressLint("NonConstantResourceId")
+    private void onMenuItemClick(View view) {
+        // resetUI
+        addCurve.setImageResource(R.drawable.ic_draw_main);
+        addMarker.setImageResource(R.drawable.ic_marker_main);
+        deleteCurve.setImageResource(R.drawable.ic_delete_curve_normal);
+        deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+
+        switch (view.getId()) {
+            case R.id.draw_i:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
+                    addCurve.setImageResource(R.drawable.ic_draw);
+                }
+                break;
+            case R.id.pinpoint:
+                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
+                    addMarker.setImageResource(R.drawable.ic_add_marker);
+                }
+                break;
+            case R.id.delete_curve:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
+                    deleteCurve.setImageResource(R.drawable.ic_delete_curve);
+                }
+                break;
+            case R.id.delete_marker:
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
+                    deleteMarker.setImageResource(R.drawable.ic_marker_delete);
+                }
+                break;
+        }
+    }
+    @SuppressLint("NonConstantResourceId")
+    private boolean onMenuItemLongClick(View view){
+        switch (view.getId()){
+            case R.id.draw_i:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.draw_i)
+                        .setDialogTitle(R.string.curve_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            case R.id.pinpoint:
+                ColorPickerDialog.newBuilder()
+                        .setShowColorShades(false)
+                        .setAllowCustom(false)
+                        .setDialogId(R.id.pinpoint)
+                        .setDialogTitle(R.string.marker_map_title)
+                        .setColor(ContextCompat.getColor(this,
+                                ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType())))
+                        .setPresets(getResources().getIntArray(R.array.colorMap))
+                        .setSelectedButtonText(R.string.color_selector_confirm)
+                        .show(this);
+                return true;
+            default:
+                return false;
+        }
+    }
+
+
+
 
 
 
