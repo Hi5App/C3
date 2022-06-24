@@ -15,12 +15,13 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -40,14 +41,11 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.msg.MsgServiceObserve;
 import com.netease.nimlib.sdk.msg.SystemMessageObserver;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
-import com.netease.nimlib.sdk.uinfo.UserService;
-import com.netease.nimlib.sdk.uinfo.model.NimUserInfo;
 import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
@@ -65,15 +63,11 @@ import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
-import com.penglab.hi5.core.game.LeaderBoardContainer;
-import com.penglab.hi5.core.game.LeaderBoardItem;
-import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.annotation.EditMode;
-import com.penglab.hi5.data.dataStore.SettingFileManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,8 +76,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import cn.carbs.android.library.MDDialog;
 
 /**
  * Created by Jackiexing on 05/17/21
@@ -310,17 +302,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SET_BUTTONS_BIGDATA:
-                    setButtonsBigData();
-                    showButtonsOnFile();
-                    if (isBigData_Local){
-                        String filename = SettingFileManager.getFilename_Local(context);
-                        String offset = SettingFileManager.getoffset_Local(context, filename);
-
-                        String offset_x = offset.split("_")[0];
-                        String offset_y = offset.split("_")[1];
-                        String offset_z = offset.split("_")[2];
-                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-                    }
+//                    setButtonsBigData();
+//                    showButtonsOnFile();
+//                    if (isBigData_Local){
+//                        String filename = SettingFileManager.getFilename_Local(context);
+//                        String offset = SettingFileManager.getoffset_Local(context, filename);
+//
+//                        String offset_x = offset.split("_")[0];
+//                        String offset_y = offset.split("_")[1];
+//                        String offset_z = offset.split("_")[2];
+//                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
+//                    }
                     break;
 
                 case HANDLER_NETWORK_TIME_OUT:
@@ -328,7 +320,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SET_FILENAME_BIGDATA:
-                    setFileName(Communicator.BrainNum);
+//                    setFileName(Communicator.BrainNum);
                     break;
 
                 case HANDLER_TOAST_INFO_STATIC:
@@ -337,7 +329,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SHOW_PROGRESSBAR:
-                    progressBar.setVisibility(View.GONE);
+//                    progressBar.setVisibility(View.GONE);
                     break;
 
 
@@ -363,9 +355,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collaboration);
 
+        annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
         Toolbar toolbar = findViewById(R.id.toolbar_collaboration);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
@@ -502,7 +496,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                     Communicator.BrainNum = conPath.split("/")[1];
                                     switch (text){
                                         case "create a new Room":
-                                            CreateFile(conPath + "/" + fileName[0],"0");
+                                            createFile(conPath + "/" + fileName[0],"0");
                                             break;
                                         default:
                                             loadFileMode(conPath + "/" + text);
@@ -527,6 +521,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .show();
         }
     }
+
     private void loadFileMode(String filepath){
         String[] list = filepath.split("/");
         ServerConnector serverConnector = ServerConnector.getInstance();
@@ -542,7 +537,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
      * @param oldname oldname of file
      * @param mode work mode
      */
-    private void CreateFile(String oldname, String mode){
+    private void createFile(String oldname, String mode){
         new XPopup.Builder(this)
                 .asInputConfirm("CreateRoom", "Input the name of the new Room",
                         new OnInputConfirmListener() {
@@ -595,7 +590,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
-        serverConnector.setPort("23763");
+        serverConnector.setPort("26000");
         serverConnector.initConnection();
 
     }
@@ -650,6 +645,18 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         registerSystemMessageObservers(true);
     }
 
+    /**
+     * load Big Data
+     */
+    private void loadBigData(){
+        conPath = "";
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
+            }
+        }).start();
+    }
 
     /**
      * 注册/注销系统消息未读数变化
@@ -969,15 +976,68 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.annotation_menu_basic, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            case R.id.undo:
+                annotationGLSurfaceView.undo();
+                return true;
+
+            case R.id.redo:
+                annotationGLSurfaceView.redo();
+                return true;
+
+            case R.id.file:
+                openFile();
+                return true;
+
+            case R.id.share:
+                annotationGLSurfaceView.screenCapture();
+                return true;
+
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 
 
 
+    private void openFile(){
+        new XPopup.Builder(this)
+                .asCenterList("File Open", new String[]{"Open BigData"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String item) {
+                                switch (item) {
+                                    case "Open BigData":
+                                        loadBigData();
+                                        break;
+                                    default:
+                                        ToastEasy("Something wrong in function openFile !");
+                                }
+                            }
+                        })
+                .show();
+    }
 
-
-
-
-
-
+    public static void start(Context context){
+        Intent intent = new Intent(context, CollaborationActivity.class);
+        context.startActivity(intent);
+    }
 
 }
