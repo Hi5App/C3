@@ -12,7 +12,7 @@ import okhttp3.RequestBody;
  */
 public class HttpUtilsCollaborate extends HttpUtils{
     private static final String URL_GET_IMAGES = SERVER_IP + "/dynamic/collaborate/getanoimage";
-    private static final String URL_GET_NEURONS = SERVER_IP + "/dynamic/collaborate/genanoneuron";
+    private static final String URL_GET_NEURONS = SERVER_IP + "/dynamic/collaborate/getanoneuron";
     private static final String URL_GET_ANOS = SERVER_IP + "/dynamic/collaborate/getano";
     private static final String URL_LOAD_ANO = SERVER_IP + "/dynamic/collaborate/inheritother";
 
@@ -29,7 +29,7 @@ public class HttpUtilsCollaborate extends HttpUtils{
         }
     }
 
-    public static void getNeuronsWithOkHttp(JSONObject userInfo,JSONObject brianList,Callback callback) {
+    public static void getNeuronsWithOkHttp(JSONObject userInfo,String brianList,Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("image", brianList)

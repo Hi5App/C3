@@ -32,7 +32,7 @@ public class AnnotationViewModel extends ViewModel {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
     }
 
-    public enum AnnotationMode{
+    public enum AnnotationMode {
         LOCAL_FILE_EDITABLE, LOCAL_FILE_UNEDITABLE, BIG_DATA, NONE
     }
 

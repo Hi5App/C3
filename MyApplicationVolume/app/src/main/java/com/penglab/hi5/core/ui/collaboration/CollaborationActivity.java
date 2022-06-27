@@ -65,13 +65,18 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.annotation.EditMode;
+import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -122,17 +127,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     static Timer timerSync;
     private Timer timer = null;
     private TimerTask timerTask;
+    private Toolbar toolbar;
 
+    private List<String> neuronNumberList = new ArrayList<>();
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-
-
     @Override
     public void onRecMessage(String msg) {
-        if (msg.startsWith("TestSocketConnection")){
+        if (msg.startsWith("TestSocketConnection")) {
             //ServerConnector.getInstance().sendMsg("HeartBeat");
-        }else {
+        } else {
             Log.e(TAG,"onRecMessage()  " + msg);
 //            Logcat.w("onRecMessage", msg);
         }
@@ -140,7 +145,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         /*
         select file
          */
-        if (msg.startsWith("GETFILELIST:")){
+        if (msg.startsWith("GETFILELIST:")) {
             LoadFiles(msg.split(":")[1]);
         }
 
@@ -149,7 +154,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number
          */
-        if (msg.startsWith("Port:")){
+        if (msg.startsWith("Port:")) {
 
             if (msg.split(":")[1].equals("-1")){
                 Toast_in_Thread("Something wrong with this img, choose other img please !");
@@ -201,13 +206,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("/drawline_norm:")){
+        if (msg.startsWith("/drawline_norm:")) {
             Log.e(TAG,"drawline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg      = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
@@ -215,7 +220,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
 
 
-        if (msg.startsWith("/delline_norm:")){
+        if (msg.startsWith("/delline_norm:")) {
             Log.e(TAG,"delline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
@@ -228,20 +233,20 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         }
 
-        if (msg.startsWith("/addmarker_norm:")){
+        if (msg.startsWith("/addmarker_norm:")) {
             Log.e(TAG,"addmarker_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String marker      = msg.split(":")[1].split(";")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncAddMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
             }
         }
 
-        if (msg.startsWith("/delmarker_norm:")){
+        if (msg.startsWith("/delmarker_norm:")) {
             Log.e(TAG,"delmarker_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
@@ -254,7 +259,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         }
 
-        if (msg.startsWith("/retypeline_norm:")){
+        if (msg.startsWith("/retypeline_norm:")) {
             Log.e(TAG,"retypeline_norm");
 
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
@@ -266,9 +271,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 annotationGLSurfaceView.requestRender();
             }
         }
+
+        if(msg.startsWith("/STARTCOLLABORATE:")) {
+            Log.e(TAG,"EMIT LOAD ANO");
+        }
     }
 
-    public static void Toast_in_Thread_static(String message){
+    public static void Toast_in_Thread_static(String message) {
         Message msg = new Message();
         msg.what = HANDLER_TOAST_INFO_STATIC;
         Bundle bundle = new Bundle();
@@ -283,7 +292,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
     @SuppressLint("HandlerLeak")
-    private static Handler puiHandler = new Handler(){
+    private static Handler puiHandler = new Handler() {
         // 覆写这个方法，接收并处理消息。
         @Override
         public void handleMessage(Message msg) {
@@ -304,7 +313,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 case HANDLER_SET_BUTTONS_BIGDATA:
 //                    setButtonsBigData();
 //                    showButtonsOnFile();
-//                    if (isBigData_Local){
+//                    if (isBigData_Local) {
 //                        String filename = SettingFileManager.getFilename_Local(context);
 //                        String offset = SettingFileManager.getoffset_Local(context, filename);
 //
@@ -348,15 +357,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     };
 
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collaboration);
 
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
-        Toolbar toolbar = findViewById(R.id.toolbar_collaboration);
+        toolbar = findViewById(R.id.toolbar_collaboration);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
@@ -375,6 +382,99 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         initService();
         initServerConnector();
 
+        collaborationViewModel.getAnnotationMode().observe(this, new androidx.lifecycle.Observer<CollaborationViewModel.AnnotationMode>() {
+            @Override
+            public void onChanged(CollaborationViewModel.AnnotationMode annotationMode) {
+                if(annotationMode == null ) {
+                    return;
+                }
+                updateUI(annotationMode);
+                updateOptionsMenu(annotationMode);
+            }
+        });
+
+        collaborationViewModel.getCollorationDataSource().getBrainListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if(result instanceof Result.Success){
+                    String[] data = (String[]) ((Result.Success<?>) result).getData();
+                    Set<String> set=new HashSet<String>(Arrays.asList(data));
+                    String[] listShow = set.toArray(new String[set.size()]);
+                    new XPopup.Builder(CollaborationActivity.this).
+                            maxHeight(1350).
+                            maxWidth(800).
+                            asCenterList("Brain Number",
+                                    listShow, new OnSelectListener() {
+                                        @Override
+                                        public void onSelect(int position, String text) {
+                                            ToastEasy("Click"+text);
+                                            collaborationViewModel.handleBrainNumber(text.trim());
+                                        }
+                                    }).show();
+                } else if(result instanceof Result.Error){
+                    ToastEasy(result.toString());
+                }
+
+            }
+
+
+        });
+
+        collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+//                collaborationViewModel.handleNeuronListResult(result);
+                if (result instanceof Result.Success) {
+                    List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
+                    for(int i = 0; i<potentialDownloadNeuronInfoList.size();i++){
+                        CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
+                        neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
+                        String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
+                        new XPopup.Builder(CollaborationActivity.this).
+                                maxHeight(1350).
+                                maxWidth(800).
+                                asCenterList("Neuron Number",
+                                        neuronNumberListShow, new OnSelectListener() {
+                                            @Override
+                                            public void onSelect(int position, String text) {
+                                                ToastEasy("Click"+text);
+                                                collaborationViewModel.handleBrainNumber(text.trim());
+                                            }
+                                        }).show();
+
+                    }
+
+//                    if (data instanceof CollaborateNeuronInfo) {
+//                        potentialDownloadNeuronInfo = (CollaborateNeuronInfo) data;
+//
+//                        downloadCoordinateConvert.initLocation(potentialDownloadNeuronInfo.getLocation());
+//                        if (resMap.isEmpty()) {
+//                            getBrainList();
+//                        } else {
+//                            downloadImage();
+//                        }
+//                    }
+                } else {
+                    ToastEasy(result.toString());
+                }
+
+
+            }
+        });
+
+        collaborationViewModel.getCollorationDataSource().getAnoListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                collaborationViewModel.handleAnoResult(result);
+            }
+        });
+
+        collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                collaborationViewModel.handleLoadAnoResult(result);
+            }
+        });
 
     }
 
@@ -451,28 +551,27 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
 
-    private void LoadFiles(String FileList){
+    private void LoadFiles(String FileList) {
         List<String> list_array = new ArrayList<>();
         String[] list = FileList.split(";;");
 
         boolean isFile = false;
         String[] fileName = new String[1];
 
-        for (int i = 0; i < list.length; i++){
+        for (int i = 0; i < list.length; i++) {
             if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
                     || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
                 continue;
 
-            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])){
+            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])) {
                 fileName[0] = list[i].split(" ")[0];
                 isFile = true;
                 continue;
             }
-
             list_array.add(list[i].split(" ")[0]);
         }
 
-        if (isFile){
+        if (isFile) {
             list_array.add(0, "Create A New Room");
         }
 
@@ -522,7 +621,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
-    private void loadFileMode(String filepath){
+    private void loadFileMode(String filepath) {
         String[] list = filepath.split("/");
         ServerConnector serverConnector = ServerConnector.getInstance();
         serverConnector.sendMsg("LOADFILES:2 " + filepath);
@@ -544,7 +643,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                             @Override
                             public void onConfirm(String text) {
                                 ServerConnector serverConnector = ServerConnector.getInstance();
-                                switch (mode){
+                                switch (mode) {
                                     case "0":
                                         Communicator.getInstance().setPath(conPath + "/" + text);
                                         serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
@@ -563,19 +662,19 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 .show();
     }
 
-    private void initService(){
+    private void initService() {
         // Bind to ManageService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgService(){
+    private void initMsgService() {
         // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
 
-    private void initMsgConnector(String port){
+    private void initMsgConnector(String port) {
         MsgConnector msgConnector = MsgConnector.getInstance();
 
         if (!firstJoinRoom)
@@ -586,7 +685,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
 
-    private void initServerConnector(){
+    private void initServerConnector() {
         ServerConnector serverConnector = ServerConnector.getInstance();
 
         serverConnector.setIp(ip_TencentCloud);
@@ -648,15 +747,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     /**
      * load Big Data
      */
-    private void loadBigData(){
-        conPath = "";
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
-            }
-        }).start();
-    }
+//    private void loadBigData(){
+//        conPath = "";
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//
+//                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
+//
+//            }
+//        }).start();
+//    }
 
     /**
      * 注册/注销系统消息未读数变化
@@ -708,9 +809,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     };
 
-
-
-    private static void invitePopup(Context context, String invitor, String path, String soma){
+    private static void invitePopup(Context context, String invitor, String path, String soma) {
         Log.d(TAG, "invitePopup: " + invitor + " " + path + " " + soma);
         String[] list = path.split("/");
         String roomName = list[list.length - 1];
@@ -745,7 +844,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
 
-    private static void acceptInvitation(String path, String soma){
+    private static void acceptInvitation(String path, String soma) {
 
         String[] list = path.split("/");
         String roomName = list[list.length - 1];
@@ -761,7 +860,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         serverConnector.sendMsg("LOADFILES:2 " + path);
         serverConnector.setRoomName(roomName);
     }
-    private void showUserList(){
+
+    private void showUserList() {
         String [] userList = (String[]) MsgConnector.userList.toArray();
         String [] list = new String[ userList.length + 1 ];
         list[ userList.length ] = "invite friend to join...";
@@ -784,7 +884,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
 
 
-    private void updateUserList(List<String> newUserList){
+    private void updateUserList(List<String> newUserList) {
 
         for (int i = 0; i < newUserList.size(); i++){
             if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
@@ -801,54 +901,40 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         MsgConnector.userList = newUserList;
     }
 
-    private boolean isTopActivity(){
+    private boolean isTopActivity() {
         ActivityManager manager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         List<ActivityManager.RunningTaskInfo> runningTaskInfos = manager.getRunningTasks(1);
         String cmpNameTemp = null;
-        if(runningTaskInfos != null){
+        if(runningTaskInfos != null) {
             cmpNameTemp = runningTaskInfos.get(0).topActivity.toString();
         }
-        if(cmpNameTemp == null){
+        if(cmpNameTemp == null) {
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
         return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
     }
 
-    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
-        resetUI4AllMode();
-        switch (annotationMode){
-            case BIG_DATA:
-                showCommonUI();
-                showUI4BigDataMode();
-                break;
-            case NONE:
-                Log.e(TAG,"Default UI");
-                break;
-            default:
-                ToastEasy("Something wrong with annotation mode !");
-        }
-    }
 
-    private void resetUI4AllMode(){
+    private void resetUI4AllMode() {
         hideUI4BigDataMode();
         hideCommonUI();
     }
 
-    private void hideUI4BigDataMode(){
+    private void hideUI4BigDataMode() {
         if (bigDataModeView != null){
             bigDataModeView.setVisibility(View.GONE);
         }
     }
 
-    private void hideCommonUI(){
+    private void hideCommonUI() {
         if (commonView != null){
             commonView.setVisibility(View.GONE);
         }
     }
 
-    private void showUI4BigDataMode(){
-        if (bigDataModeView == null){
+    private void showUI4BigDataMode() {
+        if (bigDataModeView == null) {
             // load layout view
             LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -859,8 +945,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             bigDataModeView.setVisibility(View.VISIBLE);
         }
     }
-    private void showCommonUI(){
-        if (commonView == null){
+
+    private void showCommonUI() {
+        if (commonView == null) {
             // load layout view
             LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -943,8 +1030,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 break;
         }
     }
+
     @SuppressLint("NonConstantResourceId")
-    private boolean onMenuItemLongClick(View view){
+    private boolean onMenuItemLongClick(View view) {
         switch (view.getId()){
             case R.id.draw_i:
                 ColorPickerDialog.newBuilder()
@@ -972,6 +1060,33 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private void updateUI(CollaborationViewModel.AnnotationMode annotationMode) {
+        resetUI4AllMode();
+        switch (annotationMode) {
+            case BIG_DATA:
+                showCommonUI();
+                showUI4BigDataMode();
+                break;
+            case NONE:
+                Log.e(TAG,"Default UI");
+                break;
+            default:
+                ToastEasy("Something wrong with annotation mode !");
+        }
+    }
+
+    private void updateOptionsMenu(CollaborationViewModel.AnnotationMode annotationMode) {
+        toolbar.getMenu().clear();
+        switch (annotationMode) {
+            case NONE:
+                toolbar.inflateMenu(R.menu.annotation_menu_basic);
+                break;
+            case BIG_DATA:
+                toolbar.inflateMenu(R.menu.annotation_menu_editable_file);
+                break;
         }
     }
 
@@ -1017,15 +1132,16 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
 
 
-    private void openFile(){
+    private void openFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData"},
                         new OnSelectListener() {
                             @Override
-                            public void onSelect(int position, String item) {
+                            public void onSelect (int position, String item) {
                                 switch (item) {
                                     case "Open BigData":
-                                        loadBigData();
+                                        collaborationViewModel.getImageList();
+//                                        loadBigData();
                                         break;
                                     default:
                                         ToastEasy("Something wrong in function openFile !");
@@ -1035,7 +1151,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 .show();
     }
 
-    public static void start(Context context){
+    public static void start(Context context) {
         Intent intent = new Intent(context, CollaborationActivity.class);
         context.startActivity(intent);
     }
