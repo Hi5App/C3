@@ -125,8 +125,8 @@ public class CollorationDataSource {
                             List<CollaborateNeuronInfo> neuronList = new ArrayList<>();
                             for (int i=0; i<neuronNameArray.length(); i++){
                                 JSONObject neuronInfo = neuronNameArray.getJSONObject(i);
-                                neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("name"),
-                                neuronInfo.getString("imageid"),
+                                neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("imageid"),
+                                neuronInfo.getString("name"),
                                         new XYZ ((float)neuronInfo.getDouble("x"),
                                         (float)neuronInfo.getDouble("y"),
                                         (float)neuronInfo.getDouble("z"))));
@@ -158,97 +158,101 @@ public class CollorationDataSource {
         }
     }
 
-//    public void getAno(int brain,int neuron,String userName) {
-//        try {
-//            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-//            HttpUtilsCollaborate.getAnoWithOkHttp(userInfo, arborId, new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    anoListResult.postValue(new Result.Error(new Exception("Connect failed when update arbor result !")));
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    Log.e(TAG, "responseCode" + response.code());
-//                    int responseCode = response.code();
-//                    responseData = response.body().string();
-//                    if (responseCode == 200) {
-//                        Log.e(TAG, "response queryArborResult: " + responseData);
-//                        // process response
-//                        try {
-//
-//                            JSONArray anoNameArray = new JSONArray(responseData);
-//                            anoListResult.postValue(new Result.Success<JSONArray>(anoNameArray));
-//                        } catch (Exception exception) {
-//                            exception.printStackTrace();
-//                            anoListResult.postValue(new Result.Error(new Exception("Fail to parse query arbor result !")));
-//                        }
-//                        response.body().close();
-//                        response.close();
-//                    } else if (responseCode == 502) {
-//                        responseData = response.body().string();
-//                        if (responseData.trim().equals("Empty")) {
-//                            Log.e(TAG, "get Empty response");
-//                            anoListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
-//                        }
-//                    } else {
-//                        Log.e(TAG, "response update arbor result: " + response.body().string());
-//                        anoListResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
-//                    }
-//                }
-//            });
-//
-//        } catch (Exception e) {
-//            anoListResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
-//            e.printStackTrace();
-//        }
-//    }
+    public void getAno(String neuronNum) {
+        try {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsCollaborate.getAnoWithOkHttp(userInfo, neuronNum, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    anoListResult.postValue(new Result.Error(new Exception("Connect failed when update get ano result !")));
+                }
 
-//    public void loadAno(int brain,int neuron,int ano,String userName) {
-//
-//        try {
-//            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-//            HttpUtilsCollaborate.loadAnoWithOkHttp(userInfo, arborId, new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    downloadAnoResult.postValue(new Result.Error(new Exception("Connect failed when update arbor result !")));
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    Log.e(TAG, "responseCode" + response.code());
-//                    int responseCode = response.code();
-//                    responseData = response.body().string();
-//                    if (responseCode == 200) {
-//                        Log.e(TAG, "response queryArborResult: " + responseData);
-//                        // process response
-//                        try {
-//                            JSONObject downloadAnoObject = new JSONObject(responseData);
-//                            downloadAnoResult.postValue(new Result.Success<JSONObject>(downloadAnoObject));
-//                        } catch (Exception exception) {
-//                            exception.printStackTrace();
-//                            downloadAnoResult.postValue(new Result.Error(new Exception("Fail to parse query arbor result !")));
-//                        }
-//                        response.body().close();
-//                        response.close();
-//                    } else if (responseCode == 502) {
-//                        responseData = response.body().string();
-//                        if (responseData.trim().equals("Empty")) {
-//                            Log.e(TAG, "get Empty response");
-//                            downloadAnoResult.postValue(new Result.Success<String>(NO_MORE_FILE));
-//                        }
-//                    } else {
-//                        Log.e(TAG, "response update arbor result: " + response.body().string());
-//                        downloadAnoResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
-//                    }
-//                }
-//            });
-//
-//        } catch (Exception e) {
-//            downloadAnoResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
-//            e.printStackTrace();
-//        }
-//    }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.e(TAG, "responseCode" + response.code());
+                    int responseCode = response.code();
+                    responseData = response.body().string();
+                    if (responseCode == 200) {
+                        Log.e(TAG, "response getAnoResult: " + responseData);
+                        // process response
+                        try {
+                            JSONArray anoNameArray = new JSONArray(responseData);
+                            List<String> anoNameList = new ArrayList<String>();
+                            for(int i =0;i<anoNameArray.length();i++){
+                                JSONObject anoInfo = anoNameArray.getJSONObject(i);
+                                anoNameList.add(anoInfo.getString("name"));
+                            }
+                            anoListResult.postValue(new Result.Success<List<String>>(anoNameList));
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                            anoListResult.postValue(new Result.Error(new Exception("Fail to parse anolist result !")));
+                        }
+                        response.body().close();
+                        response.close();
+                    } else if (responseCode == 502) {
+                        responseData = response.body().string();
+                        if (responseData.trim().equals("Empty")) {
+                            Log.e(TAG, "get Empty response");
+                            anoListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
+                        }
+                    } else {
+                        Log.e(TAG, "response update arbor result: " + response.body().string());
+                        anoListResult.postValue(new Result.Error(new Exception("Fail to get ano list !")));
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            anoListResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
+            e.printStackTrace();
+        }
+    }
+
+    public void loadAno(String brainNumber,String neuronNumber,String ano) {
+
+        try {
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsCollaborate.loadAnoWithOkHttp(userInfo,brainNumber,neuronNumber,ano, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    downloadAnoResult.postValue(new Result.Error(new Exception("Connect failed when update arbor result !")));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.e(TAG, "responseCode" + response.code());
+                    int responseCode = response.code();
+                    responseData = response.body().string();
+                    if (responseCode == 200) {
+                        Log.e(TAG, "response loadano: " + responseData);
+                        // process response
+                        try {
+                            JSONObject loadAnoArray = new JSONObject(responseData);
+                            downloadAnoResult.postValue(new Result.Success<JSONObject>(loadAnoArray));
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                            downloadAnoResult.postValue(new Result.Error(new Exception("Fail to parse query arbor result !")));
+                        }
+                        response.body().close();
+                        response.close();
+                    } else if (responseCode == 502) {
+                        responseData = response.body().string();
+                        if (responseData.trim().equals("Empty")) {
+                            Log.e(TAG, "get Empty response");
+                            downloadAnoResult.postValue(new Result.Success<String>(NO_MORE_FILE));
+                        }
+                    } else {
+                        Log.e(TAG, "response update arbor result: " + response.body().string());
+                        downloadAnoResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            downloadAnoResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
+            e.printStackTrace();
+        }
+    }
 
 
 

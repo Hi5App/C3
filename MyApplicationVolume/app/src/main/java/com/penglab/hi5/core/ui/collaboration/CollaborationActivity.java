@@ -438,22 +438,16 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                             @Override
                                             public void onSelect(int position, String text) {
                                                 ToastEasy("Click"+text);
-                                                collaborationViewModel.handleBrainNumber(text.trim());
+                                                collaborationViewModel.handleNeuronNumber(text.trim());
+//                                                Log.e("PotentialDownloadNeuronInfoList",""+potentialDownloadNeuronInfoList.get(position));
+//                                                collaborationViewModel.handleNeuronNumber(potentialDownloadNeuronInfoList.get(position));
+
+
                                             }
                                         }).show();
 
                     }
 
-//                    if (data instanceof CollaborateNeuronInfo) {
-//                        potentialDownloadNeuronInfo = (CollaborateNeuronInfo) data;
-//
-//                        downloadCoordinateConvert.initLocation(potentialDownloadNeuronInfo.getLocation());
-//                        if (resMap.isEmpty()) {
-//                            getBrainList();
-//                        } else {
-//                            downloadImage();
-//                        }
-//                    }
                 } else {
                     ToastEasy(result.toString());
                 }
@@ -465,7 +459,28 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.getCollorationDataSource().getAnoListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-                collaborationViewModel.handleAnoResult(result);
+                if (result instanceof Result.Success){
+                    List<String>data = (List<String>) ((Result.Success<?>) result).getData();
+                    String[] str = new String[data.size()];
+                    String[] anoListShow = data.toArray(str);
+                    new XPopup.Builder(CollaborationActivity.this).
+                            maxHeight(1350).
+                            maxWidth(800).
+                            asCenterList("Ano Number",
+                                    anoListShow, new OnSelectListener() {
+                                        @Override
+                                        public void onSelect(int position, String text) {
+                                            ToastEasy("Click"+text);
+                                            collaborationViewModel.handleAnoResult(text.trim());
+//                                            collaborationViewModel.handleBrainNumber(text.trim());
+                                        }
+                                    }).show();
+                } else if(result instanceof Result.Error){
+                    ToastEasy(result.toString());
+                }
+//                collaborationViewModel.handleAnoResult(result);
+
+
             }
         });
 

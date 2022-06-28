@@ -40,7 +40,7 @@ public class HttpUtilsCollaborate extends HttpUtils{
         }
     }
 
-    public static void getAnoWithOkHttp(JSONObject userInfo,JSONObject neuron,Callback callback) {
+    public static void getAnoWithOkHttp(JSONObject userInfo,String neuron,Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("neuron", neuron)
@@ -51,7 +51,7 @@ public class HttpUtilsCollaborate extends HttpUtils{
         }
     }
 
-    public static void loadAnoWithOkHttp(JSONObject userInfo,JSONObject brainList,JSONObject neuron,JSONObject ano,Callback callback) {
+    public static void loadAnoWithOkHttp(JSONObject userInfo,String brainList,String neuron,String ano,Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("image",brainList)

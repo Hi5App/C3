@@ -33,16 +33,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import io.agora.rtc.internal.RtcEngineMessage;
+
 public class CollaborationViewModel extends ViewModel {
     private final String TAG = "CollaborationViewModel";
-
-    private MutableLiveData<Integer> portNum = new MutableLiveData<>();
-    private MutableLiveData<Integer> ano = new MutableLiveData<>();
-
-
-    private Context mainContext;
-
-
     private final int DEFAULT_IMAGE_SIZE = 128;
     private final int DEFAULT_RES_INDEX = 2;
     private boolean isDownloading = false;
@@ -91,58 +85,47 @@ public class CollaborationViewModel extends ViewModel {
         getNeuronList(brainNumber);
     }
 
+//    public void handleNeuronNumber(CollaborateNeuronInfo collaborateNeuronInfo) {
+//
+//        Log.e(TAG,"handleNeuronNumber"+collaborateNeuronInfo);
+//        potentialDownloadNeuronInfo.setNeuronNumber(collaborateNeuronInfo.getNeuronName());
+//        downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
+//
+//
+//
+////        if (resMap.isEmpty()) {
+////            getBrainList();
+////        } else {
+////            downloadImage();
+////        }
+//
+//    }
+    public void handleNeuronNumber(String neuronNumber) {
+        potentialDownloadNeuronInfo.setNeuronNumber(neuronNumber);
+        getAno(neuronNumber);
+    }
+
     public LiveData<CollaborationViewModel.AnnotationMode> getAnnotationMode() {
         return annotationMode;
     }
 
 
-    public void handleNeuronListResult(Result result){
-        if (result instanceof Result.Success) {
-            Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof CollaborateNeuronInfo) {
-                potentialDownloadNeuronInfo = (CollaborateNeuronInfo) data;
-
-                downloadCoordinateConvert.initLocation(potentialDownloadNeuronInfo.getLocation());
-                if (resMap.isEmpty()) {
-                    getBrainList();
-                } else {
-                    downloadImage();
-                }
-            }
-        } else {
-            ToastEasy(result.toString());
-        }
-
-    }
-
-    public void handleAnoResult(Result result){
-        if (result instanceof Result.Success) {
-            Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof JSONObject) {
-                JSONObject neuronListResult = (JSONObject) data;
-                try {
-
-
-
-                } catch (Exception e) {
-                    ToastEasy("Fail to parse jsonArray when get user performance !");
-                }
-            }
-        } else {
-            ToastEasy(result.toString());
-        }
-
-
+    public void handleAnoResult(String anoName){
+        getDownloadAno(anoName);
     }
 
     public void handleLoadAnoResult (Result result){
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
+            Log.e(TAG,"handleloadanoresult"+data);
             if (data instanceof JSONObject) {
-                JSONObject neuronListResult = (JSONObject) data;
+                JSONObject loadAnoResult = (JSONObject) data;
+
                 try {
-                    portNum.postValue(neuronListResult.getInt("port"));
-                    ano.postValue(neuronListResult.getInt("ano"));
+                   String anoName= loadAnoResult.getString("ano");
+                   Log.e("anoName",""+anoName);
+                    String port= loadAnoResult.getString("port");
+                    Log.e("anoName",""+anoName);
 
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
@@ -161,6 +144,18 @@ public class CollaborationViewModel extends ViewModel {
 
     public void getNeuronList(String brainNumber) {
         collorationDataSource.getNeuron(brainNumber);
+    }
+
+    public void getAno(String neuronNumber) {
+        collorationDataSource.getAno(neuronNumber);
+    }
+
+    public void getDownloadAno(String anoName) {
+        String brainName = potentialDownloadNeuronInfo.getBrainName();
+        String neuronName = potentialDownloadNeuronInfo.getNeuronName();
+        Log.e("brainName",brainName);
+        Log.e("neuronName",neuronName);
+        collorationDataSource.loadAno(brainName,neuronName,anoName);
     }
 
     private void getBrainList() {
