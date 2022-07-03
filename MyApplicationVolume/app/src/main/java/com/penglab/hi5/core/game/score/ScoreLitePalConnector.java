@@ -1,18 +1,16 @@
 package com.penglab.hi5.core.game.score;
 
-import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
-
-import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 
-import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.data.dataStore.database.User;
 
 import org.litepal.LitePal;
 
 import java.util.List;
+
+import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
 
 /**
  * Created by Yihang zhu 12/29/21
@@ -156,7 +154,7 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setToDefault("editImageNumToday");
             user.setEditImageNumToday(0);
-            user.updateAll("userid=?",userid);
+            user.updateAll("userid = ?",userid);
         }else {
             Toast_in_Thread_static("Something wrong with database !");
             return false;
@@ -179,7 +177,7 @@ public class ScoreLitePalConnector {
             User user = new User();
             user.setToDefault("somaNumToday");
             user.setSomaNumToday(0);
-            user.updateAll("userid =?",userid);
+            user.updateAll("userid = ?",userid);
         }else{
             Toast_in_Thread_static("Something Wrong with database !");
             return false;

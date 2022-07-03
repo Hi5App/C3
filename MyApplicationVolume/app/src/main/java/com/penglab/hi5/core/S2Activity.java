@@ -139,6 +139,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private Timer timer = null;
     private TimerTask timerTask;
 
+
+    private Timer updateimgTimer = null;
+
+
+    int runCount = 0;// 全局变量，用于判断是否是第一次执行
+    Handler handlerCount = new Handler();
+
+
     private static Bitmap bitmap2D = null;
     private static MyGLSurfaceView myS2GLSurfaceView;
     private static MyRenderer myS2renderer;
@@ -146,6 +154,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     //ServerConnector ServerConnectorForScope;
 
     private String filepath = "";
+    private  ArrayList<String> msgqueue ;
+
     private boolean ifZooming = false;
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
@@ -166,9 +176,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifAnimation = false;
     private boolean ifSettingROI = false;
     private boolean isforceupdate = false;
+    private boolean ifsendmsgbyqueue = false;
 
+    private boolean ifresendmdg = false;
     private boolean iffirstlogin = true;
     private boolean ifloadtagstraem = false;
+    private int heartbeatnum=0;
+    private int countwaitnum=0;
 
 
     private static boolean isZscanSeries = false;
@@ -304,6 +318,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String s2filename = "";
     private static String s2EswcPath = "";
     private String S2CheckImgpath = "";
+    private String S2LastImgName = "";
     private String S2Password = "";
     private String S2loadlogstream = "";
 
@@ -333,6 +348,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String conPath = "";
     private static String s2checkimgtype = "";
     private static String s2lastmsgforimg = "";
+    private static String s2currentmsgforimg = "";
 
     private static String data_tag = "";
 
@@ -355,16 +371,48 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         if (msg.startsWith("TestSocketConnection")) {
-            ServerConnector.getInstance().sendMsg("HeartBeat");
+            //ServerConnector.getInstance().sendMsg("HeartBeat");
         } else {
             Log.e(TAG, "onRecMessage()  " + msg);
 
-            PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-            String account = preferenceLogin.getUsername();
-            Log.v(TAG, "account: " + account );
-            ServerConnector.getInstance().sendMsg("ID:"+account);
         }
 
+        if (msg.startsWith("Done:")) {
+
+
+            if(!ifsendmsgbyqueue)
+            {
+                return;
+            }
+
+            String msghead=msg.split(":")[1];
+            if(!msgqueue.isEmpty())
+            {
+//                if(msgqueue.get(0).split(":")[0].equals(msghead))
+//                {
+//                    msgqueue.remove(msgqueue.get(0));
+//                    //msgqueue.remove(0);
+//                    ifsendmsgbyqueue=false;
+//                }
+//
+//                else Log.e(TAG, "msg.endsWith(\":Done\")() is error1111!  " + msghead);
+
+                Log.e(TAG, " msgqueue.remove: "+msgqueue.size());
+                for(String xx :msgqueue)
+                {
+
+                    if(xx.split(":")[0].equals(msghead))
+                    {
+                        msgqueue.remove(xx);
+                        Log.e(TAG, " msgqueue.remove: "+xx);
+
+
+                    }else Log.e(TAG, "msg.endsWith(\":Done\")() is error1111!  " + msghead);
+
+                }
+                ifsendmsgbyqueue=false;
+            }else Log.e(TAG, "msg.msgqueue is empty!  " + msghead);
+        }
 
         /*
         select file
@@ -590,6 +638,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         if (msg.startsWith("File:")) {
             progressDialog_loadimg.dismiss();
+
             if (msg.endsWith(".v3draw")) {
 
                 Log.e(TAG, "File: .v3draw");
@@ -777,6 +826,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         isBigData_Remote = false;
         isBigData_Local = false;
 
+        msgqueue =  new ArrayList<>();
+
         popupView = new XPopup.Builder(this)
                 .asLoading("Downloading......");
 
@@ -843,10 +894,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         initServerConnector();
         initService();
 
-        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-        String account = preferenceLogin.getUsername();
-        Log.v(TAG, "account: " + account );
-        ServerConnector.getInstance().sendMsg("ID:"+account);
+//        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+//        String account = preferenceLogin.getUsername();
+//        Log.v(TAG, "account: " + account );
+//        ServerConnector.getInstance().sendMsg("ID:"+account);
         //s2initialization();
 
         s2Confirm_Password();
@@ -869,38 +920,109 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
          */
         //       initDataBase();
 
-
-        new Timer().schedule(new TimerTask() {
+        updateimgTimer = new Timer(); 				// 初始化计时器
+        updateimgTimer.schedule(new TimerTask() { 	// 开启时间计时器
             @Override
             public void run() {
-                // getScore();
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                // getLeaderBoard();
+                Thread thread = new Thread(new Runnable() { //创建子线程
+                    @Override
+                    public void run() {
+
+
+                        heartbeatnum++;
+                        if(msgqueue==null)return;
+                        if(ifsendmsgbyqueue)
+                        {
+                            countwaitnum++;
+                            if(countwaitnum>=60) {
+                                for(String xx :msgqueue)
+                                {
+                                    Log.e(TAG, "msgqueue sdfasdf! "+xx);
+                                }
+                                countwaitnum=0;
+                                ifresendmdg=true;
+                                String msg = msgqueue.get(0);
+                                ServerConnector.getInstance().sendMsg(msg);
+                                //msgqueue.remove(0);
+                            }
+                            Log.e(TAG, "wait for msg! "+msgqueue.size());
+                            //Log.e(TAG, "msgqueue : "+msgqueue);
+
+                            return;
+                        }
+                        if(heartbeatnum>=320) {
+                            heartbeatnum = 0;
+
+                            msgqueue.add("HeartBeat:");
+
+                            Log.e(TAG, "HeartBeat!  ");
+
+
+                        }else if(heartbeatnum==160)
+                        {
+                            PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+                            String account = preferenceLogin.getUsername();
+                            Log.v(TAG, "account: " + account );
+                            //ServerConnector.getInstance().sendMsg("ID:"+account);
+                            msgqueue.add("ID:"+account);
+                        }
+
+                       // Log.e(TAG, "updateimgTimer is working!  ");
+
+                        if(msgqueue.isEmpty())
+                        {
+                            Log.v(TAG, "msgqueue is empty! ");
+                            return;
+                        }else
+                        {
+                            //Log.e(TAG, "msgqueue : "+msgqueue.toArray());
+                        }
+
+
+
+                        String msg = msgqueue.get(0);
+                        ServerConnector.getInstance().sendMsg(msg);
+                        //Log.e(TAG, "updateimgTimer is working!  "+msg);
+                         ifsendmsgbyqueue = true;
+                        countwaitnum=0;
+                        //puiHandler.sendMessage(msg);
+                    }
+                });
+                thread.start();					// 开启线程
             }
-        }, 1 * 1000);
+        }, 2000, 50);
+
+//        new Timer().schedule(new TimerTask() {
+//            @Override
+//            public void run() {
+//                // getScore();
+//                try {
+//                    Thread.sleep(500);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                // getLeaderBoard();
+//            }
+//        }, 1 * 1000);
 
     }
-    //fileName 为文件名称 返回true为存在
-    public boolean fileIsExists(String fileName) {
-        try {
-            Log.e(TAG, " 测试;" + S2Password);
-            File f=new File(fileName);
-            if(f.exists()) {
-                Log.i("测试", "有这个文件");
-                return true;
-            }else{
-                Log.i("测试", "没有这个文件");
-                return false;
-            }
-        } catch (Exception e) {
-            Log.i("测试", "崩溃");
-            return false;
-        }
-    }
+//    //fileName 为文件名称 返回true为存在
+//    public boolean fileIsExists(String fileName) {
+//        try {
+//            Log.e(TAG, " 测试;" + S2Password);
+//            File f=new File(fileName);
+//            if(f.exists()) {
+//                Log.i("测试", "有这个文件");
+//                return true;
+//            }else{
+//                Log.i("测试", "没有这个文件");
+//                return false;
+//            }
+//        } catch (Exception e) {
+//            Log.i("测试", "崩溃");
+//            return false;
+//        }
+//    }
 
 
     @Override
@@ -982,7 +1104,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         y_pos_Text=null;
 
         x_pos_Text= null;
-
+        updateimgTimer=null;
         animation_i = null;
         draw_i = null;
         //iffirstlogin=true;
@@ -1016,6 +1138,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2GLSurfaceView = null;
         myS2renderer = null;
         S2Context = null;
+        msgqueue=null;
         ifTouchCamera=false;
         //serverConnector.closeSender();
         if (timer != null) {
@@ -1036,6 +1159,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         super.onPause();
         Log.v(TAG, "onPause start");
         myS2GLSurfaceView.onPause();
+       // msgqueue.clear();
+      //  msgqueue=null;
       //  s2filename=null;
      //   iffirstlogin=false;
     }
@@ -1047,7 +1172,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Log.v("Path", filepath);
         myS2GLSurfaceView.onResume();
       //  iffirstlogin=false;
-
+       // msgqueue.clear();
+      //  msgqueue=null;
     }
 
     @Override
@@ -2046,7 +2172,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     Log.e("lastmsg", lastmsg);
                     lastmsg=lastmsg.replace("getimglist","getimgbyorder");
                     Log.e("navigation_left", lastmsg);
-                    ServerConnector.getInstance().sendMsg(lastmsg);
+                    msgqueue.add(lastmsg);
+                    //ServerConnector.getInstance().sendMsg(lastmsg);
+                    s2currentmsgforimg=lastmsg;
                     progressDialog_loadimg.show();
                     ifloadtagstraem=true;
                     lastmsg="get_data_tag:"+newimgnumstring;
@@ -2093,7 +2221,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     Log.e("lastmsg", lastmsg);
                     lastmsg=lastmsg.replace("getimglist","getimgbyorder");
                     Log.e("navigation_right", lastmsg);
-                    ServerConnector.getInstance().sendMsg(lastmsg);
+                    msgqueue.add(lastmsg);
+                    //ServerConnector.getInstance().sendMsg(lastmsg);
                     progressDialog_loadimg.show();
                     ifloadtagstraem=true;
                     lastmsg="get_data_tag:"+newimgnumstring;
@@ -2333,21 +2462,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        File dir_str_password = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Test");
 //        //String dir_str_server="/storage/emulated/0/Hi 5/S2";
 //        Log.e(TAG, " dir_str_password.text;" + dir_str_password);
-        String filepath = this.getExternalFilesDir(null).toString();
-        S2Password =filepath+context.getResources().getString(R.string.app_name) + "/S2/Test";
-
-        Log.e(TAG, " S2Password;" + S2Password);
+//        String filepath = this.getExternalFilesDir(null).toString();
+//        S2Password =filepath+context.getResources().getString(R.string.app_name) + "/S2/Test";
+//
+//        Log.e(TAG, " S2Password;" + S2Password);
     }
 
-    private void initpassword()
-    {
-
-        File dir_password = new File(S2Password);
-        if (!dir_password.exists()) {
-            dir_password.mkdirs();
-
-        }
-    }
+//    private void initpassword()
+//    {
+//
+//        File dir_password = new File(S2Password);
+//        if (!dir_password.exists()) {
+//            dir_password.mkdirs();
+//
+//        }
+//    }
 //    private void doLoginAgora(){
 //        AgoraMsgManager.getInstance().getRtmClient().login(null, username, new ResultCallback<Void>() {
 //            @Override
@@ -2373,6 +2502,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         // Bind to LocalService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
+
     }
 
 
@@ -2386,6 +2516,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         serverConnector.initConnection();
 
     }
+
 
 
 //    /** Defines callbacks for service binding, passed to bindService() */
@@ -2415,6 +2546,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ManageService manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((S2Activity) getActivityFromContext(S2Context));
             mBoundManagement = true;
+
 
         }
 
@@ -2544,12 +2676,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         Toast_in_Thread("Request for data! ");
                                         return;
                                     }
-                                    File f = new File(finalDir_str_server);
-
-                                    if (!f.exists()) {
-                                        Toast_in_Thread("failed to create folder! ");
-                                        return;
-                                    }
+//                                    File f = new File(finalDir_str_server);
+//
+//                                    if (!f.exists()) {
+//                                        //Toast_in_Thread("failed to create folder! ");
+//                                        f.mkdirs();
+//                                        return;
+//                                    }
                                     Log.e(TAG, "isforceupdate" + isforceupdate);
                                     Log.e(TAG, "text" + text);
                                     conPath = conPath + "/" + text;
@@ -5134,6 +5267,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadBigDataImg(String filepath) {
         isBigData_Remote = true;
+        String[] list = filepath.split("/");
+        String file_Name = list[list.length - 1];
+        Log.e(TAG, "loadBigDataImg file_Name: " + file_Name);
 
         Log.e(TAG, "loadBigDataImg: " + filepath);
         if (isZscanSeries) {
@@ -5146,11 +5282,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             //isCheckmode = false;
             Log.e(TAG, "loadBigDataImg:isVirtualScope " + isVirtualScope);
             data_tag="";
+            if (S2LastImgName.equals(file_Name)) {
+                return;
+            }
         }
         loadTagsStream();
-        String[] list = filepath.split("/");
-        String file_Name = list[list.length - 1];
-        Log.e(TAG, "loadBigDataImg file_Name: " + file_Name);
+
         s2filename = file_Name;
         s2EswcPath = filepath;
         puiHandler.sendEmptyMessage(7);
@@ -5158,6 +5295,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2renderer.setPath(filepath);
         myS2renderer.zoom(2f);
         myS2GLSurfaceView.requestRender();
+        S2LastImgName=s2filename;
 //        if(isCamera){
 //            File file = new File(filepath);
 //            InputStream is = null;
@@ -5191,6 +5329,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void loadTagsStream() {
 
         if(ifloadtagstraem) {
+
             ServerConnector.getInstance().sendMsg(S2loadlogstream);
             ifloadtagstraem=false;
         }

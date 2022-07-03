@@ -1,16 +1,8 @@
 package com.penglab.hi5.core.ui.home.screens;
 
-import static com.penglab.hi5.core.MainActivity.getContext;
-import static com.penglab.hi5.core.MainActivity.ifGuestLogin;
-import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
-import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -19,14 +11,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.TextView;
 import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -36,7 +30,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.viewpager.widget.ViewPager;;
+import androidx.viewpager.widget.ViewPager;
 
 import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.google.android.material.navigation.NavigationView;
@@ -44,30 +38,27 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
-import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nimlib.sdk.NIMClient;
-import com.netease.nimlib.sdk.auth.AuthService;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.APKVersionInfoUtils;
 import com.penglab.hi5.basic.utils.CrashHandler;
 import com.penglab.hi5.basic.utils.CrashReports;
-import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
-import com.penglab.hi5.core.ui.userProfile.MyActivity;
-import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.adapters.MainPagerAdapter;
+import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.core.ui.userProfile.MyActivity;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.user.LogStatus;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
+
+import static com.penglab.hi5.core.MainActivity.getContext;
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.model.user.LogStatus.GUEST;
+import static com.penglab.hi5.data.model.user.LogStatus.LOGIN;
+
+;
 
 
 public class HomeActivity extends BaseActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -122,6 +113,10 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_PERMISSION_CODE);
         }
+
+        checkStorageManagerPermission(this);
+
+
 
         downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
 
@@ -267,7 +262,15 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
         }
         return super.onOptionsItemSelected(item);
     }
-
+    public static void checkStorageManagerPermission(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                !Environment.isExternalStorageManager()) {
+            Log.e(TAG, " checkStorageManagerPermission;");
+            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }
+    }
     private void setNavDrawer() {
         drawerLayout = findViewById(R.id.drawer_layout);
         drawerToggle = new ActionBarDrawerToggle(
