@@ -34,7 +34,6 @@ public class CollorationDataSource {
 
     private final String TAG = "CollorationDataSource";
 
-
     private String responseData;
 
     private final MutableLiveData<Result> brianListResult = new MutableLiveData<>();
@@ -117,9 +116,6 @@ public class CollorationDataSource {
                     Log.e(TAG, "response getNeuron: " + responseData);
 
                     if (responseCode == 200) {
-//                        responseData = response.body().string();
-//                        Log.e(TAG, "response getNeuron2: " + responseData);
-                        // process response
                         try {
                             JSONArray neuronNameArray = new JSONArray(responseData);
                             List<CollaborateNeuronInfo> neuronList = new ArrayList<>();
@@ -140,10 +136,6 @@ public class CollorationDataSource {
                         response.close();
                     } else if (responseCode == 502) {
                         neuronListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
-//                        responseData = response.body().string();
-//                        if (responseData.trim().equals("Empty")) {
-//                            Log.e(TAG, "get Empty response");
-//                            neuronListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
 //                        }
                     } else {
                         Log.e(TAG, "response update arbor result: " + response.body().string());
@@ -173,7 +165,7 @@ public class CollorationDataSource {
                     int responseCode = response.code();
                     responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response getAnoResult: " + responseData);
+                        Log.e(TAG, "response getAno: " + responseData);
                         // process response
                         try {
                             JSONArray anoNameArray = new JSONArray(responseData);

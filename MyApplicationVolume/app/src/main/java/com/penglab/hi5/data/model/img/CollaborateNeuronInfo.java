@@ -47,6 +47,10 @@ public class CollaborateNeuronInfo {
         this.name = neuronNumber;
     }
 
+    public void setLocation(XYZ xyz){
+        this.loc = xyz;
+    }
+
 
 
 }
