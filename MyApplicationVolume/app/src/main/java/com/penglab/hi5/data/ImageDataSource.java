@@ -90,7 +90,7 @@ public class ImageDataSource {
                     try {
                         if (response.body() != null) {
                             JSONArray jsonArray = new JSONArray(response.body().string());
-                            Log.e(TAG,"getNeuonList"+jsonArray);
+                            Log.e(TAG,"getNeuronList"+jsonArray);
                             brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
                         } else {
                             brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
@@ -153,10 +153,12 @@ public class ImageDataSource {
                         int responseCode = response.code();
                         if (responseCode == 200) {
                             if (response.body() != null) {
+                                Log.e(TAG,"response.body.downloadimage"+response.body().string());
                                 byte[] fileContent = response.body().bytes();
 
                                 Log.e(TAG, "file size: " + fileContent.length);
                                 String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                                Log.e(TAG,"downloadImagePath"+storePath);
                                 String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
 
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {

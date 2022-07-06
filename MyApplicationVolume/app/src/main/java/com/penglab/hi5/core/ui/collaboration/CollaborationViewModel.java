@@ -54,6 +54,8 @@ public class CollaborationViewModel extends ViewModel {
         this.imageInfoRepository = imageInfoRepository;
         this.imageDataSource = imageDataSource;
         this.collorationDataSource = collorationDataSource;
+        downloadCoordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
+        downloadCoordinateConvert.setResIndex(DEFAULT_RES_INDEX);
     }
 
     public enum AnnotationMode{
@@ -85,21 +87,50 @@ public class CollaborationViewModel extends ViewModel {
         getNeuronList(brainNumber);
     }
 
-//    public void handleNeuronNumber(CollaborateNeuronInfo collaborateNeuronInfo) {
-//
-//        Log.e(TAG,"handleNeuronNumber"+collaborateNeuronInfo);
-//        potentialDownloadNeuronInfo.setNeuronNumber(collaborateNeuronInfo.getNeuronName());
-//        downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
-//
-//
-//
-////        if (resMap.isEmpty()) {
-////            getBrainList();
-////        } else {
-////            downloadImage();
-////        }
-//
-//    }
+    public void handleBrainListResult(Result result){
+        if (result == null) {
+            isDownloading = false;
+            Log.e(TAG,"Fail to handle brain list result");
+        }
+        if (result instanceof Result.Success) {
+            Log.e(TAG,"begin to handle collaboration brain list result");
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof JSONArray){
+                // process Brain List, store res info for each brain
+                JSONArray jsonArray = (JSONArray) data;
+                Log.e(TAG,"collaborate mode in handle brain list length"+jsonArray.length());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    try {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        String imageId = jsonObject.getString("name");
+                        String detail = jsonObject.getString("detail");
+                        Log.e(TAG,"collaborate mode in get imageId"+imageId);
+                        Log.e(TAG,"collaborate mode in get detail"+detail);
+
+                        // parse brain info
+                        detail = detail.substring(1, detail.length() - 1);
+                        String [] rois = detail.split(", ");
+                        for (int j = 0; j < rois.length; j++) {
+                            rois[j] = rois[j].substring(1, rois[j].length() - 1);
+                        }
+                        if (rois.length >= 2){
+                            resMap.put(imageId, rois[1]);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+                downloadImage();
+            } else {
+                isDownloading = false;
+            }
+        } else {
+            isDownloading = false;
+        }
+
+
+
+    }
     public void handleNeuronNumber(String neuronNumber) {
         potentialDownloadNeuronInfo.setNeuronNumber(neuronNumber);
         getAno(neuronNumber);
@@ -120,12 +151,11 @@ public class CollaborationViewModel extends ViewModel {
             Log.e(TAG,"handleloadanoresult"+data);
             if (data instanceof JSONObject) {
                 JSONObject loadAnoResult = (JSONObject) data;
-
                 try {
-                   String anoName= loadAnoResult.getString("ano");
-                   Log.e("anoName",""+anoName);
-                    String port= loadAnoResult.getString("port");
+                    String anoName= loadAnoResult.getString("ano");
                     Log.e("anoName",""+anoName);
+                    String port= loadAnoResult.getString("port");
+                    Log.e("port",""+port);
 
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
@@ -144,6 +174,13 @@ public class CollaborationViewModel extends ViewModel {
 
     public void getNeuronList(String brainNumber) {
         collorationDataSource.getNeuron(brainNumber);
+    }
+
+    public void handleLoadImage(CollaborateNeuronInfo collaborateNeuronInfo){
+        potentialDownloadNeuronInfo.setLocation(collaborateNeuronInfo.getLocation());
+        downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
+        getBrainList();
+
     }
 
     public void getAno(String neuronNumber) {
@@ -166,12 +203,46 @@ public class CollaborationViewModel extends ViewModel {
         String brainId = potentialDownloadNeuronInfo.getBrainName();
         XYZ loc = downloadCoordinateConvert.getCenterLocation();
         String res = resMap.get(brainId);
+        Log.e("collaborate_brainId"+brainId,"collaborate_loc"+loc.toString());
+        Log.e(TAG,"resolution"+res);
         if (res == null){
             ToastEasy("Fail to download image, something wrong with res list !");
             isDownloading = false;
             return;
         }
         imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+    }
+
+    public void handleDownloadImageResult(Result result){
+        if (result == null) {
+            isDownloading = false;
+        }
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            if (data instanceof String){
+                Log.e(TAG,"Collaborate+Download image data" + data);}
+//                if (curDownloadIndex < arborInfoList.size()-1) {
+//                    potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
+//
+//
+//                    // next image
+//                    lastDownloadPotentialArborMarkerInfo = arborInfoList.get(++curDownloadIndex);
+//                    lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialArborMarkerInfo.getLocation());
+//                    downloadImage();
+//                } else if (curDownloadIndex == arborInfoList.size()-1) {
+//                    potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
+//                    curDownloadIndex = 0;
+//                    isDownloading = false;
+//                }
+//            } else {
+//                Log.e(TAG,"Fail to parse download image result !");
+//                isDownloading = false;
+//            }
+//        } else {
+//            Log.e(TAG,"Download image result is error !");
+//            isDownloading = false;
+        }
+
     }
 
 

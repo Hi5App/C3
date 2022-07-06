@@ -316,7 +316,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 //                    if (isBigData_Local) {
 //                        String filename = SettingFileManager.getFilename_Local(context);
 //                        String offset = SettingFileManager.getoffset_Local(context, filename);
-//
 //                        String offset_x = offset.split("_")[0];
 //                        String offset_y = offset.split("_")[1];
 //                        String offset_z = offset.split("_")[2];
@@ -440,7 +439,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                                 ToastEasy("Click"+text);
                                                 collaborationViewModel.handleNeuronNumber(text.trim());
 //                                                Log.e("PotentialDownloadNeuronInfoList",""+potentialDownloadNeuronInfoList.get(position));
-//                                                collaborationViewModel.handleNeuronNumber(potentialDownloadNeuronInfoList.get(position));
+                                                collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
 
 
                                             }
@@ -490,6 +489,29 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 collaborationViewModel.handleLoadAnoResult(result);
             }
         });
+
+        collaborationViewModel.getImageDataSource().getBrainListResult().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                collaborationViewModel.handleBrainListResult(result);
+            }
+        });
+
+        collaborationViewModel.getImageDataSource().getDownloadImageResult().observe(this, new androidx.lifecycle.Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if (result == null) {
+                    return;
+                }
+                collaborationViewModel.handleDownloadImageResult(result);
+            }
+        });
+
+
+
 
     }
 
