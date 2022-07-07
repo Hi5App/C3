@@ -143,13 +143,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
 
         /*
-        select file
-         */
-        if (msg.startsWith("GETFILELIST:")) {
-            LoadFiles(msg.split(":")[1]);
-        }
-
-        /*
         After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number

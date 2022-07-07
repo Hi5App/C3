@@ -72,11 +72,11 @@ public class QualityInspectionDataSource {
         return updateArborMarkerResult;
     }
 
-    public void getArbor(){
+    public void getArbor(int MaxId){
         try {
             Log.e(TAG,"getArbor");
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsQualityInspection.getArborWithOkHttp(userInfo, new Callback() {
+            HttpUtilsQualityInspection.getArborWithOkHttp(userInfo, MaxId,new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     potentialArborLocationResult.postValue(new Result.Error(new Exception("Connect failed when get potential location !")));

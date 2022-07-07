@@ -146,20 +146,16 @@ public class ImageDataSource {
                 public void onFailure(Call call, IOException e) {
                     downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         int responseCode = response.code();
                         if (responseCode == 200) {
                             if (response.body() != null) {
-                                Log.e(TAG,"response.body.downloadimage"+response.body().string());
                                 byte[] fileContent = response.body().bytes();
-
                                 Log.e(TAG, "file size: " + fileContent.length);
                                 String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                                Log.e(TAG,"downloadImagePath"+storePath);
-                                String filename = brainId + "_" + res + "_" + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+                                String filename = brainId + "_" + res + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
 
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                                     downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));

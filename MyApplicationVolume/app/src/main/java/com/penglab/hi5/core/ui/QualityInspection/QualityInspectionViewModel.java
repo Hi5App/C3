@@ -68,6 +68,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private final MutableLiveData<ResourceResult> annotationResult = new MutableLiveData<>();
     private final MutableLiveData<NeuronTree> swcResult = new MutableLiveData<>();
     private final MutableLiveData<List<QueryCheckerResult>> queryCheckerResultList = new MutableLiveData<>();
+    private final MutableLiveData<Integer> MaxId = new MutableLiveData<Integer>();
 
     private final UserInfoRepository userInfoRepository;
     private final ImageInfoRepository imageInfoRepository;
@@ -89,6 +90,7 @@ public class QualityInspectionViewModel extends ViewModel {
     private boolean noFileLeft = false;
 
 
+
     public QualityInspectionViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, QualityInspectionDataSource qualityInspectionDataSource, ImageDataSource imageDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
@@ -99,6 +101,8 @@ public class QualityInspectionViewModel extends ViewModel {
         coordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
         lastDownloadCoordinateConvert.setResIndex(DEFAULT_RES_INDEX);
         lastDownloadCoordinateConvert.setImgSize(DEFAULT_IMAGE_SIZE);
+
+        MaxId.setValue(0);
     }
 
     public LiveData<AnnotationMode> getAnnotationMode(){
@@ -299,6 +303,11 @@ public class QualityInspectionViewModel extends ViewModel {
             if (data instanceof List){
                 isDownloading = true;
                 arborInfoList = (List<PotentialArborMarkerInfo>) data;
+                for(int i =0; i<arborInfoList.size();i++){
+                    if(MaxId.getValue() <= arborInfoList.get(i).getArborId()){
+                        MaxId.setValue(arborInfoList.get(i).getArborId());
+                    }
+                }
                 lastDownloadPotentialArborMarkerInfo = arborInfoList.get(curDownloadIndex);
                 lastDownloadCoordinateConvert.initLocation(lastDownloadPotentialArborMarkerInfo.getLocation());
 
@@ -359,8 +368,8 @@ public class QualityInspectionViewModel extends ViewModel {
         }
     }
 
-    public void getArbor(){
-        qualityInspectionDataSource.getArbor();
+    public void getArbor(int MaxId){
+        qualityInspectionDataSource.getArbor(MaxId);
     }
 
     public void openNewFile() {
@@ -533,7 +542,7 @@ public class QualityInspectionViewModel extends ViewModel {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                getArbor();
+                getArbor(MaxId.getValue());
             }
         });
     }
