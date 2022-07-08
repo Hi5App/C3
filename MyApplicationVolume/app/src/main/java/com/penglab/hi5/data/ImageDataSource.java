@@ -150,6 +150,7 @@ public class ImageDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     try {
                         int responseCode = response.code();
+                        Log.e(TAG,"downloadImage_responseCode"+responseCode);
                         if (responseCode == 200) {
                             if (response.body() != null) {
                                 byte[] fileContent = response.body().bytes();

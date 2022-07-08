@@ -147,6 +147,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number
          */
+
         if (msg.startsWith("Port:")) {
 
             if (msg.split(":")[1].equals("-1")){

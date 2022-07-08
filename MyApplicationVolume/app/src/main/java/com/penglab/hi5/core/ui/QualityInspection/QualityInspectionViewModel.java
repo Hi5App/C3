@@ -374,14 +374,11 @@ public class QualityInspectionViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
-//        if (lastIndex + 4 >= potentialArborMarkerInfoList.size() && !isDownloading) {
-//            cacheImage();
-//        }
+        if (lastIndex + 4 >= potentialArborMarkerInfoList.size() && !isDownloading) {
+            cacheImage();
+        }
         if (lastIndex + 2 >= potentialArborMarkerInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
-            if (!isDownloading) {
-                cacheImage();
-            }
         } else {
             curIndex = ++lastIndex;
             openFileWithCurIndex();

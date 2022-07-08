@@ -157,6 +157,8 @@ public class CollaborationViewModel extends ViewModel {
                     String port= loadAnoResult.getString("port");
                     Log.e("port",""+port);
 
+
+
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
                 }
@@ -167,6 +169,8 @@ public class CollaborationViewModel extends ViewModel {
 
 
     }
+
+
 
     public void getImageList(){
         collorationDataSource.getImageList();
@@ -211,6 +215,7 @@ public class CollaborationViewModel extends ViewModel {
             return;
         }
         imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+        Log.e("collaboration mode download image","brainName:"+potentialDownloadNeuronInfo.getBrainName()+"/resolution:"+res+"/location:"+loc.x+loc.y+loc.z+"DEFAULT_IMAGE_SIZE"+DEFAULT_IMAGE_SIZE);
     }
 
     public void handleDownloadImageResult(Result result){

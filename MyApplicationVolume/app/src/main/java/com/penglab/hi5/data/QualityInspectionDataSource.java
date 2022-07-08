@@ -87,7 +87,6 @@ public class QualityInspectionDataSource {
                     if (responseCode == 200) {
                         // process response
                         responseData = response.body().string();
-                        Log.e(TAG, "responseData: " + responseData);
                         try {
                             JSONArray arborInfoArray = new JSONArray(responseData);
                             List<PotentialArborMarkerInfo> arborInfoList = new ArrayList<>();
@@ -191,7 +190,6 @@ public class QualityInspectionDataSource {
                     int responseCode = response.code();
                     responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG,"response queryArborResult: "+responseData);
                         // process response
                         try{
                             JSONArray queryCheckInfoArray = new JSONArray(responseData);
@@ -240,7 +238,6 @@ public class QualityInspectionDataSource {
                     Log.e(TAG,"responseCode"+response.code());
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        Log.e(TAG,"response updateArborResult: "+response.body().string());
                         // process response
                         updateArborResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
@@ -269,7 +266,6 @@ public class QualityInspectionDataSource {
                     Log.e(TAG,"responseCode insertArborMarkerList"+ response.code());
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        Log.e(TAG,"response update arbor result 200:" + response.body().string());
                         // process response
                         insertArborMarkerResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
@@ -298,7 +294,6 @@ public class QualityInspectionDataSource {
                     Log.e(TAG,"responseCode deleteArborMarkerList" + response.code());
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        Log.e(TAG,"response update arbor result 200:" + response.body().string());
                         // process response
                         deleteArborMarkerResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
@@ -377,7 +372,6 @@ public class QualityInspectionDataSource {
                     int responseCode = response.code();
                     if(responseCode == 200){
                         responseData = response.body().string();
-                        Log.e(TAG,"responseData_getArborMarker" + responseData);
                         try{
                             JSONArray arborMarkerList = new JSONArray(responseData);
                             MarkerList markerList = MarkerList.parseFromJSONArrayQC(arborMarkerList);
