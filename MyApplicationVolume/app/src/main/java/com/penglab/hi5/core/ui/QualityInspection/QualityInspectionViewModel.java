@@ -488,6 +488,7 @@ public class QualityInspectionViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
+        Log.e("qualityInspectionViewmodel","downloadimage"+lastDownloadPotentialArborMarkerInfo.getBrianId()+'R'+res+'/'+loc.x+loc.y+loc.z+"/IMAGESIZE:"+DEFAULT_IMAGE_SIZE);
         imageDataSource.downloadImage(lastDownloadPotentialArborMarkerInfo.getBrianId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 

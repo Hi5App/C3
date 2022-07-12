@@ -234,7 +234,7 @@ public class CollorationDataSource {
                             downloadAnoResult.postValue(new Result.Success<String>(NO_MORE_FILE));
                         }
                     } else {
-                        Log.e(TAG, "response update arbor result: " + response.body().string());
+//                        Log.e(TAG, "response update arbor result: " + response.body().string());
                         downloadAnoResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
                     }
                 }

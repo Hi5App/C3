@@ -139,7 +139,6 @@ public class ScoreModel {
         Calendar calendar = Calendar.getInstance();
         int year = calendar.get(Calendar.YEAR);
         int date = calendar.get(Calendar.DAY_OF_YEAR);
-//        int date = scoreModel.lastLoginDay+1;
         scoreLitePalConnector.updateTime(year, date);
 
 //        Log.d("initfromlitePal", "" + scoreModel.editImageNumToday.getValue());
@@ -153,14 +152,12 @@ public class ScoreModel {
             scoreModel.somaNumToday.setValue(0);
             scoreLitePalConnector.updateEditImageNumToday(scoreModel.editImageNumToday);
             scoreLitePalConnector.updateSomaNumToday(scoreModel.somaNumToday);
-//            scoreModel.setEditImageNumToday(0);
         }
         if (scoreModel == null) {
             result = false;
         } else {
             updateWithNewScoreModel(scoreModel);
         }
-//        Log.d("initfromlitePal", "" + editImageNumToday.getValue());
 
         return result;
     }
