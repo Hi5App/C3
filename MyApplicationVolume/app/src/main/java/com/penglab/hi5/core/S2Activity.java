@@ -121,6 +121,7 @@ import tv.danmaku.ijk.media.example.widget.media.AndroidMediaController;
 import tv.danmaku.ijk.media.example.widget.media.IjkVideoView;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
+import static android.app.ProgressDialog.STYLE_HORIZONTAL;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
 import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
@@ -151,6 +152,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static MyGLSurfaceView myS2GLSurfaceView;
     private static MyRenderer myS2renderer;
     private static Context S2Context;
+    private static ManageService manageService;
     //ServerConnector ServerConnectorForScope;
 
     private String filepath = "";
@@ -283,6 +285,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static boolean isS2Start = false;
     private static boolean isCamera;
     private static boolean ifTouchCamera = false;
+    private static boolean ifsendmsgforimg = false;
 
     private static ProgressBar progressBar;
     private static ProgressDialog progressDialog_zscan;
@@ -349,7 +352,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String s2checkimgtype = "";
     private static String s2lastmsgforimg = "";
     private static String s2currentmsgforimg = "";
-
+    private static String s2currentnumforimg = "";
     private static String data_tag = "";
 
     private static String VersionName = "";
@@ -797,6 +800,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 case 12:
                     x_pos_Text.setText(data_tag);
                     break;
+
+                case 13:
+                    ///progressDialog_loadimg.setMax(100);
+                    if(manageService.getnumall()!=0)
+                    {
+                        int i=manageService.getnumall();
+                        double num= manageService.getnumnow()/(double)i;
+                        Log.e(TAG, "sdfasdfsdfsf"+manageService.getnumnow()+":"+manageService.getnumall());
+                        progressDialog_loadimg.setProgress((int) (num*100));
+                    }else
+                    progressDialog_loadimg.setProgress(0);
+                    break;
+                case 14:
+                    //progressDialog_loadimg(
+                    break;
                 default:
                     break;
             }
@@ -885,8 +903,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         progressDialog_loadimg = new ProgressDialog(S2Activity.this);
         progressDialog_loadimg.setTitle("Loading Image .....");
         progressDialog_loadimg.setMessage("Wait about a few seconds");
-
+        progressDialog_loadimg.setMax(100);
+        progressDialog_loadimg.setProgress(0);
         progressDialog_loadimg.setCancelable(true);
+       // progressDialog_loadimg.setProgressPercentFormat(NumberFormat);
+        progressDialog_loadimg.setProgressStyle(STYLE_HORIZONTAL);
 
         initDir();
 
@@ -927,21 +948,28 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Thread thread = new Thread(new Runnable() { //创建子线程
                     @Override
                     public void run() {
-
-
+                        if(progressDialog_loadimg!=null) {
+                            if (progressDialog_loadimg.isShowing()) {
+                                //puiHandler.sendMessage(13);
+                                puiHandler.sendEmptyMessage(13);
+                            }
+                        }
                         heartbeatnum++;
                         if(msgqueue==null)return;
                         if(ifsendmsgbyqueue)
                         {
                             countwaitnum++;
-                            if(countwaitnum>=60) {
+                            if(countwaitnum>=100*100) {
                                 for(String xx :msgqueue)
                                 {
                                     Log.e(TAG, "msgqueue sdfasdf! "+xx);
                                 }
+                                //manageService.reConnection();
+                                //msgqueue.clear();
                                 countwaitnum=0;
                                 ifresendmdg=true;
                                 String msg = msgqueue.get(0);
+                                //msgqueue.clear();
                                 ServerConnector.getInstance().sendMsg(msg);
                                 //msgqueue.remove(0);
                             }
@@ -950,7 +978,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                             return;
                         }
-                        if(heartbeatnum>=320) {
+                        if(heartbeatnum>=320*5) {
                             heartbeatnum = 0;
 
                             msgqueue.add("HeartBeat:");
@@ -958,7 +986,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                             Log.e(TAG, "HeartBeat!  ");
 
 
-                        }else if(heartbeatnum==160)
+                        }else if(heartbeatnum==160*5)
                         {
                             PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                             String account = preferenceLogin.getUsername();
@@ -990,7 +1018,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 });
                 thread.start();					// 开启线程
             }
-        }, 2000, 50);
+        }, 2000, 10);
 
 //        new Timer().schedule(new TimerTask() {
 //            @Override
@@ -1080,10 +1108,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         si_logo = null;
         Hide_i = null;
-
+        msgqueue = null;
         bitmap2D = null;
         pvcamModeView = null;
+        timerTask=null;
 
+        updateimgTimer=null;
         progressBar = null;
         progressDialog_zscan = null;
         progressDialog_loadimg = null;
@@ -1309,9 +1339,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             //ImageButton MoveX = findViewById(R.id.zoomOut);
 
             mVideoView = (IjkVideoView) findViewById(R.id.si_videoView);
-            mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
+            //mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
             mVideoView.setMediaController(mMediaController);
-            mVideoView.setHudView(mHudView);
+            //mVideoView.setHudView(mHudView);
+
             mVideoView.setBackgroundResource(R.drawable.mvideobg);
 
             RockerView s2rocekerview_xy = (RockerView) findViewById(R.id.s2rockerView_z);
@@ -1323,14 +1354,28 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ImageButton zoom_in = findViewById(R.id.pv_zoom_in);
             ImageButton zscan = findViewById(R.id.startZscan);
             ImageButton zoom_out = findViewById(R.id.pv_zoom_out);
+            ImageButton startcamera = findViewById(R.id.startcamera);
+            ImageButton stopcamera = findViewById(R.id.stopcamera);
+
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_pro_img = (Switch)findViewById(R.id.switch_pro_img);
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_cam =(Switch) findViewById(R.id.switch_cam);
 
             zoom_in.setImageResource(R.drawable.ic_zoom_in);
             zscan.setImageResource(R.drawable.ic_startzscan_foreground);
             zoom_out.setImageResource(R.drawable.ic_baseline_zoom_out_24);
+            startcamera.setImageResource(R.drawable.ic_startcamera_foreground);
+            stopcamera.setImageResource(R.drawable.ic_stopcamera_foreground);
 
             zoom_in.setVisibility(View.VISIBLE);
             zoom_out.setVisibility(View.VISIBLE);
             zscan.setVisibility(View.VISIBLE);
+            stopcamera.setVisibility(View.VISIBLE);
+            startcamera.setVisibility(View.VISIBLE);
+
+            switch_pro_img.setVisibility(View.VISIBLE);
+            switch_pro_img.setChecked(false);
+            switch_cam.setVisibility(View.VISIBLE);
+            switch_cam.setChecked(false);
 
             setSupportActionBar(toolbar);
 
@@ -1345,6 +1390,71 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 mVideoView.setVideoURI(Uri.parse(mVideoPath));
                 mVideoView.start();
             }
+
+
+            switch_pro_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                @Override
+
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                   //控制开关字体颜色
+                    if (b) {
+                        Log.e(TAG, "msproimg true");
+                        ServerConnector.getInstance().sendMsg("msproimg:1");
+                        switch_pro_img.setSwitchTextAppearance(S2Activity.this,R.style.blue_bottom_line_edit_text_style);
+
+                    }else {
+                        Log.e(TAG, "msproimg false");
+                        ServerConnector.getInstance().sendMsg("msproimg:0");
+                        switch_pro_img.setSwitchTextAppearance(S2Activity.this,R.style.grid_view);
+
+                    }
+
+                }
+
+            });
+
+
+            switch_cam.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                @Override
+
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    //控制开关字体颜色
+
+                    if (b) {
+                        Log.e(TAG, "mscam true");
+                        ServerConnector.getInstance().sendMsg("mscam:1");
+                        switch_cam.setSwitchTextAppearance(S2Activity.this,R.style.blue_bottom_line_edit_text_style);
+
+                    }else {
+                        Log.e(TAG, "mscam: false");
+                        ServerConnector.getInstance().sendMsg("mscam:0");
+                        switch_cam.setSwitchTextAppearance(S2Activity.this,R.style.grid_view);
+
+                    }
+
+                }
+
+            });
+
+            startcamera.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "startcamera: ");
+                    ServerConnector.getInstance().sendMsg("msinitcam:0");
+                }
+            });
+
+            stopcamera.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "stopcamera: ");
+                    ServerConnector.getInstance().sendMsg("msclosecam:0");
+                }
+            });
 
             zscan.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
@@ -2168,6 +2278,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 // Log.e("s2lastmsgforimg", s2lastmsgforimg);
                 if(isCheckmode)
                 {
+                    ifsendmsgforimg=true;
                     lastmsg=lastmsg.replace(lastfilename,newimgnumstring);
                     Log.e("lastmsg", lastmsg);
                     lastmsg=lastmsg.replace("getimglist","getimgbyorder");
@@ -2175,7 +2286,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     msgqueue.add(lastmsg);
                     //ServerConnector.getInstance().sendMsg(lastmsg);
                     s2currentmsgforimg=lastmsg;
+                    s2currentnumforimg=newimgnumstring;
                     progressDialog_loadimg.show();
+                    //progressDialog_loadimg.setMax(100);
+                    //progressDialog_loadimg.setProgress(50);
                     ifloadtagstraem=true;
                     lastmsg="get_data_tag:"+newimgnumstring;
                     Log.e("navigation_left", lastmsg);
@@ -2543,7 +2657,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
-            ManageService manageService = (ManageService) binder.getService();
+            manageService = (ManageService) binder.getService();
             binder.addReceiveMsgInterface((S2Activity) getActivityFromContext(S2Context));
             mBoundManagement = true;
 
@@ -5266,6 +5380,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
     @RequiresApi(api = Build.VERSION_CODES.N)
     public void loadBigDataImg(String filepath) {
+
         isBigData_Remote = true;
         String[] list = filepath.split("/");
         String file_Name = list[list.length - 1];
@@ -5282,9 +5397,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             //isCheckmode = false;
             Log.e(TAG, "loadBigDataImg:isVirtualScope " + isVirtualScope);
             data_tag="";
+            ifsendmsgforimg=false;
+            Log.e(TAG, "sadfsadfasdf 1 " + file_Name);
             if (S2LastImgName.equals(file_Name)) {
+                Log.e(TAG, "sadfsadfasdf 2" );
                 return;
             }
+            if (!file_Name.contains(s2currentnumforimg)) {
+                Log.e(TAG, "sdfasdfsdfasdf 3" );
+                return;
+            }
+
         }
         loadTagsStream();
 
@@ -5545,7 +5668,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public static void updates2workstate() {
 
 
-        if (isCheckmode) {
+         if (isCamera) {
+            s2workstate = "Camera";
+            ifTouchCamera = true;
+            //  cleans2workstate();
+
+
+        }else if (isCheckmode) {
             s2workstate = "Checkmode";
             // cleans2workstate();
         } else if (isVirtualScope) {
@@ -5554,13 +5683,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             // cleans2workstate();
 
 
-        } else if (isCamera) {
-            s2workstate = "Camera";
-            ifTouchCamera = true;
-            //  cleans2workstate();
-
-
-        } else if (isS2Start) {
+        }  else if (isS2Start) {
             s2workstate = "S2Start";
             // cleans2workstate();
 
@@ -5613,6 +5736,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 break;
             case "Camera":
                 cleans2workstate();
+                eswc_sync.setVisibility(View.GONE);
+                Hide_i.setVisibility(View.GONE);
                 isCamera = true;
                 break;
             case "S2Start":

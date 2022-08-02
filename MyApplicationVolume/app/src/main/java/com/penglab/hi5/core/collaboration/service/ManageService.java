@@ -12,7 +12,7 @@ public class ManageService extends BasicService {
 
     private static final String TAG = "ManageService";
 
-    protected static ReadThread mReadThread;
+    public static ReadThread mReadThread;
 
     private static volatile boolean isReleased = false;
 
@@ -89,4 +89,42 @@ public class ManageService extends BasicService {
             }
         }
     }
+
+    public int getnumall(){
+        Log.e(TAG,"getnumall");
+
+        if(mBasicConnector.checkConnection()){
+                //mBasicConnector.releaseConnection();
+                Log.e(TAG,"getnumall"+mReadThread.Readtasknumall());
+                return mReadThread.Readtasknumall();
+        }
+
+        return 0;
+    }
+
+    public int getnumnow(){
+
+
+        if(mBasicConnector.checkConnection()){
+                //mBasicConnector.releaseConnection();
+                Log.e(TAG,"getnumnow"+mReadThread.Readttasknumnow());
+                return mReadThread.Readttasknumnow();
+
+        }
+        return 0;
+    }
+
+    public void clearReceiveCash(){
+
+
+        if(mBasicConnector.checkConnection()){
+            //mBasicConnector.releaseConnection();
+            Log.e(TAG,"clearReceiveCash");
+            mReadThread.reConnect();
+
+        }
+
+    }
+
+
 }

@@ -90,5 +90,9 @@
         <item name="android:visibility">visible</item>
     </style>
 
+    <style name="myTextAppearance">myTextAppearance
+        <item name="android:textSize">10sp</item>
+    </style>
+
 
 </resources>

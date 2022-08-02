@@ -91,41 +91,40 @@
 
     <tv.danmaku.ijk.media.example.widget.media.IjkVideoView
         android:id="@+id/si_videoView"
+        style="@style/mvideolayout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appBarLayout2"
         app:layout_constraintVertical_bias="0.0"
-        tools:ignore="MissingConstraints"
-        style="@style/mvideolayout">
+        tools:ignore="MissingConstraints">
 
     </tv.danmaku.ijk.media.example.widget.media.IjkVideoView>
 
-    <TableLayout
-        android:id="@+id/hud_s2_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/ijk_transparent_dark"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:ignore="MissingConstraints" />
+    <!--    <TableLayout-->
+    <!--        android:id="@+id/hud_s2_view"-->
+    <!--        android:layout_width="wrap_content"-->
+    <!--        android:layout_height="wrap_content"-->
+    <!--        android:background="@color/ijk_transparent_dark"-->
+    <!--        android:padding="8dp"-->
+    <!--        app:layout_constraintBottom_toBottomOf="parent"-->
+    <!--        app:layout_constraintEnd_toEndOf="parent"-->
+    <!--        app:layout_constraintStart_toStartOf="parent"-->
+    <!--        tools:ignore="MissingConstraints" />-->
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintLayout2"
         android:layout_width="409dp"
         android:layout_height="214dp"
         android:layout_marginStart="2dp"
-        android:layout_marginTop="399dp"
-        android:layout_marginBottom="118dp"
+        android:layout_marginBottom="68dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0"
+        app:layout_constraintTop_toBottomOf="@+id/si_videoView"
+        app:layout_constraintVertical_bias="1.0"
         tools:ignore="MissingConstraints">
 
 
@@ -186,7 +185,7 @@
             android:text="@string/pv_zoom_in"
             android:textColor="#cc0000"
             app:layout_constraintBottom_toTopOf="@+id/pv_zoom_out"
-            app:layout_constraintEnd_toEndOf="@+id/pv_zoom_out"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/s2rockerView_xy"
             app:layout_constraintStart_toStartOf="@+id/pv_zoom_out"
@@ -223,6 +222,72 @@
             tools:ignore="MissingConstraints" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/startcamera"
+        android:layout_width="101dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="1dp"
+        android:src="@null"
+        app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
+        app:layout_constraintEnd_toStartOf="@+id/stopcamera"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/si_videoView"
+        app:srcCompat="@drawable/ic_startcamera_foreground"
+        tools:ignore="MissingConstraints" />
+
+
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/stopcamera"
+        android:layout_width="101dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="3dp"
+        android:layout_marginEnd="1dp"
+        android:src="@null"
+        app:layout_constraintBottom_toBottomOf="@+id/startcamera"
+        app:layout_constraintEnd_toStartOf="@+id/switch_pro_img"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/startcamera"
+        app:layout_constraintTop_toTopOf="@+id/startcamera"
+        app:layout_constraintVertical_bias="0.6"
+        app:srcCompat="@drawable/ic_stopcamera_foreground"
+        tools:ignore="MissingConstraints" />
+
+    <Switch
+        android:id="@+id/switch_pro_img"
+        android:layout_width="101dp"
+        android:layout_height="wrap_content"
+
+        android:textOff="cv off"
+        android:textOn="cv on"
+        android:showText="true"
+        android:shape="rectangle"
+        android:switchTextAppearance="@style/myTextAppearance"
+        app:layout_constraintBottom_toBottomOf="@+id/stopcamera"
+        app:layout_constraintEnd_toStartOf="@+id/switch_cam"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/stopcamera"
+        app:layout_constraintTop_toTopOf="@+id/stopcamera"
+        tools:ignore="HardcodedText,MissingConstraints,UseSwitchCompatOrMaterialXml" />
+
+    <Switch
+        android:id="@+id/switch_cam"
+        android:layout_width="102dp"
+        android:layout_height="wrap_content"
+
+        android:textOff="cam off"
+        android:textOn="cam on"
+        android:showText="true"
+        android:shape="rectangle"
+        android:switchTextAppearance="@style/myTextAppearance"
+        app:layout_constraintBottom_toBottomOf="@+id/switch_pro_img"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/switch_pro_img"
+        app:layout_constraintTop_toTopOf="@+id/switch_pro_img"
+        tools:ignore="MissingConstraints,UseSwitchCompatOrMaterialXml" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
