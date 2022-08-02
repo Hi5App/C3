@@ -142,12 +142,21 @@ public abstract class BasicService extends Service {
         private boolean isReset = false;             /* when the connector release the connect, and need to reset connect in this thread */
         protected boolean needStop = false;          /* depend on whether need to stop run() */
 
+        private int tasknumall ;
+        private int tasknumnow ;
+
+        public int Readtasknumall() {
+            return tasknumall;
+        }
+        public int Readttasknumnow() {
+            return tasknumnow;
+        }
         public ReadThread(Socket socket) {
             mSocket = socket;
         }
 
 
-        protected void reConnect() {
+        public void reConnect() {
             Log.e(TAG, "Start to reConnect in mReadThread !");
 
             isReconnect = true;
@@ -302,7 +311,8 @@ public abstract class BasicService extends Service {
                         Log.e(TAG, "Loop: " + Loop + "; End: " + End);
                         byte[] File_Content = new byte[1024];
                         byte[] File_Content_End = new byte[End];
-
+                        tasknumall=File_Content_Int;
+                        tasknumnow=0;
                         for (int i = 0; i < Loop; i++) {
 
                             if (is.available() < 1024) {
@@ -310,6 +320,7 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
+                            tasknumnow=tasknumnow+1024;
                             //Log.e(TAG, "Start to read !"+(Loop-i));
                             out.write(File_Content);
                         }
@@ -324,6 +335,7 @@ public abstract class BasicService extends Service {
                                     continue;
                                 }
                                 is.read(File_Content_End, 0, End);
+                                tasknumnow=tasknumnow+End;
                             }
 //                            Log.e(TAG, "Finish read the data !");
                             out.write(File_Content_End);

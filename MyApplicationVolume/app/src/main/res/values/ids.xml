@@ -3,4 +3,7 @@
     <item name="Undo" type="id" />
     <item name="Redo" type="id" />
     <item name="startZscan" type="id" />
+    <item name="stopcamera" type="id"/>
+    <item name="switch_pro_img" type="id"/>
+    <item name="switch_cam" type="id"/>
 </resources>
