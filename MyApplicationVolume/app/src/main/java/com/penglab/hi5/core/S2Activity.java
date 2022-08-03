@@ -140,9 +140,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private Timer timer = null;
     private TimerTask timerTask;
 
-
+    Timer timer_nav = new Timer();
     private Timer updateimgTimer = null;
-
+    Timer timer_zseri = new Timer();
 
     int runCount = 0;// 全局变量，用于判断是否是第一次执行
     Handler handlerCount = new Handler();
@@ -542,7 +542,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             {
                 isConfirmPassword=false;
                 finish();
-                System.exit(0);
+                //System.exit(0);
 
                 Toast_in_Thread_static("Password is wrong!");
 
@@ -1112,8 +1112,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         bitmap2D = null;
         pvcamModeView = null;
         timerTask=null;
-
         updateimgTimer=null;
+
         progressBar = null;
         progressDialog_zscan = null;
         progressDialog_loadimg = null;
@@ -1121,7 +1121,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         Zslice_up = null;
         Zslice_down = null;
-
+        timerDownload = null;
+        timer_nav   = null ;
+        timer_zseri = null ;
+        
         Zoom_in_Big = null;
         bigImgS2Reader = null;
         Zoom_out_Big = null;
@@ -1169,6 +1172,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2renderer = null;
         S2Context = null;
         msgqueue=null;
+
         ifTouchCamera=false;
         //serverConnector.closeSender();
         if (timer != null) {
@@ -2857,7 +2861,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         if(!isConfirmPassword)
         {
             finish();
-            System.exit(0);
+            //System.exit(0);
         }
         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
@@ -4225,18 +4229,30 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .setHeaderLogo(R.drawable.si_logo)
                 .setDialogType(DialogType.INPUT)
                 .isCancelable(false)
-                .input("PLEASE ENTER PASSWORD",
-                        "ERROR PASSWORD AND CONTACT DILIU", new
-                                OnTextInputConfirmListener() {
+                .setNegative("dismiss",new View.OnClickListener(){
+                    @Override
+                    public void onClick(View v) {
+                        finish();
+                    }
+                })
+                .setPositive("confirm")
+
+                .input("PLEASE ENTER PASSWORD","ERROR PASSWORD AND CONTACT DILIU",
+                         new OnTextInputConfirmListener() {
+
                                     @Override
                                     public void onTextInputConfirmed(String text) {
+
 
                                         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
                                         String account = preferenceLogin.getUsername();
 
-                                        Log.v(TAG, "account: " + account );
-                                        Log.v(TAG, "user_id: " + text);
-
+                                        Log.e(TAG, "onTextInputConfirmed: account " + account );
+                                        Log.e(TAG, "onTextInputConfirmed: " + text);
+                                        if(text.isEmpty())
+                                        {
+                                            finish();
+                                        }
 
                                         ServerConnector.getInstance().sendMsg("s2password:" + account+":"+text+":"+VersionName);
 
@@ -4852,8 +4868,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     public void Block_navigate(String text) {
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+
+        timer_nav.schedule(new TimerTask() {
             @SuppressLint("LongLogTag")
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
@@ -4887,8 +4903,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     public void Zseries_navigate(String text) {
 
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
+
+        timer_zseri.schedule(new TimerTask() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             public void run() {
 
