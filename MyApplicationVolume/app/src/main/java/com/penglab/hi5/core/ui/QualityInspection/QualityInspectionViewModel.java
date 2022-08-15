@@ -540,6 +540,7 @@ public class QualityInspectionViewModel extends ViewModel {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
+                Log.e(TAG,MaxId.getValue().toString());
                 getArbor(MaxId.getValue());
             }
         });

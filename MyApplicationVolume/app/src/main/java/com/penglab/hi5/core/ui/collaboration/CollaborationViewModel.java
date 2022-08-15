@@ -13,8 +13,11 @@ import com.huawei.hms.support.api.PendingResultImpl;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.basic.image.XYZ;
+import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
+import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.CollorationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
@@ -23,6 +26,8 @@ import com.penglab.hi5.data.QualityInspectionDataSource;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
+import com.penglab.hi5.data.model.img.FilePath;
+import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 
 import org.json.JSONArray;
@@ -67,7 +72,10 @@ public class CollaborationViewModel extends ViewModel {
     private final ImageDataSource imageDataSource;
     private final CollorationDataSource collorationDataSource;
 
+
     private final MutableLiveData<CollaborationViewModel.AnnotationMode> annotationMode = new MutableLiveData<>();
+    private final MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
+    private final MutableLiveData<String> portStartCollaborate = new MutableLiveData<>();
     public ImageDataSource getImageDataSource() {
         return imageDataSource;
     }
@@ -87,6 +95,11 @@ public class CollaborationViewModel extends ViewModel {
         getNeuronList(brainNumber);
     }
 
+    public LiveData<ResourceResult> getImageResult() {
+
+        return imageResult;
+    }
+
     public void handleBrainListResult(Result result){
         if (result == null) {
             isDownloading = false;
@@ -104,8 +117,8 @@ public class CollaborationViewModel extends ViewModel {
                         JSONObject jsonObject = jsonArray.getJSONObject(i);
                         String imageId = jsonObject.getString("name");
                         String detail = jsonObject.getString("detail");
-                        Log.e(TAG,"collaborate mode in get imageId"+imageId);
-                        Log.e(TAG,"collaborate mode in get detail"+detail);
+//                        Log.e(TAG,"collaborate mode in get imageId"+imageId);
+//                        Log.e(TAG,"collaborate mode in get detail"+detail);
 
                         // parse brain info
                         detail = detail.substring(1, detail.length() - 1);
@@ -156,6 +169,8 @@ public class CollaborationViewModel extends ViewModel {
                     Log.e("anoName",""+anoName);
                     String port= loadAnoResult.getString("port");
                     Log.e("port",""+port);
+                    portStartCollaborate.setValue(port);
+
 
 
 
@@ -169,7 +184,11 @@ public class CollaborationViewModel extends ViewModel {
 
 
     }
+    public String getPortStartCollaborate(){
+        Log.e(TAG,"port"+portStartCollaborate.getValue());
+        return portStartCollaborate.getValue();
 
+    }
 
 
     public void getImageList(){
@@ -225,7 +244,12 @@ public class CollaborationViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
-                Log.e(TAG,"Collaborate+Download image data" + data);}
+                Log.e(TAG,"Collaborate+Download image data" + data);
+                openFile();
+
+            }
+
+
 //                if (curDownloadIndex < arborInfoList.size()-1) {
 //                    potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
 //
@@ -247,6 +271,24 @@ public class CollaborationViewModel extends ViewModel {
 //            Log.e(TAG,"Download image result is error !");
 //            isDownloading = false;
         }
+
+    }
+
+    public void openFile() {
+        String brainId = potentialDownloadNeuronInfo.getBrainName();
+        XYZ location = downloadCoordinateConvert.getCenterLocation();
+        String res = resMap.get(brainId);
+        if (res == null) {
+            imageResult.setValue(new ResourceResult(false, "No res found"));
+            return;
+        }
+        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +
+                "/" + brainId + "_" + res + "_" + (int)location.x + "_" + (int)location.y + "_" + (int)location.z + ".v3dpbd";
+        String fileName = FileManager.getFileName(filePath);
+        FileType fileType = FileManager.getFileType(filePath);
+        imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >(filePath), fileType);
+        annotationMode.setValue(AnnotationMode.BIG_DATA);
+        imageResult.setValue(new ResourceResult(true));
 
     }
 

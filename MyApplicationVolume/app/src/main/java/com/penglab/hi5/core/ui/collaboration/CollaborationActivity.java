@@ -66,11 +66,13 @@ import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
+import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
+import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,15 +149,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number
          */
-
-        if (msg.startsWith("Port:")) {
-
-            if (msg.split(":")[1].equals("-1")){
-                Toast_in_Thread("Something wrong with this img, choose other img please !");
-                return;
-            }
+/*
+            when join the room, user should login first
+             */
+        if(collaborationViewModel.getPortStartCollaborate() !=null ){
+            Log.e(TAG,"Start to collaborate");
 
             initMsgConnector(msg.split(":")[1]);
+
             if (firstJoinRoom){
                 initMsgService();
                 firstJoinRoom = false;
@@ -166,10 +167,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 CollaborationService.resetConnection();
             }
 
-            /*
-            when join the room, user should login first
-             */
             MsgConnector.getInstance().sendMsg("/login:" + username);
+
         }
 
 
@@ -194,6 +193,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String[] users = msg.split(":")[1].split(";");
             List<String> newUserList = Arrays.asList(users);
             updateUserList(newUserList);
+        }
+
+        if(msg.startsWith("STARTCOLLABORATE")){
+            Log.e(TAG,"STARTCOLLABORATE");
+            
         }
 
         /*
@@ -504,6 +508,23 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         });
 
+        collaborationViewModel.getImageResult().observe(this, new androidx.lifecycle.Observer<ResourceResult>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onChanged(ResourceResult resourceResult) {
+                if (resourceResult == null){
+                    return;
+                }
+                if (resourceResult.isSuccess()){
+                    annotationGLSurfaceView.openFile();
+//                    collaborationViewModel.loadAno();
+//
+                } else {
+                    ToastEasy(resourceResult.getError());
+                }
+
+            }
+        });
 
 
 
@@ -982,16 +1003,16 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             // load layout view
             LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
-            commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
+            commonView = getLayoutInflater().inflate(R.layout.annotation_common_collaborate, null);
             this.addContentView(commonView, lpCommon);
 
-            editModeIndicator = findViewById(R.id.edit_mode_indicator);
-            tapBarMenu = findViewById(R.id.tapBarMenu);
-            addCurve = tapBarMenu.findViewById(R.id.draw_i);
-            addMarker = tapBarMenu.findViewById(R.id.pinpoint);
-            deleteCurve = tapBarMenu.findViewById(R.id.delete_curve);
-            deleteMarker = tapBarMenu.findViewById(R.id.delete_marker);
-            BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu);
+            editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
+            tapBarMenu = findViewById(R.id.tapBarMenu_collaborate);
+            addCurve = tapBarMenu.findViewById(R.id.draw_i_collaborate);
+            addMarker = tapBarMenu.findViewById(R.id.pinpoint_collaborate);
+            deleteCurve = tapBarMenu.findViewById(R.id.delete_curve_collaborate);
+            deleteMarker = tapBarMenu.findViewById(R.id.delete_marker_collaborate);
+            BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu_collaborate);
 
             tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
             addCurve.setOnClickListener(this::onMenuItemClick);
@@ -1019,6 +1040,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
                     .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
 
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("GD tracing algorithm start !");
+                executorService.submit(() -> annotationGLSurfaceView.GD());
+            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.clearAllTracing())
@@ -1039,22 +1066,22 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
 
         switch (view.getId()) {
-            case R.id.draw_i:
+            case R.id.draw_i_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
                     addCurve.setImageResource(R.drawable.ic_draw);
                 }
                 break;
-            case R.id.pinpoint:
+            case R.id.pinpoint_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
                     addMarker.setImageResource(R.drawable.ic_add_marker);
                 }
                 break;
-            case R.id.delete_curve:
+            case R.id.delete_curve_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
                     deleteCurve.setImageResource(R.drawable.ic_delete_curve);
                 }
                 break;
-            case R.id.delete_marker:
+            case R.id.delete_marker_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
@@ -1065,7 +1092,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     @SuppressLint("NonConstantResourceId")
     private boolean onMenuItemLongClick(View view) {
         switch (view.getId()){
-            case R.id.draw_i:
+            case R.id.draw_i_collaborate:
                 ColorPickerDialog.newBuilder()
                         .setShowColorShades(false)
                         .setAllowCustom(false)
@@ -1077,7 +1104,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                         .setSelectedButtonText(R.string.color_selector_confirm)
                         .show(this);
                 return true;
-            case R.id.pinpoint:
+            case R.id.pinpoint_collaborate:
                 ColorPickerDialog.newBuilder()
                         .setShowColorShades(false)
                         .setAllowCustom(false)
