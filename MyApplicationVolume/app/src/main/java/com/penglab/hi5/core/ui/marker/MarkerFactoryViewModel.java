@@ -505,7 +505,6 @@ public class MarkerFactoryViewModel extends ViewModel {
             ToastEasy("Something wrong with curIndex");
         }
 
-//        editImageNum.setValue(editImageNum.getValue()+1);
     }
 
     private void getBrainList() {

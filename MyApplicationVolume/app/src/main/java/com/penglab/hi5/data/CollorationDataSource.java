@@ -212,11 +212,11 @@ public class CollorationDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG, "responseCode" + response.code());
+                    Log.e(TAG, "responseCode_loadano" + response.code());
                     int responseCode = response.code();
                     responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response loadano: " + responseData);
+//                        Log.e(TAG, "response loadano: " + responseData);
                         // process response
                         try {
                             JSONObject loadAnoArray = new JSONObject(responseData);

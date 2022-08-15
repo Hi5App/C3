@@ -74,7 +74,7 @@ public class QualityInspectionDataSource {
 
     public void getArbor(int MaxId){
         try {
-            Log.e(TAG,"getArbor");
+            Log.e(TAG,"getArbor_MaxId"+MaxId);
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
             HttpUtilsQualityInspection.getArborWithOkHttp(userInfo, MaxId,new Callback() {
                 @Override
