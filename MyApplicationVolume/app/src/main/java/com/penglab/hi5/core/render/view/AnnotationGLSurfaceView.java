@@ -668,4 +668,9 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void setImageInfoInRender(String imageInfo) {
         annotationRender.setImageInfo(imageInfo);
     }
+
+
+    public void setBigData(boolean isBigData) {
+        this.isBigData = isBigData;
+    }
 }
