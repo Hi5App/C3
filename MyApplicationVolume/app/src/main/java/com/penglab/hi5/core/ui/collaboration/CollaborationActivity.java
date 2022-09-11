@@ -51,6 +51,7 @@ import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
@@ -152,24 +153,24 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 /*
             when join the room, user should login first
              */
-        if(collaborationViewModel.getPortStartCollaborate() !=null ){
-            Log.e(TAG,"Start to collaborate");
-
-            initMsgConnector(msg.split(":")[1]);
-
-            if (firstJoinRoom){
-                initMsgService();
-                firstJoinRoom = false;
-            }else {
-                /*
-                reset the msg connect in collaboration service
-                 */
-                CollaborationService.resetConnection();
-            }
-
-            MsgConnector.getInstance().sendMsg("/login:" + username);
-
-        }
+//        if(collaborationViewModel.getPortStartCollaborate() !=null ){
+//            Log.e(TAG,"Start to collaborate");
+//
+//            initMsgConnector(msg.split(":")[1]);
+//
+//            if (firstJoinRoom){
+//                initMsgService();
+//                firstJoinRoom = false;
+//            }else {
+//                /*
+//                reset the msg connect in collaboration service
+//                 */
+//                CollaborationService.resetConnection();
+//            }
+//
+//            MsgConnector.getInstance().sendMsg("/login:" + username);
+//
+//        }
 
 
         /*
@@ -197,7 +198,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         if(msg.startsWith("STARTCOLLABORATE")){
             Log.e(TAG,"STARTCOLLABORATE");
-            
+
         }
 
         /*
@@ -360,6 +361,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         setContentView(R.layout.activity_collaboration);
 
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
+        annotationGLSurfaceView.setBigData(true);
         toolbar = findViewById(R.id.toolbar_collaboration);
         setSupportActionBar(toolbar);
 
@@ -374,6 +376,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
+
+        username =  InfoCache.getAccount();
 
         initNim();
         initService();
@@ -485,6 +489,25 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             @Override
             public void onChanged(Result result) {
                 collaborationViewModel.handleLoadAnoResult(result);
+            }
+        });
+
+
+        collaborationViewModel.getPortResult().observe(this, new androidx.lifecycle.Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                initMsgConnector(s);
+                if (firstJoinRoom){
+                    initMsgService();
+                    firstJoinRoom = false;
+                }else {
+                /*
+                reset the msg connect in collaboration service
+                 */
+                    CollaborationService.resetConnection();
+                }
+
+                MsgConnector.getInstance().sendMsg("/login:" + username);
             }
         });
 
@@ -734,6 +757,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
+        Log.e(TAG,"initMdgConnector");
     }
 
 
@@ -1070,6 +1094,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
                     addCurve.setImageResource(R.drawable.ic_draw);
                 }
+
                 break;
             case R.id.pinpoint_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){

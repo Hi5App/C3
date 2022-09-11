@@ -96,8 +96,11 @@ public class CollaborationViewModel extends ViewModel {
     }
 
     public LiveData<ResourceResult> getImageResult() {
-
         return imageResult;
+    }
+
+    public  MutableLiveData<String> getPortResult() {
+        return portStartCollaborate;
     }
 
     public void handleBrainListResult(Result result){
@@ -170,10 +173,6 @@ public class CollaborationViewModel extends ViewModel {
                     String port= loadAnoResult.getString("port");
                     Log.e("port",""+port);
                     portStartCollaborate.setValue(port);
-
-
-
-
                 } catch (Exception e) {
                     ToastEasy("Fail to parse jsonArray when get user performance !");
                 }
