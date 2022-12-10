@@ -219,6 +219,7 @@ public abstract class BasicService extends Service {
                                             reConnection();
                                         }
                                     }
+
                                 }
                             }
                         } catch (Exception e) {
@@ -344,6 +345,7 @@ public abstract class BasicService extends Service {
 
 
                         receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
+
 
 
 //                        Log.e(TAG,"Finish process file !");
