@@ -49,7 +49,9 @@ import com.netease.nimlib.sdk.msg.model.IMMessage;
 import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
+import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
@@ -64,6 +66,7 @@ import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
+import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
@@ -77,13 +80,16 @@ import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * Created by Jackiexing on 05/17/21
@@ -136,6 +142,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(3);
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onRecMessage(String msg) {
         if (msg.startsWith("TestSocketConnection")) {
@@ -149,45 +156,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
 
         when the file is selected, room will be created, and collaborationService will be init, port is room number
-         */
-/*
-            when join the room, user should login first
-             */
-//        if(collaborationViewModel.getPortStartCollaborate() !=null ){
-//            Log.e(TAG,"Start to collaborate");
-//
-//            initMsgConnector(msg.split(":")[1]);
-//
-//            if (firstJoinRoom){
-//                initMsgService();
-//                firstJoinRoom = false;
-//            }else {
-//                /*
-//                reset the msg connect in collaboration service
-//                 */
-//                CollaborationService.resetConnection();
-//            }
-//
-//            MsgConnector.getInstance().sendMsg("/login:" + username);
-//
-//        }
-
-
-        /*
+         *//*
         After msg:  "/login:xf"
 
         server will send user list when the users in current room are changed
          */
         if (msg.startsWith("/users:")){
 
-            if (firstLoad || copyFile){
-                /*a
-                when first join the room, try to get the image
-                 */
-                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLoad = false;
-                copyFile   = false;
-            }
+//            if (firstLoad || copyFile){
+//                /*a
+//                when first join the room, try to get the image
+//                 */
+//                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
+//                firstLoad = false;
+//                copyFile   = false;
+//            }
             /*
             update the user list
              */
@@ -196,8 +179,25 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             updateUserList(newUserList);
         }
 
-        if(msg.startsWith("STARTCOLLABORATE")){
-            Log.e(TAG,"STARTCOLLABORATE");
+        if(msg.startsWith("STARTCOLLABORATE:")){
+            Log.e(TAG,"STARTCOLLABORATE:");
+
+            if(msg.endsWith(".apo")){
+
+                Log.e(TAG, "File: .apo");
+                loadBigDataApo(msg.split(":")[1]);
+
+            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
+
+                Log.e(TAG, "File: .eswc");
+                loadBigDataSwc(msg.split(":")[1]);
+
+                // for sync bar when click sync button
+//                if(timerSync != null){
+//                    hideSyncBar();
+//                }
+
+            }
 
         }
 
@@ -271,9 +271,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         }
 
-        if(msg.startsWith("/STARTCOLLABORATE:")) {
-            Log.e(TAG,"EMIT LOAD ANO");
-        }
+//        if(msg.startsWith("/STARTCOLLABORATE:")) {
+//            Log.e(TAG,"EMIT LOAD ANO");
+//        }
     }
 
     public static void Toast_in_Thread_static(String message) {
@@ -379,7 +379,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         username =  InfoCache.getAccount();
 
-        initNim();
+//        initNim();
         initService();
         initServerConnector();
 
@@ -399,8 +399,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             public void onChanged(Result result) {
                 if(result instanceof Result.Success){
                     String[] data = (String[]) ((Result.Success<?>) result).getData();
-                    Set<String> set=new HashSet<String>(Arrays.asList(data));
+                    Set<String> set=new HashSet<String>(Arrays.asList("18454"));
                     String[] listShow = set.toArray(new String[set.size()]);
+
                     new XPopup.Builder(CollaborationActivity.this).
                             maxHeight(1350).
                             maxWidth(800).
@@ -430,8 +431,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     for(int i = 0; i<potentialDownloadNeuronInfoList.size();i++){
                         CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
                         neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
+                        Collections.sort(neuronNumberList);
                         String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
-                        new XPopup.Builder(CollaborationActivity.this).
+                         new XPopup.Builder(CollaborationActivity.this).
                                 maxHeight(1350).
                                 maxWidth(800).
                                 asCenterList("Neuron Number",
@@ -744,6 +746,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
     private void initMsgService() {
+        Log.e(TAG,"initMsgService");
         // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
@@ -757,7 +760,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
-        Log.e(TAG,"initMdgConnector");
+        Log.e(TAG,"initMsgConnector");
     }
 
 
@@ -778,7 +781,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
 //            ManageService manageService = (ManageService) binder.getService();
-            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
+            binder.addReceiveMsgInterface((CollaborationActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
         }
 
@@ -798,7 +801,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             // We've bound to LocalService, cast the IBinder and get LocalService instance
             BasicService.LocalBinder binder = (BasicService.LocalBinder) service;
 //            CollaborationService collaborationService = (CollaborationService) binder.getService();
-            binder.addReceiveMsgInterface((MainActivity) getActivityFromContext(mainContext));
+            binder.addReceiveMsgInterface((CollaborationActivity) getActivityFromContext(mainContext));
             mBoundCollaboration = true;
         }
 
@@ -815,10 +818,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
      /*
     for IM module ------------------------------------------------------------------------------------
      */
-
-    private void initNim(){
-        registerSystemMessageObservers(true);
-    }
+//
+//    private void initNim(){
+//        registerSystemMessageObservers(true);
+//    }
 
     /**
      * load Big Data
@@ -838,12 +841,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     /**
      * 注册/注销系统消息未读数变化
      */
-    private void registerSystemMessageObservers(boolean register) {
-        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
-                sysMsgUnreadCountChangedObserver, register);
-
-        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
-    }
+//    private void registerSystemMessageObservers(boolean register) {
+//        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
+//                sysMsgUnreadCountChangedObserver, register);
+//
+//        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
+//    }
 
     private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
         Log.e("Observer<Integer>","Observer unreadCount");
@@ -975,6 +978,38 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
 
         MsgConnector.userList = newUserList;
+    }
+
+    public void loadBigDataApo(String filepath){
+
+        try {
+            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            if (apo == null){
+                Toast_in_Thread("There is something wrong with apo file !");
+            }
+
+            annotationGLSurfaceView.importApo(Communicator.getInstance().convertApo(apo));
+//            myrenderer.saveUndo();
+            annotationGLSurfaceView.requestRender();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void loadBigDataSwc(String filepath){
+        try {
+            NeuronTree nt = NeuronTree.readSWC_file(filepath);
+
+            annotationGLSurfaceView.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
+//            myrenderer.saveUndo();
+            annotationGLSurfaceView.requestRender();
+//            setBigDataName();
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private boolean isTopActivity() {

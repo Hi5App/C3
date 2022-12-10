@@ -490,6 +490,14 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
+    public void importApo(ArrayList<ArrayList<Float>> apo){
+        annotationHelper.importApo(apo);
+    }
+
+    public void importNeuronTree(NeuronTree nt, boolean needSync){
+        annotationHelper.importNeuronTree(nt,needSync);
+    }
+
     public void autoRotateStop(){
         renderOptions.setImageChanging(false);
         matrixManager.autoRotateStop();

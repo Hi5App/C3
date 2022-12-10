@@ -1696,6 +1696,90 @@ public class AnnotationHelper {
         return result;
     }
 
+    public ArrayList<ImageMarker> importApo(ArrayList<ArrayList<Float>> apo) {
+        annotationDataManager.getSyncMarkerList().clear();
+
+//        syncMarkerList.clear();
+
+        // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
+        ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
+
+        try {
+            for (int i = 0; i < apo.size(); i++) {
+                ArrayList<Float> currentLine = apo.get(i);
+
+                ImageMarker imageMarker_drawed = new ImageMarker(currentLine.get(5),
+                        currentLine.get(6),
+                        currentLine.get(4));
+
+                int r = currentLine.get(15).intValue();
+                int g = currentLine.get(16).intValue();
+                int b = currentLine.get(17).intValue();
+
+                if (r == 255 && g == 255 && b == 255) {
+                    imageMarker_drawed.type = 0;
+
+                } else if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)) {
+                    imageMarker_drawed.type = 1;
+
+                } else if ((r == 255 && g == 0 && b == 0) || (r == 200 && g == 20 && b == 0)) {
+                    imageMarker_drawed.type = 2;
+
+                } else if ((r == 0 && g == 0 && b == 255) || (r == 0 && g == 20 && b == 200)) {
+                    imageMarker_drawed.type = 3;
+
+                } else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)) {
+                    imageMarker_drawed.type = 4;
+
+                } else if ((r == 0 && g == 255 && b == 255) || (r == 0 && g == 200 && b == 200)) {
+                    imageMarker_drawed.type = 5;
+
+                } else if ((r == 255 && g == 255 && b == 0) || (r == 220 && g == 200 && b == 0)) {
+                    imageMarker_drawed.type = 6;
+
+                } else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)) {
+                    imageMarker_drawed.type = 7;
+
+                }
+
+//                System.out.println("ImageType: " + imageMarker_drawed.type);
+                annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
+                markerListLoaded.add(imageMarker_drawed);
+            }
+
+//            System.out.println("Size of : markerListLoaded: " + markerListLoaded.size());
+
+        } catch (Exception e) {
+            markerListLoaded.clear();
+            e.printStackTrace();
+        }
+
+        return markerListLoaded;
+    }
+
+    public void importNeuronTree(NeuronTree nt, boolean needSync) {
+
+        Log.e(TAG, "----------------importNeuronTree----------------");
+        annotationDataManager.getSyncSwcList().clear();
+        try {
+            Log.e(TAG, "nt size: " + nt.listNeuron.size());
+
+            Vector<V_NeuronSWC> segs = nt.devideByBranch();
+            for (int i = 0; i < segs.size(); i++) {
+                annotationDataManager.getSyncSwcList().append(segs.get(i));
+                if (needSync) {
+                    updateAddSegSWC(segs.get(i));
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        ifLoadSWC = true;
+    }
+
+
 
     /**
      * Collaboration part
