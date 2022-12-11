@@ -155,11 +155,13 @@ public class Myapplication extends Application {
         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
         String account = preferenceLogin.getUsername();
         String password = preferenceLogin.getPassword();
+        int id = preferenceLogin.getId();
 
         if (preferenceLogin.getRem_or_not() && !account.equals("") && !password.equals("")) {
             Log.e(TAG,"account: " + account + ";  password: " + password);
             InfoCache.setAccount(account.toLowerCase());
             InfoCache.setToken(password);
+            InfoCache.setId(id);
             return new LoginInfo(account, password);
         } else {
             return null;

@@ -33,6 +33,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.password.FindPasswordActivity;
@@ -132,8 +133,9 @@ public class LoginActivity extends AppCompatActivity{
                     showLoginFailed(loginResult.getError());
                 }
                 if (loginResult.getSuccess() != null) {
+                    int id = InfoCache.getId();
                     preferenceLogin.setPref(usernameEditText.getText().toString(),
-                            passwordEditText.getText().toString(),true,true);
+                            passwordEditText.getText().toString(),id,true,true);
                     updateUiWithUser(loginResult.getSuccess());
                     showHomeActivity();
                     setResult(Activity.RESULT_OK);

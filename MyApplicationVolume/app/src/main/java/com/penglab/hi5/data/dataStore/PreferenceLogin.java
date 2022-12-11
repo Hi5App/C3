@@ -31,10 +31,11 @@ public class PreferenceLogin {
         pref = mContext.getSharedPreferences("Login", Context.MODE_PRIVATE);
     }
 
-    public void setPref(String username, String password, boolean autoLogin, boolean rem_or_not){
+    public void setPref(String username, String password, int id, boolean autoLogin, boolean rem_or_not){
         SharedPreferences.Editor editor = pref.edit();
         editor.putString("Username",username);
         editor.putString("Password",password);
+        editor.putInt("id",id);
         editor.putBoolean("AutoLogin",autoLogin);
         editor.putBoolean("Rem_or_not",rem_or_not);
         editor.apply();
@@ -55,4 +56,6 @@ public class PreferenceLogin {
     public boolean getAutoLogin(){
         return pref.getBoolean("AutoLogin",false);
     }
+
+    public int getId() { return pref.getInt("id",-1); }
 }

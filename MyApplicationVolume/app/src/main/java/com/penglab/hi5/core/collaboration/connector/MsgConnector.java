@@ -8,6 +8,7 @@ import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.MsgSender;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 import com.penglab.hi5.core.collaboration.service.CollaborationService;
+import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,7 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
 
     @Override
     public boolean sendMsg(String msg, boolean waited, boolean resend){
+        Log.e(TAG,"sendMsg"+msg);
         return msgSender.sendMsg(mSocket, msg, waited, resend, this);
     }
 
@@ -67,8 +69,8 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
     public void reLogin() {
         Log.e(TAG,"Start to reLogin !");
         if (InfoCache.getAccount() != null){
-            MainActivity.firstLoad = true;
-            MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getAccount(), true, false);
+            CollaborationActivity.firstLoad = true;
+            MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " + "2", true, false);
         }
 //        else
 //            ToastEasy("user account is null, fail to relogin !");

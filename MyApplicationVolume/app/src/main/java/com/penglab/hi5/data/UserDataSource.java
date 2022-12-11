@@ -1,6 +1,5 @@
 package com.penglab.hi5.data;
 
-import static com.penglab.hi5.core.MainActivity.ifGuestLogin;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.getContext;
 
@@ -10,24 +9,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.netease.nim.uikit.api.NimUIKit;
-import com.netease.nim.uikit.common.ToastHelper;
-import com.netease.nim.uikit.common.util.log.LogUtil;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.RequestCallback;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.netease.nimlib.sdk.auth.LoginInfo;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
-import com.penglab.hi5.core.net.HttpUtilsResource;
 import com.penglab.hi5.core.net.HttpUtilsUser;
-import com.penglab.hi5.core.ui.home.screens.HomeActivity;
-import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.model.user.FindPasswordUser;
 import com.penglab.hi5.data.model.user.LoggedInUser;
 import com.penglab.hi5.data.model.user.RegisterUser;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -82,7 +75,8 @@ public class UserDataSource {
                                     userInfo.getString("nickname"),
                                     userInfo.getString("email"));
                             result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
-                            storeUserCache(username, password);
+                            int id = userInfo.getInt("id");
+                            storeUserCache(username, password,id);
 
                             response.body().close();
                             response.close();
@@ -206,14 +200,16 @@ public class UserDataSource {
         preferenceLogin.setPref(
                 preferenceLogin.getUsername(),
                 preferenceLogin.getPassword(),
+                preferenceLogin.getId(),
                 false,
                 true);
 
         result.setValue(new Result.Success<String>(LOGOUT_SUCCESS));
     }
 
-    private void storeUserCache(String username, String password){
+    private void storeUserCache(String username, String password,int id){
         InfoCache.setAccount(username);
         InfoCache.setToken(password);
+        InfoCache.setId(id);
     }
 }

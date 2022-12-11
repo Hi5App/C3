@@ -6,7 +6,7 @@ package com.penglab.hi5.data.model.user;
  */
 public class LoggedInUser extends User {
 
-    private final String userId;
+    private final String userId;// userId is username
     private final String nickName;
     private final String email;
     private int Score;
@@ -32,4 +32,5 @@ public class LoggedInUser extends User {
     public int getScore() {
         return Score;
     }
+
 }
