@@ -247,9 +247,11 @@ public abstract class BasicService extends Service {
 
         }
         private void onRead(String tag) {
+            Log.e(TAG,tag+"tag");
 
 
             if (!dataType.isFile && !dataType.isDataStream) {
+
                 if (dataType.dataSize == 0) {
                     try {
                         String header = "";

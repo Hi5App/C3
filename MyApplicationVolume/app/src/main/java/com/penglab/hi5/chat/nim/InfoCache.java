@@ -18,6 +18,8 @@ public class InfoCache {
 
     private static String token;
 
+    private static int id;
+
     private static StatusBarNotificationConfig notificationConfig;
 
     public static void clear() {
@@ -27,6 +29,8 @@ public class InfoCache {
     public static String getAccount() {
         return account;
     }
+
+    public static int getId() {return id;}
 
     public static String getToken() {
         return token;
@@ -52,6 +56,10 @@ public class InfoCache {
     public static void setAccount(String account) {
         InfoCache.account = account;
         NimUIKit.setAccount(account);
+    }
+
+    public static void setId(int id) {
+        InfoCache.id = id;
     }
 
     public static void setToken(String token) {

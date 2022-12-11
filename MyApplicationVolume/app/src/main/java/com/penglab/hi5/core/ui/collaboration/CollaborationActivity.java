@@ -120,6 +120,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     public static String username;
 
+    public static int id;
+
     private View bigDataModeView;
     private View commonView;
 
@@ -379,9 +381,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         username =  InfoCache.getAccount();
 
+        id = InfoCache.getId();
+//
 //        initNim();
-        initService();
-        initServerConnector();
+//        initService();
+//        initServerConnector();
 
         collaborationViewModel.getAnnotationMode().observe(this, new androidx.lifecycle.Observer<CollaborationViewModel.AnnotationMode>() {
             @Override
@@ -509,7 +513,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     CollaborationService.resetConnection();
                 }
 
-                MsgConnector.getInstance().sendMsg("/login:" + username);
+                MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " +2 );
             }
         });
 

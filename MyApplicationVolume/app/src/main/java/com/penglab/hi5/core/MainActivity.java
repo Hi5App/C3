@@ -319,7 +319,9 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     public static String USERNAME = "username";
 
-    public static String username;                                          // 用户信息 可放入state类管理
+    public static String username;// 用户信息 可放入state类管理
+
+    public static int id;
 
     private SoundPool soundPool;
     private final int SOUNDNUM = 4;
@@ -396,7 +398,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             /*
             when join the room, user should login first
              */
-            MsgConnector.getInstance().sendMsg("/login:" + username);
+            MsgConnector.getInstance().sendMsg("/login:" + id+ 2);
         }
 
 
@@ -1174,6 +1176,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         Intent intent = new Intent(context, MainActivity.class);
         context.startActivity(intent);
         username = InfoCache.getAccount();
+        id = InfoCache.getId();
+
         acceptInvitation(path, soma);
     }
 
@@ -3998,7 +4002,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
+                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),preferenceLogin.getId(),false, true);
                         // DemoCache.clear();
 
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -4030,7 +4034,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 //                        AgoraMsgManager.getInstance().getRtmClient().logout(null);
 
                         PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),false, true);
+                        preferenceLogin.setPref(preferenceLogin.getUsername(),preferenceLogin.getPassword(),preferenceLogin.getId(),false, true);
                         // DemoCache.clear();
 
                         startActivity(new Intent(MainActivity.this, LoginActivity.class));

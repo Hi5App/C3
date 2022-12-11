@@ -74,6 +74,7 @@ public class MsgSender {
                     }
                     return false;
                 }
+                Log.e(TAG,"Send Message");
                 return true;
             }
         });

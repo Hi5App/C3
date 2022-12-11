@@ -12,7 +12,7 @@ public class CollaborationService extends BasicService {
 
     protected static final String TAG = "CollaborationService";
 
-    protected static ReadThread mReadThread;
+    public static ReadThread mReadThread;
 
     private static volatile boolean isReleased = false;
 
