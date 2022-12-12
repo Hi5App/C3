@@ -266,16 +266,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg    = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(username)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
             }
         }
-
-//        if(msg.startsWith("/STARTCOLLABORATE:")) {
-//            Log.e(TAG,"EMIT LOAD ANO");
-//        }
+        
     }
 
     public static void Toast_in_Thread_static(String message) {
