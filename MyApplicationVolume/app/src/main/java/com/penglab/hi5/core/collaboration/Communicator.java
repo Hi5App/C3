@@ -117,8 +117,8 @@ public class Communicator {
 
         V_NeuronSWC seg = new V_NeuronSWC();
 
-        String[] swc = msg.split(";");
-        String type = msg.split(";")[0].split(" ")[1];
+        String[] swc = msg.split(",");
+        String type = msg.split(",")[0].split(" ")[1];
         for (int i = 1; i < swc.length; i++){
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
@@ -130,12 +130,12 @@ public class Communicator {
             segUnit.y = LocalCroods.y;
             segUnit.z = LocalCroods.z;
 
-            if (type.equals("HI5")){
+            if (type.equals("2")){
 
                 segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
                 segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
 
-            }else if (type.equals("TeraFly")){
+            }else if (type.equals("0")){
 
                 segUnit.n = i;
                 if (i == 1){
@@ -178,7 +178,7 @@ public class Communicator {
             result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
             String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
-            msg = msg + TextUtils.join(";", result);
+            msg = msg + TextUtils.join(",", result);
 
             MsgConnector msgConnector = MsgConnector.getInstance();
             msgConnector.sendMsg(msg);
@@ -193,7 +193,7 @@ public class Communicator {
         result.add(String.format("%d %.3f %.3f %.3f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
         String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
-        msg = msg + TextUtils.join(";", result);
+        msg = msg + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg);
@@ -214,7 +214,7 @@ public class Communicator {
         result_origin.add(String.format("%d %.3f %.3f %.3f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
-        msg_origin = msg_origin + TextUtils.join(";", result_origin);
+        msg_origin = msg_origin + TextUtils.join(",", result_origin);
         msgConnector.sendMsg(msg_origin, true, true);
 
         /*
@@ -225,7 +225,7 @@ public class Communicator {
         result_current.add(String.format("%d %.3f %.3f %.3f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
-        msg_current = msg_current + TextUtils.join(";", result_current);
+        msg_current = msg_current + TextUtils.join(",", result_current);
         msgConnector.sendMsg(msg_current, true, true);
 
     }

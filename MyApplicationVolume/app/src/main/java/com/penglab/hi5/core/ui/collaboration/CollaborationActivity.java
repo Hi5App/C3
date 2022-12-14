@@ -58,7 +58,6 @@ import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
 import com.penglab.hi5.core.BaseActivity;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
@@ -163,23 +162,23 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         server will send user list when the users in current room are changed
          */
-        if (msg.startsWith("/users:")){
-
-//            if (firstLoad || copyFile){
-//                /*a
-//                when first join the room, try to get the image
-//                 */
-//                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-//                firstLoad = false;
-//                copyFile   = false;
-//            }
-            /*
-            update the user list
-             */
-            String[] users = msg.split(":")[1].split(";");
-            List<String> newUserList = Arrays.asList(users);
-            updateUserList(newUserList);
-        }
+//        if (msg.startsWith("/users:")){
+//
+////            if (firstLoad || copyFile){
+////                /*a
+////                when first join the room, try to get the image
+////                 */
+////                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
+////                firstLoad = false;
+////                copyFile   = false;
+////            }
+//            /*
+//            update the user list
+//             */
+//            String[] users = msg.split(":")[1].split(";");
+//            List<String> newUserList = Arrays.asList(users);
+//            updateUserList(newUserList);
+//        }
 
         if(msg.startsWith("STARTCOLLABORATE:")){
             Log.e(TAG,"STARTCOLLABORATE:");
@@ -210,7 +209,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("/drawline_norm:")) {
             Log.e(TAG,"drawline_norm");
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
             String seg      = msg.split(":")[1];
 
             if (!userID.equals(id)) {
@@ -224,7 +223,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("/delline_norm:")) {
             Log.e(TAG,"delline_norm");
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
             String seg      = msg.split(":")[1];
 
             if (!userID.equals(id)){
@@ -237,8 +236,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("/addmarker_norm:")) {
             Log.e(TAG,"addmarker_norm");
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
+            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
+            String marker      = msg.split(":")[1].split(",")[1];
 
             if (!userID.equals(id)) {
                 Communicator communicator = Communicator.getInstance();
@@ -250,8 +249,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("/delmarker_norm:")) {
             Log.e(TAG,"delmarker_norm");
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
+            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
+            String marker      = msg.split(":")[1].split(",")[1];
 
             if (!userID.equals(id)){
                 Communicator communicator = Communicator.getInstance();
@@ -263,7 +262,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("/retypeline_norm:")) {
             Log.e(TAG,"retypeline_norm");
 
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
             String seg    = msg.split(":")[1];
 
             if (!userID.equals(id)) {
@@ -1024,7 +1023,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             return false;
         }
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
-        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.MainActivity}");
+        return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.CollaborationActivity}");
     }
 
 
