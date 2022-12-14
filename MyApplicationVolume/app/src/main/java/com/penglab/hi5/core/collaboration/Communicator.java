@@ -24,8 +24,9 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.penglab.hi5.core.MainActivity.Toast_in_Thread_static;
-import static com.penglab.hi5.core.MainActivity.username;
+import static com.penglab.hi5.core.ui.collaboration.CollaborationActivity.Toast_in_Thread_static;
+import static com.penglab.hi5.core.ui.collaboration.CollaborationActivity.id;
+
 
 public class Communicator {
 
@@ -176,7 +177,7 @@ public class Communicator {
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
             result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
-            String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+            String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
             msg = msg + TextUtils.join(";", result);
 
             MsgConnector msgConnector = MsgConnector.getInstance();
@@ -191,7 +192,7 @@ public class Communicator {
         XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
         result.add(String.format("%d %.3f %.3f %.3f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
-        String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+        String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
         msg = msg + TextUtils.join(";", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
@@ -212,7 +213,7 @@ public class Communicator {
         XYZ GlobalCroods_origin = ConvertLocalBlocktoGlobalCroods(origin_marker.x,origin_marker.y,origin_marker.z);
         result_origin.add(String.format("%d %.3f %.3f %.3f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
 
-        String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+        String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
         msg_origin = msg_origin + TextUtils.join(";", result_origin);
         msgConnector.sendMsg(msg_origin, true, true);
 
@@ -223,7 +224,7 @@ public class Communicator {
         XYZ GlobalCroods_current = ConvertLocalBlocktoGlobalCroods(current_marker.x,current_marker.y,current_marker.z);
         result_current.add(String.format("%d %.3f %.3f %.3f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
 
-        String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", username, "HI5", "128", "128", "128");
+        String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s;", "2", id, "128", "128", "128");
         msg_current = msg_current + TextUtils.join(";", result_current);
         msgConnector.sendMsg(msg_current, true, true);
 
@@ -232,7 +233,7 @@ public class Communicator {
 
     public void updateAddSegSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/drawline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
+        String msg = "/drawline_norm:" + "2" + " "+ id + " 128 128 128;" + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg, true, true);
@@ -241,7 +242,7 @@ public class Communicator {
 
     public void updateDelSegSWC(V_NeuronSWC seg){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/delline_norm:" + username + " HI5 128 128 128;" + TextUtils.join(";", result);
+        String msg = "/delline_norm:" + "2" + " " + id + " 128 128 128;" + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg, true, true);
@@ -252,7 +253,7 @@ public class Communicator {
 
     public void updateRetypeSegSWC(V_NeuronSWC seg, int type){
         List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/retypeline_norm:" + username + " HI5 " + type + " 128 128 128;" + TextUtils.join(";", result);
+        String msg = "/retypeline_norm:" + "2 " +  id +" " + type + " 128 128 128;" + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
         msgConnector.sendMsg(msg, true, true);

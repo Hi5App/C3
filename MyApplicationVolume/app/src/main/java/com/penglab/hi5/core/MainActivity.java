@@ -398,7 +398,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             /*
             when join the room, user should login first
              */
-            MsgConnector.getInstance().sendMsg("/login:" + id+ 2);
+            MsgConnector.getInstance().sendMsg("/login:" + id + 2);
         }
 
 

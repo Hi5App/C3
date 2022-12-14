@@ -92,7 +92,7 @@ public abstract class BasicConnector {
     }
 
 
-    public void releaseConnection(boolean needSet){
+    public void releaseConnection(boolean needSet) {
         Log.e(TAG,"release connect !");
         if (needSet)     // depend on whether the related service exists
             setRelease();
@@ -109,7 +109,7 @@ public abstract class BasicConnector {
     }
 
 
-    public boolean checkConnection(){
+    public boolean checkConnection() {
         return mSocket != null && mSocket.isConnected() && !mSocket.isClosed();
     }
 
