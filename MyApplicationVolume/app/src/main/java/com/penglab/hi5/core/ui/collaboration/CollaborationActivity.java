@@ -213,7 +213,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg      = msg.split(":")[1];
 
-            if (!userID.equals(username)) {
+            if (!userID.equals(id)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
@@ -227,7 +227,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg      = msg.split(":")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(id)){
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncDelSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();
@@ -240,7 +240,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String marker      = msg.split(":")[1].split(";")[1];
 
-            if (!userID.equals(username)) {
+            if (!userID.equals(id)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncAddMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
@@ -253,7 +253,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String marker      = msg.split(":")[1].split(";")[1];
 
-            if (!userID.equals(username)){
+            if (!userID.equals(id)){
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncDelMarker(communicator.syncMarker(marker));
                 annotationGLSurfaceView.requestRender();
@@ -266,7 +266,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
             String seg    = msg.split(":")[1];
 
-            if (!userID.equals(username)) {
+            if (!userID.equals(id)) {
                 Communicator communicator = Communicator.getInstance();
                 annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
                 annotationGLSurfaceView.requestRender();

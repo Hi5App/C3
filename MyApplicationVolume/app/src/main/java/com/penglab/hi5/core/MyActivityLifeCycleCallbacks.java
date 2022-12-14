@@ -95,6 +95,7 @@ public class MyActivityLifeCycleCallbacks implements Application.ActivityLifecyc
 
         if (activities.size() == 0) {
             activities = null;
+            MsgConnector.getInstance().releaseConnection();
             ServerConnector.getInstance().closeSender();
             MsgConnector.getInstance().closeSender();
         }
