@@ -162,23 +162,23 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         server will send user list when the users in current room are changed
          */
-//        if (msg.startsWith("/users:")){
-//
-////            if (firstLoad || copyFile){
-////                /*a
-////                when first join the room, try to get the image
-////                 */
-////                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-////                firstLoad = false;
-////                copyFile   = false;
-////            }
-//            /*
-//            update the user list
-//             */
-//            String[] users = msg.split(":")[1].split(";");
-//            List<String> newUserList = Arrays.asList(users);
-//            updateUserList(newUserList);
-//        }
+        if (msg.startsWith("/activeusers:")){
+
+//            if (firstLoad || copyFile){
+//                /*a
+//                when first join the room, try to get the image
+//                 */
+//                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
+//                firstLoad = false;
+//                copyFile   = false;
+//            }
+            /*
+            update the user list
+             */
+            String[] users = msg.split(":")[1].split(",");
+            List<String> newUserList = Arrays.asList(users);
+            updateUserList(newUserList);
+        }
 
         if(msg.startsWith("STARTCOLLABORATE:")){
             Log.e(TAG,"STARTCOLLABORATE:");
@@ -416,10 +416,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 } else if(result instanceof Result.Error){
                     ToastEasy(result.toString());
                 }
-
             }
-
-
         });
 
         collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
@@ -444,8 +441,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                                 collaborationViewModel.handleNeuronNumber(text.trim());
 //                                                Log.e("PotentialDownloadNeuronInfoList",""+potentialDownloadNeuronInfoList.get(position));
                                                 collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
-
-
                                             }
                                         }).show();
 
@@ -509,7 +504,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     CollaborationService.resetConnection();
                 }
 
-                MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " +2 );
+                MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " + 2 );
             }
         });
 
@@ -966,7 +961,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private void updateUserList(List<String> newUserList) {
 
         for (int i = 0; i < newUserList.size(); i++){
-            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != username){
+            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != String.valueOf(id)){
                 Toast_in_Thread("User " + newUserList.get(i) + " join !");
             }
         }

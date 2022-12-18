@@ -48,7 +48,7 @@ public class MsgSender {
                     /*
                     msg header = type + dataLength
                      */
-                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, dataLength);
+                    String header = String.format("DataTypeWithSize:%d %s\n",0, dataLength);
 
 //                    if (!data.startsWith("HeartBeat")){
 //                        Log.d(TAG,"header: " + header.trim() + ",  data: " + data);
@@ -74,7 +74,6 @@ public class MsgSender {
                     }
                     return false;
                 }
-                Log.e(TAG,"Send Message");
                 return true;
             }
         });
