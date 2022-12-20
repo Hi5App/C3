@@ -247,4 +247,34 @@ public class MsgReceiver {
         return s;
     }
 
+    private String MyReadLineMsg(InputStream is,int DataLength)
+    {
+        String s = "";
+        try {
+
+            String c;
+            int num;
+            int count = 0;
+            do {
+                byte[] byte_c = new byte[1];
+                num = is.read(byte_c);
+                c = new String(byte_c, StandardCharsets.UTF_8);
+
+                s += c + "";
+                if(count == DataLength-1)
+                    break;
+//                if (c.equals("\n"))
+//                    break;
+
+                count = count +1;
+
+            } while (num > 0);
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return s;
+
+    }
+
 }

@@ -247,7 +247,7 @@ public abstract class BasicService extends Service {
 
         }
         private void onRead(String tag) {
-            Log.e(TAG,tag+"tag");
+//            Log.e(TAG,tag+"tag");
 
 
             if (!dataType.isFile && !dataType.isDataStream) {
@@ -256,7 +256,7 @@ public abstract class BasicService extends Service {
                     try {
                         String header = "";
                         if (is.available() > 0) {
-//                            Log.e(TAG,"available size: " + is.available());
+                            Log.e(TAG,"available size: " + is.available());
                             header = MyReadLine(is);
 
                             Log.e(TAG, "read header: " + header);
@@ -273,7 +273,8 @@ public abstract class BasicService extends Service {
                     try {
                         if (is.available() >= dataType.dataSize) {
                             // read msg
-                            String msg = MyReadLine(is) + "\n";
+
+                            String msg = MyReadLineMsg(is, (int) dataType.dataSize) + "\n";
                             if (processMsg(msg)) {
                                 onRead("after read msg !");
                             }
@@ -291,6 +292,8 @@ public abstract class BasicService extends Service {
                     if (is.available() > 0) {
                         int ret = 0;
 
+                        dataType.filename = MyReadLineMsg(is, (int) dataType.dataSize);
+
                         File dir = new File(dataType.filepath);
                         if (!dir.exists()) {
                             if (dir.mkdirs()) {
@@ -307,15 +310,13 @@ public abstract class BasicService extends Service {
                         }
 
                         FileOutputStream out = new FileOutputStream(file);
-                        int File_Content_Int = (int) dataType.dataSize;
+                        int File_Content_Int = (int) dataType.fileSize;
                         int Loop = File_Content_Int / 1024;
                         int End = File_Content_Int % 1024;
 
-                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
                         byte[] File_Content = new byte[1024];
                         byte[] File_Content_End = new byte[End];
-                        tasknumall=File_Content_Int;
-                        tasknumnow=0;
+
                         for (int i = 0; i < Loop; i++) {
 
                             if (is.available() < 1024) {
@@ -323,12 +324,9 @@ public abstract class BasicService extends Service {
                                 continue;
                             }
                             is.read(File_Content, 0, 1024);
-                            tasknumnow=tasknumnow+1024;
-                            //Log.e(TAG, "Start to read !"+(Loop-i));
                             out.write(File_Content);
                         }
 
-                        Log.e(TAG, "Start to read end content !");
                         if (End > 0) {
 
 //                            Log.e(TAG, "Wait for the data !");
@@ -338,7 +336,6 @@ public abstract class BasicService extends Service {
                                     continue;
                                 }
                                 is.read(File_Content_End, 0, End);
-                                tasknumnow=tasknumnow+End;
                             }
 //                            Log.e(TAG, "Finish read the data !");
                             out.write(File_Content_End);
@@ -349,98 +346,6 @@ public abstract class BasicService extends Service {
                         receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
 
 
-
-//                        Log.e(TAG,"Finish process file !");
-                        resetDataType();
-
-                        if (ret != 0) {
-                            errorprocess(ret, dataType.filename);
-                        }
-
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    resetDataType();
-                }
-            } else if (!dataType.isFile && dataType.isDataStream) {
-
-                try {
-                    // process file
-                    if (is.available() > 0) {
-                        int ret = 0;
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        File dir = new File(dataType.filepath);
-                        if (!dir.exists()) {
-                            if (dir.mkdirs()) {
-                                Log.v(TAG, "Create dirs Successfully !");
-                            }
-                        }
-
-                        //打开文件，如果没有，则新建文件
-                        File file = new File(dataType.filepath + "/" + dataType.filename);
-                        if (!file.exists()) {
-                            if (file.createNewFile()) {
-                                Log.v(TAG, "Create file Successfully !");
-                            }
-                        }
-
-
-                        int File_Content_Int = (int) dataType.dataSize;
-                        int Loop = File_Content_Int / 1024;
-                        int End = File_Content_Int % 1024;
-                        ArrayList<byte[]> hashes = new ArrayList<>(File_Content_Int);
-
-
-//                        Log.e(TAG, "Loop: " + Loop + "; End: " + End);
-                        byte[] data_Content = new byte[File_Content_Int];
-
-                        byte[] File_Content = new byte[1024];
-                        byte[] File_Content_End = new byte[End];
-                        //byte[] recordData= new byte[End]
-                        for (int i = 0; i < Loop; i++) {
-
-                            if (is.available() < 1024) {
-                                i--;
-                                continue;
-                            }
-                            is.read(File_Content, 0, 1024);
-                            if(i==0) {
-                                printHexString(File_Content);
-                            }
-                            //hashes.add(File_Content);
-                            byteArrayOutputStream.write(File_Content);
-//                            if(i==1) {
-//                                printHexString(hashes.get(1));
-//                            }
-                            Log.v(TAG, "hashes.add(File_Content); " + hashes.size());
-
-
-                        }
-
-//                        Log.e(TAG, "Start to read end content !");
-                        if (End > 0) {
-
-//                            Log.e(TAG, "Wait for the data !");
-                            for (int i = 0; i < 1; i++) {
-                                if (is.available() < End) {
-                                    i--;
-                                    continue;
-                                }
-                                is.read(File_Content_End, 0, End);
-                            }
-                            byteArrayOutputStream.write(File_Content);
-                            Log.v(TAG, "hashes.add(File_Content); " + hashes.size());
-                        }
-
-                       // byte[] array = byteMerger(hashes);
-                        //Log.v(TAG, "array = byteMerger(hashes); " + array.length+' ');
-
-                        byte[] recordData = byteArrayOutputStream.toByteArray();
-                        printHexString(recordData);
-                        if (dataType.filename.endsWith("pvcam")) {
-
-                            receiveMsgInterface.onRecBinData("pvcam:", recordData);
-                        }
 
 //                        Log.e(TAG,"Finish process file !");
                         resetDataType();
@@ -521,47 +426,21 @@ public abstract class BasicService extends Service {
         private boolean processHeader(final String rmsg) {
 
             int ret = 0;
-            String dir_str_server = null;
-            String dir_Pvcam_server = null;
-            //File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
-            dir_str_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Checkdata").getAbsolutePath();
-            dir_Pvcam_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Pvcam").getAbsolutePath();
             if (rmsg.endsWith("\n")) {
                 String msg = rmsg.trim();
-//                msg.replaceAll("deviceError","");
-//                msg.replaceAll("img","");
+                Log.e(TAG,"processHeader: " + msg);
                 if (msg.startsWith("DataTypeWithSize:")) {
                     msg = msg.substring("DataTypeWithSize:".length());
-                    Log.e(TAG, "msgggggggggggggg: " + msg);
                     String[] paras_list = msg.split(" ");
                     ArrayList<String> paras = new ArrayList<>();
 
                     if (paras_list.length == 2 && paras_list[0].equals("0")) {
                         dataType.dataSize = Long.parseLong(paras_list[1]);
-                    } else if (paras_list.length == 3 && paras_list[0].equals("4")) {
-                        dataType.isFile = false;
-                        dataType.isDataStream = true;
-
-                        dataType.filename = paras_list[1];
-                        dataType.dataSize = Long.parseLong(paras_list[2]);
-                        Log.e(TAG, "44444444444444444: " + msg);
-                        if (dataType.filename.endsWith("pvcam")) {
-                            dataType.filepath = dir_Pvcam_server;
-                            Log.e(TAG, "This is data stream !");
-                        }
-
-                        ret = 0;
                     } else if (paras_list.length == 3 && paras_list[0].equals("1")) {
                         dataType.isFile = true;
-                        dataType.filename = paras_list[1];
-                        dataType.dataSize = Long.parseLong(paras_list[2]);
-
-                        if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
-                            dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc") || dataType.filename.endsWith(".txt") || dataType.filename.endsWith(".v3dpbd") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
-                            dataType.filepath = dir_str_server;
-                            Log.e(TAG, "This is a s2 file !");
-                        }
+                        dataType.dataSize = Long.parseLong(paras_list[1]);
+                        dataType.fileSize = Long.parseLong(paras_list[2]);
+                        dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Collaborate";
 
                         ret =0;
                     }
@@ -584,6 +463,7 @@ public abstract class BasicService extends Service {
 
         private boolean processMsg(final String msg) {
             if (msg.endsWith("\n")) {
+                Log.e(TAG,"ProcessMsg"+msg);
                 receiveMsgInterface.onRecMessage(msg.trim());
                 resetDataType();
                 return true;
@@ -652,6 +532,7 @@ public abstract class BasicService extends Service {
             dataType.isFile = false;
             dataType.isDataStream = false;
             dataType.dataSize = 0;
+            dataType.fileSize = 0;
             dataType.filename = null;
             dataType.filepath = null;
             dataType.binimgdata = null;
@@ -684,6 +565,37 @@ public abstract class BasicService extends Service {
                 e.printStackTrace();
             }
             return s.toString();
+        }
+
+
+        private String MyReadLineMsg(InputStream is,int DataLength)
+        {
+            String s = "";
+            try {
+
+                String c;
+                int num;
+                int count = 0;
+                do {
+                    byte[] byte_c = new byte[1];
+                    num = is.read(byte_c);
+                    c = new String(byte_c, StandardCharsets.UTF_8);
+
+                    s += c + "";
+                    if(count == DataLength-1)
+                        break;
+//                if (c.equals("\n"))
+//                    break;
+
+                    count = count +1;
+
+                } while (num > 0);
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return s;
+
         }
     }
 }

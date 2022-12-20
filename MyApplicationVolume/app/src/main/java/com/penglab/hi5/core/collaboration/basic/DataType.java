@@ -11,4 +11,5 @@ public class DataType{
     public String  filename;
     public String  filepath;
     public byte [] binimgdata;
+    public long fileSize;
 }

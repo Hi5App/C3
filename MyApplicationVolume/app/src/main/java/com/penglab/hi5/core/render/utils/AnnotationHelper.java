@@ -1745,6 +1745,7 @@ public class AnnotationHelper {
 //                System.out.println("ImageType: " + imageMarker_drawed.type);
                 annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
                 markerListLoaded.add(imageMarker_drawed);
+                Log.e(TAG,"18454_apo_x"+imageMarker_drawed.x +"18454_apo_y"+imageMarker_drawed.y +"18454_apo_z"+imageMarker_drawed.z +"18454_apo_type"+imageMarker_drawed.type);
             }
 
 //            System.out.println("Size of : markerListLoaded: " + markerListLoaded.size());

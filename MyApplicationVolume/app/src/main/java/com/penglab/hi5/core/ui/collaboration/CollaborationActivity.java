@@ -180,8 +180,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             updateUserList(newUserList);
         }
 
-        if(msg.startsWith("STARTCOLLABORATE:")){
-            Log.e(TAG,"STARTCOLLABORATE:");
+        if(msg.startsWith("File:")){
+//            Log.e(TAG,"STARTCOLLABORATE:");
 
             if(msg.endsWith(".apo")){
 
@@ -378,6 +378,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         username =  InfoCache.getAccount();
 
         id = InfoCache.getId();
+
+        mainContext = this;
 //
 //        initNim();
 //        initService();
@@ -979,6 +981,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         try {
             ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            ApoReader apoReader = new ApoReader();
+            apo = apoReader.read(filepath);
+
             if (apo == null){
                 Toast_in_Thread("There is something wrong with apo file !");
             }

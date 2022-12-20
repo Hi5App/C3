@@ -15,6 +15,7 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
+import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
@@ -201,6 +202,7 @@ public class CollaborationViewModel extends ViewModel {
     public void handleLoadImage(CollaborateNeuronInfo collaborateNeuronInfo){
         potentialDownloadNeuronInfo.setLocation(collaborateNeuronInfo.getLocation());
         downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
+        Communicator.getInstance().setUp(downloadCoordinateConvert);
         getBrainList();
 
     }

@@ -17,6 +17,7 @@ import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,6 +54,8 @@ public class Communicator {
     private String pattern;
     private Pattern r;
 
+    private static CoordinateConvert anoCoordinateConvert;
+
 
     /**
      * current context
@@ -76,6 +79,7 @@ public class Communicator {
     public static void init(Context ctx){
         mContext = ctx;
     }
+
 
 
 
@@ -273,10 +277,11 @@ public class Communicator {
 
     public XYZ ConvertGlobaltoLocalBlockCroods(double x,double y,double z)
     {
-        XYZ node = ConvertMaxRes2CurrResCoords(x,y,z);
-        node.x -=(ImageStartPoint.x-0.5);
-        node.y -=(ImageStartPoint.y-0.5);
-        node.z -=(ImageStartPoint.z-0.5);
+
+//        XYZ node = ConvertMaxRes2CurrResCoords(x,y,z);
+//        node.x -=(ImageStartPoint.x-0.5);
+//        node.y -=(ImageStartPoint.y-0.5);
+//        node.z -=(ImageStartPoint.z-0.5);
 
         /*
         -1 之后会出现删线不同步的问题
@@ -285,24 +290,25 @@ public class Communicator {
 //        node.y -=(ImageStartPoint.y);
 //        node.z -=(ImageStartPoint.z);
 //        Log.d(TAG,"ConvertGlobaltoLocalBlockCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
-        return node;
+        return anoCoordinateConvert.convertGlobalToLocal(x,y,z);
     }
 
     public XYZ ConvertLocalBlocktoGlobalCroods(double x,double y,double z)
     {
-        x +=(ImageStartPoint.x-0.5);
-        y +=(ImageStartPoint.y-0.5);
-        z +=(ImageStartPoint.z-0.5);
-
-        /*
-        -1 之后会出现删线不同步的问题
-         */
-//        x +=(ImageStartPoint.x);
-//        y +=(ImageStartPoint.y);
-//        z +=(ImageStartPoint.z);
-        XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
-//        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
-        return node;
+//        x +=(ImageStartPoint.x-0.5);
+//        y +=(ImageStartPoint.y-0.5);
+//        z +=(ImageStartPoint.z-0.5);
+//
+//        /*
+//        -1 之后会出现删线不同步的问题
+//         */
+////        x +=(ImageStartPoint.x);
+////        y +=(ImageStartPoint.y);
+////        z +=(ImageStartPoint.z);
+//        XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
+////        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
+//        return node;
+        return anoCoordinateConvert.convertLocalToGlobal(x,y,z);
     }
 
 
@@ -352,6 +358,10 @@ public class Communicator {
 
 
 
+    public void setUp(CoordinateConvert coordinateConvert) {
+        anoCoordinateConvert = coordinateConvert;
+
+    }
 
 
 
@@ -765,6 +775,7 @@ public class Communicator {
      */
 
     public ArrayList<ArrayList<Float>> convertApo(ArrayList<ArrayList<Float>> apo){
+        //Log.e(TAG,"beforeConvertApo_x"+apo.get(5)+"beforeConvertApo_y"+apo.get(6)+"beforeConvertApo_z"+apo.get(4));
 
         // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
         ArrayList<ArrayList<Float>> apo_converted = new ArrayList<ArrayList<Float>>();
@@ -780,6 +791,7 @@ public class Communicator {
                 currentLine.set(4, GlobalCroods.z);
 
                 apo_converted.add(currentLine);
+                Log.e(TAG,"apo_x: "+ currentLine.get(5) +"apo_y"+ currentLine.get(6) +"apo_z: "+ currentLine.get(4));
             }
 
         }catch (Exception e){

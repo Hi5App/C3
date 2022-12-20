@@ -72,8 +72,8 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
             CollaborationActivity.firstLoad = true;
             MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " + "2", true, false);
         }
-//        else
-//            ToastEasy("user account is null, fail to relogin !");
+        else
+            ToastEasy("user account is null, fail to relogin !");
     }
 
     @Override

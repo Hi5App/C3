@@ -232,7 +232,7 @@ public class MarkerFactoryViewModel extends ViewModel {
                     }
                 }
                 downloadImage();
-            } else if (data instanceof String){
+            } else if (data instanceof String) {
                 potentialSomaInfoList.add(lastDownloadPotentialSomaInfo);
                 isDownloading = false;
                 if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
