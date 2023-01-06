@@ -256,10 +256,10 @@ public abstract class BasicService extends Service {
                     try {
                         String header = "";
                         if (is.available() > 0) {
-                            Log.e(TAG,"available size: " + is.available());
+//                            Log.e(TAG,"available size: " + is.available());
                             header = MyReadLine(is);
 
-                            Log.e(TAG, "read header: " + header);
+//                            Log.e(TAG, "read header: " + header);
                             if (processHeader(header + "\n")) {
                                 onRead("after read header! ");
                             }
@@ -463,9 +463,10 @@ public abstract class BasicService extends Service {
 
         private boolean processMsg(final String msg) {
             if (msg.endsWith("\n")) {
-                Log.e(TAG,"ProcessMsg"+msg);
-                receiveMsgInterface.onRecMessage(msg.trim());
+                Log.e(TAG,"ProcessMsg: "+msg);
                 resetDataType();
+                receiveMsgInterface.onRecMessage(msg.trim());
+
                 return true;
             } else {
                 errorprocess(1, msg);

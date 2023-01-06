@@ -53,6 +53,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView {
     private float previousUpX;
     private float previousUpY;
 
+
     private OnDoubleClickListener onDoubleClickListener;
 
     public CheckGLSurfaceView(Context context) {
@@ -206,7 +207,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView {
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     checkRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
-                    annotationDataManager.init();
+                    annotationDataManager.init(false);
                 }
                 break;
             default:

@@ -130,7 +130,7 @@ public class CollaborationViewModel extends ViewModel {
                         for (int j = 0; j < rois.length; j++) {
                             rois[j] = rois[j].substring(1, rois[j].length() - 1);
                         }
-                        if (rois.length >= 2){
+                        if (rois.length >= 1){
                             resMap.put(imageId, rois[1]);
                         }
                     } catch (JSONException e) {
@@ -245,7 +245,7 @@ public class CollaborationViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
-                Log.e(TAG,"Collaborate+Download image data" + data);
+//                Log.e(TAG,"Collaborate+Download image data" + data);
                 openFile();
 
             }
