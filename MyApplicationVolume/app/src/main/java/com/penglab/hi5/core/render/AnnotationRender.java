@@ -530,25 +530,25 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     *
     * */
 
-    public void syncAddSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncAddSegSWC(seg);
-    }
-
-    public void syncRetypeSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncRetypeSegSWC(seg);
-    }
-
-    public void syncDelSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncDelSegSWC(seg);
-    }
-
-    public void syncAddMarker(ImageMarker imageMarker) {
-        annotationDataManager.syncAddMarker(imageMarker);
-    }
-
-    public void syncDelMarker(ImageMarker imageMarker) {
-        annotationDataManager.syncDelMarker(imageMarker);
-    }
+//    public void syncAddSegSWC(V_NeuronSWC seg) {
+//        annotationDataManager.syncAddSegSWC(seg);
+//    }
+//
+//    public void syncRetypeSegSWC(V_NeuronSWC seg) {
+//        annotationDataManager.syncRetypeSegSWC(seg);
+//    }
+//
+//    public void syncDelSegSWC(V_NeuronSWC seg) {
+//        annotationDataManager.syncDelSegSWC(seg);
+//    }
+//
+//    public void syncAddMarker(ImageMarker imageMarker) {
+//        annotationDataManager.syncAddMarker(imageMarker);
+//    }
+//
+//    public void syncDelMarker(ImageMarker imageMarker) {
+//        annotationDataManager.syncDelMarker(imageMarker);
+//    }
 
 
 

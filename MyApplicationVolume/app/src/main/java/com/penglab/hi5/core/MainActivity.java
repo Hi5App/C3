@@ -353,136 +353,136 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     public void onRecMessage(String msg) {
 
-
-        if (msg.startsWith("TestSocketConnection")){
-            //ServerConnector.getInstance().sendMsg("HeartBeat");
-        }else {
-            Log.e(TAG,"onRecMessage()  " + msg);
-//            Logcat.w("onRecMessage", msg);
-        }
-
-
-        /*
-        select file
-         */
-        if (msg.startsWith("GETFILELIST:")){
-            LoadFiles(msg.split(":")[1]);
-        }
-
-
-
-        /*
-        After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
-
-        when the file is selected, room will be created, and collaborationService will be init, port is room number
-         */
-        if (msg.startsWith("Port:")){
-
-            if (msg.split(":")[1].equals("-1")){
-                Toast_in_Thread("Something wrong with this img, choose other img please !");
-                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
-                return;
-            }
-
-            initMsgConnector(msg.split(":")[1]);
-            if (firstJoinRoom){
-                initMsgService();
-                firstJoinRoom = false;
-            }else {
-                /*
-                reset the msg connect in collaboration service
-                 */
-                CollaborationService.resetConnection();
-            }
-
-            /*
-            when join the room, user should login first
-             */
-            MsgConnector.getInstance().sendMsg("/login:" + id + 2);
-        }
-
-
+//
+//        if (msg.startsWith("TestSocketConnection")){
+//            //ServerConnector.getInstance().sendMsg("HeartBeat");
+//        }else {
+//            Log.e(TAG,"onRecMessage()  " + msg);
+////            Logcat.w("onRecMessage", msg);
+//        }
+//
+//
+//        /*
+//        select file
+//         */
+//        if (msg.startsWith("GETFILELIST:")){
+//            LoadFiles(msg.split(":")[1]);
+//        }
+//
+//
+//
+//        /*
+//        After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
+//
+//        when the file is selected, room will be created, and collaborationService will be init, port is room number
+//         */
+//        if (msg.startsWith("Port:")){
+//
+//            if (msg.split(":")[1].equals("-1")){
+//                Toast_in_Thread("Something wrong with this img, choose other img please !");
+//                soundPool.play(soundId[3], actionVolume, actionVolume, 0, 0, 1.0f);
+//                return;
+//            }
+//
+//            initMsgConnector(msg.split(":")[1]);
+//            if (firstJoinRoom){
+//                initMsgService();
+//                firstJoinRoom = false;
+//            }else {
+//                /*
+//                reset the msg connect in collaboration service
+//                 */
+//                CollaborationService.resetConnection();
+//            }
+//
+//            /*
+//            when join the room, user should login first
+//             */
+//            MsgConnector.getInstance().sendMsg("/login:" + id + 2);
+//        }
 
 
-        /*
-        After msg:  "/login:xf"
-
-        server will send user list when the users in current room are changed
-         */
-        if (msg.startsWith("/users:")){
-
-            if (firstLoad || copyFile){
-                /*a
-                when first join the room, try to get the image
-                 */
-                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-                firstLoad = false;
-                copyFile   = false;
-            }
-            /*
-            update the user list
-             */
-            String[] users = msg.split(":")[1].split(";");
-            List<String> newUserList = Arrays.asList(users);
-            updateUserList(newUserList);
-
-        }
 
 
-        /*
-        After msg:  "/ImageRes:18454"
-
-        process the img resolution info; msg format: "Imgblock:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-        if (msg.startsWith("ImgRes")){
-            Log.e(TAG,msg);
-            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
-            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-        }
-
-
-        /*
-        After msg:  "/Imgblock:"
-
-        process the img block & swc apo file; msg format: "GetBBSwc:18454;2;mid_x;mid_y;mid_z;size;"
-         */
-        if (msg.startsWith("Block:")){
-
-            loadBigDataImg(msg.split(":")[1]);
-            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
-
-        }
-
-        if (msg.startsWith("File:")){
-            if(msg.endsWith(".apo")){
-
-                Log.e(TAG, "File: .apo");
-                loadBigDataApo(msg.split(":")[1]);
-
-            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-
-                Log.e(TAG, "File: .eswc");
-                loadBigDataSwc(msg.split(":")[1]);
-
-                // for sync bar when click sync button
-                if(timerSync != null){
-                    hideSyncBar();
-                }
-
-            }
-        }
-
-
-        if (msg.startsWith("Score:")){
-            Log.e(TAG,"get score: " + msg);
-            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
-            Score score = Score.getInstance();
-            if (score.serverUpdateScore(serverScore)){
-                updateScoreText();
-            }
-//            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
-        }
+//        /*
+//        After msg:  "/login:xf"
+//
+//        server will send user list when the users in current room are changed
+//         */
+//        if (msg.startsWith("/users:")){
+//
+//            if (firstLoad || copyFile){
+//                /*a
+//                when first join the room, try to get the image
+//                 */
+//                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
+//                firstLoad = false;
+//                copyFile   = false;
+//            }
+//            /*
+//            update the user list
+//             */
+//            String[] users = msg.split(":")[1].split(";");
+//            List<String> newUserList = Arrays.asList(users);
+//            updateUserList(newUserList);
+//
+//        }
+//
+//
+//        /*
+//        After msg:  "/ImageRes:18454"
+//
+//        process the img resolution info; msg format: "Imgblock:18454;2;mid_x;mid_y;mid_z;size;"
+//         */
+//        if (msg.startsWith("ImgRes")){
+//            Log.e(TAG,msg);
+//            int resDefault = Math.min(2, Integer.parseInt(msg.split(";")[1]));
+//            Communicator.getInstance().initImgInfo(null, Integer.parseInt(msg.split(";")[1]), resDefault, msg.split(";"));
+//            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+//        }
+//
+//
+//        /*
+//        After msg:  "/Imgblock:"
+//
+//        process the img block & swc apo file; msg format: "GetBBSwc:18454;2;mid_x;mid_y;mid_z;size;"
+//         */
+//        if (msg.startsWith("Block:")){
+//
+//            loadBigDataImg(msg.split(":")[1]);
+//            MsgConnector.getInstance().sendMsg("/GetBBSwc:" + Communicator.BrainNum + ";" + Communicator.getCurRes() + ";" + Communicator.getCurrentPos() + ";");
+//
+//        }
+//
+//        if (msg.startsWith("File:")){
+//            if(msg.endsWith(".apo")){
+//
+//                Log.e(TAG, "File: .apo");
+//                loadBigDataApo(msg.split(":")[1]);
+//
+//            }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
+//
+//                Log.e(TAG, "File: .eswc");
+//                loadBigDataSwc(msg.split(":")[1]);
+//
+//                // for sync bar when click sync button
+//                if(timerSync != null){
+//                    hideSyncBar();
+//                }
+//
+//            }
+//        }
+//
+//
+//        if (msg.startsWith("Score:")){
+//            Log.e(TAG,"get score: " + msg);
+//            int serverScore = Integer.parseInt(msg.split(":")[1].split(" ")[1]);
+//            Score score = Score.getInstance();
+//            if (score.serverUpdateScore(serverScore)){
+//                updateScoreText();
+//            }
+////            initDataBase(Integer.parseInt(msg.split(":")[1].split(" ")[1]));
+//        }
 
 
 
@@ -490,78 +490,78 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("/drawline_norm:")){
-            Log.e(TAG,"drawline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-
-        if (msg.startsWith("/delline_norm:")){
-            Log.e(TAG,"delline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg      = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
-
-        if (msg.startsWith("/addmarker_norm:")){
-            Log.e(TAG,"addmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncAddMarker(communicator.syncMarker(marker));
-                myGLSurfaceView.requestRender();
-            }
-        }
-
-
-
-        if (msg.startsWith("/delmarker_norm:")){
-            Log.e(TAG,"delmarker_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String marker      = msg.split(":")[1].split(";")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncDelMarker(communicator.syncMarker(marker));
-                myGLSurfaceView.requestRender();
-            }
-        }
-
-
-
-        if (msg.startsWith("/retypeline_norm:")){
-            Log.e(TAG,"retypeline_norm");
-
-            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
-            String seg    = msg.split(":")[1];
-
-            if (!userID.equals(username)){
-                Communicator communicator = Communicator.getInstance();
-                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
-                myGLSurfaceView.requestRender();
-            }
-
-        }
+//        if (msg.startsWith("/drawline_norm:")){
+//            Log.e(TAG,"drawline_norm");
+//
+//            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+//            String seg      = msg.split(":")[1];
+//
+//            if (!userID.equals(username)){
+//                Communicator communicator = Communicator.getInstance();
+//                myrenderer.syncAddSegSWC(communicator.syncSWC(seg));
+//                myGLSurfaceView.requestRender();
+//            }
+//
+//        }
+//
+//
+//        if (msg.startsWith("/delline_norm:")){
+//            Log.e(TAG,"delline_norm");
+//
+//            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+//            String seg      = msg.split(":")[1];
+//
+//            if (!userID.equals(username)){
+//                Communicator communicator = Communicator.getInstance();
+//                myrenderer.syncDelSegSWC(communicator.syncSWC(seg));
+//                myGLSurfaceView.requestRender();
+//            }
+//
+//        }
+//
+//        if (msg.startsWith("/addmarker_norm:")){
+//            Log.e(TAG,"addmarker_norm");
+//
+//            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+//            String marker      = msg.split(":")[1].split(";")[1];
+//
+//            if (!userID.equals(username)){
+//                Communicator communicator = Communicator.getInstance();
+//                myrenderer.syncAddMarker(communicator.syncMarker(marker));
+//                myGLSurfaceView.requestRender();
+//            }
+//        }
+//
+//
+//
+//        if (msg.startsWith("/delmarker_norm:")){
+//            Log.e(TAG,"delmarker_norm");
+//
+//            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+//            String marker      = msg.split(":")[1].split(";")[1];
+//
+//            if (!userID.equals(username)){
+//                Communicator communicator = Communicator.getInstance();
+//                myrenderer.syncDelMarker(communicator.syncMarker(marker));
+//                myGLSurfaceView.requestRender();
+//            }
+//        }
+//
+//
+//
+//        if (msg.startsWith("/retypeline_norm:")){
+//            Log.e(TAG,"retypeline_norm");
+//
+//            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
+//            String seg    = msg.split(":")[1];
+//
+//            if (!userID.equals(username)){
+//                Communicator communicator = Communicator.getInstance();
+//                myrenderer.syncRetypeSegSWC(communicator.syncSWC(seg));
+//                myGLSurfaceView.requestRender();
+//            }
+//
+//        }
 
         /*
         for collaboration -------------------------------------------------------------------

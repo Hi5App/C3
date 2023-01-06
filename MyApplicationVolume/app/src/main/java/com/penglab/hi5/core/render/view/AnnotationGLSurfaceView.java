@@ -17,6 +17,7 @@ import androidx.lifecycle.LiveData;
 
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
@@ -320,11 +321,13 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         break;
 
                                     case DELETE_CURVE:
+                                        Log.e(TAG,"enter delete curve");
                                         annotationHelper.deleteCurve(fingerTrajectory, isBigData);
                                         requestRender();
                                         break;
 
                                     case SPLIT:
+                                        Log.e(TAG,"enter split curve");
                                         annotationHelper.splitCurve(fingerTrajectory, isBigData);
                                         requestRender();
                                         break;
@@ -354,6 +357,29 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         }
         return false;
     }
+
+
+    public void syncAddSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncAddSegSWC(seg);
+    }
+
+    public void syncRetypeSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncRetypeSegSWC(seg);
+    }
+
+    public void syncDelSegSWC(V_NeuronSWC seg) {
+        annotationDataManager.syncDelSegSWC(seg);
+    }
+
+    public void syncAddMarker(ImageMarker imageMarker) {
+        annotationDataManager.syncAddMarker(imageMarker);
+    }
+
+    public void syncDelMarker(ImageMarker imageMarker) {
+        annotationDataManager.syncDelMarker(imageMarker);
+    }
+
+
 
 
 
@@ -408,7 +434,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     renderOptions.initOptions();
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
-                    annotationDataManager.init();
+                    annotationDataManager.init(isBigData);
                 }
                 break;
             case JPG:
@@ -421,7 +447,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                             bitmap2D.getWidth(), bitmap2D.getHeight(), Math.max(bitmap2D.getWidth(), bitmap2D.getHeight())});
                     annotationRender.init2DImageInfo(image4DSimple, bitmap2D, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
-                    annotationDataManager.init();
+                    annotationDataManager.init(isBigData);
                 }
                 break;
             case SWC:
@@ -429,7 +455,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                 NeuronTree neuronTree = NeuronTree.parse(filePath);
                 if (neuronTree != null){
                     update3DFileSize(new Integer[]{DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE});
-                    annotationDataManager.init();
+                    annotationDataManager.init(isBigData);
                     annotationRender.initSwcInfo(neuronTree, normalizedSize, originalSize );
                 }
                 break;
@@ -590,7 +616,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
-                    annotationDataManager.init();
+                    annotationDataManager.init(isBigData);
                 }
                 requestRender();
             } catch (Exception e){

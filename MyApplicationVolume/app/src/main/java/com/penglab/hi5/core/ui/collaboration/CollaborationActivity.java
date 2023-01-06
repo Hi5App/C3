@@ -76,12 +76,14 @@ import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
-
+import com.jaredrummler.android.colorpicker.ColorPickerDialog;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -90,10 +92,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-/**
- * Created by Jackiexing on 05/17/21
- */
-public class CollaborationActivity extends BaseActivity implements ReceiveMsgInterface {
+public class CollaborationActivity extends BaseActivity implements ReceiveMsgInterface,ColorPickerDialogListener {
 
     private static final String TAG = "CollaborationActivity";
     private AnnotationGLSurfaceView annotationGLSurfaceView;
@@ -129,6 +128,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageView addMarker;
     private ImageView deleteCurve;
     private ImageView deleteMarker;
+    private ImageView splitCurve;
     private ImageButton editModeIndicator;
     private static BasePopupView downloadingPopupView;
     private static BasePopupView syncingPopupView;
@@ -150,128 +150,113 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             //ServerConnector.getInstance().sendMsg("HeartBeat");
         } else {
             Log.e(TAG,"onRecMessage()  " + msg);
-//            Logcat.w("onRecMessage", msg);
         }
-
         /*
-        After msg:  "LOADFILES:0 /17301/17301_00019/17301_00019_x20874.000_y23540.000_z7388.000.ano /17301/17301_00019/test_01_fx_lh_test.ano"
-
-        when the file is selected, room will be created, and collaborationService will be init, port is room number
-         *//*
         After msg:  "/login:xf"
 
         server will send user list when the users in current room are changed
          */
         if (msg.startsWith("/activeusers:")){
-
-//            if (firstLoad || copyFile){
-//                /*a
-//                when first join the room, try to get the image
-//                 */
-//                MsgConnector.getInstance().sendMsg("/ImageRes:" + Communicator.BrainNum);
-//                firstLoad = false;
-//                copyFile   = false;
-//            }
-            /*
-            update the user list
-             */
             String[] users = msg.split(":")[1].split(",");
             List<String> newUserList = Arrays.asList(users);
             updateUserList(newUserList);
         }
 
         if(msg.startsWith("File:")){
-//            Log.e(TAG,"STARTCOLLABORATE:");
-
             if(msg.endsWith(".apo")){
-
-                Log.e(TAG, "File: .apo");
                 loadBigDataApo(msg.split(":")[1]);
-
             }else if (msg.endsWith(".swc") || msg.endsWith(".eswc")){
-
-                Log.e(TAG, "File: .eswc");
                 loadBigDataSwc(msg.split(":")[1]);
-
-                // for sync bar when click sync button
-//                if(timerSync != null){
-//                    hideSyncBar();
-//                }
-
             }
 
         }
-
         /*
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("/drawline_norm:")) {
-            Log.e(TAG,"drawline_norm");
+        if(msg.startsWith("/drawline_norm:") || msg.startsWith("/delline_norm:") || msg.startsWith("/retypeline_norm:") ||msg.startsWith("/addmarker_norm:") || msg.startsWith("/delmarker_norm:"))
+        {
+            String[] singleMsg = msg.split(";");
+            for(int i =0;i<singleMsg.length;i++) {
+                String singlemsg = singleMsg[i];
 
-            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
-            String seg      = msg.split(":")[1];
+                if (singlemsg.startsWith("/drawline_norm:")) {
+                    String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
+                    String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
+                    int index = singlemsg.indexOf(",");
+                    String seg = singlemsg.substring(index+1);
 
-            if (!userID.equals(id)) {
-                Communicator communicator = Communicator.getInstance();
-                annotationRender.syncAddSegSWC(communicator.syncSWC(seg));
-                annotationGLSurfaceView.requestRender();
+                    if (!userID.equals(String.valueOf(id))) {
+                        Communicator communicator = Communicator.getInstance();
+                        annotationGLSurfaceView.syncAddSegSWC(communicator.syncSWC(seg,toolType));
+                        annotationGLSurfaceView.requestRender();
+                    }
+                }
+
+                if (singlemsg.startsWith("/delline_norm:")) {
+//                    Log.e(TAG,"delline_norm");
+
+                    String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
+                    String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
+                    int index = singlemsg.indexOf(",");
+                    String seg = singlemsg.substring(index+1);
+                    if (!userID.equals(String.valueOf(id))) {
+                        Log.e(TAG,"enter delete");
+                        Communicator communicator = Communicator.getInstance();
+                        annotationGLSurfaceView.syncDelSegSWC(communicator.syncSWC(seg,toolType));
+//                        annotationGLSurfaceView.getAnnotationRender().syncDelSegSWC(communicator.syncSWC(seg));
+                        annotationGLSurfaceView.requestRender();
+                    }
+                }
+
+                if (singlemsg.startsWith("/addmarker_norm:")) {
+//                    Log.e(TAG,"addmarker_norm");
+
+                    String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
+
+                    int index = singlemsg.indexOf(",");
+                    String marker = singlemsg.substring(index+1);
+//                    String marker      = singlemsg.split(":")[1].split(",")[1];
+
+                    if (!userID.equals(String.valueOf(id))) {
+                        Communicator communicator = Communicator.getInstance();
+                        annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(marker));
+                        annotationGLSurfaceView.requestRender();
+                    }
+                }
+
+                if (singlemsg.startsWith("/delmarker_norm:")) {
+//                    Log.e(TAG,"delmarker_norm");
+
+                    String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
+                    int index = singlemsg.indexOf(",");
+                    String marker = singlemsg.substring(index+1);
+//                    String marker      = singlemsg.split(":")[1].split(",")[1];
+
+                    if (!userID.equals(String.valueOf(id))){
+                        Communicator communicator = Communicator.getInstance();
+                        annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(marker));
+                        annotationGLSurfaceView.requestRender();
+                    }
+                }
+
+                if (msg.startsWith("/retypeline_norm:")) {
+//                    Log.e(TAG,"retypeline_norm");
+
+                    String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
+                    String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
+//                    String seg    = msg.split(":")[1];
+                    int index = singlemsg.indexOf(",");
+                    String seg = singlemsg.substring(index+1);
+
+                    if (!userID.equals(String.valueOf(id))) {
+                        Communicator communicator = Communicator.getInstance();
+                        annotationGLSurfaceView.syncRetypeSegSWC(communicator.syncSWC(seg,toolType));
+                        annotationGLSurfaceView.requestRender();
+                    }
+                }
             }
         }
-
-
-        if (msg.startsWith("/delline_norm:")) {
-            Log.e(TAG,"delline_norm");
-
-            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
-            String seg      = msg.split(":")[1];
-
-            if (!userID.equals(id)){
-                Communicator communicator = Communicator.getInstance();
-                annotationRender.syncDelSegSWC(communicator.syncSWC(seg));
-                annotationGLSurfaceView.requestRender();
-            }
-        }
-
-        if (msg.startsWith("/addmarker_norm:")) {
-            Log.e(TAG,"addmarker_norm");
-
-            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
-            String marker      = msg.split(":")[1].split(",")[1];
-
-            if (!userID.equals(id)) {
-                Communicator communicator = Communicator.getInstance();
-                annotationRender.syncAddMarker(communicator.syncMarker(marker));
-                annotationGLSurfaceView.requestRender();
-            }
-        }
-
-        if (msg.startsWith("/delmarker_norm:")) {
-            Log.e(TAG,"delmarker_norm");
-
-            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
-            String marker      = msg.split(":")[1].split(",")[1];
-
-            if (!userID.equals(id)){
-                Communicator communicator = Communicator.getInstance();
-                annotationRender.syncDelMarker(communicator.syncMarker(marker));
-                annotationGLSurfaceView.requestRender();
-            }
-        }
-
-        if (msg.startsWith("/retypeline_norm:")) {
-            Log.e(TAG,"retypeline_norm");
-
-            String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
-            String seg    = msg.split(":")[1];
-
-            if (!userID.equals(id)) {
-                Communicator communicator = Communicator.getInstance();
-                annotationRender.syncRetypeSegSWC(communicator.syncSWC(seg));
-                annotationGLSurfaceView.requestRender();
-            }
-        }
-        
     }
 
     public static void Toast_in_Thread_static(String message) {
@@ -308,16 +293,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SET_BUTTONS_BIGDATA:
-//                    setButtonsBigData();
-//                    showButtonsOnFile();
-//                    if (isBigData_Local) {
-//                        String filename = SettingFileManager.getFilename_Local(context);
-//                        String offset = SettingFileManager.getoffset_Local(context, filename);
-//                        String offset_x = offset.split("_")[0];
-//                        String offset_y = offset.split("_")[1];
-//                        String offset_z = offset.split("_")[2];
-//                        Toast.makeText(getContext(),"Current offset: " + "x: " + offset_x + " y: " + offset_y + " z: " + offset_z, Toast.LENGTH_SHORT).show();
-//                    }
                     break;
 
                 case HANDLER_NETWORK_TIME_OUT:
@@ -325,7 +300,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SET_FILENAME_BIGDATA:
-//                    setFileName(Communicator.BrainNum);
                     break;
 
                 case HANDLER_TOAST_INFO_STATIC:
@@ -334,9 +308,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     break;
 
                 case HANDLER_SHOW_PROGRESSBAR:
-//                    progressBar.setVisibility(View.GONE);
                     break;
-
 
                 case HANDLER_SHOW_SYNCING_POPUPVIEW:
                     syncingPopupView.show();
@@ -345,7 +317,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 case HANDLER_HIDE_SYNCING_POPUPVIEW:
                     syncingPopupView.dismiss();
                     break;
-
 
                 default:
                     break;
@@ -380,12 +351,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         id = InfoCache.getId();
 
         mainContext = this;
-//
-//        initNim();
-//        initService();
-//        initServerConnector();
 
         collaborationViewModel.getAnnotationMode().observe(this, new androidx.lifecycle.Observer<CollaborationViewModel.AnnotationMode>() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(CollaborationViewModel.AnnotationMode annotationMode) {
                 if(annotationMode == null ) {
@@ -430,24 +398,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     for(int i = 0; i<potentialDownloadNeuronInfoList.size();i++){
                         CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
                         neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
-                        Collections.sort(neuronNumberList);
-                        String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
-                         new XPopup.Builder(CollaborationActivity.this).
-                                maxHeight(1350).
-                                maxWidth(800).
-                                asCenterList("Neuron Number",
-                                        neuronNumberListShow, new OnSelectListener() {
-                                            @Override
-                                            public void onSelect(int position, String text) {
-                                                ToastEasy("Click"+text);
-                                                collaborationViewModel.handleNeuronNumber(text.trim());
-//                                                Log.e("PotentialDownloadNeuronInfoList",""+potentialDownloadNeuronInfoList.get(position));
-                                                collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
-                                            }
-                                        }).show();
-
+//                        Collections.sort(neuronNumberList);
                     }
-
+                    String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
+                    new XPopup.Builder(CollaborationActivity.this).
+                            maxHeight(1350).
+                            maxWidth(800).
+                            asCenterList("Neuron Number",
+                                    neuronNumberListShow, new OnSelectListener() {
+                                        @Override
+                                        public void onSelect(int position, String text) {
+                                            ToastEasy("Click"+text);
+                                            collaborationViewModel.handleNeuronNumber(text.trim());
+                                            collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
+                                        }
+                                    }).show();
                 } else {
                     ToastEasy(result.toString());
                 }
@@ -472,15 +437,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                         public void onSelect(int position, String text) {
                                             ToastEasy("Click"+text);
                                             collaborationViewModel.handleAnoResult(text.trim());
-//                                            collaborationViewModel.handleBrainNumber(text.trim());
                                         }
                                     }).show();
                 } else if(result instanceof Result.Error){
                     ToastEasy(result.toString());
                 }
-//                collaborationViewModel.handleAnoResult(result);
-
-
             }
         });
 
@@ -488,6 +449,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             @Override
             public void onChanged(Result result) {
                 collaborationViewModel.handleLoadAnoResult(result);
+
             }
         });
 
@@ -500,12 +462,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     initMsgService();
                     firstJoinRoom = false;
                 }else {
-                /*
-                reset the msg connect in collaboration service
-                 */
                     CollaborationService.resetConnection();
                 }
-
                 MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " + 2 );
             }
         });
@@ -539,17 +497,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 }
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
-//                    collaborationViewModel.loadAno();
-//
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
 
             }
         });
-
-
-
     }
 
     @Override
@@ -624,118 +577,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
-
-    private void LoadFiles(String FileList) {
-        List<String> list_array = new ArrayList<>();
-        String[] list = FileList.split(";;");
-
-        boolean isFile = false;
-        String[] fileName = new String[1];
-
-        for (int i = 0; i < list.length; i++) {
-            if (list[i].split(" ")[0].endsWith(".apo") || list[i].split(" ")[0].endsWith(".eswc")
-                    || list[i].split(" ")[0].endsWith(".swc") || list[i].split(" ")[0].endsWith("log") )
-                continue;
-
-            if(Communicator.getInstance().initSoma(list[i].split(" ")[0])) {
-                fileName[0] = list[i].split(" ")[0];
-                isFile = true;
-                continue;
-            }
-            list_array.add(list[i].split(" ")[0]);
-        }
-
-        if (isFile) {
-            list_array.add(0, "Create A New Room");
-        }
-
-        String[] list_show = new String[list_array.size()];
-        for (int i = 0; i < list_array.size(); i++){
-            list_show[i] = list_array.get(i);
-        }
-
-        if (isFile){
-            /*
-            the last directory
-            */
-            new XPopup.Builder(this)
-                    .maxHeight(1350)
-                    .maxWidth(800)
-                    .asCenterList("BigData File", list_show,
-                            new OnSelectListener() {
-                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    Communicator.BrainNum = conPath.split("/")[1];
-                                    switch (text){
-                                        case "create a new Room":
-                                            createFile(conPath + "/" + fileName[0],"0");
-                                            break;
-                                        default:
-                                            loadFileMode(conPath + "/" + text);
-                                            break;
-                                    }
-                                }
-                            })
-                    .show();
-        }else {
-            new XPopup.Builder(this)
-                    .maxHeight(1350)
-                    .maxWidth(800)
-                    .asCenterList("BigData File", list_show,
-                            new OnSelectListener() {
-                                @RequiresApi(api = Build.VERSION_CODES.N)
-                                @Override
-                                public void onSelect(int position, String text) {
-                                    conPath = conPath + "/" + text;
-                                    ServerConnector.getInstance().sendMsg("GETFILELIST:" + conPath);
-                                }
-                            })
-                    .show();
-        }
-    }
-
-    private void loadFileMode(String filepath) {
-        String[] list = filepath.split("/");
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg("LOADFILES:2 " + filepath);
-        serverConnector.setRoomName(list[list.length - 1]);
-
-        Communicator.getInstance().setPath(filepath);
-        firstLoad = true;
-    }
-
-    /**
-     * create the new file & input the name of file
-     * @param oldname oldname of file
-     * @param mode work mode
-     */
-    private void createFile(String oldname, String mode){
-        new XPopup.Builder(this)
-                .asInputConfirm("CreateRoom", "Input the name of the new Room",
-                        new OnInputConfirmListener() {
-                            @Override
-                            public void onConfirm(String text) {
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                switch (mode) {
-                                    case "0":
-                                        Communicator.getInstance().setPath(conPath + "/" + text);
-                                        serverConnector.sendMsg("LOADFILES:0 " + oldname + " " + conPath + "/" + text);
-                                        serverConnector.setRoomName(text);
-                                        copyFile = true;
-                                        break;
-                                    case "1":
-                                        Communicator.getInstance().setPath(conPath + "/" + text);
-                                        serverConnector.sendMsg("LOADFILES:1 " + oldname + " " + conPath + "/" + text);
-                                        serverConnector.setRoomName(text);
-                                        copyFile = true;
-                                        break;
-                                }
-                            }
-                        })
-                .show();
-    }
-
     private void initService() {
         // Bind to ManageService
         Intent intent = new Intent(this, ManageService.class);
@@ -743,7 +584,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
     private void initMsgService() {
-        Log.e(TAG,"initMsgService");
+//        Log.e(TAG,"initMsgService");
         // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
@@ -757,7 +598,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
-        Log.e(TAG,"initMsgConnector");
+//        Log.e(TAG,"initMsgConnector");
     }
 
 
@@ -812,29 +653,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         return context;
     }
 
-     /*
-    for IM module ------------------------------------------------------------------------------------
-     */
-//
-//    private void initNim(){
-//        registerSystemMessageObservers(true);
-//    }
-
-    /**
-     * load Big Data
-     */
-//    private void loadBigData(){
-//        conPath = "";
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                ServerConnector.getInstance().sendMsg("GETFILELIST:" + "/", true, true);
-//
-//            }
-//        }).start();
-//    }
-
     /**
      * 注册/注销系统消息未读数变化
      */
@@ -850,8 +668,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
         ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
     };
-
-
 
     private Observer<List<IMMessage>> inviteMessageObserver = new Observer<List<IMMessage>>() {
         @Override
@@ -958,8 +774,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 .show();
     }
 
-
-
     private void updateUserList(List<String> newUserList) {
 
         for (int i = 0; i < newUserList.size(); i++){
@@ -989,7 +803,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
 
             annotationGLSurfaceView.importApo(Communicator.getInstance().convertApo(apo));
-//            myrenderer.saveUndo();
             annotationGLSurfaceView.requestRender();
 
         }catch (Exception e){
@@ -1003,9 +816,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
 
             annotationGLSurfaceView.importNeuronTree(Communicator.getInstance().convertNeuronTree(nt),false);
-//            myrenderer.saveUndo();
             annotationGLSurfaceView.requestRender();
-//            setBigDataName();
 
         }catch (Exception e){
             e.printStackTrace();
@@ -1057,6 +868,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void showCommonUI() {
         if (commonView == null) {
             // load layout view
@@ -1071,6 +883,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             addMarker = tapBarMenu.findViewById(R.id.pinpoint_collaborate);
             deleteCurve = tapBarMenu.findViewById(R.id.delete_curve_collaborate);
             deleteMarker = tapBarMenu.findViewById(R.id.delete_marker_collaborate);
+            splitCurve = tapBarMenu.findViewById(R.id.split_curve_collaborate);
+
             BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu_collaborate);
 
             tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
@@ -1078,6 +892,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             addMarker.setOnClickListener(this::onMenuItemClick);
             deleteCurve.setOnClickListener(this::onMenuItemClick);
             deleteMarker.setOnClickListener(this::onMenuItemClick);
+            splitCurve.setOnClickListener(this::onMenuItemClick);
 
             addCurve.setOnLongClickListener(this::onMenuItemLongClick);
             addMarker.setOnLongClickListener(this::onMenuItemLongClick);
@@ -1091,9 +906,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
                     .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
-                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("App2 tracing algorithm start !");
+                executorService.submit(() ->annotationGLSurfaceView.APP2());
+            }).normalImageRes(R.drawable.ic_neuron));
+
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
+//                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
@@ -1103,8 +923,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 ToastEasy("GD tracing algorithm start !");
                 executorService.submit(() -> annotationGLSurfaceView.GD());
             }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-
-
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.clearAllTracing())
@@ -1123,17 +941,22 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         addMarker.setImageResource(R.drawable.ic_marker_main);
         deleteCurve.setImageResource(R.drawable.ic_delete_curve_normal);
         deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
+        splitCurve.setImageResource(R.drawable.ic_split_undo);
 
         switch (view.getId()) {
             case R.id.draw_i_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
                     addCurve.setImageResource(R.drawable.ic_draw);
                 }
-
                 break;
             case R.id.pinpoint_collaborate:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
                     addMarker.setImageResource(R.drawable.ic_add_marker);
+                }
+                break;
+            case R.id.split_curve_collaborate:
+                if(annotationGLSurfaceView.setEditMode(EditMode.SPLIT)){
+                    splitCurve.setImageResource(R.drawable.ic_split);
                 }
                 break;
             case R.id.delete_curve_collaborate:
@@ -1156,7 +979,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 ColorPickerDialog.newBuilder()
                         .setShowColorShades(false)
                         .setAllowCustom(false)
-                        .setDialogId(R.id.draw_i)
+                        .setDialogId(R.id.draw_i_collaborate)
                         .setDialogTitle(R.string.curve_map_title)
                         .setColor(ContextCompat.getColor(this,
                                 V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType())))
@@ -1168,7 +991,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 ColorPickerDialog.newBuilder()
                         .setShowColorShades(false)
                         .setAllowCustom(false)
-                        .setDialogId(R.id.pinpoint)
+                        .setDialogId(R.id.pinpoint_collaborate)
                         .setDialogTitle(R.string.marker_map_title)
                         .setColor(ContextCompat.getColor(this,
                                 ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType())))
@@ -1181,6 +1004,25 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
+
+    @SuppressLint("NonConstantResourceId")
+    public void onColorSelected(int dialogId, int color) {
+        String colorRGB = Integer.toHexString(color).toUpperCase(Locale.ROOT);
+        switch (dialogId){
+            case R.id.draw_i_collaborate:
+                annotationGLSurfaceView.setLastCurveType(V_NeuronSWC_unit.colorToType(colorRGB));
+                break;
+            case R.id.pinpoint_collaborate:
+                annotationGLSurfaceView.setLastMarkerType(ImageMarker.colorToType(colorRGB));
+                break;
+        }
+    }
+
+    public void onDialogDismissed(int dialogId) {
+        // TODO: sth when dialog dismiss, cur is empty
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void updateUI(CollaborationViewModel.AnnotationMode annotationMode) {
         resetUI4AllMode();
         switch (annotationMode) {
@@ -1247,9 +1089,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
-
-
-
     private void openFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData"},
@@ -1259,7 +1098,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                                 switch (item) {
                                     case "Open BigData":
                                         collaborationViewModel.getImageList();
-//                                        loadBigData();
                                         break;
                                     default:
                                         ToastEasy("Something wrong in function openFile !");

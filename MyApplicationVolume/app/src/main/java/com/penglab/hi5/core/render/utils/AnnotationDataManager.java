@@ -2,6 +2,8 @@ package com.penglab.hi5.core.render.utils;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
+import android.util.Log;
+
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
@@ -36,6 +38,9 @@ public class AnnotationDataManager {
     }
 
     public MarkerList getSyncMarkerList() {
+//        if(syncMarkerList.size()!=0){
+//            Log.e(TAG,"syncMarkerList_x_y_z: "+syncMarkerList.get(1).x+syncMarkerList.get(0).y+ syncMarkerList.get(0).z);
+//        }
         return syncMarkerList;
     }
 
@@ -47,7 +52,7 @@ public class AnnotationDataManager {
         return syncSwcList;
     }
 
-    public void init(){
+    public void init(boolean isBigData){
         curUndo = 0;
         undoCurveList.clear();
         undoMarkerList.clear();
@@ -55,9 +60,12 @@ public class AnnotationDataManager {
         undoMarkerList.add(new MarkerList());
 
         curSwcList.clear();
-        syncSwcList.clear();
         markerList.clear();
-        syncMarkerList.clear();
+        if(!isBigData){
+            syncSwcList.clear();
+            syncMarkerList.clear();
+        }
+
     }
 
     public boolean loadMarkerList(MarkerList newMarkerList) {
@@ -369,6 +377,7 @@ public class AnnotationDataManager {
     }
 
     public void syncAddMarker(ImageMarker imageMarker){
+        Log.e(TAG,"enter syncAddMarker"+imageMarker.x + " "+imageMarker.y +" "+imageMarker.z);
         syncMarkerList.add(imageMarker);
     }
 

@@ -699,6 +699,10 @@ public class AnnotationHelper {
                         seg.to_be_deleted = true;
                         indexToBeDeleted.add(j);
 
+                        if (isBigData) {
+                            updateDelSegSWC(seg);
+                        }
+
                         break;
                     }
                 }
@@ -1743,7 +1747,8 @@ public class AnnotationHelper {
                 }
 
 //                System.out.println("ImageType: " + imageMarker_drawed.type);
-                annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
+//                annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
+                annotationDataManager.syncAddMarker(imageMarker_drawed);
                 markerListLoaded.add(imageMarker_drawed);
                 Log.e(TAG,"18454_apo_x"+imageMarker_drawed.x +"18454_apo_y"+imageMarker_drawed.y +"18454_apo_z"+imageMarker_drawed.z +"18454_apo_type"+imageMarker_drawed.type);
             }

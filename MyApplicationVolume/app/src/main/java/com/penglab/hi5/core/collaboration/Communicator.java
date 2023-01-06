@@ -117,13 +117,12 @@ public class Communicator {
         return imageMarker;
     }
 
-    public V_NeuronSWC MSGToV_NeuronSWC(String msg){
+    public V_NeuronSWC MSGToV_NeuronSWC(String msg,String type){
 
         V_NeuronSWC seg = new V_NeuronSWC();
 
         String[] swc = msg.split(",");
-        String type = msg.split(",")[0].split(" ")[1];
-        for (int i = 1; i < swc.length; i++){
+        for (int i = 0; i < swc.length; i++){
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
             XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Double.parseDouble(swc[i].split(" ")[1]),
@@ -254,7 +253,6 @@ public class Communicator {
     }
 
 
-
     public void updateRetypeSegSWC(V_NeuronSWC seg, int type){
         List<String> result = V_NeuronSWCToMSG(seg);
         String msg = "/retypeline_norm:" + "2" + " " +  id +" " + type + " 128 128 128," + TextUtils.join(",", result);
@@ -265,8 +263,8 @@ public class Communicator {
     }
 
 
-    public V_NeuronSWC syncSWC(String msg){
-        return MSGToV_NeuronSWC(msg);
+    public V_NeuronSWC syncSWC(String msg,String type){
+        return MSGToV_NeuronSWC(msg,type);
     }
 
 
@@ -295,19 +293,6 @@ public class Communicator {
 
     public XYZ ConvertLocalBlocktoGlobalCroods(double x,double y,double z)
     {
-//        x +=(ImageStartPoint.x-0.5);
-//        y +=(ImageStartPoint.y-0.5);
-//        z +=(ImageStartPoint.z-0.5);
-//
-//        /*
-//        -1 之后会出现删线不同步的问题
-//         */
-////        x +=(ImageStartPoint.x);
-////        y +=(ImageStartPoint.y);
-////        z +=(ImageStartPoint.z);
-//        XYZ node = ConvertCurrRes2MaxResCoords(x,y,z);
-////        Log.d(TAG,"ConvertLocalBlocktoGlobalCroods x y z = " + x + " " + y + " " + z + " -> " + XYZ2String(node));
-//        return node;
         return anoCoordinateConvert.convertLocalToGlobal(x,y,z);
     }
 
