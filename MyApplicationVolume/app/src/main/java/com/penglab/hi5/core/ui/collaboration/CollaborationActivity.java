@@ -210,7 +210,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 }
 
                 if (singlemsg.startsWith("/addmarker_norm:")) {
-//                    Log.e(TAG,"addmarker_norm");
 
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
 
@@ -231,7 +230,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     int index = singlemsg.indexOf(",");
                     String marker = singlemsg.substring(index+1);
-//                    String marker      = singlemsg.split(":")[1].split(",")[1];
 
                     if (!userID.equals(String.valueOf(id))){
                         Communicator communicator = Communicator.getInstance();
@@ -245,7 +243,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
                     String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
-//                    String seg    = msg.split(":")[1];
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index+1);
 
@@ -369,7 +366,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             public void onChanged(Result result) {
                 if(result instanceof Result.Success){
                     String[] data = (String[]) ((Result.Success<?>) result).getData();
-                    Set<String> set=new HashSet<String>(Arrays.asList("18454"));
+                    Set<String> set=new HashSet<String>(Arrays.asList(data));
                     String[] listShow = set.toArray(new String[set.size()]);
 
                     new XPopup.Builder(CollaborationActivity.this).
@@ -392,13 +389,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-//                collaborationViewModel.handleNeuronListResult(result);
                 if (result instanceof Result.Success) {
                     List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
                     for(int i = 0; i<potentialDownloadNeuronInfoList.size();i++){
                         CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
                         neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
-//                        Collections.sort(neuronNumberList);
                     }
                     String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
                     new XPopup.Builder(CollaborationActivity.this).
@@ -444,7 +439,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 }
             }
         });
-
         collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
@@ -452,7 +446,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             }
         });
-
 
         collaborationViewModel.getPortResult().observe(this, new androidx.lifecycle.Observer<String>() {
             @Override
@@ -504,33 +497,28 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         });
     }
-
     @Override
     protected void onResume() {
         Log.e(TAG,"onResume");
         super.onResume();
         annotationGLSurfaceView.onResume();
     }
-
     @Override
     protected void onPause() {
         Log.e(TAG,"onPause");
         super.onPause();
         annotationGLSurfaceView.onPause();
     }
-
     @Override
     protected void onRestart() {
         Log.e(TAG,"onRestart");
         super.onRestart();
     }
-
     @Override
     protected void onStop() {
         Log.e(TAG,"onStop");
         super.onStop();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -576,31 +564,25 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             timerSync = null;
         }
     }
-
     private void initService() {
         // Bind to ManageService
         Intent intent = new Intent(this, ManageService.class);
         bindService(intent, connection_management, Context.BIND_AUTO_CREATE);
     }
-
     private void initMsgService() {
 //        Log.e(TAG,"initMsgService");
         // Bind to CollaborationService
         Intent intent = new Intent(this, CollaborationService.class);
         bindService(intent, connection_collaboration, Context.BIND_AUTO_CREATE);
     }
-
     private void initMsgConnector(String port) {
         MsgConnector msgConnector = MsgConnector.getInstance();
-
         if (!firstJoinRoom)
             msgConnector.releaseConnection();
         msgConnector.setIp(ip_TencentCloud);
         msgConnector.setPort(port);
         msgConnector.initConnection();
-//        Log.e(TAG,"initMsgConnector");
     }
-
 
     private void initServerConnector() {
         ServerConnector serverConnector = ServerConnector.getInstance();
@@ -613,7 +595,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     /** Defines callbacks for service binding, passed to bindService() */
     private ServiceConnection connection_management = new ServiceConnection() {
-
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
@@ -622,7 +603,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             binder.addReceiveMsgInterface((CollaborationActivity) getActivityFromContext(mainContext));
             mBoundManagement = true;
         }
-
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
             mBoundManagement = false;
@@ -791,7 +771,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         MsgConnector.userList = newUserList;
     }
 
-    public void loadBigDataApo(String filepath){
+    public void loadBigDataApo(String filepath) {
 
         try {
             ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
@@ -811,7 +791,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    public void loadBigDataSwc(String filepath){
+    public void loadBigDataSwc(String filepath) {
         try {
             NeuronTree nt = NeuronTree.readSWC_file(filepath);
 
@@ -836,25 +816,20 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         Log.d(TAG, "isTopActivity" + cmpNameTemp);
         return cmpNameTemp.equals("ComponentInfo{com.penglab.hi5/com.penglab.hi5.core.CollaborationActivity}");
     }
-
-
     private void resetUI4AllMode() {
         hideUI4BigDataMode();
         hideCommonUI();
     }
-
     private void hideUI4BigDataMode() {
         if (bigDataModeView != null){
             bigDataModeView.setVisibility(View.GONE);
         }
     }
-
     private void hideCommonUI() {
         if (commonView != null){
             commonView.setVisibility(View.GONE);
         }
     }
-
     private void showUI4BigDataMode() {
         if (bigDataModeView == null) {
             // load layout view
@@ -867,7 +842,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             bigDataModeView.setVisibility(View.VISIBLE);
         }
     }
-
     @RequiresApi(api = Build.VERSION_CODES.N)
     private void showCommonUI() {
         if (commonView == null) {
@@ -897,7 +871,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             addCurve.setOnLongClickListener(this::onMenuItemLongClick);
             addMarker.setOnLongClickListener(this::onMenuItemLongClick);
 
-            // All is lambda expression
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
                     .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
@@ -911,9 +884,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 executorService.submit(() ->annotationGLSurfaceView.APP2());
             }).normalImageRes(R.drawable.ic_neuron));
 
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
-//                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
@@ -1049,14 +1019,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 break;
         }
     }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.annotation_menu_basic, menu);
         return super.onCreateOptionsMenu(menu);
     }
-
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -1081,14 +1048,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 annotationGLSurfaceView.screenCapture();
                 return true;
 
-
             default:
                 // If we got here, the user's action was not recognized.
                 // Invoke the superclass to handle it.
                 return super.onOptionsItemSelected(item);
         }
     }
-
     private void openFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData"},
@@ -1106,7 +1071,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                         })
                 .show();
     }
-
     public static void start(Context context) {
         Intent intent = new Intent(context, CollaborationActivity.class);
         context.startActivity(intent);

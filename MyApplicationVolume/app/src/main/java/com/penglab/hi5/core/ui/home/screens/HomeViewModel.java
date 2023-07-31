@@ -118,7 +118,6 @@ public class HomeViewModel extends ViewModel {
             score.setValue(0);
         }
     }
-
     public void updateLogStatus(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
@@ -130,7 +129,6 @@ public class HomeViewModel extends ViewModel {
             }
         }
     }
-
     public void updateResourceResult(Result result) {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
@@ -148,16 +146,13 @@ public class HomeViewModel extends ViewModel {
             ToastEasy(result.toString());
         }
     }
-
     public void checkLatestVersion(String localVersionName) {
         resourceDataSource.checkLatestVersion(localVersionName);
     }
-
     public void downloadLatestVersion(String url, String filename){
         workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_APK);
         resourceDataSource.downloadLatestVersion(url, filename);
     }
-
     public void cleanImgCache() {
         File file = new File(getContext().getExternalFilesDir(null).toString() + "/Image");
         recursionDeleteFile(file);

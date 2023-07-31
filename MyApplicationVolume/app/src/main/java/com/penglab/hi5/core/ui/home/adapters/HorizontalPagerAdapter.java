@@ -35,8 +35,11 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     "Smart Imaging"
             ),
             new Utils.LibraryObject(
-                    R.drawable.ic_design,
+                    R.drawable.ic_social,
                     "Collaboration"
+            ),
+            new Utils.LibraryObject(
+                    R.drawable.ic_internet,"Synapse Detection"
             ),
             new Utils.LibraryObject(
                     R.drawable.ic_chat_icon,

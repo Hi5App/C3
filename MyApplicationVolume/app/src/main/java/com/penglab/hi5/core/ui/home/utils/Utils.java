@@ -15,6 +15,7 @@ import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.S2Activity;
 import com.penglab.hi5.core.net.HttpUtilsImage;
+import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionActivity;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionActivity;
 import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
@@ -58,10 +59,13 @@ public class Utils {
                         QualityInspectionActivity.start(context);
                         break;
                     case "Smart Imaging":
-                        S2Activity.start(context);
+//                        S2Activity.start(context);
                         break;
                     case "Collaboration":
                         CollaborationActivity.start(context);
+                        break;
+                    case "Synapse Detection":
+                        BoutonDetectionActivity.start(context);
                         break;
                     case "Chat":
                         ChatActivity.start(context);

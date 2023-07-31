@@ -61,7 +61,7 @@ public class AnnotationDataManager {
 
         curSwcList.clear();
         markerList.clear();
-        if(!isBigData){
+        if(!isBigData) {
             syncSwcList.clear();
             syncMarkerList.clear();
         }
@@ -390,17 +390,14 @@ public class AnnotationDataManager {
                 }
             }
         }
-
         deleteSameMarkerFromList(imageMarker, syncMarkerList);
     }
-
     private boolean deleteSameMarkerFromList(ImageMarker imageMarker, MarkerList list) {
         for (int i = 0 ; i < list.size(); i++){
 
             ImageMarker marker = list.get(i);
             float[] marker_del = new float[]{imageMarker.x, imageMarker.y, imageMarker.z};
             float[] marker_cur = new float[]{marker.x, marker.y, marker.z};
-
             if (distance(marker_cur, marker_del) < 0.5){
                 list.remove(i);
                 return true;
