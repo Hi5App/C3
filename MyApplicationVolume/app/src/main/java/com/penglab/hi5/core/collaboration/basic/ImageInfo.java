@@ -1,6 +1,7 @@
 package com.penglab.hi5.core.collaboration.basic;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.penglab.hi5.data.dataStore.database.Image;
 
@@ -133,7 +134,7 @@ public class ImageInfo {
 
 
     public boolean updatePosRes(String curPath, int curRes, String curPos){
-//        Log.e(TAG, "updatePosRes start : " + curRes + ", " + curPos);
+        Log.e(TAG, "updatePosRes start : " + curRes + ", " + curPos);
         return updatePos(curPath, curPos) && updateRes(curPath, curRes);
     }
 

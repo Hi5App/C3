@@ -234,4 +234,11 @@ public class CollaborationViewModel extends ViewModel {
 
     }
 
+
+    public void switchRes() {
+
+
+
+    }
+
 }
