@@ -5,6 +5,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <Button
+        android:id="@+id/collaborate_res_button"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:text="R"
+        android:textSize="18dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="60dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
     <ImageButton
         android:id="@+id/edit_mode_indicator_collaborate"
         android:layout_width="40dp"

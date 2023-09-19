@@ -55,9 +55,9 @@ public class Utils {
 //                    case "Annotation":
 //                        AnnotationActivity.start(context);
 //                        break;
-//                    case "Check":
-//                        QualityInspectionActivity.start(context);
-//                        break;
+                    case "Check":
+                        QualityInspectionActivity.start(context);
+                        break;
 //                    case "Smart Imaging":
 ////                        S2Activity.start(context);
 //                        break;

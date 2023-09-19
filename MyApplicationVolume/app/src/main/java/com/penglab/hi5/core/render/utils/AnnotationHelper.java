@@ -322,8 +322,30 @@ public class AnnotationHelper {
             }
 
             curSwcList.append(seg);
+            int firstSegID=-1;
+            int secondSegID=-1;
+            for(int i=0; i<curSwcList.seg.size(); i++){
+                V_NeuronSWC tmpSeg=curSwcList.seg.get(i);
+                for(int j=0; j<tmpSeg.row.size(); j++){
+                    if(tmpSeg.row.get(j).x==seg.row.get(0).x&&tmpSeg.row.get(j).y==seg.row.get(0).y&&tmpSeg.row.get(j).z==seg.row.get(0).z){
+                        firstSegID=i;
+                    }
+                    if(tmpSeg.row.get(j).x==seg.row.get(seg.row.size()-1).x&&tmpSeg.row.get(j).y==seg.row.get(seg.row.size()-1).y&&tmpSeg.row.get(j).z==seg.row.get(seg.row.size()-1).z){
+                        secondSegID=i;
+                    }
+                }
+            }
+
+            Vector<V_NeuronSWC> connectedSegs = new Vector<>();
+            if(firstSegID!=-1){
+                connectedSegs.add(curSwcList.seg.get(firstSegID));
+            }
+            if(secondSegID!=-1){
+                connectedSegs.add(curSwcList.seg.get(secondSegID));
+            }
+
             if (isBigData){
-                updateAddSegSWC(seg);
+                updateAddSegSWC(seg, connectedSegs);
             }
 
         } else {
@@ -726,6 +748,8 @@ public class AnnotationHelper {
         boolean found = false;
         Vector<Integer> toSplit = new Vector<Integer>();
         Log.e("test for split in swc SWCLIST",""+swcList.nsegs());
+
+        Vector<V_NeuronSWC> segs = new Vector<>();
         for (int i = 0; i < line.size() / 3 - 1; i++){
             if (found){
                 break;
@@ -825,10 +849,12 @@ public class AnnotationHelper {
                             Log.e(TAG,"splitCurveInSwcList: " + e.getMessage());
                         }
 
+                        segs.add(swcList.seg.get(j));
+                        segs.add(newSeg1);
+                        segs.add(newSeg2);
+
                         if (isBigData){
-                            updateDelSegSWC(swcList.seg.get(j));
-                            updateAddSegSWC(newSeg1);
-                            updateAddSegSWC(newSeg2);
+                            updateSplitSegSWC(segs);
                         }
 
                         swcList.deleteSeg(j);
@@ -1774,7 +1800,7 @@ public class AnnotationHelper {
             for (int i = 0; i < segs.size(); i++) {
                 annotationDataManager.getSyncSwcList().append(segs.get(i));
                 if (needSync) {
-                    updateAddSegSWC(segs.get(i));
+                    updateAddSegSWC(segs.get(i), null);
                 }
             }
 
@@ -1790,9 +1816,14 @@ public class AnnotationHelper {
     /**
      * Collaboration part
      */
-    public void updateAddSegSWC(V_NeuronSWC seg){
+
+    public void updateSplitSegSWC(Vector<V_NeuronSWC> segs){
         Communicator communicator = Communicator.getInstance();
-        communicator.updateAddSegSWC(seg);
+        communicator.updateSplitSegSWC(segs);
+    }
+    public void updateAddSegSWC(V_NeuronSWC seg, Vector<V_NeuronSWC> connectedSegs){
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateAddSegSWC(seg, connectedSegs);
     }
 
     public void updateDelSegSWC(V_NeuronSWC seg){

@@ -1,5 +1,7 @@
 package com.penglab.hi5.basic.tracingfunc.gd;
 
+import android.util.Log;
+
 import java.util.Vector;
 
 public class V_NeuronSWC implements Cloneable{
@@ -217,5 +219,13 @@ public class V_NeuronSWC implements Cloneable{
             row.get(i).z = z; // output
         }
         return true;
+    }
+
+    public void printInfo(){
+        Log.e("!!!", "enter printInfo");
+        for(int i=0; i<row.size(); i++){
+            V_NeuronSWC_unit v=row.elementAt(i);
+            Log.e("!!!","row[" + i + "] : " + v.n + " " + v.type + " " + v.x + " " + v.y + " " + v.z + " " + v.r + " " + v.parent);
+        }
     }
 }

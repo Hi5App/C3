@@ -18,10 +18,13 @@ import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.core.ui.marker.CoordinateConvert;
+import com.penglab.hi5.data.ImageDataSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
+import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,7 +41,7 @@ public class Communicator {
 
     public static ArrayList<String> resolution;               // res list of current img
     private static int ImgRes;                                // max img res; 1 is highest; max num is lowest
-    private static int CurRes;                                // current img res
+    private static int CurRes = 2;                                // current img res
 
     public static int ImgSize;
     public static XYZ ImageStartPoint = new XYZ();            // start point of img; center - size/2
@@ -117,12 +120,23 @@ public class Communicator {
         return imageMarker;
     }
 
-    public V_NeuronSWC MSGToV_NeuronSWC(String msg,String type){
+    public Vector<V_NeuronSWC> MSGToV_NeuronSWC(String msg,String type){
 
+        Vector<V_NeuronSWC> allSegs=new Vector<>();
         V_NeuronSWC seg = new V_NeuronSWC();
+        int index=0;
 
         String[] swc = msg.split(",");
         for (int i = 0; i < swc.length; i++){
+            if(Objects.equals(swc[i], "$"))
+            {
+                index=0;
+                seg.printInfo();
+                allSegs.add(seg);
+                seg = new V_NeuronSWC();
+                continue;
+            }
+
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
             XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Double.parseDouble(swc[i].split(" ")[1]),
@@ -140,19 +154,24 @@ public class Communicator {
 
             }else if (type.equals("0")){
 
-                segUnit.n = i;
-                if (i == 1){
+                segUnit.n = index;
+                if (index == 1){
                     segUnit.parent = 0;
                 }else {
-                    segUnit.parent = i-1;
+                    segUnit.parent = index-1;
                 }
             }
 
-
+            index++;
             seg.row.add(segUnit);
         }
 
-        return seg;
+        if(seg.row.size()!=0)
+        {
+            allSegs.add(seg);
+        }
+
+        return allSegs;
     }
 
 
@@ -233,13 +252,34 @@ public class Communicator {
 
     }
 
-
-    public void updateAddSegSWC(V_NeuronSWC seg){
-        List<String> result = V_NeuronSWCToMSG(seg);
-        String msg = "/drawline_norm:" + "2" + " "+ id + " 128 128 128," + TextUtils.join(",", result);
+    public void updateSplitSegSWC(Vector<V_NeuronSWC> segs){
+        List<String> result = new ArrayList<>();
+        for(int i=0;i<segs.size();i++){
+            result.addAll(V_NeuronSWCToMSG(segs.get(i)));
+            result.add("$");
+        }
+        String msg = "/splitline_norm:" + "2" + " " + id + " 128 128 128," + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, true, true);
+        msgConnector.sendMsg(msg.toString(), true, true);
+
+    }
+
+    public void updateAddSegSWC(V_NeuronSWC seg, Vector<V_NeuronSWC> connectedSegs){
+        List<String> result = V_NeuronSWCToMSG(seg);
+        result.add("$");
+        if(connectedSegs!=null){
+            for(V_NeuronSWC connectedSeg:connectedSegs){
+                result.addAll(V_NeuronSWCToMSG(connectedSeg));
+                result.add("$");
+            }
+        }
+
+        String msg = "/drawline_norm:" + "2" + " " + id + " 128 128 128," + TextUtils.join(",", result);
+
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        msgConnector.sendMsg(msg.toString(), true, true);
 
     }
 
@@ -263,7 +303,7 @@ public class Communicator {
     }
 
 
-    public V_NeuronSWC syncSWC(String msg,String type){
+    public Vector<V_NeuronSWC> syncSWC(String msg,String type){
         return MSGToV_NeuronSWC(msg,type);
     }
 
@@ -662,8 +702,10 @@ public class Communicator {
             ImageStartPoint.x = ImageCurPoint.x - ImgSize/2;
             ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
             ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
-            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-            ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
+
+
+//            MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+//            ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
         }
     }
 
@@ -734,7 +776,7 @@ public class Communicator {
     }
 
 
-    private void setRes(int newRes){
+    public void setRes(int newRes){
         if (newRes == CurRes)
             return;
 
@@ -749,8 +791,8 @@ public class Communicator {
         ImageStartPoint.y = ImageCurPoint.y - ImgSize/2;
         ImageStartPoint.z = ImageCurPoint.z - ImgSize/2;
 
-        MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
-        ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
+        //MsgConnector.getInstance().sendMsg("/Imgblock:" + Communicator.BrainNum + ";" + CurRes + ";" + Communicator.getCurrentPos() + ";");
+        //ImageInfo.getInstance().updatePosRes(pathQuery, CurRes, getCurrentPos());
     }
 
 
