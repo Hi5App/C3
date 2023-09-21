@@ -27,6 +27,7 @@ public class AnnotationDataManager {
     private MarkerList markerList = new MarkerList();
     private V_NeuronSWC_list curSwcList = new V_NeuronSWC_list();
     private final MarkerList syncMarkerList = new MarkerList();
+    private final MarkerList syncMarkerListGlobal = new MarkerList();
     private final V_NeuronSWC_list syncSwcList = new V_NeuronSWC_list();
     private int curUndo = -1;
 
@@ -42,6 +43,10 @@ public class AnnotationDataManager {
 //            Log.e(TAG,"syncMarkerList_x_y_z: "+syncMarkerList.get(1).x+syncMarkerList.get(0).y+ syncMarkerList.get(0).z);
 //        }
         return syncMarkerList;
+    }
+
+    public MarkerList getSyncMarkerListGlobal() {
+        return syncMarkerListGlobal;
     }
 
     public V_NeuronSWC_list getCurSwcList() {
@@ -412,6 +417,10 @@ public class AnnotationDataManager {
         syncMarkerList.add(imageMarker);
     }
 
+    public void syncAddMarkerGlobal(ImageMarker imageMarker) {
+        syncMarkerListGlobal.add(imageMarker);
+    }
+
     public void syncDelMarker(ImageMarker imageMarker) {
         if (deleteSameMarkerFromList(imageMarker, markerList)) {
             for (int i = undoMarkerList.size() - 1; i >= 0; i--) {
@@ -422,6 +431,10 @@ public class AnnotationDataManager {
             }
         }
         deleteSameMarkerFromList(imageMarker, syncMarkerList);
+    }
+
+    public void syncDelMarkerGlobal(ImageMarker imageMarker) {
+        deleteSameMarkerFromList(imageMarker, syncMarkerListGlobal);
     }
 
     private boolean deleteSameMarkerFromList(ImageMarker imageMarker, MarkerList list) {

@@ -270,7 +270,7 @@ public class CollaborationViewModel extends ViewModel {
 
     public void openFile(int resIndex) {
         String brainId = potentialDownloadNeuronInfo.getBrainName();
-        XYZ loc=downloadCoordinateConvert.getCenterLocation();
+        XYZ loc = downloadCoordinateConvert.getCenterLocation();
         List<String> resList = resMap.get(brainId);
         if (resList == null) {
             imageResult.setValue(new ResourceResult(false, "No res found"));
@@ -308,12 +308,12 @@ public class CollaborationViewModel extends ViewModel {
     }
 
     public void navigateAndZoomInBlock(int offset_x, int offset_y, int offset_z) {
-        if(resMap.get(potentialDownloadNeuronInfo.getBrainName()) != null) {
+        if (resMap.get(potentialDownloadNeuronInfo.getBrainName()) != null) {
             List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
             String img_size = resList.get(downloadCoordinateConvert.getResIndex() - 1).replace("RES(", "").replace(")", "");
 
-            int img_size_x_i = Integer.parseInt(img_size.split("x")[0]);
-            int img_size_y_i = Integer.parseInt(img_size.split("x")[1]);
+            int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
+            int img_size_y_i = Integer.parseInt(img_size.split("x")[0]);
             int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
 
             int offset_x_i = (int) downloadCoordinateConvert.getCenterLocation().x;
@@ -368,7 +368,6 @@ public class CollaborationViewModel extends ViewModel {
             if (downloadCoordinateConvert.getResIndex() <= 1) {
                 imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
                         (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
-                return;
             } else {
                 downloadCoordinateConvert.setResIndex(downloadCoordinateConvert.getResIndex() - 1);
                 downloadCoordinateConvert.setCenterLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x * 2,
@@ -385,5 +384,113 @@ public class CollaborationViewModel extends ViewModel {
 
 
     }
+
+    public void shiftBlock(CollaborationActivity.ShiftDirection shiftDirection) {
+        if (resMap.get(potentialDownloadNeuronInfo.getBrainName()) != null) {
+            List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
+            assert resList != null;
+            String img_size = resList.get(downloadCoordinateConvert.getResIndex() - 1).replace("RES(", "").replace(")", "");
+
+            int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
+            int img_size_y_i = Integer.parseInt(img_size.split("x")[0]);
+            int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+            int offset_x_i = (int) downloadCoordinateConvert.getCenterLocation().x;
+            int offset_y_i = (int) downloadCoordinateConvert.getCenterLocation().y;
+            int offset_z_i = (int) downloadCoordinateConvert.getCenterLocation().z;
+            int size_i = downloadCoordinateConvert.getImgSize();
+
+            Log.e(TAG, String.format("img: x %d, y %d, z %d", img_size_x_i, img_size_y_i, img_size_z_i));
+            Log.e(TAG, String.format("cur: x %d, y %d, z %d", offset_x_i, offset_y_i, offset_z_i));
+
+            switch (shiftDirection) {
+                case RIGHT: {
+                    if (offset_x_i + size_i / 2 >= img_size_x_i - 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_x_i += size_i / 2;
+                        if (offset_x_i + size_i / 2 > img_size_x_i - 1) {
+                            offset_x_i = img_size_x_i - size_i / 2 - 1;
+                        }
+                    }
+                    break;
+                }
+                case LEFT: {
+                    if (offset_x_i - size_i / 2 <= 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_x_i -= size_i / 2;
+                        if (offset_x_i - size_i / 2 < 1) {
+                            offset_x_i = 1 + size_i / 2;
+                        }
+                    }
+                    break;
+                }
+                case UP: {
+                    if (offset_z_i + size_i / 2 >= img_size_z_i - 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_z_i += size_i / 2;
+                        if (offset_z_i + size_i / 2 > img_size_z_i - 1) {
+                            offset_z_i = img_size_z_i - size_i / 2 - 1;
+                        }
+                    }
+                    break;
+                }
+                case DOWN: {
+                    if (offset_z_i - size_i / 2 <= 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_z_i -= size_i / 2;
+                        if (offset_z_i - size_i / 2 < 1) {
+                            offset_z_i = 1 + size_i / 2;
+                        }
+                    }
+                    break;
+                }
+                case FRONT: {
+                    if (offset_y_i + size_i / 2 >= img_size_z_i - 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_y_i += size_i / 2;
+                        if (offset_y_i + size_i / 2 > img_size_x_i - 1) {
+                            offset_y_i = img_size_x_i - size_i / 2 - 1;
+                        }
+                    }
+                    break;
+                }
+                case BACK: {
+                    if (offset_y_i - size_i / 2 <= 1) {
+                        Toast_in_Thread_static("You have already reached boundary!!!");
+                        return;
+                    } else {
+                        offset_y_i -= size_i / 2;
+                        if (offset_y_i - size_i / 2 < 1) {
+                            offset_y_i = 1 + size_i / 2;
+                        }
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            Log.e(TAG, String.format("after: x %d, y %d, z %d", offset_x_i, offset_y_i, offset_z_i));
+            downloadCoordinateConvert.setCenterLocation(new XYZ(offset_x_i, offset_y_i, offset_z_i));
+            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
+                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+
+            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
+                    (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+
+        }
+
+    }
+
 
 }

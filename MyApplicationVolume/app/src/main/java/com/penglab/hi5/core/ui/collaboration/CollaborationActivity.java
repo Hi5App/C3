@@ -93,6 +93,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -139,6 +140,22 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageView deleteMarker;
     private ImageView splitCurve;
     private Button collaborateResButton;
+
+    private ImageButton collaborateRightButton;
+
+    private ImageButton collaborateLeftButton;
+
+    private ImageButton collaborateUpWardButton;
+
+    private ImageButton collaborateDownWardButton;
+
+    private Button collaborateForWardButton;
+
+    private Button collaborateBackWardButton;
+
+    public enum ShiftDirection {
+        RIGHT, LEFT, UP, DOWN, FRONT, BACK
+    }
 
     private ImageButton ROI_i;
     private ImageButton editModeIndicator;
@@ -245,6 +262,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     if (!userID.equals(String.valueOf(id))) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(marker));
+//                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                         annotationGLSurfaceView.requestRender();
                     }
                 }
@@ -259,6 +277,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     if (!userID.equals(String.valueOf(id))) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(marker));
+//                        annotationGLSurfaceView.syncDelMarkerGlobal(communicator.syncMarkerGlobal(marker));
                         annotationGLSurfaceView.requestRender();
                     }
                 }
@@ -421,11 +440,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             public void onChanged(Result result) {
                 if (result instanceof Result.Success) {
                     List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
+                    neuronNumberList.clear();
                     for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
                         CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
                         neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
                     }
                     String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
+//                    String[] neuronNumberListShow = new String[]{"18454_00019"};
                     new XPopup.Builder(CollaborationActivity.this).
                             maxHeight(1350).
                             maxWidth(800).
@@ -532,6 +553,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             public void onChanged(XYZ centerLocation) {
 
                 collaborationViewModel.navigateAndZoomInBlock((int) centerLocation.x, (int) centerLocation.y, (int) centerLocation.z);
+                annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
             }
         });
     }
@@ -832,7 +855,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 Toast_in_Thread("There is something wrong with apo file !");
             }
 
-            annotationGLSurfaceView.importApo(Communicator.getInstance().convertApo(apo));
+            annotationGLSurfaceView.importApo(apo);
             annotationGLSurfaceView.requestRender();
 
         } catch (Exception e) {
@@ -890,7 +913,33 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_collaborate_mode, null);
+
+
             this.addContentView(bigDataModeView, lp4BigDataMode);
+
+            collaborateRightButton = findViewById(R.id.collaborate_right_file_button);
+            collaborateLeftButton = findViewById(R.id.collaborate_left_file_button);
+            collaborateUpWardButton = findViewById(R.id.collaborate_upward_file_button);
+            collaborateDownWardButton = findViewById(R.id.collaborate_downward_file_button);
+            collaborateForWardButton = findViewById(R.id.collaborate_forward_file_button);
+            collaborateBackWardButton = findViewById(R.id.collaborate_backward_file_button);
+            collaborateRightButton.setVisibility(View.VISIBLE);
+            collaborateLeftButton.setVisibility(View.VISIBLE);
+            collaborateUpWardButton.setVisibility(View.VISIBLE);
+            collaborateDownWardButton.setVisibility(View.VISIBLE);
+            collaborateForWardButton.setVisibility(View.VISIBLE);
+            collaborateBackWardButton.setVisibility(View.VISIBLE);
+
+            collaborateRightButton.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateLeftButton.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateUpWardButton.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateDownWardButton.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateForWardButton.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateBackWardButton.setOnClickListener(new CollaborateButtonClickListener());
+
+            ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
+            collaborateCheckFileButton.setVisibility(View.GONE);
+
 
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
@@ -909,10 +958,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             collaborateResButton = findViewById(R.id.collaborate_res_button);
             collaborateResButton.setVisibility(View.VISIBLE);
-//
-//            ROI_i = findViewById(R.id.collaborate_roi_button);
-//            ROI_i.setVisibility(View.VISIBLE);
-////
+
             ROI_i = new ImageButton(this);
             ROI_i.setImageResource(R.drawable.ic_roi);
             ROI_i.setBackgroundResource(R.drawable.circle_normal);
@@ -965,24 +1011,24 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
                     .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-                ToastEasy("App2 tracing algorithm start !");
-                executorService.submit(() -> annotationGLSurfaceView.APP2());
-            }).normalImageRes(R.drawable.ic_neuron));
-
-
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
-                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-                ToastEasy("GD tracing algorithm start !");
-                executorService.submit(() -> annotationGLSurfaceView.GD());
-            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
-                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+//                ToastEasy("App2 tracing algorithm start !");
+//                executorService.submit(() -> annotationGLSurfaceView.APP2());
+//            }).normalImageRes(R.drawable.ic_neuron));
+//
+//
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+//                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+//
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+//                ToastEasy("GD tracing algorithm start !");
+//                executorService.submit(() -> annotationGLSurfaceView.GD());
+//            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+//
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+//                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+//                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
 
         } else {
             commonView.setVisibility(View.VISIBLE);
@@ -1120,21 +1166,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 finish();
                 return true;
 
-            case R.id.undo:
-                annotationGLSurfaceView.undo();
-                return true;
-
-            case R.id.redo:
-                annotationGLSurfaceView.redo();
-                return true;
+//            case R.id.undo:
+//                annotationGLSurfaceView.undo();
+//                return true;
+//
+//            case R.id.redo:
+//                annotationGLSurfaceView.redo();
+//                return true;
 
             case R.id.file:
                 openFile();
                 return true;
 
-            case R.id.share:
-                annotationGLSurfaceView.screenCapture();
-                return true;
+//            case R.id.share:
+//                annotationGLSurfaceView.screenCapture();
+//                return true;
 
             default:
                 // If we got here, the user's action was not recognized.
@@ -1150,6 +1196,36 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             switch (v.getId()) {
                 case R.id.collaborate_res_button:
                     showResListPopup();
+                    break;
+                case R.id.collaborate_right_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.RIGHT);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                    break;
+                case R.id.collaborate_left_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.LEFT);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                    break;
+                case R.id.collaborate_upward_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.UP);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                    break;
+                case R.id.collaborate_downward_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.DOWN);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                    break;
+                case R.id.collaborate_forward_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.FRONT);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                    break;
+                case R.id.collaborate_backward_file_button:
+                    collaborationViewModel.shiftBlock(ShiftDirection.BACK);
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
                     break;
                 default:
                     break;
@@ -1193,6 +1269,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     public void onSelect(int position, String text) {
                         ToastEasy("Click" + text);
                         collaborationViewModel.switchRes(position, text.trim());
+                        annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                        annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+//                        annotationGLSurfaceView.requestRender();
                     }
                 }).show();
 

@@ -7,14 +7,14 @@
 
     <Button
         android:id="@+id/collaborate_res_button"
-        android:layout_width="45dp"
-        android:layout_height="45dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:text="R"
         android:textSize="18dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="60dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.10" />
 
 
     <ImageButton
@@ -96,8 +96,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             app:bmb_buttonEnum="textOutsideCircle"
-            app:bmb_piecePlaceEnum="piecePlace_dot_6_1"
-            app:bmb_buttonPlaceEnum="buttonPlace_sc_6_1"
+            app:bmb_piecePlaceEnum="piecePlace_dot_2_1"
+            app:bmb_buttonPlaceEnum="buttonPlace_sc_2_1"
             app:bmb_buttonRadius="15dp"
             app:bmb_backgroundEffect="false"
             app:bmb_shadowEffect="false" />

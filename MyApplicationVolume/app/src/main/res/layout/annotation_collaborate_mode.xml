@@ -15,7 +15,7 @@
         app:layout_constraintVertical_bias="0.13" />
 
     <ImageButton
-        android:id="@+id/collaborate_next_file_button"
+        android:id="@+id/collaborate_right_file_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/ic_chevron_right_black_24dp"
@@ -24,12 +24,58 @@
         app:layout_constraintBottom_toBottomOf="parent" />
 
     <ImageButton
-        android:id="@+id/collaborate_former_file_button"
+        android:id="@+id/collaborate_left_file_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
         android:src="@drawable/ic_chevron_left_black_24dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageButton
+        android:id="@+id/collaborate_upward_file_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_chevron_right_black_24dp"
+        android:rotation="270"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.10" />
+
+    <ImageButton
+        android:id="@+id/collaborate_downward_file_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_chevron_right_black_24dp"
+        android:rotation="90"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.90" />
+
+    <Button
+        android:id="@+id/collaborate_forward_file_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="F"
+        android:textSize="18dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.10" />
+
+    <Button
+        android:id="@+id/collaborate_backward_file_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:text="B"
+        android:textSize="18dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.90" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

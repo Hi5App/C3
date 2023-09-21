@@ -1863,7 +1863,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
         bmb.setButtonEnum(ButtonEnum.TextOutsideCircle);
-        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_6_1);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_2_1);
         bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_6_1);
         bmb.setButtonRadius(Util.dp2px(15));
         bmb.setBackgroundEffect(false);

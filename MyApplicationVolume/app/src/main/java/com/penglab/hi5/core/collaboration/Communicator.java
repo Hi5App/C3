@@ -109,7 +109,27 @@ public class Communicator {
 
         ImageMarker imageMarker = new ImageMarker();
 
+        XYZ GlobalCroods = new XYZ(Float.parseFloat(msg.split(" ")[1]),
+                Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
+
         XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[1]),
+                Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
+
+        imageMarker.type = Integer.parseInt(msg.split(" ")[0]);
+        imageMarker.xGlobal = GlobalCroods.x;
+        imageMarker.yGlobal = GlobalCroods.y;
+        imageMarker.zGlobal = GlobalCroods.z;
+        imageMarker.x = LocalCroods.x;
+        imageMarker.y = LocalCroods.y;
+        imageMarker.z = LocalCroods.z;
+
+        return imageMarker;
+    }
+
+    public ImageMarker MSGToImageMarkerGlobal(String msg){
+        ImageMarker imageMarker = new ImageMarker();
+
+        XYZ LocalCroods = new XYZ(Float.parseFloat(msg.split(" ")[1]),
                 Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
 
         imageMarker.type = Integer.parseInt(msg.split(" ")[0]);
@@ -139,6 +159,9 @@ public class Communicator {
 
             V_NeuronSWC_unit segUnit = new V_NeuronSWC_unit();
 
+            XYZ GlobalCroods = new XYZ((float) Double.parseDouble(swc[i].split(" ")[1]),
+                    (float) Double.parseDouble(swc[i].split(" ")[2]),(float) Double.parseDouble(swc[i].split(" ")[3]));
+
             XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Double.parseDouble(swc[i].split(" ")[1]),
                     Double.parseDouble(swc[i].split(" ")[2]), Double.parseDouble(swc[i].split(" ")[3]));
 
@@ -146,6 +169,9 @@ public class Communicator {
             segUnit.x = LocalCroods.x;
             segUnit.y = LocalCroods.y;
             segUnit.z = LocalCroods.z;
+            segUnit.xGlobal = GlobalCroods.x;
+            segUnit.yGlobal = GlobalCroods.y;
+            segUnit.zGlobal = GlobalCroods.z;
 
             if (type.equals("2")){
 
@@ -310,6 +336,10 @@ public class Communicator {
 
     public ImageMarker syncMarker(String msg){
         return MSGToImageMarker(msg);
+    }
+
+    public ImageMarker syncMarkerGlobal(String msg){
+        return MSGToImageMarkerGlobal(msg);
     }
 
 
@@ -813,11 +843,12 @@ public class Communicator {
                 XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(currentLine.get(5),
                         currentLine.get(6), currentLine.get(4));
 
-                currentLine.set(5, GlobalCroods.x);
-                currentLine.set(6, GlobalCroods.y);
-                currentLine.set(4, GlobalCroods.z);
+                ArrayList<Float> newLine = new ArrayList<>(currentLine);
+                newLine.set(5, GlobalCroods.x);
+                newLine.set(6, GlobalCroods.y);
+                newLine.set(4, GlobalCroods.z);
 
-                apo_converted.add(currentLine);
+                apo_converted.add(newLine);
                 Log.e(TAG,"apo_x: "+ currentLine.get(5) +"apo_y"+ currentLine.get(6) +"apo_z: "+ currentLine.get(4));
             }
 
@@ -836,12 +867,15 @@ public class Communicator {
 
             for (int i = 0; i < nt.listNeuron.size(); i++){
 
-                XYZ GlobalCroods = ConvertGlobaltoLocalBlockCroods(nt_converted.listNeuron.get(i).x,
+                XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(nt_converted.listNeuron.get(i).x,
                         nt_converted.listNeuron.get(i).y, nt_converted.listNeuron.get(i).z);
 
-                nt_converted.listNeuron.get(i).x = GlobalCroods.x;
-                nt_converted.listNeuron.get(i).y = GlobalCroods.y;
-                nt_converted.listNeuron.get(i).z = GlobalCroods.z;
+                nt_converted.listNeuron.get(i).x = LocalCroods.x;
+                nt_converted.listNeuron.get(i).y = LocalCroods.y;
+                nt_converted.listNeuron.get(i).z = LocalCroods.z;
+
+//                Log.e(TAG, "x: " + nt_converted.listNeuron.get(i).x);
+//                Log.e(TAG, "xGlobal: " + nt_converted.listNeuron.get(i).xGlobal);
 
             }
 

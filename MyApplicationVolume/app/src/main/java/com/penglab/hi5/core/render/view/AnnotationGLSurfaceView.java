@@ -33,6 +33,7 @@ import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.core.ui.annotation.SwitchMutableLiveData;
 import com.penglab.hi5.core.ui.collaboration.CollaborationArborInfoState;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
@@ -386,13 +387,18 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncAddMarker(imageMarker);
     }
 
+    public void syncAddMarkerGlobal(ImageMarker imageMarker){
+        annotationDataManager.syncAddMarkerGlobal(imageMarker);
+    }
+
     public void syncDelMarker(ImageMarker imageMarker) {
         annotationDataManager.syncDelMarker(imageMarker);
     }
 
-
-
-
+    public void syncDelMarkerGlobal(ImageMarker imageMarker)
+    {
+        annotationDataManager.syncDelMarkerGlobal(imageMarker);
+    }
 
     private void clearFingerTrajectory(){
         fingerTrajectory.clear();
@@ -530,6 +536,15 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         annotationHelper.importApo(apo);
     }
+
+    public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert){
+        annotationHelper.convertCoordsForMarker(downloadCoordinateConvert);
+    }
+
+    public void convertCoordsForSWC(CoordinateConvert downloadCoordinateConvert){
+        annotationHelper.convertCoordsForSWC(downloadCoordinateConvert);
+    }
+
 
     public void importNeuronTree(NeuronTree nt, boolean needSync){
         annotationHelper.importNeuronTree(nt,needSync);
