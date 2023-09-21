@@ -144,7 +144,7 @@ public class ImageDataSource {
             HttpUtilsImage.downloadImageWithOkHttp(userInfo, bBox, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Music")));
+                    downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {

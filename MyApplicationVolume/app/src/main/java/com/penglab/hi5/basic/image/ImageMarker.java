@@ -49,6 +49,8 @@ public class ImageMarker extends BasicSurfObj {
 
     public float x, y, z;		// point coordinates
 
+    public float xGlobal, yGlobal, zGlobal;
+
     public float radius;
 
     public ImageMarker() {
@@ -57,6 +59,9 @@ public class ImageMarker extends BasicSurfObj {
         this.x = 0;
         this.y = 0;
         this.z = 0;
+        this.xGlobal=0;
+        this.yGlobal=0;
+        this.zGlobal=0;
         this.radius = 0;
     }
 

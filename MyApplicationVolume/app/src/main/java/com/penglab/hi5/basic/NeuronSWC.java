@@ -9,6 +9,7 @@ import java.util.Vector;
 public class NeuronSWC extends BasicSurfObj implements Cloneable{
     public int type;
     public float x, y, z;
+    public float xGlobal, yGlobal, zGlobal;
 
     public float radius;
 
@@ -31,6 +32,7 @@ public class NeuronSWC extends BasicSurfObj implements Cloneable{
         n = parent = 0;
         type = 0;
         x = y = z = radius = 0;
+        xGlobal = yGlobal = zGlobal = 0;
         seg_id = -1;
         nodeinseg_id = 0;
         fea_val = new ArrayList<Float>();

@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardItemModel;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardViewModel;
 import com.penglab.hi5.core.game.quest.QuestViewModel;
+import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionViewModel;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
@@ -20,6 +21,7 @@ import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
 import com.penglab.hi5.core.ui.userProfile.MyViewModel;
 import com.penglab.hi5.data.AnnotationDataSource;
+import com.penglab.hi5.data.BoutonDetectionDataSource;
 import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.CheckDataSource;
 import com.penglab.hi5.data.CollorationDataSource;
@@ -76,6 +78,9 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new QualityInspectionDataSource(), new ImageDataSource());
         } else if(modelClass.isAssignableFrom(CollaborationViewModel.class)){
             return(T) new CollaborationViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new ImageDataSource(),new CollorationDataSource());
+
+        } else if(modelClass.isAssignableFrom(BoutonDetectionViewModel.class)){
+            return(T) new BoutonDetectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new BoutonDetectionDataSource(),new ImageDataSource());
 
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");

@@ -130,6 +130,7 @@ import com.penglab.hi5.core.game.RewardActivity;
 import com.penglab.hi5.core.game.RewardLitePalConnector;
 import com.penglab.hi5.core.game.Score;
 import com.penglab.hi5.core.music.MusicService;
+import com.penglab.hi5.core.render.utils.AnnotationHelper;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.ImageDataSource;
@@ -202,6 +203,8 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
     private static MyGLSurfaceView myGLSurfaceView;
     private static MyRenderer myrenderer;
+
+    private static AnnotationHelper annotationHelper;
     private static Context mainContext;
 
     private MutableLiveData<EditMode> editMode = new MutableLiveData<>(EditMode.NONE);
@@ -490,7 +493,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
         for collaboration -------------------------------------------------------------------
          */
 
-//        if (msg.startsWith("/drawline_norm:")){
+//        if (msg.startsWith("/Fdrawline_norm:")){
 //            Log.e(TAG,"drawline_norm");
 //
 //            String userID = msg.split(":")[1].split(";")[0].split(" ")[0];
@@ -1860,7 +1863,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
         BoomMenuButton bmb = (BoomMenuButton) findViewById(R.id.expanded_menu);
         bmb.setButtonEnum(ButtonEnum.TextOutsideCircle);
-        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_6_1);
+        bmb.setPiecePlaceEnum(PiecePlaceEnum.DOT_2_1);
         bmb.setButtonPlaceEnum(ButtonPlaceEnum.SC_6_1);
         bmb.setButtonRadius(Util.dp2px(15));
         bmb.setBackgroundEffect(false);

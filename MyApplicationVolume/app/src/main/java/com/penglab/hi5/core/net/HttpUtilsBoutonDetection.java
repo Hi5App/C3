@@ -8,15 +8,15 @@ import org.json.JSONObject;
 import okhttp3.Callback;
 import okhttp3.RequestBody;
 
-public class HttpUtilsQualityInspection extends HttpUtils{
-    private static final String URL_GET_ARBOR = SERVER_IP + "/dynamic/arbor/getarbor";
-    private static final String URL_QUERY_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/queryarborresult";
-    private static final String URL_UPDATE_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/updatearborresult";
+public class HttpUtilsBoutonDetection extends HttpUtils {
+    private static final String URL_GET_ARBOR = SERVER_IP + "/dynamic/arbor/getboutonarbor";
+    private static final String URL_QUERY_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/queryboutonarborresult";
+    private static final String URL_UPDATE_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/updateboutonarborresult";
     private static final String URL_GET_SWC = SERVER_IP + "/dynamic/swc/cropswc";
-//    private static final String URL_GET_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbor/queryarborresult";
-    private static final String URL_QUERY_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbordetail/query";
-    private static final String URL_INSERT_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbordetail/insert";
-    private static final String URL_DELETE_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbordetail/delete";
+    private static final String URL_GET_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbor/queryboutonarborresult";
+    private static final String URL_QUERY_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/query";
+    private static final String URL_INSERT_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/insert";
+    private static final String URL_DELETE_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/delete";
 
     public static void getArborWithOkHttp(JSONObject userInfo, int maxId,Callback callback) {
         try {
@@ -24,7 +24,7 @@ public class HttpUtilsQualityInspection extends HttpUtils{
                     .put("MaxId",maxId)
                     .put("user", userInfo)));
             asyncPostRequest(URL_GET_ARBOR, body, callback);
-            Log.e("body","updatecheckbody"+String.valueOf(new JSONObject()
+            Log.e("body","updateboutonbody"+String.valueOf(new JSONObject()
                     .put("MaxId", maxId)
                     .put("user",userInfo)));
         } catch (Exception e) {
@@ -82,34 +82,34 @@ public class HttpUtilsQualityInspection extends HttpUtils{
         }
     }
 
-//    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, int locationType, String arborName, JSONArray insertList, JSONArray deleteList, String owner, Callback callback) {
-//        try {
-//            JSONObject updateCheckInfo = new JSONObject()
-//                    .put("arborid", arborId)
-//                    .put("arborname",arborName)
-//                    .put("status",locationType)
-//                    .put("insertlist", insertList)
-//                    .put("deletelist", deleteList)
-//                    .put("owner", owner);
-//            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
-//                    .put("pa",updateCheckInfo)
-//                    .put("user",userInfo)));
-//            asyncPostRequest(URL_UPDATE_ARBOR_RESULT, body, callback);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static void UpdateCheckResultWithOkHttp(JSONObject userInfo, int arborId, int locationType, String arborName, JSONArray insertList, JSONArray deleteList, String owner, Callback callback) {
+        try {
+            JSONObject updateCheckInfo = new JSONObject()
+                    .put("arborid", arborId)
+                    .put("arborname",arborName)
+                    .put("status",locationType)
+                    .put("insertlist", insertList)
+                    .put("deletelist", deleteList)
+                    .put("owner", owner);
+            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
+                    .put("pa",updateCheckInfo)
+                    .put("user",userInfo)));
+            asyncPostRequest(URL_UPDATE_ARBOR_RESULT, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-//    public static void getArborMarkerListWithOkHttp(JSONObject userInfo,String arborName,Callback callback) {
-//        try{
-//            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
-//                    .put("user", userInfo)
-//                    .put("arborname",arborName)));
-//            asyncPostRequest(URL_GET_ARBOR_MARKER_LIST,body,callback);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
+    public static void getArborMarkerListWithOkHttp(JSONObject userInfo,String arborName,Callback callback) {
+        try{
+            RequestBody body = RequestBody.create(JSON,String.valueOf(new JSONObject()
+                    .put("user", userInfo)
+                    .put("arborname",arborName)));
+            asyncPostRequest(URL_GET_ARBOR_MARKER_LIST,body,callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void insertArborMarkerListWithOkHttp(JSONObject userInfo, JSONArray insertList, Callback callback) {
         try{

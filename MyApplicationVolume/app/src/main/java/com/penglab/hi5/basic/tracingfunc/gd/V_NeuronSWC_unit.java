@@ -33,9 +33,11 @@ public class V_NeuronSWC_unit implements Cloneable {
     }};
 
     public double n, type, x, y, z, r, parent, nchild, seg_id, nodeinseg_id, level, creatmode, timestamp, tfresindex;
+    public double xGlobal, yGlobal, zGlobal;
 
     public V_NeuronSWC_unit()
-    {n = type = x = y = z = parent = nchild = seg_id = nodeinseg_id = level = creatmode = timestamp = tfresindex = 0;r=0.5;}
+    {n = type = x = y = z = parent = nchild = seg_id = nodeinseg_id = level = creatmode = timestamp = tfresindex = 0;r=0.5;
+    xGlobal = yGlobal = zGlobal = 0;}
 
     @Override
     public V_NeuronSWC_unit clone() throws CloneNotSupportedException {

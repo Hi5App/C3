@@ -19,6 +19,7 @@ import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.MarkerList;
+import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.learning.pixelclassification.PixelClassification;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
@@ -31,6 +32,9 @@ import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.core.ui.annotation.SwitchMutableLiveData;
+import com.penglab.hi5.core.ui.collaboration.CollaborationArborInfoState;
+import com.penglab.hi5.core.ui.marker.CoordinateConvert;
+import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
@@ -43,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -72,6 +77,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     private final AnnotationRender annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions);
 
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
+
+    private final CollaborationArborInfoState collaborationArborInfoState = CollaborationArborInfoState.getInstance();
     private Image4DSimple image4DSimple;
     private final float[] normalizedSize = new float[3];
     private final int[] originalSize = new int[3];
@@ -228,8 +235,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         editMode.setValue(EditMode.NONE);
                                         float [] center = annotationHelper.solveMarkerCenter(currentX, currentY);
                                         if (center != null) {
-                                            Communicator communicator = Communicator.getInstance();
-                                            communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+
+                                            //Communicator communicator = Communicator.getInstance();
+                                            //communicator.navigateAndZoomInBlock((int) center[0] - 64, (int) center[1] - 64, (int) center[2] - 64);
+                                            collaborationArborInfoState.setCenterLocation(new XYZ(center[0] - 64, center[1] - 64, center[2] - 64));
                                             clearFingerTrajectory();
                                             requestRender();
                                         }
@@ -240,8 +249,9 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         editMode.setValue(EditMode.NONE);
                                         float [] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
                                         if (roiCenter != null) {
-                                            Communicator communicator = Communicator.getInstance();
-                                            communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
+//                                            Communicator communicator = Communicator.getInstance();
+//                                            communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
+                                            collaborationArborInfoState.setCenterLocation(new XYZ(roiCenter[0] - 64, roiCenter[1] - 64, roiCenter[2] - 64));
                                             clearFingerTrajectory();
                                             requestRender();
                                         }
@@ -358,30 +368,37 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return false;
     }
 
-
-    public void syncAddSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncAddSegSWC(seg);
+    public void syncSplitSegSWC(Vector<V_NeuronSWC> segs){
+        annotationDataManager.syncSplitSegSWC(segs);
+    }
+    public void syncAddSegSWC(Vector<V_NeuronSWC> segs) {
+        annotationDataManager.syncAddSegSWC(segs);
     }
 
-    public void syncRetypeSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncRetypeSegSWC(seg);
+    public void syncRetypeSegSWC(Vector<V_NeuronSWC> segs) {
+        annotationDataManager.syncRetypeSegSWC(segs);
     }
 
-    public void syncDelSegSWC(V_NeuronSWC seg) {
-        annotationDataManager.syncDelSegSWC(seg);
+    public void syncDelSegSWC(Vector<V_NeuronSWC> segs) {
+        annotationDataManager.syncDelSegSWC(segs);
     }
 
     public void syncAddMarker(ImageMarker imageMarker) {
         annotationDataManager.syncAddMarker(imageMarker);
     }
 
+    public void syncAddMarkerGlobal(ImageMarker imageMarker){
+        annotationDataManager.syncAddMarkerGlobal(imageMarker);
+    }
+
     public void syncDelMarker(ImageMarker imageMarker) {
         annotationDataManager.syncDelMarker(imageMarker);
     }
 
-
-
-
+    public void syncDelMarkerGlobal(ImageMarker imageMarker)
+    {
+        annotationDataManager.syncDelMarkerGlobal(imageMarker);
+    }
 
     private void clearFingerTrajectory(){
         fingerTrajectory.clear();
@@ -519,6 +536,15 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void importApo(ArrayList<ArrayList<Float>> apo){
         annotationHelper.importApo(apo);
     }
+
+    public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert){
+        annotationHelper.convertCoordsForMarker(downloadCoordinateConvert);
+    }
+
+    public void convertCoordsForSWC(CoordinateConvert downloadCoordinateConvert){
+        annotationHelper.convertCoordsForSWC(downloadCoordinateConvert);
+    }
+
 
     public void importNeuronTree(NeuronTree nt, boolean needSync){
         annotationHelper.importNeuronTree(nt,needSync);

@@ -348,6 +348,9 @@ public class NeuronTree extends BasicSurfObj {
                 else
                     S.fea_val.add(Float.parseFloat(s[j]));
             }
+            S.xGlobal = S.x;
+            S.yGlobal = S.y;
+            S.zGlobal = S.z;
 
             // if (! listNeuron.contains(S)) // 081024
             {
@@ -687,6 +690,9 @@ public class NeuronTree extends BasicSurfObj {
             u.x = S.x;
             u.y = S.y;
             u.z = S.z;
+            u.xGlobal = S.xGlobal;
+            u.yGlobal = S.yGlobal;
+            u.zGlobal = S.zGlobal;
             u.r = S.radius;
             u.parent = S.parent;
             u.seg_id = S.seg_id;
@@ -730,6 +736,9 @@ public class NeuronTree extends BasicSurfObj {
                     ui.x = ci.x;
                     ui.y = ci.y;
                     ui.z = ci.z;
+                    ui.xGlobal = ci.xGlobal;
+                    ui.yGlobal = ci.yGlobal;
+                    ui.zGlobal = ci.zGlobal;
                     ui.r = ci.radius;
                     ui.parent = ci.parent;
                     ui.seg_id = ci.seg_id;
@@ -746,6 +755,9 @@ public class NeuronTree extends BasicSurfObj {
                     ui.x = ci.x;
                     ui.y = ci.y;
                     ui.z = ci.z;
+                    ui.xGlobal = ci.xGlobal;
+                    ui.yGlobal = ci.yGlobal;
+                    ui.zGlobal = ci.zGlobal;
                     ui.r = ci.radius;
                     ui.parent = ci.parent;
                     ui.seg_id = ci.seg_id;
@@ -761,6 +773,9 @@ public class NeuronTree extends BasicSurfObj {
                     ui.x = ci.x;
                     ui.y = ci.y;
                     ui.z = ci.z;
+                    ui.xGlobal = ci.xGlobal;
+                    ui.yGlobal = ci.yGlobal;
+                    ui.zGlobal = ci.zGlobal;
                     ui.r = ci.radius;
                     ui.parent = ci.parent;
                     ui.seg_id = ci.seg_id;

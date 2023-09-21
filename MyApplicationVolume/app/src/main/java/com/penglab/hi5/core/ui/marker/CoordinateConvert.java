@@ -10,13 +10,15 @@ import com.penglab.hi5.basic.image.XYZ;
 public class CoordinateConvert {
     private final String TAG = "CoordinateConvert";
 
-    private final XYZ startLocation = new XYZ();
-    private final XYZ centerLocation = new XYZ();
+    private XYZ startLocation = new XYZ();
+    private XYZ centerLocation = new XYZ();
+
+    private final XYZ centerLocationInMaxRes = new XYZ();
     private int resIndex;
-    private int imgSize;
+    private int imgSize=128;
 
     public XYZ convertGlobalToLocal(double x, double y, double z) {
-        XYZ node = convertMaxResToCurRes(x, y, z);
+        XYZ node = convertMaxResToCurRes(x, y, z, resIndex);
         node.x -= startLocation.x;
         node.y -= startLocation.y;
         node.z -= startLocation.z;
@@ -27,18 +29,18 @@ public class CoordinateConvert {
         x += startLocation.x;
         y += startLocation.y;
         z += startLocation.z;
-        XYZ node = convertCurResToMaxRes(x, y, z);
+        XYZ node = convertCurResToMaxRes(x, y, z, resIndex);
         return node;
     }
 
-    private XYZ convertMaxResToCurRes(double x, double y, double z) {
+    public XYZ convertMaxResToCurRes(double x, double y, double z, int resIndex) {
         x /= Math.pow(2, resIndex-1);
         y /= Math.pow(2, resIndex-1);
         z /= Math.pow(2, resIndex-1);
         return new XYZ((float) x, (float) y, (float) z);
     }
 
-    private XYZ convertCurResToMaxRes(double x, double y, double z) {
+    public XYZ convertCurResToMaxRes(double x, double y, double z, int resIndex) {
         x *= Math.pow(2, resIndex-1);
         y *= Math.pow(2, resIndex-1);
         z *= Math.pow(2, resIndex-1);
@@ -65,11 +67,27 @@ public class CoordinateConvert {
         return startLocation;
     }
 
+    public void setStartLocation(XYZ startLocation) {
+        this.startLocation = startLocation;
+    }
+
     public XYZ getCenterLocation() {
         return centerLocation;
     }
 
+    public void setCenterLocation(XYZ centerLocation) {
+        this.centerLocation = centerLocation;
+    }
+
+    public XYZ getCenterLocationInMaxRes(){
+        return centerLocationInMaxRes;
+    }
+
     public void initLocation(XYZ centerLoc) {
+        centerLocationInMaxRes.x = (int) (centerLoc.x);
+        centerLocationInMaxRes.y = (int) (centerLoc.y);
+        centerLocationInMaxRes.z = (int) (centerLoc.z);
+
         centerLocation.x = (int) (centerLoc.x / Math.pow(2, resIndex-1));
         centerLocation.y = (int) (centerLoc.y / Math.pow(2, resIndex-1));
         centerLocation.z = (int) (centerLoc.z / Math.pow(2, resIndex-1));

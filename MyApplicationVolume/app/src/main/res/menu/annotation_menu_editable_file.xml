@@ -2,26 +2,26 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/undo"
-        android:orderInCategory="1"
-        android:title="redo"
-        android:icon="@drawable/ic_baseline_undo_24"
-        app:showAsAction="always"/>
+<!--    <item-->
+<!--        android:id="@+id/undo"-->
+<!--        android:orderInCategory="1"-->
+<!--        android:title="redo"-->
+<!--        android:icon="@drawable/ic_baseline_undo_24"-->
+<!--        app:showAsAction="always"/>-->
 
-    <item
-        android:id="@+id/redo"
-        android:orderInCategory="2"
-        android:title="redo"
-        android:icon="@drawable/ic_baseline_redo_24"
-        app:showAsAction="always"/>
+<!--    <item-->
+<!--        android:id="@+id/redo"-->
+<!--        android:orderInCategory="2"-->
+<!--        android:title="redo"-->
+<!--        android:icon="@drawable/ic_baseline_redo_24"-->
+<!--        app:showAsAction="always"/>-->
 
-    <item
-        android:id="@+id/load"
-        android:orderInCategory="3"
-        android:title="load"
-        android:icon="@drawable/ic_archive"
-        app:showAsAction="always"/>
+<!--    <item-->
+<!--        android:id="@+id/load"-->
+<!--        android:orderInCategory="3"-->
+<!--        android:title="load"-->
+<!--        android:icon="@drawable/ic_archive"-->
+<!--        app:showAsAction="always"/>-->
 
     <item
         android:id="@+id/file"
@@ -30,12 +30,12 @@
         android:icon="@drawable/ic_folder_black_24dp"
         app:showAsAction="always"/>
 
-    <item
-        android:id="@+id/share"
-        android:orderInCategory="5"
-        android:title="load"
-        android:icon="@drawable/ic_share_black_24dp"
-        app:showAsAction="always"/>
+<!--    <item-->
+<!--        android:id="@+id/share"-->
+<!--        android:orderInCategory="5"-->
+<!--        android:title="load"-->
+<!--        android:icon="@drawable/ic_share_black_24dp"-->
+<!--        app:showAsAction="always"/>-->
 
     <item
         android:id="@+id/more"

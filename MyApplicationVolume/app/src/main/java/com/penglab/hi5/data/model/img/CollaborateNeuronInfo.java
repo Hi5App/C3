@@ -51,6 +51,11 @@ public class CollaborateNeuronInfo {
         this.loc = xyz;
     }
 
+    public String[] getResolutionList() {
+        return resolutionList;
+    }
 
-
+    public void setResolutionList(String[] resolutionList) {
+        this.resolutionList = resolutionList;
+    }
 }
