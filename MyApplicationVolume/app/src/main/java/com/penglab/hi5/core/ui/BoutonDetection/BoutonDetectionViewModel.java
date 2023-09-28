@@ -254,7 +254,7 @@ public class BoutonDetectionViewModel extends ViewModel {
             if(data instanceof JSONArray) {
                 JSONArray queryArborResult =(JSONArray) data;
                 ArrayList<QueryCheckerResult> checkerResultArrayList = new ArrayList<>();
-                for (int i = 0; i < queryArborResult.length(); i++){
+                for (int i = 0; i < queryArborResult.length(); i++) {
                     try{
                         JSONObject jsonObject = queryArborResult.getJSONObject(i);
                         checkerResultArrayList.add(new QueryCheckerResult(jsonObject.getString("Owner"),jsonObject.getInt("Result")));
