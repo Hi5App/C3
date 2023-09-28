@@ -619,6 +619,7 @@ public class BoutonDetectionActivity extends AppCompatActivity {
 
 
             ImageButton goodFile = findViewById(R.id.confirmed);
+            ImageButton uncertainFile = findViewById(R.id.uncertainfile);
             ImageButton hideSwc = findViewById(R.id.hide_swc_bouton);
 
             addMarkerRed.setOnClickListener(this::onButtonClick);
@@ -626,6 +627,7 @@ public class BoutonDetectionActivity extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             goodFile.setOnClickListener(v -> goodFile());
+            uncertainFile.setOnClickListener(v ->uncertainFile());
             hideSwc.setOnClickListener(v -> hideSwc());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -719,20 +721,19 @@ public class BoutonDetectionActivity extends AppCompatActivity {
     private void onButtonClick(View view) {
         // reset UI
         addMarkerRed.setImageResource(R.drawable.ic_marker_red);
-        deleteMarker.setImageResource(R.drawable.ic_delete_marker_check);
+        deleteMarker.setImageResource(R.drawable.ic_delete_marker_check_main);
         playButtonSound();
 
         switch (view.getId()){
             case R.id.add_bouton:
                 if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK)){
                     annotationGLSurfaceView.setLastMarkerType(2);
-//                    Toasty.success(this,"Point",Toast.LENGTH_SHORT,true).show();
                     addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
                 }
                 break;
             case R.id.delete_bouton:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
-                    deleteMarker.setImageResource(R.drawable.ic_delete_marker_check_main);
+                    deleteMarker.setImageResource(R.drawable.ic_delete_marker_check);
                 }
                 break;
         }
@@ -751,7 +752,7 @@ public class BoutonDetectionActivity extends AppCompatActivity {
         navigateFile(true, true, 3);
     }
 
-    private void ignoreFile() {
+    private void uncertainFile() {
         navigateFile(true, true, 2);
     }
 
