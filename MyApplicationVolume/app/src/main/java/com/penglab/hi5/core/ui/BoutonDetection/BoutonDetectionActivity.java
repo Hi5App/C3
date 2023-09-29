@@ -107,6 +107,8 @@ public class BoutonDetectionActivity extends AppCompatActivity {
     private BasePopupView downloadingPopupView;
     private ImageButton editModeIndicator;
     private ImageButton addMarkerRed;
+
+    private ImageButton addMarkerYellow;
     private ImageButton deleteMarker;
     private SeekBar contrastSeekBar;
     private TextView imageIdLocationTextView;
@@ -223,7 +225,7 @@ public class BoutonDetectionActivity extends AppCompatActivity {
             }
         });
 
-        boutonDetectionViewModel.getImageDataSource().getDownloadImageResult().observe(this, new Observer<Result>() {
+        boutonDetectionViewModel.getImageDataSource().getDownloadButtonImageResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null) {
@@ -609,7 +611,8 @@ public class BoutonDetectionActivity extends AppCompatActivity {
             this.addContentView(BoutonDetectionView, lpBoutonDetectionView);
 
 //            editModeIndicator = findViewById(R.id.edit_mode_indicator);
-            addMarkerRed = findViewById(R.id.add_bouton);
+            addMarkerRed = findViewById(R.id.add_red_bouton);
+            addMarkerYellow = findViewById(R.id.add_yellow_bouton);
             deleteMarker = findViewById(R.id.delete_bouton);
             contrastSeekBar = (SeekBar) findViewById(R.id.mySeekBar);
             PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
@@ -619,15 +622,16 @@ public class BoutonDetectionActivity extends AppCompatActivity {
 
 
             ImageButton goodFile = findViewById(R.id.confirmed);
-            ImageButton uncertainFile = findViewById(R.id.uncertainfile);
+//            ImageButton uncertainFile = findViewById(R.id.uncertainfile);
             ImageButton hideSwc = findViewById(R.id.hide_swc_bouton);
 
             addMarkerRed.setOnClickListener(this::onButtonClick);
+            addMarkerYellow.setOnClickListener(this::onButtonClick);
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
             goodFile.setOnClickListener(v -> goodFile());
-            uncertainFile.setOnClickListener(v ->uncertainFile());
+//            uncertainFile.setOnClickListener(v ->uncertainFile());
             hideSwc.setOnClickListener(v -> hideSwc());
 
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -721,16 +725,24 @@ public class BoutonDetectionActivity extends AppCompatActivity {
     private void onButtonClick(View view) {
         // reset UI
         addMarkerRed.setImageResource(R.drawable.ic_marker_red);
+        addMarkerYellow.setImageResource(R.drawable.ic_marker_yellow);
         deleteMarker.setImageResource(R.drawable.ic_delete_marker_check_main);
         playButtonSound();
 
         switch (view.getId()){
-            case R.id.add_bouton:
-                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK)){
-                    annotationGLSurfaceView.setLastMarkerType(2);
-                    addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
-                }
+            case R.id.add_red_bouton:
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
+                annotationGLSurfaceView.setLastMarkerType(2);
+                Toasty.error(this,"Missing Point",Toast.LENGTH_SHORT,true).show();
+                addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
                 break;
+            case R.id.add_yellow_bouton:
+                annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
+                annotationGLSurfaceView.setLastMarkerType(6);
+                Toasty.error(this,"Uncertain Point",Toast.LENGTH_SHORT,true).show();
+                addMarkerYellow.setImageResource(R.drawable.ic_marker_main_checkmode);
+                break;
+
             case R.id.delete_bouton:
                 if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
                     deleteMarker.setImageResource(R.drawable.ic_delete_marker_check);
