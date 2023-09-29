@@ -1,5 +1,7 @@
 package com.penglab.hi5.core.net;
 
+import android.util.Log;
+
 import org.json.JSONObject;
 
 import okhttp3.Callback;
@@ -11,6 +13,8 @@ public class HttpUtilsImage extends HttpUtils {
     private static final String URL_GET_ANO_LIST = SERVER_IP + "/dynamic/ano/getanolist";
     private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/dynamic/image/cropimage";
     private static final String URL_GET_BBSWC = SERVER_IP + "/dynamic/coll/getswcbb";
+
+    private static final String URL_GET_ARBOR_IMAGE = SERVER_IP + "/dynamic/arbor/getboutonarborimage";
 
     public static void getBrainListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
@@ -107,6 +111,19 @@ public class HttpUtilsImage extends HttpUtils {
                     .put("len", len)
                     .put("res", res)));
             asyncPostRequest(URL_GET_BBSWC, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void downloadButtonImageWithOkHttp(JSONObject User,String ArborId, Callback callback) {
+        try {
+            RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
+                    .put("arborId",ArborId )
+                    .put("user", User)));
+            asyncPostRequest(URL_GET_ARBOR_IMAGE, body, callback);
+            Log.e("body","getdownloadButtonImage"+String.valueOf(new JSONObject()
+                    .put("user",User).put("arborId",ArborId)));
         } catch (Exception e) {
             e.printStackTrace();
         }

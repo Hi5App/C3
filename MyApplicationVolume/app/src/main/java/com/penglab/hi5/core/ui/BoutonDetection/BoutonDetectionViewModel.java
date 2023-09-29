@@ -194,12 +194,13 @@ public class BoutonDetectionViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
-                Log.e(TAG,"Download image data" + data);
+                Log.e(TAG,"Download bouton image arborInfoList" + arborInfoList);
+
                 if (curDownloadIndex < arborInfoList.size()-1) {
                     potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
 
-                    if (workStatus.getValue() == com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionViewModel.WorkStatus.START_TO_DOWNLOAD_IMAGE) {
-                        workStatus.setValue(com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionViewModel.WorkStatus.DOWNLOAD_IMAGE_FINISH);
+                    if (workStatus.getValue() == WorkStatus.START_TO_DOWNLOAD_IMAGE) {
+                        workStatus.setValue(WorkStatus.DOWNLOAD_IMAGE_FINISH);
                     }
                     // next image
                     lastDownloadPotentialArborMarkerInfo = arborInfoList.get(++curDownloadIndex);
@@ -372,7 +373,7 @@ public class BoutonDetectionViewModel extends ViewModel {
             cacheImage();
         }
         if (lastIndex + 2 >= potentialArborMarkerInfoList.size()) {
-            workStatus.setValue(com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionViewModel.WorkStatus.START_TO_DOWNLOAD_IMAGE);
+            workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         } else {
             curIndex = ++lastIndex;
             openFileWithCurIndex();
@@ -414,8 +415,10 @@ public class BoutonDetectionViewModel extends ViewModel {
             return;
         }
         XYZ location = coordinateConvert.getCenterLocation();
-        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +
-                "/" + brainId + "_" + res + "_" + (int)location.x + "_" + (int)location.y + "_" + (int)location.z + ".v3dpbd";
+        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" + "/"+
+                curPotentialArborMarkerInfo.getArborId() + ".v3dpbd";
+//        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +
+//                "/" + brainId + "_" + res + "_" + (int)location.x + "_" + (int)location.y + "_" + (int)location.z + ".v3dpbd";
         String fileName = FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
         imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >(filePath), fileType);
@@ -492,8 +495,9 @@ public class BoutonDetectionViewModel extends ViewModel {
             ToastEasy("Fail to download image, something wrong with res list !");
             return;
         }
-        Log.e("qualityInspectionViewmodel","downloadimage"+lastDownloadPotentialArborMarkerInfo.getBrianId()+'R'+res+'/'+loc.x+loc.y+loc.z+"/IMAGESIZE:"+DEFAULT_IMAGE_SIZE);
-        imageDataSource.downloadImage(lastDownloadPotentialArborMarkerInfo.getBrianId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
+        Log.e("boutonDetectionViewModel","downloadimage"+lastDownloadPotentialArborMarkerInfo.getBrianId()+'R'+res+'/'+loc.x+loc.y+loc.z+"/IMAGESIZE:"+DEFAULT_IMAGE_SIZE);
+        imageDataSource.downloadButtonImage(String.valueOf(lastDownloadPotentialArborMarkerInfo.getArborId()));
+//        imageDataSource.downloadImage(lastDownloadPotentialArborMarkerInfo.getBrianId(), res, (int) loc.x , (int) loc.y, (int) loc.z, DEFAULT_IMAGE_SIZE);
     }
 
     public void getSwc(){
