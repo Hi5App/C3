@@ -339,7 +339,6 @@ public class BoutonDetectionDataSource {
                         try{
                             JSONArray arborMarkerList = new JSONArray(responseData);
                             MarkerList markerList = MarkerList.parseFromJSONArrayQC(arborMarkerList);
-//                            Log.e(TAG,"markerlist"+markerList.get(0));
                             arborMarkerListResult.postValue(new Result.Success<MarkerList>(markerList));
                         } catch (Exception e) {
                             arborMarkerListResult.postValue(new Result.Error(new Exception("Fail to parse arbor marker list !")));

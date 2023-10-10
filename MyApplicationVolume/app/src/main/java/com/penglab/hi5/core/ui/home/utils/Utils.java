@@ -52,9 +52,9 @@ public class Utils {
                     case "Marker Factory":
                         MarkerFactoryActivity.start(context);
                         break;
-                    case "Annotation":
-                        AnnotationActivity.start(context);
-                        break;
+//                    case "Annotation":
+//                        AnnotationActivity.start(context);
+//                        break;
                     case "Check":
                         QualityInspectionActivity.start(context);
                         break;
@@ -67,9 +67,9 @@ public class Utils {
                     case "Synapse Validation":
                         BoutonDetectionActivity.start(context);
                         break;
-                    case "Chat":
-                        ChatActivity.start(context);
-                        break;
+//                    case "Chat":
+//                        ChatActivity.start(context);
+//                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;
