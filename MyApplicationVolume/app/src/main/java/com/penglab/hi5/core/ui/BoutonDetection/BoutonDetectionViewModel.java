@@ -194,7 +194,7 @@ public class BoutonDetectionViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
-                Log.e(TAG,"Download bouton image arborInfoList" + arborInfoList);
+//                Log.e(TAG,"Download bouton image arborInfoList" + arborInfoList.size());
 
                 if (curDownloadIndex < arborInfoList.size()-1) {
                     potentialArborMarkerInfoList.add(lastDownloadPotentialArborMarkerInfo);
@@ -296,6 +296,7 @@ public class BoutonDetectionViewModel extends ViewModel {
             if (data instanceof List){
                 isDownloading = true;
                 arborInfoList = (List<PotentialArborMarkerInfo>) data;
+//                Log.e(TAG,"arborinfolist.length"+arborInfoList.size());
                 for(int i =0; i<arborInfoList.size();i++){
                     if(MaxId.getValue() <= arborInfoList.get(i).getArborId()){
                         MaxId.setValue(arborInfoList.get(i).getArborId());
@@ -369,10 +370,10 @@ public class BoutonDetectionViewModel extends ViewModel {
 
     public void openNewFile() {
         noFileLeft = false;
-        if (lastIndex + 4 >= potentialArborMarkerInfoList.size() && !isDownloading) {
+        if (lastIndex + 1 >= potentialArborMarkerInfoList.size() && !isDownloading) {
             cacheImage();
         }
-        if (lastIndex + 2 >= potentialArborMarkerInfoList.size()) {
+        if (lastIndex + 1 >= potentialArborMarkerInfoList.size()) {
             workStatus.setValue(WorkStatus.START_TO_DOWNLOAD_IMAGE);
         } else {
             curIndex = ++lastIndex;
