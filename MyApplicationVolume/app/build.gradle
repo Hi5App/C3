@@ -21,7 +21,7 @@ android {
         versionCode 1
 
 
-        versionName "2.2.5"
+        versionName "2.2.7"
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

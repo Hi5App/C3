@@ -611,8 +611,8 @@ public class BoutonDetectionActivity extends AppCompatActivity {
             this.addContentView(BoutonDetectionView, lpBoutonDetectionView);
 
 //            editModeIndicator = findViewById(R.id.edit_mode_indicator);
-            addMarkerRed = findViewById(R.id.add_red_bouton);
-            addMarkerYellow = findViewById(R.id.add_yellow_bouton);
+            addMarkerRed = findViewById(R.id.add_certain_bouton);
+            addMarkerYellow = findViewById(R.id.add_uncertain_bouton);
             deleteMarker = findViewById(R.id.delete_bouton);
             contrastSeekBar = (SeekBar) findViewById(R.id.mySeekBar);
             PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
@@ -730,13 +730,13 @@ public class BoutonDetectionActivity extends AppCompatActivity {
         playButtonSound();
 
         switch (view.getId()){
-            case R.id.add_red_bouton:
+            case R.id.add_certain_bouton:
                 annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
                 annotationGLSurfaceView.setLastMarkerType(2);
                 Toasty.error(this,"Missing Point",Toast.LENGTH_SHORT,true).show();
                 addMarkerRed.setImageResource(R.drawable.ic_marker_main_checkmode);
                 break;
-            case R.id.add_yellow_bouton:
+            case R.id.add_uncertain_bouton:
                 annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_CHECK);
                 annotationGLSurfaceView.setLastMarkerType(6);
                 Toasty.error(this,"Uncertain Point",Toast.LENGTH_SHORT,true).show();
