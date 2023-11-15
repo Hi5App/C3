@@ -46,6 +46,10 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     "Chat"
             ),
             new Utils.LibraryObject(
+                    R.drawable.ic_strategy,
+                    "Plugin System"
+            ),
+            new Utils.LibraryObject(
                     R.drawable.ic_development,
                     "Help"
             )

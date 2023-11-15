@@ -17,6 +17,7 @@ import com.penglab.hi5.core.ui.home.screens.HomeViewModel;
 import com.penglab.hi5.core.ui.login.LoginViewModel;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
 import com.penglab.hi5.core.ui.password.FindPasswordViewModel;
+import com.penglab.hi5.core.ui.pluginsystem.PluginSystemViewModel;
 import com.penglab.hi5.core.ui.register.RegisterViewModel;
 import com.penglab.hi5.core.ui.splash.SplashScreenViewModel;
 import com.penglab.hi5.core.ui.userProfile.MyViewModel;
@@ -28,6 +29,7 @@ import com.penglab.hi5.data.CollorationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
+import com.penglab.hi5.data.PluginDataSource;
 import com.penglab.hi5.data.QualityInspectionDataSource;
 import com.penglab.hi5.data.ResourceDataSource;
 import com.penglab.hi5.data.UserDataSource;
@@ -81,7 +83,8 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
 
         } else if(modelClass.isAssignableFrom(BoutonDetectionViewModel.class)){
             return(T) new BoutonDetectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new BoutonDetectionDataSource(),new ImageDataSource());
-
+        } else if(modelClass.isAssignableFrom(PluginSystemViewModel.class)){
+            return(T) new PluginSystemViewModel(UserInfoRepository.getInstance(),ImageInfoRepository.getInstance(),new PluginDataSource());
         } else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }

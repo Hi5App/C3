@@ -56,6 +56,9 @@ public class CollorationDataSource {
         return downloadAnoResult;
     }
 
+
+
+
     public void getImageList() {
         try {
             Log.e(TAG,"getImageList");
@@ -69,7 +72,6 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        // process response
                         responseData = response.body().string();
                         Log.e(TAG, "responseData: " + responseData);
                         try {
@@ -121,13 +123,18 @@ public class CollorationDataSource {
                             List<CollaborateNeuronInfo> neuronList = new ArrayList<>();
                             for (int i=0; i<neuronNameArray.length(); i++){
                                 JSONObject neuronInfo = neuronNameArray.getJSONObject(i);
-                                if(neuronInfo.getString("name").equals("18454_00019")){
-                                    neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("imageid"),
-                                            neuronInfo.getString("name"),
-                                            new XYZ ((float)neuronInfo.getDouble("x"),
-                                                    (float)neuronInfo.getDouble("y"),
-                                                    (float)neuronInfo.getDouble("z"))));
-                                }
+                                neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("imageid"),
+                                        neuronInfo.getString("name"),
+                                        new XYZ ((float)neuronInfo.getDouble("x"),
+                                                (float)neuronInfo.getDouble("y"),
+                                                (float)neuronInfo.getDouble("z"))));
+//                                if(neuronInfo.getString("name").equals("18454_00019")){
+//                                    neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("imageid"),
+//                                            neuronInfo.getString("name"),
+//                                            new XYZ ((float)neuronInfo.getDouble("x"),
+//                                                    (float)neuronInfo.getDouble("y"),
+//                                                    (float)neuronInfo.getDouble("z"))));
+//                                }
 
                             }
                             neuronListResult.postValue(new Result.Success<List<CollaborateNeuronInfo>>(neuronList));

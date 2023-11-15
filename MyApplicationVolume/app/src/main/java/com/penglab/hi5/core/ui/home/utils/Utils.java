@@ -21,6 +21,7 @@ import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
 import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
+import com.penglab.hi5.core.ui.pluginsystem.PluginSystemActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import org.json.JSONObject;
@@ -69,6 +70,9 @@ public class Utils {
                         break;
                     case "Chat":
                         ChatActivity.start(context);
+                        break;
+                    case "Plugin System":
+                        PluginSystemActivity.start(context);
                         break;
                     case "Help":
                         HelpActivity.start(context);
