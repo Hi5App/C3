@@ -47,7 +47,7 @@ public class HorizontalPagerAdapter extends PagerAdapter {
             ),
             new Utils.LibraryObject(
                     R.drawable.ic_strategy,
-                    "Plugin System"
+                    "Image Processing"
             ),
             new Utils.LibraryObject(
                     R.drawable.ic_development,

@@ -10,10 +10,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -26,58 +30,47 @@ import androidx.lifecycle.ViewModelProvider;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
-import com.penglab.hi5.core.collaboration.connector.MsgConnector;
-import com.penglab.hi5.core.collaboration.connector.ServerConnector;
-import com.penglab.hi5.core.collaboration.service.CollaborationService;
-import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
-import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionActivity;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
-import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
-import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
-import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 
 public class PluginSystemActivity extends AppCompatActivity {
-
     private AnnotationGLSurfaceView annotationGLSurfaceView;
-
+    private static final int OPEN_LOCAL_FILE = 1;
     private Toolbar toolbar;
-
     private View commonView;
-
     private PluginSystemViewModel pluginSystemViewModel;
-
     private static Context mainContext;
 
-    private Button getImage;
-
+    private TextView imageIdLocationTextView;
     private ImageButton getPlugin;
+    private ImageButton getModel;
+
+//    private val rotationOpen: Animation by lazy {
+//        AnimationUtils.loadAnimation(this,R.anim.rotate_open_anim);
+//    }
+
+
 
     @SuppressLint("MissingInflatedId")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_plugin);
-
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
         annotationGLSurfaceView.setBigData(true);
         pluginSystemViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(PluginSystemViewModel.class);
-
-
         toolbar = findViewById(R.id.toolbar_plugin);
+        imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         setSupportActionBar(toolbar);
 
         updateOptionsMenu();
         updateUI();
-
 
         pluginSystemViewModel.getPluginDataSource().getPluginListResult().observe(this, new Observer<Result>() {
             @Override
@@ -138,7 +131,10 @@ public class PluginSystemActivity extends AppCompatActivity {
                 }
                 if (resourceResult.isSuccess()){
                     annotationGLSurfaceView.openFile();
-                    annotationGLSurfaceView.setImageInfoInRender("testData");
+                    String imageId= pluginSystemViewModel.getCurrentImageId();
+                    Log.e("textview",imageId);
+                    imageIdLocationTextView.setText(imageId);
+                    annotationGLSurfaceView.setImageInfoInRender(imageId);
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -162,6 +158,16 @@ public class PluginSystemActivity extends AppCompatActivity {
                     return;
                 }
                 pluginSystemViewModel.handleDownloadImageResult(result);
+            }
+        });
+
+        pluginSystemViewModel.getPluginDataSource().getModelImageResult().observe(this, new Observer<Result>() {
+            @Override
+            public void onChanged(Result result) {
+                if(result == null){
+                    return;
+                }
+                pluginSystemViewModel.handelModelImageResult(result);
             }
         });
     }
@@ -195,9 +201,7 @@ public class PluginSystemActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         mainContext = null;
-
     }
 
     @Override
@@ -220,24 +224,76 @@ public class PluginSystemActivity extends AppCompatActivity {
             commonView = getLayoutInflater().inflate(R.layout.plugin_main, null);
             this.addContentView(commonView, lpCommon);
             getPlugin = findViewById(R.id.get_plugin_list_button);
-            getImage =  findViewById(R.id.get_image_list_button);
-
+            getModel = findViewById(R.id.get_model_list_button);
+//            getImage =  findViewById(R.id.get_image_list_button);
             getPlugin.setOnClickListener(new Button.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     pluginSystemViewModel.getPluginList();
-
-
                 }
             });
+            getModel.setOnClickListener(new View.OnClickListener(){
 
-            getImage.setOnClickListener(new Button.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    pluginSystemViewModel.getImageList();
+                    pluginSystemViewModel.getModelResult();
+                    ToastEasy("on development");
+
                 }
             });
         }
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+
+            case R.id.file:
+                openAllFile();
+                return true;
+
+            case R.id.share:
+                annotationGLSurfaceView.screenCapture();
+                return true;
+
+            default:
+                // If we got here, the user's action was not recognized.
+                // Invoke the superclass to handle it.
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void openAllFile(){
+        new XPopup.Builder(this)
+                .asCenterList("File Open", new String[]{"Open File From Server", "Open LocalFile"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String item) {
+                                switch (item) {
+                                    case "Open File From Server":
+                                        openFileFromServer();
+                                        break;
+                                    case "Open LocalFile":
+                                        openLocalFile();
+                                        break;
+                                    default:
+                                        ToastEasy("Something wrong in function openFile !");
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void openFileFromServer(){
+        pluginSystemViewModel.getImageList();
+    }
+
+    private void openLocalFile(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
 

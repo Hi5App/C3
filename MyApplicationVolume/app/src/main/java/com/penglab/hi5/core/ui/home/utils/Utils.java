@@ -71,7 +71,7 @@ public class Utils {
                     case "Chat":
                         ChatActivity.start(context);
                         break;
-                    case "Plugin System":
+                    case "Image Processing":
                         PluginSystemActivity.start(context);
                         break;
                     case "Help":

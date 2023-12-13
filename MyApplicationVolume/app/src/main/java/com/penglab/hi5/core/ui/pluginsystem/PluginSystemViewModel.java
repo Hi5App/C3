@@ -63,6 +63,10 @@ public class PluginSystemViewModel extends ViewModel {
     public void getImageList() {
         pluginDataSource.getImageList();
     }
+
+    public String getCurrentImageId(){
+        return pluginInfo.getInputImageName();
+    }
     public void getPluginList() {
         pluginDataSource.getPluginList();
     }
@@ -89,6 +93,11 @@ public class PluginSystemViewModel extends ViewModel {
 
     }
 
+    public void getModelResult(){
+        String imageNumber =pluginInfo.getInputImageName();
+        pluginDataSource.getModelImage(imageNumber);
+    }
+
     public void handleDownloadImageResult(Result result) {
         if (result == null) {
             isDownloading = false;
@@ -102,7 +111,24 @@ public class PluginSystemViewModel extends ViewModel {
         } else {
             isDownloading = false;
         }
-}
+    }
+
+    public void handelModelImageResult(Result result){
+        if (result == null) {
+            isDownloading = false;
+        }
+        if (result instanceof Result.Success) {
+            Object data = ((Result.Success<?>) result).getData();
+            openFile();
+            if (data instanceof String) {
+            } else {
+                isDownloading = false;}
+        } else {
+            isDownloading = false;
+        }
+    }
+
+
 
     public void openFile() {
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +

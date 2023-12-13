@@ -39,6 +39,8 @@ public class PluginDataSource {
 
     private final MutableLiveData<Result> originImageResult = new MutableLiveData<>();
 
+    private final MutableLiveData<Result> modelImageResult = new MutableLiveData<>();
+
     public LiveData<Result> getPluginListResult() {
         return pluginListResult;
     }
@@ -52,6 +54,10 @@ public class PluginDataSource {
 
     public MutableLiveData<Result> getOriginImageResult() {
         return originImageResult;
+    }
+
+    public MutableLiveData<Result> getModelImageResult() {
+        return modelImageResult;
     }
 
     public void getPluginList() {
@@ -137,7 +143,7 @@ public class PluginDataSource {
                 }
             });
         } catch (Exception exception) {
-            pluginListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            imageListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
@@ -221,9 +227,51 @@ public class PluginDataSource {
                 }
             });
         } catch (Exception exception) {
-            downloadPluginImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            originImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
+
+    public void getModelImage(String imageName){
+         try {
+        JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+        HttpUtilsPlugin.doModelWithOkHttp(userInfo, imageName,new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                modelImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
+            }
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                try {
+                    int responseCode = response.code();
+                    Log.e(TAG,"doModel_responseCode"+responseCode);
+                    if (responseCode == 200) {
+                        if (response.body() != null) {
+                            byte[] fileContent = response.body().bytes();
+                            Log.e(TAG, "file size: " + fileContent.length);
+                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                            String filename = imageName;
+                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                modelImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                            }
+                            modelImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                            response.body().close();
+                            response.close();
+                        } else {
+                            modelImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                        }
+                    } else {
+                        modelImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    modelImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                }
+            }
+        }) ;
+    } catch (Exception exception) {
+             modelImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+    }
+}
 
 
 

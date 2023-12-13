@@ -24,7 +24,7 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorMid_yellow</item>
         <item name="colorPrimaryDark">@color/colorDark_yellow</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/white</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
