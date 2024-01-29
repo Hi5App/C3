@@ -52,11 +52,6 @@ public class PluginSystemActivity extends AppCompatActivity {
     private ImageButton getPlugin;
     private ImageButton getModel;
 
-//    private val rotationOpen: Animation by lazy {
-//        AnimationUtils.loadAnimation(this,R.anim.rotate_open_anim);
-//    }
-
-
 
     @SuppressLint("MissingInflatedId")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,7 +77,7 @@ public class PluginSystemActivity extends AppCompatActivity {
                     new XPopup.Builder(PluginSystemActivity.this).
                             maxHeight(1350).
                             maxWidth(800).
-                            asCenterList("Plugin List",
+                            asCenterList("Image Processing",
                                     listShow, new OnSelectListener() {
                                         @Override
                                         public void onSelect(int position, String text) {
@@ -215,7 +210,6 @@ public class PluginSystemActivity extends AppCompatActivity {
         toolbar.inflateMenu(R.menu.plugin_menu);
     }
 
-
     private void updateUI() {
         if (commonView == null) {
             // load layout view
@@ -223,9 +217,10 @@ public class PluginSystemActivity extends AppCompatActivity {
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             commonView = getLayoutInflater().inflate(R.layout.plugin_main, null);
             this.addContentView(commonView, lpCommon);
+
             getPlugin = findViewById(R.id.get_plugin_list_button);
             getModel = findViewById(R.id.get_model_list_button);
-//            getImage =  findViewById(R.id.get_image_list_button);
+
             getPlugin.setOnClickListener(new Button.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -237,8 +232,6 @@ public class PluginSystemActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     pluginSystemViewModel.getModelResult();
-                    ToastEasy("on development");
-
                 }
             });
         }
@@ -263,7 +256,6 @@ public class PluginSystemActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-
     private void openAllFile(){
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open File From Server", "Open LocalFile"},
@@ -295,8 +287,6 @@ public class PluginSystemActivity extends AppCompatActivity {
         intent.setType("*/*");
         startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
-
-
 
     public static void start(Context context) {
         Intent intent = new Intent(context, PluginSystemActivity.class);

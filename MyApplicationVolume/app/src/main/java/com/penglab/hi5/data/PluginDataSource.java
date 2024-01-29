@@ -37,7 +37,7 @@ public class PluginDataSource {
 
     private final MutableLiveData<Result> downloadPluginImageResult = new MutableLiveData<>();
 
-    private final MutableLiveData<Result> originImageResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> originImageResult    = new MutableLiveData<>();
 
     private final MutableLiveData<Result> modelImageResult = new MutableLiveData<>();
 
@@ -249,7 +249,7 @@ public class PluginDataSource {
                             byte[] fileContent = response.body().bytes();
                             Log.e(TAG, "file size: " + fileContent.length);
                             String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                            String filename = imageName;
+                            String filename = imageName.split(".")[0]+"_output."+imageName.split(".")[1];
                             if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                                 modelImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
                             }

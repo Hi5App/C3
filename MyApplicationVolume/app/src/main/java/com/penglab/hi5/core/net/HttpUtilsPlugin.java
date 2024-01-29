@@ -87,7 +87,7 @@ public class HttpUtilsPlugin extends HttpUtils {
             Log.e("body", "doModel" + String.valueOf(new JSONObject()
                     .put("args", "/home/BrainTellServer/PluginData/" + imageName)
                     .put("user", userInfo)));
-            asyncPostRequest(URL_PLUGIN, body, callback);
+            asyncPostRequest(URL_GETMODEL, body, callback);
         } catch (Exception e) {
             e.printStackTrace();
         }
