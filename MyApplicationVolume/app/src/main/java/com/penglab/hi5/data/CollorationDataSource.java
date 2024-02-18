@@ -10,11 +10,13 @@ import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.net.HttpUtilsCollaborate;
 import com.penglab.hi5.core.net.HttpUtilsQualityInspection;
+import com.penglab.hi5.core.net.HttpUtilsUser;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -36,6 +38,13 @@ public class CollorationDataSource {
 
     private String responseData;
 
+    private int userId;
+    public int getUserId(){
+        return userId;
+    }
+    public void setUserId(int id){
+        userId = id;
+    }
     private final MutableLiveData<Result> brianListResult = new MutableLiveData<>();
     private final MutableLiveData<Result> neuronListResult = new MutableLiveData<>();
     private final MutableLiveData<Result> anoListResult = new MutableLiveData<>();
@@ -45,7 +54,6 @@ public class CollorationDataSource {
     public LiveData<Result> getBrainListCollaborate() {
         return brianListResult;
     }
-
     public LiveData<Result> getNeuronListCollaborate() {
         return neuronListResult;
     }
@@ -55,9 +63,6 @@ public class CollorationDataSource {
     public LiveData<Result> getDownloadAnoResult() {
         return downloadAnoResult;
     }
-
-
-
 
     public void getImageList() {
         try {
@@ -160,6 +165,67 @@ public class CollorationDataSource {
         }
     }
 
+    public void getAno() {
+        try {
+            JSONObject userVerifyInfo = new JSONObject().put("UserName", InfoCache.getAccount()).put("UserToken", "");
+            JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.01.19");
+            JSONObject param = new JSONObject();
+            param.put("UserVerifyInfo",userVerifyInfo);
+            param.put("metaInfo",metaInfo);
+            HttpUtilsCollaborate.getAllSwcMetaInfoWithOkHttp(param, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    anoListResult.postValue(new Result.Error(new Exception("Connect failed when getAllSwcMetaInfo result !")));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    Log.e(TAG, "responseCode" + response.code());
+                    int responseCode = response.code();
+                    responseData = response.body().string();
+                    if (responseCode == 200) {
+                        Log.e(TAG, "response getAno: " + responseData);
+                        // process response
+                        try {
+                            JSONObject resultJson = new JSONObject(responseData);
+                            JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
+                            boolean status = metaInfo.getBoolean("Status");
+                            String message = metaInfo.getString("Message");
+                            if(!status){
+                                anoListResult.postValue(new Result.Error(new Exception("Get SwcMetaInfo Failed" + message)));
+                            }
+
+                            JSONArray swcInfos = resultJson.getJSONArray("SwcInfo");
+                            List<String> anoNameList = new ArrayList<String>();
+                            for(int i =0;i<swcInfos.length();i++){
+                                JSONObject swcInfo = swcInfos.getJSONObject(i);
+                                String swcName = swcInfo.getString("Name");
+                                int removedLen = ".ano.eswc".length();
+                                int len = swcName.length();
+                                String anoName = swcName.substring(0,len-removedLen);
+                                anoNameList.add(anoName);
+                            }
+                            anoListResult.postValue(new Result.Success<List<String>>(anoNameList));
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                            anoListResult.postValue(new Result.Error(new Exception("Fail to parse GetSwcMetaInfo result !")));
+                        }
+                        response.body().close();
+                        response.close();
+                    }
+                    else {
+                        Log.e(TAG, "response update arbor result: " + response.body().string());
+                        anoListResult.postValue(new Result.Error(new Exception("Fail to get swcmetainfo !")));
+                    }
+                }
+            });
+
+        } catch (Exception e) {
+            anoListResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
+            e.printStackTrace();
+        }
+    }
+
     public void getAno(String neuronNum) {
         try {
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
@@ -214,7 +280,7 @@ public class CollorationDataSource {
 
         try {
             JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsCollaborate.loadAnoWithOkHttp(userInfo,brainNumber,neuronNumber,ano, new Callback() {
+            HttpUtilsCollaborate.loadAnoWithOkHttp(userInfo, brainNumber, neuronNumber, ano, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     downloadAnoResult.postValue(new Result.Error(new Exception("Connect failed when update arbor result !")));
@@ -256,22 +322,48 @@ public class CollorationDataSource {
         }
     }
 
+    public void getUserId(String username){
+        try {
+            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserToken", "");
+            JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.01.19");
+            JSONObject param = new JSONObject();
+            param.put("UserName",username);
+            param.put("UserVerifyInfo",userVerifyInfo);
+            param.put("metaInfo",metaInfo);
+            HttpUtilsUser.getUserIdWithOKHttp(param, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    Log.e(TAG, "Connect Failed When GetUserId");
+                }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    int responseCode = response.code();
+                    Log.e(TAG,"responsecode of getuserid"+responseCode);
+                    if (responseCode == 200) {
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData_getuserid: " + responseData);
+                        try {
+                            JSONObject resultJson = new JSONObject(responseData);
+                            JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
+                            boolean status = metaInfo.getBoolean("Status");
+                            String message = metaInfo.getString("Message");
+                            if(!status){
+                                Log.e(TAG, "GetUserId Failed" + message);
+                            }
+                            int id = resultJson.getJSONObject("UserInfo").getInt("UserId");
+                            Log.e(TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" + id);
+                            setUserId(id);
+                            response.body().close();
+                            response.close();
+                        } catch (JSONException e) {
+                            e.printStackTrace();}
+                    }
+                }
+            });
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
 
 }

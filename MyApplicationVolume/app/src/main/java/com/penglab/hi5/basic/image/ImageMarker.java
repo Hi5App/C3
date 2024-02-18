@@ -9,6 +9,21 @@ import java.util.HashMap;
 public class ImageMarker extends BasicSurfObj {
     private static final int DEFAULT_TYPE = 6;
 
+    private static final int[][] typeToColorList = {
+        {255,255,255},
+        {20,20,20},
+        {200,20,0},
+        {0,20,200},
+        {200,20,200},
+        {0,200,200},
+        {220,200,0,},
+        {0,200,20}
+    };
+
+    public int[][] getTypeToColorList(){
+        return typeToColorList;
+    }
+
     private static final HashMap<Integer, Integer> typeToColor = new HashMap<Integer, Integer>() {{
         put(0, R.color.white_map);
         put(1, R.color.black_map);
@@ -183,5 +198,33 @@ public class ImageMarker extends BasicSurfObj {
         } else {
             return colorToType.get(color);
         }
+    }
+
+    public static int colorToType(char r, char g, char b){
+        if (r == 255 && g == 255 && b == 255){
+            return 0;
+
+        }else if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)){
+            return 1;
+
+        }else if ((r == 255 && g == 0 && b == 0) || (r == 200 && g == 20 && b == 0)){
+            return 2;
+
+        }else if ((r == 0 && g == 0 && b == 255) || (r == 0 && g == 20 && b == 200)){
+            return 3;
+
+        }else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)){
+            return 4;
+
+        }else if ((r == 0 && g == 255 && b == 255) || (r == 0 && g == 200 && b == 200)){
+            return 5;
+
+        }else if ((r == 255 && g == 255 && b == 0) || (r == 220 && g == 200 && b == 0)){
+            return 6;
+
+        }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
+            return 7;
+        }
+        return 0;
     }
 }

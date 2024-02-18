@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 
 import com.penglab.hi5.R;
 
-import org.jetbrains.annotations.NotNull;
+
 
 /**
  * A fragment representing a list of Items.

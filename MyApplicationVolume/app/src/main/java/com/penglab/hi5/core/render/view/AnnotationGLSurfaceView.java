@@ -588,6 +588,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     }
 
     public int getLastCurveType(){
+        Log.e("LastCurveType",":"+annotationHelper.getLastCurveType());
         return annotationHelper.getLastCurveType();
     }
 

@@ -198,7 +198,4 @@ dependencies {
     implementation 'com.github.bifan-wei:HwTxtReader:V2.2'
 
     compile 'me.grantland:autofittextview:0.2.+'
-
-
-
 }

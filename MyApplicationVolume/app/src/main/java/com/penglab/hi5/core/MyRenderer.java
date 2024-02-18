@@ -2222,6 +2222,10 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                     new_marker[2]);
 
             imageMarker_drawed.type = lastMarkerType;
+            imageMarker_drawed.color.r=(char)imageMarker_drawed.getTypeToColorList()[lastMarkerType][0];
+            imageMarker_drawed.color.g=(char)imageMarker_drawed.getTypeToColorList()[lastMarkerType][1];
+            imageMarker_drawed.color.b=(char)imageMarker_drawed.getTypeToColorList()[lastMarkerType][2];
+
             markerList.add(imageMarker_drawed);
 
             if (isBigData) {
@@ -2303,7 +2307,13 @@ public class MyRenderer implements GLSurfaceView.Renderer {
 
                 ImageMarker temp = list.get(i);
                 ImageMarker temp_backup = (ImageMarker) list.get(i).clone();
+                temp_backup.color.r = (char)temp_backup.getTypeToColorList()[temp_backup.type][0];
+                temp_backup.color.g = (char)temp_backup.getTypeToColorList()[temp_backup.type][1];
+                temp_backup.color.b = (char)temp_backup.getTypeToColorList()[temp_backup.type][2];
                 temp.type = lastMarkerType;
+                temp.color.r = (char)temp.getTypeToColorList()[temp.type][0];
+                temp.color.g = (char)temp.getTypeToColorList()[temp.type][1];
+                temp.color.b = (char)temp.getTypeToColorList()[temp.type][2];
 
                 if (isBigData)
                     updateRetypeMarker(temp_backup, temp);
