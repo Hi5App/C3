@@ -83,7 +83,6 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
-import org.jetbrains.annotations.Contract;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;

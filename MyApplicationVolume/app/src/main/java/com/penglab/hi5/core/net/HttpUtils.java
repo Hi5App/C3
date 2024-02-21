@@ -16,6 +16,7 @@ public class HttpUtils {
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 //    protected static final String SERVER_IP = "http://192.168.3.79:8000";
     protected static final String SERVER_IP = "http://114.117.165.134:26000";
+    protected static final String DBMS_SERVER_IP = "http://114.117.165.134:14252";
     private static final OkHttpClient client =
             new OkHttpClient.Builder()
             .connectTimeout(20, TimeUnit.SECONDS)

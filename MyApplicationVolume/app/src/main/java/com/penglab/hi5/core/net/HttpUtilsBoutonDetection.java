@@ -38,7 +38,6 @@ public class HttpUtilsBoutonDetection extends HttpUtils {
                     .put("arborId", arborId)
                     .put("user", userInfo)));
             asyncPostRequest(URL_QUERY_ARBOR_RESULT, body, callback);
-
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -114,6 +114,8 @@
             android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
         <activity android:name=".core.ui.collaboration.CollaborationActivity"
             android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
+        <activity android:name=".core.ui.pluginsystem.PluginSystemActivity"
+            android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"/>
         <activity android:name=".core.ui.BoutonDetection.BoutonDetectionActivity"
             android:configChanges="orientation|keyboardHidden|layoutDirection|screenSize"
             tools:ignore="Instantiatable" />

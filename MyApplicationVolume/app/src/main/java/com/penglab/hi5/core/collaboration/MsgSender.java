@@ -42,7 +42,10 @@ public class MsgSender {
                 try {
                     OutputStream out = socket.getOutputStream();
 
-                    String data = message + "\n";
+                    String data = message;
+                    if(!message.startsWith("/login"))
+                        data = message + "\n";
+
                     int dataLength = data.getBytes(StandardCharsets.UTF_8).length;
 
                     /*

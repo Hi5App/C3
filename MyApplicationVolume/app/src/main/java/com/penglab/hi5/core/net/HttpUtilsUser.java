@@ -11,8 +11,19 @@ import okhttp3.RequestBody;
 public class HttpUtilsUser extends HttpUtils {
     private static final String URL_REGISTER = SERVER_IP + "/dynamic/user/register";
     private static final String URL_LOGIN = SERVER_IP + "/dynamic/user/login";
+    private static final String URL_GETUSERID = DBMS_SERVER_IP + "/proto.DBMS/GetUser";
     private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/dynamic/user/updatepassword";
     private static final String URL_FIND_PASSWORD = SERVER_IP + "/dynamic/user/forgetpassword";
+
+    public static void getUserIdWithOKHttp(JSONObject param, Callback callback){
+        try {
+            RequestBody body = RequestBody.create(JSON, String.valueOf(param));
+            asyncPostRequest(URL_GETUSERID, body, callback);
+            Log.e("getuseridwithokhttp",String.valueOf(param));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /* 登录 异步方法 */
     public static void loginWithOkHttp(JSONObject userInfo, Callback callback) {

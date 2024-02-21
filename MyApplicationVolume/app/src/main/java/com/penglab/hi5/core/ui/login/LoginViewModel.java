@@ -42,6 +42,10 @@ public class LoginViewModel extends ViewModel {
         userDataSource.login(username, password);
     }
 
+    public void getUserIdForCollaborate(String username){
+        userDataSource.getUserId(username);
+    }
+
     public void updateLoginResult(Result<LoggedInUser> result){
         // will be called in LoginActivity
         if (result instanceof Result.Success) {

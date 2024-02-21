@@ -34,6 +34,7 @@ public class ImageDataSource {
     private final String TAG = "ImageDataSource";
     private final MutableLiveData<Result> brainListResult = new MutableLiveData<>();
     private final MutableLiveData<Result> downloadImageResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> downloadButtonImageResult = new MutableLiveData<>();
     private final SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public LiveData<Result> getBrainListResult() {
@@ -42,6 +43,10 @@ public class ImageDataSource {
 
     public MutableLiveData<Result> getDownloadImageResult() {
         return downloadImageResult;
+    }
+
+    public MutableLiveData<Result> getDownloadButtonImageResult() {
+        return downloadButtonImageResult;
     }
 
     public void getBrainList(){
@@ -178,6 +183,53 @@ public class ImageDataSource {
             });
         } catch (Exception exception) {
             downloadImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+        }
+    }
+
+    public void downloadButtonImage(String arborId){
+        try{
+            JSONObject user = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+            HttpUtilsImage.downloadButtonImageWithOkHttp(user,
+                    arborId,
+                    new Callback() {
+                        @Override
+                        public void onFailure(Call call, IOException e) {
+                            downloadButtonImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download bouton Image")));
+                        }
+
+                        @Override
+                        public void onResponse(Call call, Response response) throws IOException {
+                            try {
+                                int responseCode = response.code();
+                                Log.e(TAG, "download_bouton_Image_responseCode" + responseCode);
+                                if (responseCode == 200) {
+                                    if (response.body() != null) {
+                                        byte[] fileContent = response.body().bytes();
+                                        Log.e(TAG, "file size: " + fileContent.length);
+                                        String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                                        String filename = arborId+".v3dpbd";
+                                        //                            String filename = brainId + "_" + res + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
+
+                                        if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                            downloadButtonImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                        }
+                                        downloadButtonImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                                        response.body().close();
+                                        response.close();
+                                    } else {
+                                        downloadButtonImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                                    }
+                                } else {
+                                    downloadButtonImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
+                                }
+                            } catch (Exception exception) {
+                                downloadButtonImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                            }
+                        }
+                    });
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -21,6 +21,7 @@ import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
 import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
+import com.penglab.hi5.core.ui.pluginsystem.PluginSystemActivity;
 import com.penglab.hi5.data.UserInfoRepository;
 
 import org.json.JSONObject;
@@ -55,21 +56,24 @@ public class Utils {
                     case "Annotation":
                         AnnotationActivity.start(context);
                         break;
-                    case "Check":
-                        QualityInspectionActivity.start(context);
-                        break;
-                    case "Smart Imaging":
-                        S2Activity.start(context);
-                        break;
+//                    case "Check":
+//                        QualityInspectionActivity.start(context);
+//                        break;
+//                    case "Smart Imaging":
+//                        S2Activity.start(context);
+//                        break;
                     case "Collaboration":
                         CollaborationActivity.start(context);
                         break;
                     case "Synapse Validation":
                         BoutonDetectionActivity.start(context);
                         break;
-                    case "Chat":
-                        ChatActivity.start(context);
-                        break;
+//                    case "Chat":
+//                        ChatActivity.start(context);
+//                        break;
+//                    case "Image Processing":
+//                        PluginSystemActivity.start(context);
+//                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;

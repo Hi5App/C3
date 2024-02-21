@@ -391,7 +391,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         username = InfoCache.getAccount();
 
-        id = InfoCache.getId();
+        collaborationViewModel.getUserIdForCollaborate(InfoCache.getAccount());
 
         mainContext = this;
 
@@ -407,63 +407,81 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         });
 
-
-
-        collaborationViewModel.getCollorationDataSource().getBrainListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result instanceof Result.Success) {
-                    String[] data = (String[]) ((Result.Success<?>) result).getData();
-                    Set<String> set = new HashSet<String>(Arrays.asList(data));
-//                    String[] listShow = set.toArray(new String[set.size()]);
-                    String[] listShow = new String[]{"18454"};
-
-                    new XPopup.Builder(CollaborationActivity.this).
-                            maxHeight(1350).
-                            maxWidth(800).
-                            asCenterList("Brain Number",
-                                    listShow, new OnSelectListener() {
-                                        @Override
-                                        public void onSelect(int position, String text) {
-                                            ToastEasy("Click" + text);
-                                            collaborationViewModel.handleBrainNumber(text.trim());
-                                        }
-                                    }).show();
-                } else if (result instanceof Result.Error) {
-                    ToastEasy(result.toString());
-                }
-            }
-        });
+//        collaborationViewModel.getCollorationDataSource().getBrainListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
+//            @Override
+//            public void onChanged(Result result) {
+//                if (result instanceof Result.Success) {
+//                    String[] data = (String[]) ((Result.Success<?>) result).getData();
+//                    Set<String> set = new HashSet<String>(Arrays.asList(data));
+////                    String[] listShow = set.toArray(new String[set.size()]);
+//                    String[] listShow = new String[]{"18454"};
+//
+//                    new XPopup.Builder(CollaborationActivity.this).
+//                            maxHeight(1350).
+//                            maxWidth(800).
+//                            asCenterList("Brain Number",
+//                                    listShow, new OnSelectListener() {
+//                                        @Override
+//                                        public void onSelect(int position, String text) {
+//                                            ToastEasy("Click" + text);
+//                                            collaborationViewModel.handleBrainNumber(text.trim());
+//                                        }
+//                                    }).show();
+//                } else if (result instanceof Result.Error) {
+//                    ToastEasy(result.toString());
+//                }
+//            }
+//        });
+//
+//        collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
+//            @Override
+//            public void onChanged(Result result) {
+//                if (result instanceof Result.Success) {
+//                    List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
+//                    neuronNumberList.clear();
+//                    for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
+//                        CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
+//                        neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
+//                    }
+//                    String[] neuronNumberListShow = neuronNumberList.toArray(new String[0]);
+////                    String[] neuronNumberListShow = new String[]{"18454_00019"};
+//                    new XPopup.Builder(CollaborationActivity.this).
+//                            maxHeight(1350).
+//                            maxWidth(800).
+//                            asCenterList("Neuron Number",
+//                                    neuronNumberListShow, new OnSelectListener() {
+//                                        @Override
+//                                        public void onSelect(int position, String text) {
+//                                            ToastEasy("Click" + text);
+//                                            collaborationViewModel.handleNeuronNumber(text.trim());
+//                                            collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
+//                                        }
+//                                    }).show();
+//                } else {
+//                    ToastEasy(result.toString());
+//                }
+//
+//
+//            }
+//        });
 
         collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result instanceof Result.Success) {
+                    int index = 0;
                     List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
                     neuronNumberList.clear();
                     for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
-                        CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
-                        neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
+                        CollaborateNeuronInfo item = potentialDownloadNeuronInfoList.get(i);
+                        neuronNumberList.add(item.getNeuronName());
+                        if(item.getNeuronName().equals(collaborationViewModel.getPotentialDownloadNeuronInfo().getNeuronName())){
+                            index = i;
+                        }
                     }
-                    String[] neuronNumberListShow = neuronNumberList.toArray(new String[neuronNumberList.size()]);
 //                    String[] neuronNumberListShow = new String[]{"18454_00019"};
-                    new XPopup.Builder(CollaborationActivity.this).
-                            maxHeight(1350).
-                            maxWidth(800).
-                            asCenterList("Neuron Number",
-                                    neuronNumberListShow, new OnSelectListener() {
-                                        @Override
-                                        public void onSelect(int position, String text) {
-                                            ToastEasy("Click" + text);
-                                            collaborationViewModel.handleNeuronNumber(text.trim());
-                                            collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
-                                        }
-                                    }).show();
-                } else {
-                    ToastEasy(result.toString());
+                    collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(index));
                 }
-
-
             }
         });
 
@@ -508,7 +526,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 } else {
                     CollaborationService.resetConnection();
                 }
-                MsgConnector.getInstance().sendMsg("/login:" + InfoCache.getId() + " " + 2);
+                id = collaborationViewModel.getCollorationDataSource().getUserId();
+                MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + "RES(1x1x1)" + " " + 2);
             }
         });
 
@@ -1241,7 +1260,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                             public void onSelect(int position, String item) {
                                 switch (item) {
                                     case "Open BigData":
-                                        collaborationViewModel.getImageList();
+                                        collaborationViewModel.getAno();
+//                                        collaborationViewModel.getImageList();
                                         break;
                                     default:
                                         ToastEasy("Something wrong in function openFile !");

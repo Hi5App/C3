@@ -970,6 +970,9 @@ public class AnnotationHelper {
             if (markerPosition != null) {
                 ImageMarker imageMarker = new ImageMarker(lastMarkerType,
                         markerPosition[0], markerPosition[1], markerPosition[2]);
+                imageMarker.color.r=(char)imageMarker.getTypeToColorList()[lastMarkerType][0];
+                imageMarker.color.g=(char)imageMarker.getTypeToColorList()[lastMarkerType][1];
+                imageMarker.color.b=(char)imageMarker.getTypeToColorList()[lastMarkerType][2];
                 annotationDataManager.getMarkerList().add(imageMarker);
 
                 annotationDataManager.saveUndo();
@@ -995,6 +998,9 @@ public class AnnotationHelper {
             if (markerPosition != null) {
                 ImageMarker imageMarker = new ImageMarker(lastMarkerType,
                         markerPosition[0], markerPosition[1], markerPosition[2]);
+                imageMarker.color.r=(char)imageMarker.getTypeToColorList()[lastMarkerType][0];
+                imageMarker.color.g=(char)imageMarker.getTypeToColorList()[lastMarkerType][1];
+                imageMarker.color.b=(char)imageMarker.getTypeToColorList()[lastMarkerType][2];
                 annotationDataManager.getMarkerList().add(imageMarker);
                 annotationDataManager.saveUndo();
                 if (isBigData) {
@@ -1052,6 +1058,9 @@ public class AnnotationHelper {
             if (center != null) {
                 ImageMarker imageMarker = new ImageMarker(lastMarkerType,
                         center[0], center[1], center[2]);
+                imageMarker.color.r=(char)imageMarker.getTypeToColorList()[lastMarkerType][0];
+                imageMarker.color.g=(char)imageMarker.getTypeToColorList()[lastMarkerType][1];
+                imageMarker.color.b=(char)imageMarker.getTypeToColorList()[lastMarkerType][2];
                 annotationDataManager.getMarkerList().add(imageMarker);
                 annotationDataManager.saveUndo();
                 if (isBigData) {
@@ -1146,7 +1155,13 @@ public class AnnotationHelper {
             if (dx < 0.08 && dy < 0.08) {
                 ImageMarker temp = list.get(i);
                 ImageMarker temp_backup = (ImageMarker) list.get(i).clone();
+                temp_backup.color.r = (char)temp_backup.getTypeToColorList()[temp_backup.type][0];
+                temp_backup.color.g = (char)temp_backup.getTypeToColorList()[temp_backup.type][1];
+                temp_backup.color.b = (char)temp_backup.getTypeToColorList()[temp_backup.type][2];
                 temp.type = lastMarkerType;
+                temp.color.r = (char)temp.getTypeToColorList()[temp.type][0];
+                temp.color.g = (char)temp.getTypeToColorList()[temp.type][1];
+                temp.color.b = (char)temp.getTypeToColorList()[temp.type][2];
 
                 if (isBigData) {
                     updateRetypeMarker(temp_backup, temp);

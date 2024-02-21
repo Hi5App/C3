@@ -109,13 +109,17 @@ public class Communicator {
 
         ImageMarker imageMarker = new ImageMarker();
 
-        XYZ GlobalCroods = new XYZ(Float.parseFloat(msg.split(" ")[1]),
-                Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
+        XYZ GlobalCroods = new XYZ(Float.parseFloat(msg.split(" ")[3]),
+                Float.parseFloat(msg.split(" ")[4]), Float.parseFloat(msg.split(" ")[5]));
 
-        XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[1]),
-                Float.parseFloat(msg.split(" ")[2]), Float.parseFloat(msg.split(" ")[3]));
+        XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[3]),
+                Float.parseFloat(msg.split(" ")[4]), Float.parseFloat(msg.split(" ")[5]));
 
-        imageMarker.type = Integer.parseInt(msg.split(" ")[0]);
+        imageMarker.color.r = (char) Integer.parseInt(msg.split(" ")[0]);
+        imageMarker.color.g = (char) Integer.parseInt(msg.split(" ")[1]);
+        imageMarker.color.b = (char) Integer.parseInt(msg.split(" ")[2]);
+        imageMarker.type = ImageMarker.colorToType(imageMarker.color.r, imageMarker.color.g, imageMarker.color.b);
+
         imageMarker.xGlobal = GlobalCroods.x;
         imageMarker.yGlobal = GlobalCroods.y;
         imageMarker.zGlobal = GlobalCroods.z;
@@ -223,7 +227,8 @@ public class Communicator {
     {
             List<String> result = new ArrayList<>();
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
-            result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+//            result.add(String.format("%d %f %f %f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+            result.add(String.format("%d %d %d %f %f %f", (int) marker.color.r, (int) marker.color.g, (int) marker.color.b, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
             String msg = "/addmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
             msg = msg + TextUtils.join(",", result);
@@ -238,7 +243,8 @@ public class Communicator {
     {
         List<String> result = new ArrayList<>();
         XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(marker.x,marker.y,marker.z);
-        result.add(String.format("%d %.3f %.3f %.3f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+//        result.add(String.format("%d %.3f %.3f %.3f", (int) marker.type, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
+        result.add(String.format("%d %d %d %.3f %.3f %.3f", (int) marker.color.r, (int) marker.color.g, (int) marker.color.b, GlobalCroods.x, GlobalCroods.y, GlobalCroods.z));
 
         String msg = "/delmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
         msg = msg + TextUtils.join(",", result);
@@ -259,7 +265,8 @@ public class Communicator {
          */
         List<String> result_origin = new ArrayList<>();
         XYZ GlobalCroods_origin = ConvertLocalBlocktoGlobalCroods(origin_marker.x,origin_marker.y,origin_marker.z);
-        result_origin.add(String.format("%d %.3f %.3f %.3f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
+//        result_origin.add(String.format("%d %.3f %.3f %.3f", (int) origin_marker.type, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
+        result_origin.add(String.format("%d %d %d %.3f %.3f %.3f", (int) origin_marker.color.r, (int) origin_marker.color.g, (int) origin_marker.color.b, GlobalCroods_origin.x, GlobalCroods_origin.y, GlobalCroods_origin.z));
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
         msg_origin = msg_origin + TextUtils.join(",", result_origin);
@@ -270,7 +277,8 @@ public class Communicator {
          */
         List<String> result_current = new ArrayList<>();
         XYZ GlobalCroods_current = ConvertLocalBlocktoGlobalCroods(current_marker.x,current_marker.y,current_marker.z);
-        result_current.add(String.format("%d %.3f %.3f %.3f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
+//        result_current.add(String.format("%d %.3f %.3f %.3f", (int) current_marker.type, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
+        result_current.add(String.format("%d %d %d %.3f %.3f %.3f", (int) current_marker.color.r, (int) current_marker.color.g, (int) current_marker.color.b, GlobalCroods_current.x, GlobalCroods_current.y, GlobalCroods_current.z));
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
         msg_current = msg_current + TextUtils.join(",", result_current);

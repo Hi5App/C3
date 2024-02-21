@@ -76,8 +76,8 @@ public class UserDataSource {
                                     userInfo.getString("email"));
                             result.postValue(new Result.Success<LoggedInUser>(loggedInUser));
                             int id = userInfo.getInt("id");
+//                            storeUserCache(username, password,id);
                             storeUserCache(username, password,id);
-
                             response.body().close();
                             response.close();
                         } catch (JSONException e) {
@@ -93,6 +93,55 @@ public class UserDataSource {
             result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
+
+    public void getUserId(String username) {
+        try {
+            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserToken", "");
+            JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.01.19");
+            JSONObject param = new JSONObject();
+            param.put("UserName",username);
+            param.put("UserVerifyInfo",userVerifyInfo);
+            param.put("metaInfo",metaInfo);
+            HttpUtilsUser.getUserIdWithOKHttp(param, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    result.postValue(new Result.Error(new Exception("Connect Failed When GetUserId")));
+                }
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    int responseCode = response.code();
+                    Log.e(TAG,"responsecode of getuserid"+responseCode);
+                    if (responseCode == 200) {
+                        responseData = response.body().string();
+                        Log.e(TAG, "responseData_getuserid: " + responseData);
+                        try {
+                            JSONObject resultJson = new JSONObject(responseData);
+                            JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
+                            boolean status = metaInfo.getBoolean("Status");
+                            String message = metaInfo.getString("Message");
+                            if(!status){
+                                result.postValue(new Result.Error(new Exception("GetUserId Failed" + message)));
+                            }
+                            int id = resultJson.getJSONObject("UserInfo").getInt("UserId");
+                            storeIdCache(id);
+
+                            response.body().close();
+                            response.close();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            result.postValue(new Result.Error(new Exception("Fail to parse getuserid response !")));
+                        }
+                    } else {
+                        result.postValue(new Result.Error(new IOException(responseData)));
+                    }
+                }
+            });
+        } catch (Exception exception) {
+            result.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+        }
+    }
+
 
     /**
      * called in RegisterViewModel, change of result will be observe in RegisterActivity
@@ -210,6 +259,15 @@ public class UserDataSource {
     private void storeUserCache(String username, String password,int id){
         InfoCache.setAccount(username);
         InfoCache.setToken(password);
+        InfoCache.setId(id);
+    }
+
+    private void storeUserCache(String username, String password){
+        InfoCache.setAccount(username);
+        InfoCache.setToken(password);
+    }
+
+    private void storeIdCache(int id){
         InfoCache.setId(id);
     }
 }

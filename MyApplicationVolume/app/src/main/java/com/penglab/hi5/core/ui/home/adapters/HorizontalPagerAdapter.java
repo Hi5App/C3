@@ -26,14 +26,15 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     R.drawable.ic_design,
                     "Annotation"
             ),
-            new Utils.LibraryObject(
-                    R.drawable.ic_development,
-                    "Check"
-            ),
-            new Utils.LibraryObject(
-                    R.drawable.ic_strategy,
-                    "Smart Imaging"
-            ),
+
+//            new Utils.LibraryObject(
+//                    R.drawable.ic_development,
+//                    "Check"
+//            ),
+//            new Utils.LibraryObject(
+//                    R.drawable.ic_strategy,
+//                    "Smart Imaging"
+//            ),
             new Utils.LibraryObject(
                     R.drawable.ic_social,
                     "Collaboration"
@@ -41,10 +42,14 @@ public class HorizontalPagerAdapter extends PagerAdapter {
             new Utils.LibraryObject(
                     R.drawable.ic_internet,"Synapse Validation"
             ),
-            new Utils.LibraryObject(
-                    R.drawable.ic_chat_icon,
-                    "Chat"
-            ),
+//            new Utils.LibraryObject(
+//                    R.drawable.ic_chat_icon,
+//                    "Chat"
+//            ),
+//            new Utils.LibraryObject(
+//                    R.drawable.ic_strategy,
+//                    "Image Processing"
+//            ),
             new Utils.LibraryObject(
                     R.drawable.ic_development,
                     "Help"

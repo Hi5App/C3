@@ -15,6 +15,7 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
+import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ImageInfo;
@@ -169,6 +170,9 @@ public class CollaborationViewModel extends ViewModel {
 
     public void handleAnoResult(String anoName) {
         getDownloadAno(anoName);
+        getNeuronList(potentialDownloadNeuronInfo.getBrainName());
+
+        collorationDataSource.loadAno(potentialDownloadNeuronInfo.getBrainName(), potentialDownloadNeuronInfo.getNeuronName(), anoName);
     }
 
     public void handleLoadAnoResult(Result result) {
@@ -214,16 +218,27 @@ public class CollaborationViewModel extends ViewModel {
 
     }
 
+    public void getAno() {
+        collorationDataSource.getAno();
+    }
+
     public void getAno(String neuronNumber) {
         collorationDataSource.getAno(neuronNumber);
     }
 
     public void getDownloadAno(String anoName) {
-        String brainName = potentialDownloadNeuronInfo.getBrainName();
-        String neuronName = potentialDownloadNeuronInfo.getNeuronName();
+        String[] parts = anoName.split("_");
+        String brainName = parts[0];
+        String neuronName = parts[0];
+        if(parts.length >= 2) {
+             brainName = parts[0];
+             neuronName = parts[0] + "_" + parts[1];
+        }
+
+        potentialDownloadNeuronInfo.setBrainNumber(brainName);
+        potentialDownloadNeuronInfo.setNeuronNumber(neuronName);
         Log.e("brainName", brainName);
         Log.e("neuronName", neuronName);
-        collorationDataSource.loadAno(brainName, neuronName, anoName);
     }
 
     private void getBrainList() {
@@ -490,6 +505,10 @@ public class CollaborationViewModel extends ViewModel {
 
         }
 
+    }
+
+    public void getUserIdForCollaborate(String username){
+        collorationDataSource.getUserId(username);
     }
 
 

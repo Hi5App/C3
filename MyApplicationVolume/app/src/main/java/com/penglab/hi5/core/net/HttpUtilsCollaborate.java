@@ -14,7 +14,8 @@ public class HttpUtilsCollaborate extends HttpUtils{
     private static final String URL_GET_IMAGES = SERVER_IP + "/dynamic/collaborate/getanoimage";
     private static final String URL_GET_NEURONS = SERVER_IP + "/dynamic/collaborate/getanoneuron";
     private static final String URL_GET_ANOS = SERVER_IP + "/dynamic/collaborate/getano";
-    private static final String URL_LOAD_ANO = SERVER_IP + "/dynamic/collaborate/inheritother";
+    private static final String URL_GET_AllSWCMETAINFO = DBMS_SERVER_IP + "/proto.DBMS/GetAllSwcMetaInfo";
+    private static final String URL_LOAD_ANO = SERVER_IP + "/test/collaborate/inheritother";
 
     public static void getImageListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {
@@ -50,6 +51,16 @@ public class HttpUtilsCollaborate extends HttpUtils{
             e.printStackTrace();
         }
     }
+
+    public static void getAllSwcMetaInfoWithOkHttp(JSONObject param, Callback callback) {
+        try {
+            RequestBody body = RequestBody.create(JSON, String.valueOf(param));
+            asyncPostRequest(URL_GET_AllSWCMETAINFO, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public static void loadAnoWithOkHttp(JSONObject userInfo,String brainList,String neuron,String ano,Callback callback) {
         try {

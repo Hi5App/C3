@@ -86,7 +86,7 @@ public class MarkerList implements Cloneable {
                 writer.append(Integer.toString(i)).append(", , ,, ").append(String.format("%.3f", s.x )).append(",")
                         .append(String.format("%.3f", s.y)).append(",").append(String.format("%.3f", s.z)).append(",")
                         .append(", 0.000,0.000,0.000,314.159,0.000,,,");
-                float [] color = MyDraw.colormap[s.type % 8];
+                float [] color = MyDraw.colormap[s.type % 9];
                 for (int j = 0; j < 3; j++){
                     writer.append(",");
                     int c = (int)(color[j] * 255);
