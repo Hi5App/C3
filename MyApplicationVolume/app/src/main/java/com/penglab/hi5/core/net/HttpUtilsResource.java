@@ -6,9 +6,9 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsResource extends HttpUtils {
-    private static final String URL_MUSIC = SERVER_IP + "/dynamic/musics";
+    private static final String URL_MUSIC = SERVER_IP + "/release/musics";
     private static final String URL_DOWNLOAD = SERVER_IP + "/static/music";
-    private static final String URL_CHECK_LATEST_VERSION = SERVER_IP + "/dynamic/updateapk";
+    private static final String URL_CHECK_LATEST_VERSION = SERVER_IP + "/release/updateapk";
 
     public static void getMusicListWithOkHttp(Callback callback) {
         try {

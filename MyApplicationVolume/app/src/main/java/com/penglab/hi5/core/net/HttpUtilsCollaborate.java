@@ -11,11 +11,11 @@ import okhttp3.RequestBody;
  * Created by Jackiexing on 06/24/21
  */
 public class HttpUtilsCollaborate extends HttpUtils{
-    private static final String URL_GET_IMAGES = SERVER_IP + "/dynamic/collaborate/getanoimage";
-    private static final String URL_GET_NEURONS = SERVER_IP + "/dynamic/collaborate/getanoneuron";
-    private static final String URL_GET_ANOS = SERVER_IP + "/dynamic/collaborate/getano";
+    private static final String URL_GET_IMAGES = SERVER_IP + "/release/collaborate/getanoimage";
+    private static final String URL_GET_NEURONS = SERVER_IP + "/release/collaborate/getanoneuron";
+    private static final String URL_GET_ANOS = SERVER_IP + "/release/collaborate/getano";
     private static final String URL_GET_AllSWCMETAINFO = DBMS_SERVER_IP + "/proto.DBMS/GetAllSwcMetaInfo";
-    private static final String URL_LOAD_ANO = SERVER_IP + "/test/collaborate/inheritother";
+    private static final String URL_LOAD_ANO = SERVER_IP + "/release/collaborate/inheritother";
 
     public static void getImageListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {

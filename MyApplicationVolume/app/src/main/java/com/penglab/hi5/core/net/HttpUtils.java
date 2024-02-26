@@ -1,5 +1,11 @@
 package com.penglab.hi5.core.net;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Callback;
@@ -17,6 +23,23 @@ public class HttpUtils {
 //    protected static final String SERVER_IP = "http://192.168.3.79:8000";
     protected static final String SERVER_IP = "http://114.117.165.134:26000";
     protected static final String DBMS_SERVER_IP = "http://114.117.165.134:14252";
+
+//    private static final String CONFIG_FILE_PATH = "D://C3//config.json";
+
+//    public static String SERVER_IP;
+//    public static String DBMS_SERVER_IP;
+
+
+//    static {
+//        try{
+//            JSONObject config = new JSONObject((Map) new FileReader(CONFIG_FILE_PATH));
+//            SERVER_IP = config.getString("braintellServerAddress");
+//            DBMS_SERVER_IP = config.getString("dbmsServerAddress");
+//
+//        } catch (IOException | JSONException e) {
+//            e.printStackTrace();
+//        }
+//    }
     private static final OkHttpClient client =
             new OkHttpClient.Builder()
             .connectTimeout(20, TimeUnit.SECONDS)
@@ -30,6 +53,14 @@ public class HttpUtils {
                 .post(body)
                 .build();
         client.newCall(request).enqueue(callback);
+    }
+
+    protected static void syncPostRequest(String url, RequestBody body, Callback callback) throws IOException {
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .build();
+        client.newCall(request).execute();
     }
 
     protected static void asyncGetRequest(String url, Callback callback) {

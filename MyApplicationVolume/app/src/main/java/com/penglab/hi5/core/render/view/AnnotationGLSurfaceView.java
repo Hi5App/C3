@@ -46,6 +46,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
 import java.util.concurrent.Callable;
@@ -383,16 +384,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncDelSegSWC(segs);
     }
 
-    public void syncAddMarker(ImageMarker imageMarker) {
-        annotationDataManager.syncAddMarker(imageMarker);
+    public void syncAddMarker(List<ImageMarker> imageMarkers) {
+        annotationDataManager.syncAddMarker(imageMarkers);
     }
 
     public void syncAddMarkerGlobal(ImageMarker imageMarker){
         annotationDataManager.syncAddMarkerGlobal(imageMarker);
     }
 
-    public void syncDelMarker(ImageMarker imageMarker) {
-        annotationDataManager.syncDelMarker(imageMarker);
+    public void syncDelMarker(List<ImageMarker> imageMarkers) {
+        annotationDataManager.syncDelMarker(imageMarkers);
     }
 
     public void syncDelMarkerGlobal(ImageMarker imageMarker)

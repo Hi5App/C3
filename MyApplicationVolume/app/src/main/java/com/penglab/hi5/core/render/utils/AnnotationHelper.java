@@ -30,6 +30,7 @@ import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -1776,6 +1777,7 @@ public class AnnotationHelper {
         ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
 
         try {
+            List<ImageMarker> markerList = new ArrayList<>();
             for (int i = 0; i < localApo.size(); i++) {
                 ArrayList<Float> currentLine = localApo.get(i);
                 ArrayList<Float> currentLineGlobal = apo.get(i);
@@ -1815,16 +1817,22 @@ public class AnnotationHelper {
                 } else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)) {
                     imageMarker_drawed.type = 7;
 
-                }
+                }else if (r == 250 && g == 100 && b == 120) {
+                    imageMarker_drawed.type = 8;
 
+                }else if (r == 168 && g == 128 && b == 255) {
+                    imageMarker_drawed.type = 9;
+
+                }
+                markerList.add(imageMarker_drawed);
 //                System.out.println("ImageType: " + imageMarker_drawed.type);
 //                annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
-                annotationDataManager.syncAddMarker(imageMarker_drawed);
                 markerListLoaded.add(imageMarker_drawed);
                 Log.e(TAG, "18454_apo_x " + imageMarker_drawed.x + " 18454_apo_y " + imageMarker_drawed.y + " 18454_apo_z " + imageMarker_drawed.z + " 18454_apo_type " + imageMarker_drawed.type);
                 Log.e(TAG, "18454_apo_x_global " + imageMarker_drawed.xGlobal + " 18454_apo_y_global " + imageMarker_drawed.yGlobal + " 18454_apo_z_global " + imageMarker_drawed.zGlobal + " 18454_apo_type " + imageMarker_drawed.type);
 
             }
+            annotationDataManager.syncAddMarker(markerList);
 
 //            System.out.println("Size of : markerListLoaded: " + markerListLoaded.size());
 

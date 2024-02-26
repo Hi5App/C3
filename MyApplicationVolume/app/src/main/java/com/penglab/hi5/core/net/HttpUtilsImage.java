@@ -5,16 +5,19 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class HttpUtilsImage extends HttpUtils {
-    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/dynamic/image/getimagelist";
-    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/dynamic/ano/getneuronlist";
-    private static final String URL_GET_ANO_LIST = SERVER_IP + "/dynamic/ano/getanolist";
-    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/dynamic/image/cropimage";
-    private static final String URL_GET_BBSWC = SERVER_IP + "/dynamic/coll/getswcbb";
+    private static final String URL_GET_BRAIN_LIST = SERVER_IP + "/release/image/getimagelist";
+    private static final String URL_GET_NEURON_LIST = SERVER_IP + "/release/ano/getneuronlist";
+    private static final String URL_GET_ANO_LIST = SERVER_IP + "/release/ano/getanolist";
+    private static final String URL_DOWNLOAD_IMAGE = SERVER_IP + "/release/image/cropimage";
+    private static final String URL_GET_BBSWC = SERVER_IP + "/release/coll/getswcbb";
 
-    private static final String URL_GET_ARBOR_IMAGE = SERVER_IP + "/dynamic/arbor/getboutonarborimage";
+    private static final String URL_GET_ARBOR_IMAGE = SERVER_IP + "/release/arbor/getboutonarborimage";
 
     public static void getBrainListWithOkHttp(JSONObject userInfo, Callback callback) {
         try {

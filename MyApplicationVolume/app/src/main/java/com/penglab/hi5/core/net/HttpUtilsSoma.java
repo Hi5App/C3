@@ -12,9 +12,9 @@ import okhttp3.RequestBody;
  * Created by Jackiexing on 01/11/21
  */
 public class HttpUtilsSoma extends HttpUtils {
-    private static final String URL_GET_POTENTIAL_LOCATION = SERVER_IP + "/dynamic/soma/getpotentiallocation";
-    private static final String URL_GET_SOMA_LIST = SERVER_IP + "/dynamic/soma/getsomalist";
-    private static final String URL_INSERT_SOMA_LIST = SERVER_IP + "/dynamic/soma/updatesomalist";
+    private static final String URL_GET_POTENTIAL_LOCATION = SERVER_IP + "/release/soma/getpotentiallocation";
+    private static final String URL_GET_SOMA_LIST = SERVER_IP + "/release/soma/getsomalist";
+    private static final String URL_INSERT_SOMA_LIST = SERVER_IP + "/release/soma/updatesomalist";
 
     public static void getPotentialLocationWithOkHttp(JSONObject userInfo, Callback callback) {
         try {

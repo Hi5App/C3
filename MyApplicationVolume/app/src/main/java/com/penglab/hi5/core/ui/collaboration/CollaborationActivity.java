@@ -20,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -100,6 +101,8 @@ import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class CollaborationActivity extends BaseActivity implements ReceiveMsgInterface, ColorPickerDialogListener {
@@ -109,6 +112,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private CollaborationViewModel collaborationViewModel;
 
     private static String conPath = "";
+    private static String port = "";
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
@@ -256,12 +260,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
 
                     int index = singlemsg.indexOf(",");
-                    String marker = singlemsg.substring(index + 1);
+                    String markers = singlemsg.substring(index + 1);
 //                    String marker      = singlemsg.split(":")[1].split(",")[1];
 
                     if (!userID.equals(String.valueOf(id))) {
                         Communicator communicator = Communicator.getInstance();
-                        annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(marker));
+                        annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                         annotationGLSurfaceView.requestRender();
                     }
@@ -272,11 +276,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     int index = singlemsg.indexOf(",");
-                    String marker = singlemsg.substring(index + 1);
+                    String markers = singlemsg.substring(index + 1);
 
                     if (!userID.equals(String.valueOf(id))) {
                         Communicator communicator = Communicator.getInstance();
-                        annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(marker));
+                        annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncDelMarkerGlobal(communicator.syncMarkerGlobal(marker));
                         annotationGLSurfaceView.requestRender();
                     }
@@ -295,6 +299,94 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncRetypeSegSWC(communicator.syncSWC(seg, toolType));
                         annotationGLSurfaceView.requestRender();
+                    }
+                }
+            }
+        }
+
+        if (msg.startsWith("/WARN")) {
+            String[] singleMsg = msg.split(";");
+            for (String singlemsg : singleMsg) {
+                String regex = "/WARN_(.*):(.*)";
+                System.out.println("enter 0000000000000000");
+
+                // 编译正则表达式
+                Pattern pattern = Pattern.compile(regex);
+
+                // 创建Matcher对象
+                Matcher matcher = pattern.matcher(singlemsg);
+
+                // 查找匹配
+                if (matcher.find()) {
+                    // 获取第一个分组（.*）
+                    String reason = Objects.requireNonNull(matcher.group(1)).trim();
+                    // 获取第二个分组（.*）
+                    String msgInfos = Objects.requireNonNull(matcher.group(2)).trim();
+                    List<String> listWithHeader = Arrays.asList(msgInfos.split(","));
+                    List<String> listWithHeader2 = new ArrayList<>(listWithHeader);
+                    System.out.println(listWithHeader);
+                    String header = listWithHeader.get(0);
+                    String sender = header.split(" ")[0].trim();
+                    listWithHeader2.remove(0);
+                    if(sender.equals("server")){
+                        System.out.println("enter 1111111111111111111");
+                        if(reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
+                                reason.equals("BranchingError") || reason.equals("NearBifurcation")){
+                            Communicator communicator = Communicator.getInstance();
+                            annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+//                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
+                            annotationGLSurfaceView.requestRender();
+                        }
+                        else if(reason.equals("Loop")){
+                            int result = Integer.parseInt(header.split(" ")[1].trim());
+                            if(result == 0){
+                                Communicator communicator = Communicator.getInstance();
+                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+//                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
+                                annotationGLSurfaceView.requestRender();
+                            }
+                        }
+                        else{
+                            Toast_in_Thread_static("error from DBMS!");
+                        }
+                    }
+                }
+            }
+        }
+
+        if (msg.startsWith("/FEEDBACK_ANALYZE")) {
+            String[] singleMsg = msg.split(";");
+            for (String singlemsg : singleMsg) {
+                String regex = "/FEEDBACK_ANALYZE_(.*):(.*)";
+
+                // 编译正则表达式
+                Pattern pattern = Pattern.compile(regex);
+
+                // 创建Matcher对象
+                Matcher matcher = pattern.matcher(singlemsg);
+
+                // 查找匹配
+                if (matcher.find()) {
+                    // 获取第一个分组（.*）
+                    String reason = Objects.requireNonNull(matcher.group(1)).trim();
+                    // 获取第二个分组（.*）
+                    String msgInfos = Objects.requireNonNull(matcher.group(2)).trim();
+                    List<String> listWithHeader = Arrays.asList(msgInfos.split(","));
+                    List<String> listWithHeader2 = new ArrayList<>(listWithHeader);
+                    String header = listWithHeader.get(0);
+                    String sender = header.split(" ")[0].trim();
+                    String request_userid = header.split(" ")[1].trim();
+                    int result = Integer.parseInt(header.split(" ")[2].trim());
+                    listWithHeader2.remove(0);
+                    if(sender.equals("server")){
+                        if(reason.equals("ColorMutation") || reason.equals("Dissociative")|| reason.equals("Angle")){
+                            if(result == 0){
+                                Communicator communicator = Communicator.getInstance();
+                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+//                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
+                                annotationGLSurfaceView.requestRender();
+                            }
+                        }
                     }
                 }
             }
@@ -519,21 +611,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.getPortResult().observe(this, new androidx.lifecycle.Observer<String>() {
             @Override
             public void onChanged(String s) {
-                initMsgConnector(s);
-                if (firstJoinRoom) {
-                    initMsgService();
-                    firstJoinRoom = false;
-                } else {
-                    CollaborationService.resetConnection();
-                }
-                id = collaborationViewModel.getCollorationDataSource().getUserId();
-                MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + "RES(1x1x1)" + " " + 2);
+                port = s;
             }
         });
 
         collaborationViewModel.getImageDataSource().getBrainListResult().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
             public void onChanged(Result result) {
+                Log.e(TAG, "enter getBrainListResult()");
                 if (result == null) {
                     return;
                 }
@@ -548,6 +633,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     return;
                 }
                 collaborationViewModel.handleDownloadImageResult(result);
+
+                initMsgConnector(port);
+                if (firstJoinRoom) {
+                    initMsgService();
+                    firstJoinRoom = false;
+                } else {
+                    CollaborationService.resetConnection();
+                }
+
+                id = collaborationViewModel.getCollorationDataSource().getUserId();
+                Log.e(TAG, collaborationViewModel.getResMap().toString());
+                List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
+
+                assert roiList != null;
+                MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + 2);
             }
         });
 

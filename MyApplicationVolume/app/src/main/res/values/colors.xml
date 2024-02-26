@@ -86,6 +86,7 @@
     <color name="yellow_map">#DCC800</color>
     <color name="green_map">#00C814</color>
     <color name="pink_map">#fa6478</color>
+    <color name="crossing_map">#A880FF</color>
     <color name ="reward">#FF6557</color>
 
     <color name="descriptionText">#777777</color>
@@ -102,6 +103,7 @@
         <item>@color/cyan_map</item>
         <item>@color/green_map</item>
         <item>@color/pink_map</item>
+        <item>@color/crossing_map</item>
     </array>
 
     <color name="navigate">#666</color>

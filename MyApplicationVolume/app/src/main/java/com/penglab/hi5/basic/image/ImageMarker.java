@@ -17,7 +17,9 @@ public class ImageMarker extends BasicSurfObj {
         {200,20,200},
         {0,200,200},
         {220,200,0,},
-        {0,200,20}
+        {0,200,20},
+        {250,100,120},
+        {168,128,255}
     };
 
     public int[][] getTypeToColorList(){
@@ -33,6 +35,8 @@ public class ImageMarker extends BasicSurfObj {
         put(5, R.color.cyan_map);
         put(6, R.color.yellow_map);
         put(7, R.color.green_map);
+        put(8, R.color.pink_map);
+        put(9, R.color.crossing_map);
     }};
 
     private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
@@ -44,6 +48,8 @@ public class ImageMarker extends BasicSurfObj {
         put("FF00C8C8",  5);
         put("FFDCC800",  6);
         put("FF00C814",  7);
+        put("FFFA6478",  8);
+        put("FFA880FF",  9);
     }};
 
     /**
@@ -55,6 +61,8 @@ public class ImageMarker extends BasicSurfObj {
      * 5-cyan     RGB(0, 200, 200):
      * 6-yellow   RGB(220, 200, 0):
      * 7-green    RGB(0, 200, 20):
+     * 8-pink  RGB(250, 100, 120):
+     * 9-crossing RGB(168, 128, 255):
      */
     public int type;			// 0-pxUnknown, 1-pxLocaNotUseful, 2-pxLocaUseful, 3-pxLocaUnsure, 4-pxTemp
 
@@ -180,6 +188,12 @@ public class ImageMarker extends BasicSurfObj {
         }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
             imageMarker.type = 7;
 
+        }else if ((r == 250 && g == 100 && b == 120)) {
+            imageMarker.type = 8;
+
+        } else if ((r == 168 && g == 128 && b == 255)) {
+            imageMarker.type = 9;
+
         }
         return imageMarker;
     }
@@ -224,7 +238,15 @@ public class ImageMarker extends BasicSurfObj {
 
         }else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)){
             return 7;
+
+        }else if ((r == 250 && g == 100 && b == 120)) {
+            return 8;
+
+        } else if ((r == 168 && g == 128 && b == 255)) {
+            return 9;
+
         }
+
         return 0;
     }
 }

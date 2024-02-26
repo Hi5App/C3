@@ -105,29 +105,34 @@ public class Communicator {
     for collaboration -------------------------------------------------------------------------------
      */
 
-    public ImageMarker MSGToImageMarker(String msg){
+    public List<ImageMarker> MSGToImageMarker(String msg){
+        List<ImageMarker> list = new ArrayList<>();
+        String[] markerInfos = msg.split(",");
 
-        ImageMarker imageMarker = new ImageMarker();
+        for (String markerInfo : markerInfos) {
+            ImageMarker imageMarker = new ImageMarker();
 
-        XYZ GlobalCroods = new XYZ(Float.parseFloat(msg.split(" ")[3]),
-                Float.parseFloat(msg.split(" ")[4]), Float.parseFloat(msg.split(" ")[5]));
+            XYZ GlobalCroods = new XYZ(Float.parseFloat(markerInfo.split(" ")[3]),
+                    Float.parseFloat(markerInfo.split(" ")[4]), Float.parseFloat(markerInfo.split(" ")[5]));
 
-        XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(msg.split(" ")[3]),
-                Float.parseFloat(msg.split(" ")[4]), Float.parseFloat(msg.split(" ")[5]));
+            XYZ LocalCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(markerInfo.split(" ")[3]),
+                    Float.parseFloat(markerInfo.split(" ")[4]), Float.parseFloat(markerInfo.split(" ")[5]));
 
-        imageMarker.color.r = (char) Integer.parseInt(msg.split(" ")[0]);
-        imageMarker.color.g = (char) Integer.parseInt(msg.split(" ")[1]);
-        imageMarker.color.b = (char) Integer.parseInt(msg.split(" ")[2]);
-        imageMarker.type = ImageMarker.colorToType(imageMarker.color.r, imageMarker.color.g, imageMarker.color.b);
+            imageMarker.color.r = (char) Integer.parseInt(markerInfo.split(" ")[0]);
+            imageMarker.color.g = (char) Integer.parseInt(markerInfo.split(" ")[1]);
+            imageMarker.color.b = (char) Integer.parseInt(markerInfo.split(" ")[2]);
+            imageMarker.type = ImageMarker.colorToType(imageMarker.color.r, imageMarker.color.g, imageMarker.color.b);
 
-        imageMarker.xGlobal = GlobalCroods.x;
-        imageMarker.yGlobal = GlobalCroods.y;
-        imageMarker.zGlobal = GlobalCroods.z;
-        imageMarker.x = LocalCroods.x;
-        imageMarker.y = LocalCroods.y;
-        imageMarker.z = LocalCroods.z;
+            imageMarker.xGlobal = GlobalCroods.x;
+            imageMarker.yGlobal = GlobalCroods.y;
+            imageMarker.zGlobal = GlobalCroods.z;
+            imageMarker.x = LocalCroods.x;
+            imageMarker.y = LocalCroods.y;
+            imageMarker.z = LocalCroods.z;
+            list.add(imageMarker);
+        }
 
-        return imageMarker;
+        return list;
     }
 
     public ImageMarker MSGToImageMarkerGlobal(String msg){
@@ -342,7 +347,7 @@ public class Communicator {
     }
 
 
-    public ImageMarker syncMarker(String msg){
+    public List<ImageMarker> syncMarker(String msg){
         return MSGToImageMarker(msg);
     }
 

@@ -9,14 +9,14 @@ import okhttp3.Callback;
 import okhttp3.RequestBody;
 
 public class HttpUtilsBoutonDetection extends HttpUtils {
-    private static final String URL_GET_ARBOR = SERVER_IP + "/dynamic/arbor/getboutonarbor";
-    private static final String URL_QUERY_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/queryboutonarborresult";
-    private static final String URL_UPDATE_ARBOR_RESULT = SERVER_IP + "/dynamic/arbor/updateboutonarborresult";
-    private static final String URL_GET_SWC = SERVER_IP + "/dynamic/swc/cropswc";
-    private static final String URL_GET_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/arbor/queryboutonarborresult";
-    private static final String URL_QUERY_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/query";
-    private static final String URL_INSERT_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/insert";
-    private static final String URL_DELETE_ARBOR_MARKER_LIST = SERVER_IP + "/dynamic/boutonarbordetail/delete";
+    private static final String URL_GET_ARBOR = SERVER_IP + "/release/arbor/getboutonarbor";
+    private static final String URL_QUERY_ARBOR_RESULT = SERVER_IP + "/release/arbor/queryboutonarborresult";
+    private static final String URL_UPDATE_ARBOR_RESULT = SERVER_IP + "/release/arbor/updateboutonarborresult";
+    private static final String URL_GET_SWC = SERVER_IP + "/release/swc/cropswc";
+    private static final String URL_GET_ARBOR_MARKER_LIST = SERVER_IP + "/release/arbor/queryboutonarborresult";
+    private static final String URL_QUERY_ARBOR_MARKER_LIST = SERVER_IP + "/release/boutonarbordetail/query";
+    private static final String URL_INSERT_ARBOR_MARKER_LIST = SERVER_IP + "/release/boutonarbordetail/insert";
+    private static final String URL_DELETE_ARBOR_MARKER_LIST = SERVER_IP + "/release/boutonarbordetail/delete";
 
     public static void getArborWithOkHttp(JSONObject userInfo, int maxId,Callback callback) {
         try {

@@ -11,10 +11,12 @@ import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.basic.image.ImageMarkerExt;
+import com.penglab.hi5.data.dataStore.database.Image;
 
 import org.json.JSONArray;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -412,25 +414,30 @@ public class AnnotationDataManager {
         retypeSameSegFromList(segs, syncSwcList);
     }
 
-    public void syncAddMarker(ImageMarker imageMarker) {
-        Log.e(TAG, "enter syncAddMarker" + imageMarker.x + " " + imageMarker.y + " " + imageMarker.z);
-        syncMarkerList.add(imageMarker);
+    public void syncAddMarker(List<ImageMarker> imageMarkers) {
+        for(ImageMarker imageMarker:imageMarkers){
+            Log.e(TAG, "enter syncAddMarker" + imageMarker.x + " " + imageMarker.y + " " + imageMarker.z);
+            syncMarkerList.add(imageMarker);
+        }
     }
 
     public void syncAddMarkerGlobal(ImageMarker imageMarker) {
         syncMarkerListGlobal.add(imageMarker);
     }
 
-    public void syncDelMarker(ImageMarker imageMarker) {
-        if (deleteSameMarkerFromList(imageMarker, markerList)) {
-            for (int i = undoMarkerList.size() - 1; i >= 0; i--) {
-                MarkerList undoList = undoMarkerList.get(i);
-                if (!deleteSameMarkerFromList(imageMarker, undoList)) {
-                    break;
+    public void syncDelMarker(List<ImageMarker> imageMarkers) {
+        for(ImageMarker imageMarker:imageMarkers){
+            if (deleteSameMarkerFromList(imageMarker, markerList)) {
+                for (int i = undoMarkerList.size() - 1; i >= 0; i--) {
+                    MarkerList undoList = undoMarkerList.get(i);
+                    if (!deleteSameMarkerFromList(imageMarker, undoList)) {
+                        break;
+                    }
                 }
             }
+            deleteSameMarkerFromList(imageMarker, syncMarkerList);
         }
-        deleteSameMarkerFromList(imageMarker, syncMarkerList);
+
     }
 
     public void syncDelMarkerGlobal(ImageMarker imageMarker) {

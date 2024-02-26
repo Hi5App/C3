@@ -9,8 +9,8 @@ import okhttp3.RequestBody;
  * Created by Yihang zhu 01/20/21
  */
 public class HttpUtilsUserPerformance extends HttpUtils{
-    private static String URL_SOMA_AND_CHECK_COUNT = SERVER_IP + "/dynamic/user/getuserperformance";
-    private static String URL_SOMA_COUNT_TOP_K = SERVER_IP + "/dynamic/user/getuserperformancetopk";
+    private static String URL_SOMA_AND_CHECK_COUNT = SERVER_IP + "/release/user/getuserperformance";
+    private static String URL_SOMA_COUNT_TOP_K = SERVER_IP + "/release/user/getuserperformancetopk";
 
     public static void getUserPerformance(JSONObject userInfo, Callback callback) {
         try {

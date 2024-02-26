@@ -20,6 +20,7 @@ import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
+import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
@@ -48,6 +49,9 @@ import io.agora.rtc.internal.RtcEngineMessage;
 public class CollaborationViewModel extends ViewModel {
     private final String TAG = "CollaborationViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
+
+    private boolean firstJoinRoom = true;
+    public static final String ip_TencentCloud = "114.117.165.134";
     private final int DEFAULT_RES_INDEX = 2;
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
@@ -173,6 +177,7 @@ public class CollaborationViewModel extends ViewModel {
         getNeuronList(potentialDownloadNeuronInfo.getBrainName());
 
         collorationDataSource.loadAno(potentialDownloadNeuronInfo.getBrainName(), potentialDownloadNeuronInfo.getNeuronName(), anoName);
+
     }
 
     public void handleLoadAnoResult(Result result) {
@@ -277,6 +282,7 @@ public class CollaborationViewModel extends ViewModel {
             if (data instanceof String) {
                 Log.e(TAG, "Collaborate+Download image data" + data);
                 openFile(downloadCoordinateConvert.getResIndex());
+
             }
 
         }
@@ -511,5 +517,13 @@ public class CollaborationViewModel extends ViewModel {
         collorationDataSource.getUserId(username);
     }
 
+    private void initMsgConnector(String port) {
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        if (!firstJoinRoom)
+            msgConnector.releaseConnection();
+        msgConnector.setIp(ip_TencentCloud);
+        msgConnector.setPort(port);
+        msgConnector.initConnection();
+    }
 
 }
