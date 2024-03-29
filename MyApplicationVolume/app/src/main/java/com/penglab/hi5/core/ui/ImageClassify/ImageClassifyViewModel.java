@@ -8,6 +8,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
@@ -25,8 +27,6 @@ import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.img.ImageInfo;
 import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -111,10 +111,22 @@ public class ImageClassifyViewModel extends ViewModel {
     public void handleRatingImageList(Result result){
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
-            if (data instanceof PotentialSomaInfo){
-                lastDownloadImageInfo = (ImageInfo) data;
-                lastDownloadImageInfo.setCreatedTime(System.currentTimeMillis());
-                downloadRatingImage();
+            if (data instanceof JSONArray){
+                JSONArray jsonArray = (JSONArray) data;
+                List<ImageInfo> imageInfoList = new ArrayList<>();
+                try {
+                    for(int i =0;i<jsonArray.size();i++){
+                        String imageName = jsonArray.getString(i);
+                        int id = i+1;
+                        lastDownloadImageInfo= new ImageInfo(id,imageName);
+                        lastDownloadImageInfo.setCreatedTime(System.currentTimeMillis());
+                        downloadRatingImage();
+                    }
+                }catch (JSONException e){
+                    e.printStackTrace();
+
+                }
+
             } else if (data instanceof String && ((String) data).equals(NO_MORE_FILE)) {
                 workStatus.setValue(ImageClassifyViewModel.WorkStatus.NO_MORE_FILE);
                 noFileLeft = true;

@@ -64,33 +64,21 @@ public class ImageClassifyDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG,"receive response");
                     int responseCode = response.code();
-                    String responseData = response.body().string();
                     if (responseCode == 200) {
-                        JSONObject jsonResponse = null;
+                        String str = response.body().string();
+                        Log.e("Get rating list", str);
+                        JSONArray jsonArray = null;
                         try {
-                            jsonResponse = new JSONObject(responseData);
+                            jsonArray = new JSONArray(str);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
-                        JSONArray imageNameList = null;
-                        try {
-                            imageNameList = jsonResponse.getJSONArray("ImageNameList");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
+                        ratingImageListResult.postValue(new Result.Success<JSONArray>(jsonArray));
+                        response.body().close();
+                        response.close();
 
-                        for (int i = 0; i < imageNameList.length(); i++) {
-                            String imageName = null;
-                            try {
-                                imageName = imageNameList.getString(i);
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
-                            }
-                            System.out.println("Image Name: " + imageName);
-                        }
 
                     } else {
-                        Log.e(TAG,"response: " + response.body().string());
                         ratingImageListResult.postValue(new Result.Error(new Exception("Fail to get rating image list !")));
                     }
                     response.close();

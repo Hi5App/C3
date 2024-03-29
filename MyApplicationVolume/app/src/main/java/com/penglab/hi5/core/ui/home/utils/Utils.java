@@ -75,9 +75,9 @@ public class Utils {
                     case "Image Processing":
                         PluginSystemActivity.start(context);
                         break;
-//                    case "Image Classify":
-//                        ImageClassifyActivity.start(context);
-//                        break;
+                    case "Image Classify":
+                        ImageClassifyActivity.start(context);
+                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;

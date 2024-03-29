@@ -499,6 +499,19 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
             PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
 
+            ImageButtonExt previousFile = findViewById(R.id.previous_file);
+            ImageButtonExt nextFile = findViewById(R.id.next_file);
+            contrastSeekBar = (SeekBar) findViewById(R.id.rating_SeekBar);
+            layoutSubcategories3 = findViewById(R.id.layoutSubcategories3);
+            layoutSubcategories4 = findViewById(R.id.layoutSubcategories4);
+            layoutRemark = findViewById(R.id.layoutRemark);
+            editTextRemark = findViewById(R.id.editTextRemark);
+
+            Button btnCategory1 = findViewById(R.id.btnCategory1);
+            Button btnCategory2 = findViewById(R.id.btnCategory2);
+            Button btnCategory3 = findViewById(R.id.btnCategory3);
+            Button btnCategory4 = findViewById(R.id.btnCategory4);
+
             contrastSeekBar.setProgress(preferenceSetting.getContrast());
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -515,19 +528,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 public void onStopTrackingTouch(SeekBar seekBar) {
                     annotationGLSurfaceView.requestRender();
                 }});
-
-            ImageButtonExt previousFile = findViewById(R.id.previous_file);
-            ImageButtonExt nextFile = findViewById(R.id.next_file);
-            contrastSeekBar = (SeekBar) findViewById(R.id.mySeekBar);
-            layoutSubcategories3 = findViewById(R.id.layoutSubcategories3);
-            layoutSubcategories4 = findViewById(R.id.layoutSubcategories4);
-            layoutRemark = findViewById(R.id.layoutRemark);
-            editTextRemark = findViewById(R.id.editTextRemark);
-
-            Button btnCategory1 = findViewById(R.id.btnCategory1);
-            Button btnCategory2 = findViewById(R.id.btnCategory2);
-            Button btnCategory3 = findViewById(R.id.btnCategory3);
-            Button btnCategory4 = findViewById(R.id.btnCategory4);
 
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());

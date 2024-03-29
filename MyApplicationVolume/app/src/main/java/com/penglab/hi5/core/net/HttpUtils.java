@@ -57,10 +57,29 @@ public class HttpUtils {
         } else {
             request = new Request.Builder()
                     .url(url)
-                    .post(RequestBody.create(null, new byte[0]))
+                    .post(RequestBody.create(MediaType.parse("application/json"), "{}"))
                     .build();
         }
+
+        // Add code to execute the request using OkHttpClient and the provided callback
+        OkHttpClient client = new OkHttpClient();
+        client.newCall(request).enqueue(callback);
     }
+
+//    protected static void asyncPostRequest(String url, RequestBody body, Callback callback) {
+//        Request request;
+//        if (body != null) {
+//            request = new Request.Builder()
+//                    .url(url)
+//                    .post(body)
+//                    .build();
+//        } else {
+//            request = new Request.Builder()
+//                    .url(url)
+//                    .post(RequestBody.create(null, new byte[0]))
+//                    .build();
+//        }
+//    }
 
     protected static void syncPostRequest(String url, RequestBody body, Callback callback) throws IOException {
         Request request = new Request.Builder()
