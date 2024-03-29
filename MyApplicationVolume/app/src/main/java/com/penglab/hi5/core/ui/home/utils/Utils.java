@@ -16,6 +16,7 @@ import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.S2Activity;
 import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionActivity;
+import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyActivity;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionActivity;
 import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.check.CheckActivity;
@@ -74,8 +75,9 @@ public class Utils {
                     case "Image Processing":
                         PluginSystemActivity.start(context);
                         break;
-                    case "Image Classify":
-
+//                    case "Image Classify":
+//                        ImageClassifyActivity.start(context);
+//                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;

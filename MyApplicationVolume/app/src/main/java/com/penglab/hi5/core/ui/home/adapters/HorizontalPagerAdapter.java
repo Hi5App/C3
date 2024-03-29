@@ -50,10 +50,10 @@ public class HorizontalPagerAdapter extends PagerAdapter {
                     R.drawable.ic_strategy,
                     "Image Processing"
             ),
-            new Utils.LibraryObject(
-                    R.drawable.ic_strategy,
-                    "Image Classify"
-            ),
+//            new Utils.LibraryObject(
+//                    R.drawable.ic_strategy,
+//                    "Image Classify"
+//            ),
             new Utils.LibraryObject(
                     R.drawable.ic_development,
                     "Help"

@@ -248,7 +248,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 return true;
 
             case R.id.share:
-                annotationGLSurfaceView.screenCapture();
+//                annotationGLSurfaceView.screenCapture();
                 playButtonSound();
                 return true;
 
@@ -340,18 +340,18 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             imageClassifyViewModel.openNewFile();
         }
 
-    private void screenCapture(Uri uri){
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setAction(Intent.ACTION_SEND);
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.setType("image/jpeg");
-        startActivity(Intent.createChooser(intent, "Share from Hi5"));
-
-        // need to reset after use
-        ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
-    }
+//    private void screenCapture(Uri uri){
+//        Intent intent = new Intent();
+//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        intent.setAction(Intent.ACTION_SEND);
+//        intent.putExtra(Intent.EXTRA_STREAM, uri);
+//        intent.setType("image/jpeg");
+//        startActivity(Intent.createChooser(intent, "Share from Hi5"));
+//
+//        // need to reset after use
+//        ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
+//    }
 
     private void moreFunctions(){
         new XPopup.Builder(this)
