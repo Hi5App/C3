@@ -650,7 +650,6 @@ public class QualityInspectionActivity extends AppCompatActivity {
             deleteMarker.setOnClickListener(this::onButtonClick);
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
-            nextFile.setOnClickListener(v -> nextFile());
             boringFile.setOnClickListener(v -> boringFile());
             goodFile.setOnClickListener(v -> goodFile());
             ignoreFile.setOnClickListener(v -> ignoreFile());

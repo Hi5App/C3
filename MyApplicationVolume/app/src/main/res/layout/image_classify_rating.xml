@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/previous_file"
+        android:layout_width="35dp"
+        android:layout_height="55dp"
+        android:src="@drawable/ic_chevron_left_black_24dp"
+        android:layout_marginStart="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <com.penglab.hi5.basic.utils.view.ImageButtonExt
+        android:id="@+id/next_file"
+        android:layout_width="35dp"
+        android:layout_height="55dp"
+        android:src="@drawable/ic_chevron_right_black_24dp"
+        android:layout_marginEnd="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- 类别按钮容器 -->
+    <LinearLayout
+        android:id="@+id/layoutBottomNav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        android:padding="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 第一类按钮 -->
+        <Button
+            android:id="@+id/btnCategory1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Horizontal"
+            android:background="@color/category1Color"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 第二类按钮 -->
+        <Button
+            android:id="@+id/btnCategory2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Vertical"
+            android:background="@color/category2Color"
+            android:textColor="@android:color/white"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 第三类按钮 -->
+        <Button
+            android:id="@+id/btnCategory3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Slanting"
+            android:background="@color/category3Color"
+            android:textColor="@android:color/black"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 第四类按钮 -->
+        <Button
+            android:id="@+id/btnCategory4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Other"
+            android:background="@color/category4Color"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layoutSubcategories3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layoutBottomNav"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="@android:color/darker_gray"
+        android:elevation="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 第三类小类按钮1 -->
+        <Button
+            android:id="@+id/btnSubcategory31"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="interceptive"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 第三类小类按钮2 -->
+        <Button
+            android:id="@+id/btnSubcategory32"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="untruncated"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+
+    <!-- 第四类小类容器 -->
+    <LinearLayout
+        android:id="@+id/layoutSubcategories4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layoutBottomNav"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="@android:color/darker_gray"
+        android:elevation="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- 第四类小类按钮1 -->
+        <Button
+            android:id="@+id/btnSubcategory41"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="normal"
+            android:layout_marginEnd="4dp"/>
+
+        <!-- 第四类小类按钮2 -->
+        <Button
+            android:id="@+id/btnSubcategory42"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="special"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
+
+    <!-- 备注信息容器 -->
+    <LinearLayout
+        android:id="@+id/layoutRemark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/layoutBottomNav"
+        android:visibility="gone"
+        android:padding="8dp"
+        android:background="@android:color/darker_gray"
+        android:elevation="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/editTextRemark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入备注信息"/>
+    </LinearLayout>
+
+    <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+        android:id="@+id/seekbar_wrapper"
+        android:layout_width="wrap_content"
+        android:layout_height="150dp"
+        tools:ignore="MissingConstraints"
+        android:layout_marginStart="15dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf ="@+id/next_file">
+
+        <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+            android:id="@+id/mySeekBar"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:min="-50"
+            android:max="150"
+            android:splitTrack="false"
+            app:seekBarRotation="CW270" /> <!-- Rotation: CW90 or CW270 -->
+    </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

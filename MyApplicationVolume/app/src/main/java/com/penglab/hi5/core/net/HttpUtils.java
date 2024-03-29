@@ -48,11 +48,18 @@ public class HttpUtils {
             .build();
 
     protected static void asyncPostRequest(String url, RequestBody body, Callback callback) {
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .build();
-        client.newCall(request).enqueue(callback);
+        Request request;
+        if (body != null) {
+            request = new Request.Builder()
+                    .url(url)
+                    .post(body)
+                    .build();
+        } else {
+            request = new Request.Builder()
+                    .url(url)
+                    .post(RequestBody.create(null, new byte[0]))
+                    .build();
+        }
     }
 
     protected static void syncPostRequest(String url, RequestBody body, Callback callback) throws IOException {

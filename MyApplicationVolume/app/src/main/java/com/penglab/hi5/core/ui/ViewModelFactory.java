@@ -8,6 +8,7 @@ import com.penglab.hi5.core.game.leaderBoard.LeaderBoardItemModel;
 import com.penglab.hi5.core.game.leaderBoard.LeaderBoardViewModel;
 import com.penglab.hi5.core.game.quest.QuestViewModel;
 import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionViewModel;
+import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyViewModel;
 import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.check.CheckArborInfoState;
@@ -26,6 +27,7 @@ import com.penglab.hi5.data.BoutonDetectionDataSource;
 import com.penglab.hi5.data.CheckArborDataSource;
 import com.penglab.hi5.data.CheckDataSource;
 import com.penglab.hi5.data.CollorationDataSource;
+import com.penglab.hi5.data.ImageClassifyDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.MarkerFactoryDataSource;
@@ -36,6 +38,7 @@ import com.penglab.hi5.data.UserDataSource;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.UserPerformanceDataSource;
 import com.penglab.hi5.data.model.user.LoggedInUser;
+import com.penglab.hi5.data.model.user.User;
 
 /**
  * ViewModel provider factory to instantiate LoginViewModel.
@@ -80,12 +83,14 @@ public class ViewModelFactory implements ViewModelProvider.Factory {
             return (T) new QualityInspectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(), new QualityInspectionDataSource(), new ImageDataSource());
         } else if(modelClass.isAssignableFrom(CollaborationViewModel.class)){
             return(T) new CollaborationViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new ImageDataSource(),new CollorationDataSource());
-
         } else if(modelClass.isAssignableFrom(BoutonDetectionViewModel.class)){
             return(T) new BoutonDetectionViewModel(UserInfoRepository.getInstance(), ImageInfoRepository.getInstance(),new BoutonDetectionDataSource(),new ImageDataSource());
         } else if(modelClass.isAssignableFrom(PluginSystemViewModel.class)){
             return(T) new PluginSystemViewModel(UserInfoRepository.getInstance(),ImageInfoRepository.getInstance(),new PluginDataSource());
-        } else {
+        } else if(modelClass.isAssignableFrom(ImageClassifyViewModel.class)){
+            return(T) new ImageClassifyViewModel(UserInfoRepository.getInstance(),ImageInfoRepository.getInstance(),new ImageClassifyDataSource());
+        }
+        else {
             throw new IllegalArgumentException("Unknown ViewModel class");
         }
     }

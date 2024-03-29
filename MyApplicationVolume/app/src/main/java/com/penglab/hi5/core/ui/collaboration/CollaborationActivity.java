@@ -499,63 +499,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
         });
 
-//        collaborationViewModel.getCollorationDataSource().getBrainListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
-//            @Override
-//            public void onChanged(Result result) {
-//                if (result instanceof Result.Success) {
-//                    String[] data = (String[]) ((Result.Success<?>) result).getData();
-//                    Set<String> set = new HashSet<String>(Arrays.asList(data));
-////                    String[] listShow = set.toArray(new String[set.size()]);
-//                    String[] listShow = new String[]{"18454"};
-//
-//                    new XPopup.Builder(CollaborationActivity.this).
-//                            maxHeight(1350).
-//                            maxWidth(800).
-//                            asCenterList("Brain Number",
-//                                    listShow, new OnSelectListener() {
-//                                        @Override
-//                                        public void onSelect(int position, String text) {
-//                                            ToastEasy("Click" + text);
-//                                            collaborationViewModel.handleBrainNumber(text.trim());
-//                                        }
-//                                    }).show();
-//                } else if (result instanceof Result.Error) {
-//                    ToastEasy(result.toString());
-//                }
-//            }
-//        });
-//
-//        collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
-//            @Override
-//            public void onChanged(Result result) {
-//                if (result instanceof Result.Success) {
-//                    List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
-//                    neuronNumberList.clear();
-//                    for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
-//                        CollaborateNeuronInfo potentialDownloadNeuronInfo = potentialDownloadNeuronInfoList.get(i);
-//                        neuronNumberList.add(potentialDownloadNeuronInfo.getNeuronName());
-//                    }
-//                    String[] neuronNumberListShow = neuronNumberList.toArray(new String[0]);
-////                    String[] neuronNumberListShow = new String[]{"18454_00019"};
-//                    new XPopup.Builder(CollaborationActivity.this).
-//                            maxHeight(1350).
-//                            maxWidth(800).
-//                            asCenterList("Neuron Number",
-//                                    neuronNumberListShow, new OnSelectListener() {
-//                                        @Override
-//                                        public void onSelect(int position, String text) {
-//                                            ToastEasy("Click" + text);
-//                                            collaborationViewModel.handleNeuronNumber(text.trim());
-//                                            collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(position));
-//                                        }
-//                                    }).show();
-//                } else {
-//                    ToastEasy(result.toString());
-//                }
-//
-//
-//            }
-//        });
 
         collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
             @Override
@@ -828,12 +771,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     /**
      * 注册/注销系统消息未读数变化
      */
-//    private void registerSystemMessageObservers(boolean register) {
-//        NIMClient.getService(SystemMessageObserver.class).observeUnreadCountChange(
-//                sysMsgUnreadCountChangedObserver, register);
-//
-//        NIMClient.getService(MsgServiceObserve.class).observeReceiveMessage(inviteMessageObserver, true);
-//    }
 
     private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
         Log.e("Observer<Integer>", "Observer unreadCount");
