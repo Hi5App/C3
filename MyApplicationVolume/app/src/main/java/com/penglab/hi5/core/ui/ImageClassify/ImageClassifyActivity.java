@@ -78,7 +78,8 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_classify);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
-        annotationGLSurfaceView.setBigData(true);
+//        annotationGLSurfaceView.setBigData(true);
+        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
         imageClassifyViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(ImageClassifyViewModel.class);
         toolbar = findViewById(R.id.toolbar_image_classify);
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
