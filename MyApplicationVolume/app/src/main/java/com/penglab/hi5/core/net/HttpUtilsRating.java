@@ -9,7 +9,7 @@ public class HttpUtilsRating extends HttpUtils {
 
     private static final String URL_GET_RATING_IMAGE_LIST = SERVER_IP + "/dynamic/GetRatingImageList";
     private static final String URL_UPDATE_RATING_RESULT = SERVER_IP + "/dynamic/UpdateRatingResult";
-    private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP+"dynamic/GetRatingImageFile/";
+    private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP +"/dynamic/GetRatingImageFile/";
 
     public static void getRattingImageListWithOkHttp(String username,String password, Callback callback) {
         try {

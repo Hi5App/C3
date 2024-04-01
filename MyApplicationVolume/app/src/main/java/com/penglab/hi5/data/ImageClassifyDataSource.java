@@ -67,13 +67,13 @@ public class ImageClassifyDataSource {
                     if (responseCode == 200) {
                         String str = response.body().string();
                         Log.e("Get rating list", str);
-                        JSONArray jsonArray = null;
+                        JSONObject jsonObject = null;
                         try {
-                            jsonArray = new JSONArray(str);
+                            jsonObject = new JSONObject(str);
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
-                        ratingImageListResult.postValue(new Result.Success<JSONArray>(jsonArray));
+                        ratingImageListResult.postValue(new Result.Success<JSONObject>(jsonObject));
                         response.body().close();
                         response.close();
 

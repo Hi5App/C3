@@ -89,7 +89,7 @@ public class FileManager {
     }
 
     public static String getFileName(String filePath){
-        return filePath.substring(filePath.lastIndexOf("/"));
+        return filePath.substring(filePath.lastIndexOf("/")+1);
     }
 
     public static FileType getFileType(String filePath){
