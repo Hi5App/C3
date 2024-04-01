@@ -6,4 +6,6 @@
     <item name="stopcamera" type="id"/>
     <item name="switch_pro_img" type="id"/>
     <item name="switch_cam" type="id"/>
+    <item name="layoutSubcategoryWindow3" type="id" />
+    <item name="layoutSubcategoryWindow4" type="id" />
 </resources>

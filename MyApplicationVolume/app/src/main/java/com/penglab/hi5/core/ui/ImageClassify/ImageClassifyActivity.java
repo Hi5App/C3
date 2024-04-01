@@ -64,7 +64,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private ImageClassifyViewModel imageClassifyViewModel;
     private View imageClassifyView;
-    private LinearLayout layoutSubcategories3, layoutSubcategories4, layoutRemark;
+    private LinearLayout layoutSubcategories3, layoutSubcategories4;
     private EditText editTextRemark;
     private Toolbar toolbar;
     private SeekBar contrastSeekBar;
@@ -78,7 +78,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_classify);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view);
-//        annotationGLSurfaceView.setBigData(true);
+        annotationGLSurfaceView.setBigData(true);
         downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
         imageClassifyViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(ImageClassifyViewModel.class);
         toolbar = findViewById(R.id.toolbar_image_classify);
@@ -167,7 +167,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             @Override
             public void onChanged(ResourceResult resourceResult) {
                 if (resourceResult.isSuccess()) {
-                    ToastEasy("Upload soma successfully !");
+                    ToastEasy("Upload image successfully !");
                 } else if (resourceResult.getError().equals("Expired")) {
                     ToastEasy("The image you just upload is expired.");
                 } else {
@@ -311,7 +311,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         if (needUpload) {
             imageClassifyViewModel.uploadRatingResult(ratingType,additionalInfo);
             }
-
         if (nextFile) {
             imageClassifyViewModel.nextFile();
         } else {
@@ -503,9 +502,8 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
             contrastSeekBar = (SeekBar) findViewById(R.id.rating_SeekBar);
-            layoutSubcategories3 = findViewById(R.id.layoutSubcategories3);
-            layoutSubcategories4 = findViewById(R.id.layoutSubcategories4);
-            layoutRemark = findViewById(R.id.layoutRemark);
+            layoutSubcategories3 = findViewById(R.id.layoutSubcategoryWindow3);
+            layoutSubcategories4 = findViewById(R.id.layoutSubcategoryWindow4);
             editTextRemark = findViewById(R.id.editTextRemark);
 
             Button btnCategory1 = findViewById(R.id.btnCategory1);
@@ -550,31 +548,28 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnCategory3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showSubcategories(layoutSubcategories3);
-                    hideSubcategories(layoutSubcategories4);
-                    hideRemark();
+                    if(layoutSubcategories3.getVisibility() == View.GONE){
+                        layoutSubcategories3.setVisibility(View.VISIBLE);
 
+                    }else{
+                        layoutSubcategories3.setVisibility(View.GONE);
+                    }
                 }
             });
 
             btnCategory4.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showSubcategories(layoutSubcategories4);
-                    hideSubcategories(layoutSubcategories3);
-                    hideRemark();
+                    if(layoutSubcategories4.getVisibility() == View.GONE){
+                        layoutSubcategories4.setVisibility(View.VISIBLE);
 
+                    }else{
+                        layoutSubcategories4.setVisibility(View.GONE);
+                    }
                 }
             });
 
-            Button btnSubcategory42 = findViewById(R.id.btnSubcategory42);
-            btnSubcategory42.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showRemark();
 
-                }
-            });
         } else{
             imageClassifyView.setVisibility(View.VISIBLE);
         }
@@ -582,21 +577,8 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         }
 
 
-    private void showSubcategories(LinearLayout layout) {
-        layout.setVisibility(View.VISIBLE);
-    }
 
-    private void hideSubcategories(LinearLayout layout) {
-        layout.setVisibility(View.GONE);
-    }
 
-    private void showRemark() {
-        layoutRemark.setVisibility(View.VISIBLE);
-    }
-
-    private void hideRemark() {
-        layoutRemark.setVisibility(View.GONE);
-    }
 
     public static void start(Context context) {
         Intent intent = new Intent(context, ImageClassifyActivity.class);
