@@ -19,7 +19,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 30
         versionCode 1
-
+        multiDexEnabled true
 
         versionName "2.2.7"
 
@@ -85,10 +85,10 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
-    implementation files('libs\\jxl-2.6.jar')
+    implementation files('libs/jxl-2.6.jar')
     implementation 'androidx.navigation:navigation-fragment:2.3.1'
     implementation 'androidx.navigation:navigation-ui:2.3.1'
-    implementation files('libs\\pinyin4j-2.5.0.jar')
+    implementation files('libs/pinyin4j-2.5.0.jar')
     api project(path: ':uikit')
     implementation project(path: ':logger')
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
@@ -109,7 +109,7 @@ dependencies {
 
     // debugImplementation because LeakCanary should only run in debug builds.
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.2'
-    implementation files('libs\\Jama-1.0.3.jar')
+    implementation files('libs/Jama-1.0.3.jar')
 
     //版本号在26以及以上即可
     //noinspection GradleCompatible
@@ -189,13 +189,13 @@ dependencies {
     implementation 'com.github.iammert:MusicPlayerView:e3b937c729'
 
     //The virtual joystick
-    compile 'com.github.kongqw:AndroidRocker:1.0.1'
+    implementation 'com.github.kongqw:AndroidRocker:1.0.1'
 
-    compile 'com.github.chaychan:PowerfulViewLibrary:1.2.2'
+    implementation 'com.github.chaychan:PowerfulViewLibrary:1.2.2'
 
-    compile 'com.eminayar.panterdialog:panter-dialog:0.0.2.1'
+    implementation 'com.eminayar.panterdialog:panter-dialog:0.0.2.1'
 
     implementation 'com.github.bifan-wei:HwTxtReader:V2.2'
 
-    compile 'me.grantland:autofittextview:0.2.+'
+    implementation 'me.grantland:autofittextview:0.2.1'
 }
