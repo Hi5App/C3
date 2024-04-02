@@ -317,7 +317,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             imageClassifyViewModel.previousFile();
         }
     }
-
     private void warning4ExpiredFile() {
         new XPopup.Builder(this)
                 .dismissOnTouchOutside(false)

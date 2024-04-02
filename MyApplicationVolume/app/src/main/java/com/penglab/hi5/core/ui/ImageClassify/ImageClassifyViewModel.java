@@ -171,18 +171,18 @@ public class ImageClassifyViewModel extends ViewModel {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String){
                 Log.e(TAG,"Download rating image data" + data);
-                if(curDownloadIndex< imageInfoList.size()-1){
+                if(curDownloadIndex < imageInfoList.size()-1) {
                     if (workStatus.getValue() == ImageClassifyViewModel.WorkStatus.START_TO_DOWNLOAD_IMAGE) {
                         workStatus.setValue(ImageClassifyViewModel.WorkStatus.DOWNLOAD_IMAGE_FINISH);
                     }
                     lastDownloadImageInfo = imageInfoList.get(++curDownloadIndex);
                     downloadRatingImage();
-                }else if(curDownloadIndex == imageInfoList.size()-1){
+                } else if(curDownloadIndex == imageInfoList.size()-1) {
                     curDownloadIndex = 0;
                     isDownloading = false;
                 }
             } else {
-                Log.e(TAG,"Fail to parse download ratingimage result !");
+                Log.e(TAG,"Fail to parse download rating image result !");
                 isDownloading = false;
             }
         } else {
