@@ -11,6 +11,9 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -244,7 +247,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 return true;
 
             case R.id.share:
-//                annotationGLSurfaceView.screenCapture();
+                annotationGLSurfaceView.screenCapture();
                 playButtonSound();
                 return true;
 
@@ -351,7 +354,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
-                        SwitchCompat pinpointStrokeSwitch = contentView.findViewById(R.id.switch_marker_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -359,7 +361,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
-                        pinpointStrokeSwitch.setChecked(preferenceSetting.getPointStrokeMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -378,20 +379,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                                 preferenceSetting.setDownSampleMode(isChecked);
                                 annotationGLSurfaceView.updateRenderOptions();
                                 annotationGLSurfaceView.requestRender();
-                            }
-                        });
-
-                        pinpointStrokeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                                preferenceSetting.setPointStroke(isChecked);
-                                if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
-                                    if (isChecked) {
-                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
-                                    } else {
-                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
-                                    }
-                                }
                             }
                         });
 
@@ -590,29 +577,44 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                         editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
                         isFirstSpecialClick = false;
                     }
-                    String remarkText = editTextRemark.getText().toString();
 
-                    // 检查编辑框内容是否为空
-                    if (!remarkText.isEmpty()) {
-                        // 如果编辑框不为空，则特殊按钮可点击，设置背景为橙色
+                    // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
+                    if (btnSpecial.isEnabled()) {
+                        if (!editTextRemark.getText().toString().isEmpty()) {
+                            if (isImageExist) {
+                                navigateFile(true, true, "4.2_special", editTextRemark.getText().toString());
+                                editTextRemark.setText("");
+                                btnSpecial.setEnabled(false);
+                                btnSpecial.setBackgroundColor(Color.GRAY);
+                            } else {
+                                ToastEasy("please open image first");
+                            }
+                        }
+                    }
+                }
+            });
+
+            editTextRemark.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // do nothing
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // do nothing
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!editable.toString().isEmpty()) {
+                        // 如果编辑框有内容，则使特殊按钮可点击，设置背景为橙色
                         btnSpecial.setEnabled(true);
                         btnSpecial.setBackgroundColor(Color.parseColor("#F4A460"));
                     } else {
                         // 如果编辑框为空，则特殊按钮不可点击，设置背景为灰色
                         btnSpecial.setEnabled(false);
                         btnSpecial.setBackgroundColor(Color.GRAY);
-                    }
-
-                    // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
-                    if (btnSpecial.isEnabled()) {
-                        if (isImageExist) {
-                            navigateFile(true, true, "4.2_special", editTextRemark.getText().toString());
-                            editTextRemark.setText("");
-                            btnSpecial.setEnabled(false);
-                            btnSpecial.setBackgroundColor(Color.GRAY);
-                        } else {
-                            ToastEasy("please open image first");
-                        }
                     }
                 }
             });
