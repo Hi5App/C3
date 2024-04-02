@@ -66,7 +66,7 @@ public class ImageClassifyViewModel extends ViewModel {
         this.imageInfoRepository = imageInfoRepository;
         this.imageClassifyDataSource = imageClassifyDataSource;
         initPreDownloadThread();
-        initCheckFreshThread();
+//        initCheckFreshThread();
     }
 
     public ImageClassifyDataSource getImageClassifyDataSource() {
@@ -90,10 +90,10 @@ public class ImageClassifyViewModel extends ViewModel {
     }
 
     public void uploadUserResult(String ratingType, String additionalInfo) {
-        if (!curImageInfo.ifStillFresh() && !curImageInfo.isAlreadyUpload()) {
-            uploadedUserResult.setValue(new ResourceResult(false, "Expired"));
-            return;
-        }
+//        if (!curImageInfo.isAlreadyUpload()) {
+//            uploadedUserResult.setValue(new ResourceResult(false, "Expired"));
+//            return;
+//        }
         String imageName = curImageInfo.getImageName();
         imageClassifyDataSource.uploadUserRatingResultResponse(imageName,ratingType,additionalInfo);
         if (!curImageInfo.isAlreadyUpload()) {
@@ -215,8 +215,7 @@ public class ImageClassifyViewModel extends ViewModel {
     public void previousFile() {
         int tempCurIndex = curIndex;
         while (tempCurIndex > 0) {
-            if ((imageInfoList.get(tempCurIndex - 1).ifStillFresh()
-                    || (imageInfoList.get(tempCurIndex - 1).isAlreadyUpload()))) {
+            if ((imageInfoList.get(tempCurIndex - 1).isAlreadyUpload())) {
                 break;
             }
             tempCurIndex--;
@@ -234,8 +233,7 @@ public class ImageClassifyViewModel extends ViewModel {
     public void nextFile() {
         int tempCurIndex = curIndex;
         while (tempCurIndex < imageInfoList.size() - 1) {
-            if ((imageInfoList.get(tempCurIndex + 1).ifStillFresh()
-                    || (imageInfoList.get(tempCurIndex + 1).isAlreadyUpload()))) {
+            if ((imageInfoList.get(tempCurIndex + 1).isAlreadyUpload())) {
                 break;
             }
             tempCurIndex++;
@@ -268,7 +266,7 @@ public class ImageClassifyViewModel extends ViewModel {
             @Override
             public void run() {
                 if (curImageInfo != null &&
-                        !curImageInfo.isAlreadyUpload() && !curImageInfo.ifStillFresh()) {
+                        !curImageInfo.isAlreadyUpload()) {
                     if (workStatus.getValue() != ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED) {
                         workStatus.postValue(ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED);
                     }

@@ -43,7 +43,7 @@
 
             <!-- 第一类按钮 -->
         <Button
-            android:id="@+id/btnCategory1"
+            android:id="@+id/btnHorizontal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -58,7 +58,7 @@
 
         <!-- 第二类按钮 -->
         <Button
-            android:id="@+id/btnCategory2"
+            android:id="@+id/btnVertical"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -70,7 +70,7 @@
 
         <!-- 第三类按钮 -->
         <Button
-            android:id="@+id/btnCategory3"
+            android:id="@+id/btnSlanting"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -83,7 +83,7 @@
 
         <!-- 第四类按钮 -->
         <Button
-            android:id="@+id/btnCategory4"
+            android:id="@+id/btnOther"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -108,7 +108,7 @@
         app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">
 
         <Button
-            android:id="@+id/btnSubcategory31"
+            android:id="@+id/btnInterceptive"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="interceptive"
@@ -116,7 +116,7 @@
             android:layout_marginEnd="8dp"/>
 
         <Button
-            android:id="@+id/btnSubcategory32"
+            android:id="@+id/btnUntruncated"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="untruncated"
@@ -139,7 +139,7 @@
 
     <!-- 第四类子按钮 -->
         <Button
-            android:id="@+id/btnSubcategory41"
+            android:id="@+id/btnNormal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="normal"
@@ -159,7 +159,9 @@
             android:id="@+id/editTextRemark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="please enter supplementary info.." />
+            android:hint="please enter supplementary info.."
+            android:visibility="gone"
+            />
     </LinearLayout>
 
     <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper

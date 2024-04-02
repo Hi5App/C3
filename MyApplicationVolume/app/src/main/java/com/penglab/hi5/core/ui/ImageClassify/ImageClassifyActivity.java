@@ -464,12 +464,18 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             contrastSeekBar = (SeekBar) findViewById(R.id.rating_SeekBar);
             layoutSubcategories3 = findViewById(R.id.layoutSubcategoryWindow3);
             layoutSubcategories4 = findViewById(R.id.layoutSubcategoryWindow4);
+
+
+            Button btnHorizontal = findViewById(R.id.btnHorizontal);
+            Button btnVertical = findViewById(R.id.btnVertical);
+            Button btnSlanting = findViewById(R.id.btnSlanting);
+            Button btnOther = findViewById(R.id.btnOther);
+            Button btnInterceptive = findViewById(R.id.btnInterceptive);
+            Button btnUntruncated = findViewById(R.id.btnUntruncated);
+            Button btnNormal = findViewById(R.id.btnNormal);
+            Button btnSpecial = findViewById(R.id.btnSpecial);
             editTextRemark = findViewById(R.id.editTextRemark);
 
-            Button btnCategory1 = findViewById(R.id.btnCategory1);
-            Button btnCategory2 = findViewById(R.id.btnCategory2);
-            Button btnCategory3 = findViewById(R.id.btnCategory3);
-            Button btnCategory4 = findViewById(R.id.btnCategory4);
 
             contrastSeekBar.setProgress(preferenceSetting.getContrast());
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -491,21 +497,21 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
 
-            btnCategory1.setOnClickListener(new View.OnClickListener() {
+            btnHorizontal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"1","");
+                    navigateFile(true,true,"1_horizontal","");
                 }
             });
 
-            btnCategory2.setOnClickListener(new View.OnClickListener() {
+            btnVertical.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"2","");
+                    navigateFile(true,true,"2_vertical","");
                 }
             });
 
-            btnCategory3.setOnClickListener(new View.OnClickListener() {
+            btnSlanting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(layoutSubcategories3.getVisibility() == View.GONE) {
@@ -517,14 +523,48 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 }
             });
 
-            btnCategory4.setOnClickListener(new View.OnClickListener() {
+            btnOther.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(layoutSubcategories4.getVisibility() == View.GONE){
                         layoutSubcategories4.setVisibility(View.VISIBLE);
-
                     }else{
                         layoutSubcategories4.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            btnInterceptive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateFile(true,true,"3.1_interceptive","");
+                }
+            });
+
+            btnUntruncated.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateFile(true,true,"3.2_untruncated","");
+                }
+            });
+
+            btnNormal.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    navigateFile(true,true,"4.1_normal","");
+                }
+            });
+
+            btnSpecial.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
+                    String specialRemark = editTextRemark.getText().toString();
+                    if (!specialRemark.isEmpty()) {
+                        navigateFile(true,true,"4.2_special",specialRemark);
+
+                    }else{
+                        navigateFile(true,true,"4.2_specical","");
                     }
                 }
             });
