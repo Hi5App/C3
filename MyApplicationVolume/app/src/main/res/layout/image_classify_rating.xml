@@ -88,10 +88,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Other"
+            android:enabled="true"
             android:background="@color/category4Color"
             android:textColor="@android:color/black"
             style="?android:attr/borderlessButtonStyle"
-            android:foreground="?attr/selectableItemBackground"/>/>
+            android:foreground="?attr/selectableItemBackground"/>
     </LinearLayout>
 
     <LinearLayout

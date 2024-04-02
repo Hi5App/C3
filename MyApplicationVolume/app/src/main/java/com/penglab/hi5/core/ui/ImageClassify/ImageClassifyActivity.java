@@ -7,6 +7,7 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -62,6 +63,10 @@ public class ImageClassifyActivity  extends AppCompatActivity {
     private final Handler uiHandler = new Handler();
     private BasePopupView downloadingPopupView;
 
+    private boolean isImageExist = false;
+
+    private boolean isFirstSpecialClick = true;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_classify);
@@ -86,6 +91,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 switch (workStatus) {
                     case NO_MORE_FILE:
                         hideDownloadingProgressBar();
+                        isImageExist = false;
                         ToastEasy("No more file need to process !", Toast.LENGTH_LONG);
                         break;
 
@@ -144,6 +150,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                     ImageInfo imageInfo = imageClassifyViewModel.getCurImageInfo();
                     imageIdLocationTextView.setText(imageInfo.getImageName());
                     annotationGLSurfaceView.setImageInfoInRender(imageInfo.getImageName());
+                    isImageExist = true;
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -500,14 +507,22 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnHorizontal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"1_horizontal","");
+                    if(isImageExist){
+                        navigateFile(true,true,"1_horizontal","");
+                    } else{
+                        ToastEasy("please open image file first");
+                    }
                 }
             });
 
             btnVertical.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(isImageExist){
                     navigateFile(true,true,"2_vertical","");
+                    }else{
+                        ToastEasy("please open image file first");
+                    }
                 }
             });
 
@@ -537,34 +552,67 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnInterceptive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"3.1_interceptive","");
+                    if(isImageExist){
+                    navigateFile(true,true,"3.1_interceptive","");}
+                    else {
+                        ToastEasy("please open image first");
+                    }
                 }
             });
 
             btnUntruncated.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"3.2_untruncated","");
+                    if(isImageExist) {
+                        navigateFile(true, true, "3.2_untruncated", "");
+                    }else {
+                        ToastEasy("please open image first");
+                    }
                 }
             });
 
             btnNormal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(isImageExist){
                     navigateFile(true,true,"4.1_normal","");
+                    } else {
+                        ToastEasy("please open image first");
+                    }
                 }
             });
 
             btnSpecial.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
-                    String specialRemark = editTextRemark.getText().toString();
-                    if (!specialRemark.isEmpty()) {
-                        navigateFile(true,true,"4.2_special",specialRemark);
+                    // 如果是第一次点击特殊按钮，则显示编辑框
+                    if (isFirstSpecialClick) {
+                        editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
+                        isFirstSpecialClick = false;
+                    }
+                    String remarkText = editTextRemark.getText().toString();
 
-                    }else{
-                        navigateFile(true,true,"4.2_specical","");
+                    // 检查编辑框内容是否为空
+                    if (!remarkText.isEmpty()) {
+                        // 如果编辑框不为空，则特殊按钮可点击，设置背景为橙色
+                        btnSpecial.setEnabled(true);
+                        btnSpecial.setBackgroundColor(Color.parseColor("#F4A460"));
+                    } else {
+                        // 如果编辑框为空，则特殊按钮不可点击，设置背景为灰色
+                        btnSpecial.setEnabled(false);
+                        btnSpecial.setBackgroundColor(Color.GRAY);
+                    }
+
+                    // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
+                    if (btnSpecial.isEnabled()) {
+                        if (isImageExist) {
+                            navigateFile(true, true, "4.2_special", editTextRemark.getText().toString());
+                            editTextRemark.setText("");
+                            btnSpecial.setEnabled(false);
+                            btnSpecial.setBackgroundColor(Color.GRAY);
+                        } else {
+                            ToastEasy("please open image first");
+                        }
                     }
                 }
             });
