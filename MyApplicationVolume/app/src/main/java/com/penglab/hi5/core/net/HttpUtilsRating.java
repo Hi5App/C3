@@ -23,7 +23,7 @@ public class HttpUtilsRating extends HttpUtils {
         }
     }
 
-    public static void updateRatingResultWithOkHttp(String username,String password, String ImageName,String RatingEnum,String AdditionalRatingDescription,Callback callback) {
+    public static void uploadUserRatingResultWithOkHttp(String username, String password, String ImageName, String RatingEnum, String AdditionalRatingDescription, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("UserName", username)
@@ -37,7 +37,7 @@ public class HttpUtilsRating extends HttpUtils {
         }
     }
 
-    public static void downloadRattingImage(String imageName, Callback callback) {
+    public static void downloadSingleRattingImageWithOkHttp(String imageName, Callback callback) {
         try {
             asyncPostRequest(URL_DOWNLOAD_RATING_IMAGE + imageName, RequestBody.create(null, ""), callback);
         } catch (Exception e) {

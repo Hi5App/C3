@@ -168,7 +168,7 @@ public class CheckViewModel extends ViewModel {
                         imageResult.setValue(new ResourceResult(false, "No file here"));
                     }
                 } catch (JSONException e) {
-                    Log.e("updateImageResult", e.getMessage());
+                    Log.e("uploadUserRatingResultResponse", e.getMessage());
                     imageResult.setValue(new ResourceResult(false, "Fail to parse file list"));
                 }
             } else if (data instanceof String){

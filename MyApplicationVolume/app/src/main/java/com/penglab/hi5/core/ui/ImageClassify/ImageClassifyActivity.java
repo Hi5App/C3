@@ -7,7 +7,6 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,26 +34,17 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
-import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
-import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
-import com.penglab.hi5.core.ui.marker.MarkerFactoryViewModel;
-import com.penglab.hi5.core.ui.pluginsystem.PluginSystemViewModel;
-import com.penglab.hi5.data.ImageDataSource;
-import com.penglab.hi5.data.ImageInfoRepository;
-import com.penglab.hi5.data.MarkerFactoryDataSource;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.ImageInfo;
-import com.penglab.hi5.data.model.img.PotentialSomaInfo;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
@@ -69,8 +59,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
     private Toolbar toolbar;
     private SeekBar contrastSeekBar;
     private TextView imageIdLocationTextView;
-
-    private boolean needSyncSomaList = false;
     private final Handler uiHandler = new Handler();
     private BasePopupView downloadingPopupView;
 
@@ -127,14 +115,14 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             }
         });
 
-        imageClassifyViewModel.getImageClassifyDataSource().getUpdateRatingImageResult().observe(this, new Observer<Result>() {
+        imageClassifyViewModel.getImageClassifyDataSource().getUploadUserRatingResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
-                imageClassifyViewModel.handleUpdateRatingImageResult(result);
+                imageClassifyViewModel.handleUploadUserResult(result);
             }
         });
 
-        imageClassifyViewModel.getImageClassifyDataSource().downloadRatingImageResult().observe(this, new Observer<Result>() {
+        imageClassifyViewModel.getImageClassifyDataSource().getDownloadSingleRatingImageResult().observe(this, new Observer<Result>() {
             @Override
             public void onChanged(Result result) {
                 if (result == null) {
@@ -144,7 +132,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             }
         });
 
-        imageClassifyViewModel.getDownloadRatingImageResult().observe(this, new Observer<ResourceResult>() {
+        imageClassifyViewModel.monitorDownloadedImageResult().observe(this, new Observer<ResourceResult>() {
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(ResourceResult resourceResult) {
@@ -163,7 +151,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             }
         });
 
-        imageClassifyViewModel.getUploadResult().observe(this, new Observer<ResourceResult>() {
+        imageClassifyViewModel.monitorUploadedUserResult().observe(this, new Observer<ResourceResult>() {
             @Override
             public void onChanged(ResourceResult resourceResult) {
                 if (resourceResult.isSuccess()) {
@@ -278,38 +266,25 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
     private void previousFile(){
         navigateFile(false,false,"0","");
-//        if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
-//            navigateFile(true, false,"-1","");
-//        } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
-//            warning4ChangeFile(false);
-//        } else {
-//            navigateFile(false, false,"0","");
-//        }
-//        playButtonSound();
     }
 
     private void nextFile(){
         navigateFile(false,true,"0","");
-//        if (preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()) {
-//            navigateFile(true, true,"-1","");
-//        } else if (!preferenceSoma.getAutoUploadMode() && !annotationGLSurfaceView.nothingToUpload()){
-//            warning4ChangeFile(true);
-//        } else {
-//            navigateFile(false, true,"0","");
-//        }
-//        playButtonSound();
     }
 
     private void navigateFile(boolean needUpload, boolean nextFile, String ratingType,String additionalInfo) {
         /* locationType:
-             0: default, no update
-             1: normalFile with annotation,
-             2: normalFile without annotation
-             3: goodFile with annotation
+             -1: default, no update
+             1: horizontal file,
+             2: vertical file,
+             3.1:
+             3.2:
+             4.1:
+             4.2:
 
          */
         if (needUpload) {
-            imageClassifyViewModel.uploadRatingResult(ratingType,additionalInfo);
+            imageClassifyViewModel.uploadUserResult(ratingType,additionalInfo);
             }
         if (nextFile) {
             imageClassifyViewModel.nextFile();
@@ -334,23 +309,9 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-
-    private void openFile(){
-            imageClassifyViewModel.openNewFile();
+    private void openFile() {
+        imageClassifyViewModel.openNewFile();
         }
-
-//    private void screenCapture(Uri uri){
-//        Intent intent = new Intent();
-//        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//        intent.setAction(Intent.ACTION_SEND);
-//        intent.putExtra(Intent.EXTRA_STREAM, uri);
-//        intent.setType("image/jpeg");
-//        startActivity(Intent.createChooser(intent, "Share from Hi5"));
-//
-//        // need to reset after use
-//        ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
-//    }
 
     private void moreFunctions(){
         new XPopup.Builder(this)
@@ -547,7 +508,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnCategory3.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(layoutSubcategories3.getVisibility() == View.GONE){
+                    if(layoutSubcategories3.getVisibility() == View.GONE) {
                         layoutSubcategories3.setVisibility(View.VISIBLE);
 
                     }else{
@@ -572,12 +533,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
         } else{
             imageClassifyView.setVisibility(View.VISIBLE);
         }
-
         }
-
-
-
-
 
     public static void start(Context context) {
         Intent intent = new Intent(context, ImageClassifyActivity.class);

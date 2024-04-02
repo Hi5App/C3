@@ -94,10 +94,14 @@
     <color name="negativeButton">#A9A7A8</color>
     <color name="jokebgColorFirst">#6495ED</color>
 
-    <color name="category1Color">#FF5722</color> <!-- 橙色 -->
-    <color name="category2Color">#3F51B5</color> <!-- 蓝色 -->
-    <color name="category3Color">#4CAF50</color> <!-- 绿色 -->
-    <color name="category4Color">#FFEB3B</color> <!-- 黄色 -->
+    <color name="category1Color">#FFA488</color> <!-- 橙色 -->
+    <color name="category2Color">#33CCFF</color> <!-- 蓝色 -->
+    <color name="category3Color">#228B22</color> <!-- 绿色 -->
+    <color name="category31Color">#4CAF50</color>
+    <color name="category32Color">#228B22</color>
+    <color name="category4Color">#D2691E</color> <!-- 黄色 -->
+    <color name="category41Color">#F4A460</color> <!-- 黄色 -->
+    <color name="category42Color">#FFA07A</color> <!-- 黄色 -->
     <color name="category4Subcategory2Color">#9C27B0</color> <!-- 紫色 -->
 
     <array name="colorMap">

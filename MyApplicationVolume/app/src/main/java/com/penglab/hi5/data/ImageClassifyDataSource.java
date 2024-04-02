@@ -4,56 +4,49 @@ import static com.penglab.hi5.chat.nim.main.helper.MessageHelper.TAG;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.net.HttpUtilsRating;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ImageClassifyDataSource {
-
     public static final String UPLOAD_SUCCESSFULLY = "Upload soma successfully !";
+
     public static final String NO_MORE_FILE = "No more file need to process !";
-
-
-
     private final MutableLiveData<Result> ratingImageListResult = new MutableLiveData<>();
-    private final MutableLiveData<Result> updateRatingImageResult = new MutableLiveData<>();
-    private final MutableLiveData<Result> downloadRatingImageResult = new MutableLiveData<>();
-
+    private final MutableLiveData<Result> uploadUserRatingResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> downloadSingleRatingImageResult = new MutableLiveData<>();
 
     public MutableLiveData<Result> getRatingImageListResult() {
 
         return ratingImageListResult;
     }
 
-    public MutableLiveData<Result> getUpdateRatingImageResult() {
+    public MutableLiveData<Result> getUploadUserRatingResult() {
 
-        return updateRatingImageResult;
+        return uploadUserRatingResult;
     }
 
-    public MutableLiveData<Result> downloadRatingImageResult() {
+    public MutableLiveData<Result> getDownloadSingleRatingImageResult() {
 
-        return downloadRatingImageResult;
+        return downloadSingleRatingImageResult;
     }
 
-    public void getRatingImageList()
+    public void getRatingImageListResponse()
     {
         try {
-            Log.e(TAG,"start getRatingImageList");
+            Log.e(TAG,"start getRatingImageListResponse");
             HttpUtilsRating.getRattingImageListWithOkHttp(InfoCache.getAccount(),InfoCache.getToken(), new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -76,8 +69,6 @@ public class ImageClassifyDataSource {
                         ratingImageListResult.postValue(new Result.Success<JSONObject>(jsonObject));
                         response.body().close();
                         response.close();
-
-
                     } else {
                         ratingImageListResult.postValue(new Result.Error(new Exception("Fail to get rating image list !")));
                     }
@@ -89,41 +80,39 @@ public class ImageClassifyDataSource {
         }
     }
 
-    public void updateImageResult(String imageName,String ratingEnum,String additionalRatingDescription)
+    public void uploadUserRatingResultResponse(String imageName, String ratingEnum, String additionalRatingDescription)
     {
         try {
-            Log.e(TAG,"start getUpdateImageResult");
-            HttpUtilsRating.updateRatingResultWithOkHttp(InfoCache.getAccount(),InfoCache.getToken(), imageName,ratingEnum, additionalRatingDescription,new Callback() {
+            HttpUtilsRating.uploadUserRatingResultWithOkHttp(InfoCache.getAccount(),InfoCache.getToken(), imageName,ratingEnum, additionalRatingDescription,new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    updateRatingImageResult.postValue(new Result.Error(new Exception("Connect failed when getUpdateImageResult !")));
+                    uploadUserRatingResult.postValue(new Result.Error(new Exception("Connect failed when getUpdateImageResult !")));
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG,"receive response");
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         // process response
-                        updateRatingImageResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+                        uploadUserRatingResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
                         Log.e(TAG,"response: " + response.body().string());
-                        updateRatingImageResult.postValue(new Result.Error(new Exception("Fail to getUpdateImageResult !")));
+                        uploadUserRatingResult.postValue(new Result.Error(new Exception("Fail to getUpdateImageResult !")));
                     }
                     response.close();
                 }
             });
         } catch (Exception exception) {
-            updateRatingImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+            uploadUserRatingResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
         }
     }
 
-    public void getDownloadRatingImage(String imageName){
+    public void getDownloadSingleRatingImageResponse(String imageName){
         try{
-            HttpUtilsRating.downloadRattingImage(imageName, new Callback() {
+            HttpUtilsRating.downloadSingleRattingImageWithOkHttp(imageName, new Callback() {
                         @Override
                         public void onFailure(Call call, IOException e) {
-                            downloadRatingImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download bouton Image")));
+                            downloadSingleRatingImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download bouton Image")));
                         }
 
                         @Override
@@ -138,19 +127,19 @@ public class ImageClassifyDataSource {
                                         String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
                                         String filename = imageName;
                                         if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                            downloadRatingImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                            downloadSingleRatingImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
                                         }
-                                        downloadRatingImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                                        downloadSingleRatingImageResult.postValue(new Result.Success(storePath + "/" + filename));
                                         response.body().close();
                                         response.close();
                                     } else {
-                                        downloadRatingImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                                        downloadSingleRatingImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
                                     }
                                 } else {
-                                    downloadRatingImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
+                                    downloadSingleRatingImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
                                 }
                             } catch (Exception exception) {
-                                downloadRatingImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                                downloadSingleRatingImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
                             }
                         }
                     });

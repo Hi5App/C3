@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModel;
 import com.alibaba.fastjson.JSONException;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
-import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.data.ImageClassifyDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -22,7 +21,6 @@ import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
 import com.penglab.hi5.data.model.img.ImageInfo;
-import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -55,19 +53,13 @@ public class ImageClassifyViewModel extends ViewModel {
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
 
-    public enum AnnotationMode{
-        BIG_DATA, NONE
-    }
-
+    public enum AnnotationMode{ BIG_DATA, NONE }
     public enum WorkStatus{
         IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE,  NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
     }
-
     private final MutableLiveData<ImageClassifyViewModel.WorkStatus> workStatus = new MutableLiveData<>();
-
-    private final MutableLiveData<ResourceResult> ratingImageResult = new MutableLiveData<>();
-
-    private final MutableLiveData<ResourceResult> uploadResult = new MutableLiveData<>();
+    private final MutableLiveData<ResourceResult> downloadedRatingImageResult = new MutableLiveData<>();
+    private final MutableLiveData<ResourceResult> uploadedUserResult = new MutableLiveData<>();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(2);
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -88,25 +80,37 @@ public class ImageClassifyViewModel extends ViewModel {
     }
 
     private void getRatingImageList() {
-        imageClassifyDataSource.getRatingImageList();
+        imageClassifyDataSource.getRatingImageListResponse();
     }
 
-    public void downloadRatingImage() {
+    public void downloadSingleRatingImage() {
         String imageName = lastDownloadImageInfo.getImageName();
         Log.e(TAG,"rating_image"+imageName);
-        imageClassifyDataSource.getDownloadRatingImage(imageName);
+        imageClassifyDataSource.getDownloadSingleRatingImageResponse(imageName);
+    }
+
+    public void uploadUserResult(String ratingType, String additionalInfo) {
+        if (!curImageInfo.ifStillFresh() && !curImageInfo.isAlreadyUpload()) {
+            uploadedUserResult.setValue(new ResourceResult(false, "Expired"));
+            return;
+        }
+        String imageName = curImageInfo.getImageName();
+        imageClassifyDataSource.uploadUserRatingResultResponse(imageName,ratingType,additionalInfo);
+        if (!curImageInfo.isAlreadyUpload()) {
+            curImageInfo.setAlreadyUpload(true);
+        }
     }
 
     public ImageInfo getCurImageInfo() {
         return curImageInfo;
     }
 
-    public LiveData<ResourceResult> getDownloadRatingImageResult() {
-        return ratingImageResult;
+    public LiveData<ResourceResult> monitorDownloadedImageResult() {
+        return downloadedRatingImageResult;
     }
 
-    public MutableLiveData<ResourceResult> getUploadResult() {
-        return uploadResult;
+    public MutableLiveData<ResourceResult> monitorUploadedUserResult() {
+        return uploadedUserResult;
     }
 
     public void handleRatingImageList(Result result) {
@@ -117,16 +121,14 @@ public class ImageClassifyViewModel extends ViewModel {
                 try {
                     if (!jsonObject.isNull("ImageNameList")) {
                         JSONArray imageNameList = jsonObject.getJSONArray("ImageNameList");
-
                         for (int i = 0; i < imageNameList.length(); i++) {
                             String imageName = imageNameList.getString(i);
                             int id = i + 1;
                             ImageInfo curDownloadImage = new ImageInfo(id, imageName);
-                            curDownloadImage.setCreatedTime(System.currentTimeMillis());
                             imageInfoList.add(curDownloadImage);
                         }
                         lastDownloadImageInfo = imageInfoList.get(curDownloadIndex);
-                        downloadRatingImage();
+                        downloadSingleRatingImage();
                     } else {
                         Log.e("TAG","imageInfoList is null");
                     }
@@ -147,16 +149,16 @@ public class ImageClassifyViewModel extends ViewModel {
         }
     }
 
-    public void handleUpdateRatingImageResult(Result result) {
+    public void handleUploadUserResult(Result result) {
         if (result == null) {
             return;
         }
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             if (data instanceof String && ((String) data).equals(UPLOAD_SUCCESSFULLY)){
-                uploadResult.setValue(new ResourceResult(true));
+                uploadedUserResult.setValue(new ResourceResult(true));
             } else {
-                uploadResult.setValue(new ResourceResult(false));
+                uploadedUserResult.setValue(new ResourceResult(false));
             }
         } else {
             ToastEasy(result.toString());
@@ -176,7 +178,7 @@ public class ImageClassifyViewModel extends ViewModel {
                         workStatus.setValue(ImageClassifyViewModel.WorkStatus.DOWNLOAD_IMAGE_FINISH);
                     }
                     lastDownloadImageInfo = imageInfoList.get(++curDownloadIndex);
-                    downloadRatingImage();
+                    downloadSingleRatingImage();
                 } else if(curDownloadIndex == imageInfoList.size()-1) {
                     curDownloadIndex = 0;
                     isDownloading = false;
@@ -192,19 +194,6 @@ public class ImageClassifyViewModel extends ViewModel {
 
     }
 
-
-    public void uploadRatingResult(String ratingType,String addtionalInfo) {
-        if (!curImageInfo.ifStillFresh() && !curImageInfo.isAlreadyUpload()) {
-            uploadResult.setValue(new ResourceResult(false, "Expired"));
-            return;
-        }
-        String imageName = curImageInfo.getImageName();
-        imageClassifyDataSource.updateImageResult(imageName,ratingType,addtionalInfo);
-        if (!curImageInfo.isAlreadyUpload()) {
-            curImageInfo.setAlreadyUpload(true);
-        }
-
-    }
 
     public void openNewFile() {
         noFileLeft = false;
@@ -225,11 +214,12 @@ public class ImageClassifyViewModel extends ViewModel {
 
     private void openFileWithCurIndex() {
         curImageInfo = imageInfoList.get(curIndex);
+        curImageInfo.setCreatedTime(System.currentTimeMillis());
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image"+ "/" + curImageInfo.getImageName() ;
         String fileName =FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
         imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >(filePath), fileType);
-        ratingImageResult.setValue(new ResourceResult(true));
+        downloadedRatingImageResult.setValue(new ResourceResult(true));
     }
 
     public void previousFile() {
