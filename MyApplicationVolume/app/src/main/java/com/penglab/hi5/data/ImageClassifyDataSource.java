@@ -21,7 +21,7 @@ import okhttp3.Callback;
 import okhttp3.Response;
 
 public class ImageClassifyDataSource {
-    public static final String UPLOAD_SUCCESSFULLY = "Upload soma successfully !";
+    public static final String UPLOAD_SUCCESSFULLY = "Upload user result successfully !";
 
     public static final String NO_MORE_FILE = "No more file need to process !";
     private final MutableLiveData<Result> ratingImageListResult = new MutableLiveData<>();
@@ -58,16 +58,21 @@ public class ImageClassifyDataSource {
                     int responseCode = response.code();
                     if (responseCode == 200) {
                         String str = response.body().string();
-                        Log.e("Get rating list", str);
-                        JSONObject jsonObject = null;
-                        try {
-                            jsonObject = new JSONObject(str);
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
+                        if (str != null) {
+                            Log.e("Get rating list", str);
+                            JSONObject jsonObject = null;
+                            try {
+                                jsonObject = new JSONObject(str);
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                            ratingImageListResult.postValue(new Result.Success<JSONObject>(jsonObject));
+                            response.body().close();
+                            response.close();
+                        } else {
+                            ratingImageListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
+                            response.close();
                         }
-                        ratingImageListResult.postValue(new Result.Success<JSONObject>(jsonObject));
-                        response.body().close();
-                        response.close();
                     } else {
                         ratingImageListResult.postValue(new Result.Error(new Exception("Fail to get rating image list !")));
                     }
@@ -92,7 +97,6 @@ public class ImageClassifyDataSource {
                     Log.e(TAG,"receive response");
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        // process response
                         uploadUserRatingResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
                     } else {
                         Log.e(TAG,"response: " + response.body().string());

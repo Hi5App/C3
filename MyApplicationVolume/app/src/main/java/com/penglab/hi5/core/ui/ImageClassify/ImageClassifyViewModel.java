@@ -1,8 +1,8 @@
 package com.penglab.hi5.core.ui.ImageClassify;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
-import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
+import static com.penglab.hi5.data.ImageClassifyDataSource.NO_MORE_FILE;
+import static com.penglab.hi5.data.ImageClassifyDataSource.UPLOAD_SUCCESSFULLY;
 
 import android.util.Log;
 
