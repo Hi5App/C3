@@ -52,7 +52,6 @@ public class ImageClassifyDataSource {
                 public void onFailure(Call call, IOException e) {
                     ratingImageListResult.postValue(new Result.Error(new Exception("Connect failed when get rating image list !")));
                 }
-
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG,"receive response");
