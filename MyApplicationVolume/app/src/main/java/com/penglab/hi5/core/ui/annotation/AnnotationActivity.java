@@ -32,6 +32,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -45,6 +46,7 @@ import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.core.music.MusicService;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.ImageInfoRepository;
@@ -78,7 +80,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         put(EditMode.NONE, 0);
         put(EditMode.PAINT_CURVE, R.drawable.ic_draw_main);
         put(EditMode.PINPOINT, R.drawable.ic_add_marker);
-        put(EditMode.PINPOINT_STROKE,R.drawable.ic_add_marker);
+        put(EditMode.PINPOINT_STROKE, R.drawable.ic_add_marker);
         put(EditMode.DELETE_CURVE, R.drawable.ic_delete_curve);
         put(EditMode.DELETE_MARKER, R.drawable.ic_marker_delete);
         put(EditMode.CHANGE_CURVE_TYPE, R.drawable.ic_change_curve_type);
@@ -129,10 +131,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onChanged(WorkStatus workStatus) {
-                if (workStatus == null){
+                if (workStatus == null) {
                     return;
                 }
-                switch(workStatus){
+                switch (workStatus) {
                     case OPEN_FILE:
                         annotationGLSurfaceView.openFile();
                         break;
@@ -149,7 +151,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         annotationViewModel.getAnnotationMode().observe(this, new Observer<AnnotationViewModel.AnnotationMode>() {
             @Override
             public void onChanged(AnnotationViewModel.AnnotationMode annotationMode) {
-                if (annotationMode == null){
+                if (annotationMode == null) {
                     return;
                 }
                 updateOptionsMenu(annotationMode);
@@ -160,7 +162,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         annotationViewModel.getAnalyzeSwcResults().observe(this, new Observer<List<double[]>>() {
             @Override
             public void onChanged(List<double[]> features) {
-                if (features == null){
+                if (features == null) {
                     ToastEasy("Empty features !");
                     return;
                 }
@@ -172,12 +174,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         annotationViewModel.getRotateStatus().observe(this, new Observer<AnnotationViewModel.RotateStatus>() {
             @Override
             public void onChanged(AnnotationViewModel.RotateStatus rotateStatus) {
-                if (rotateStatus == null){
+                if (rotateStatus == null) {
                     return;
                 }
-                switch (rotateStatus){
+                switch (rotateStatus) {
                     case STOP:
-                        if (rotate != null){
+                        if (rotate != null) {
                             rotate.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
                             annotationGLSurfaceView.autoRotateStop();
                         }
@@ -193,10 +195,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         annotationGLSurfaceView.getEditMode().observe(this, new Observer<EditMode>() {
             @Override
             public void onChanged(EditMode editMode) {
-                if (editMode == null){
+                if (editMode == null) {
                     return;
                 }
-                if (editModeIconMap.get(editMode) != null && editModeIndicator != null){
+                if (editModeIconMap.get(editMode) != null && editModeIndicator != null) {
                     editModeIndicator.setImageResource(editModeIconMap.get(editMode));
                 }
             }
@@ -205,7 +207,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         ImageInfoRepository.getInstance().getScreenCaptureFilePath().observe(this, new Observer<FilePath<?>>() {
             @Override
             public void onChanged(FilePath<?> filePath) {
-                if (filePath == null){
+                if (filePath == null) {
                     return;
                 }
                 screenCapture((Uri) filePath.getData());
@@ -213,32 +215,69 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         });
 
         startMusicService();
+
+        Button frontBtn = findViewById(R.id.front);
+        frontBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "front 按钮被点击了", Toast.LENGTH_SHORT).show();
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eFront);
+        });
+
+        Button backBtn = findViewById(R.id.back);
+        backBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "back 按钮被点击了", Toast.LENGTH_SHORT).show();
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eBack);
+        });
+
+        Button leftBtn = findViewById(R.id.left);
+        leftBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "left 按钮被点击了", Toast.LENGTH_SHORT).show();
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eLeft);
+        });
+
+        Button rightBtn = findViewById(R.id.right);
+        rightBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "right 按钮被点击了", Toast.LENGTH_SHORT).show();
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eRight);
+        });
+
+        Button upBtn = findViewById(R.id.up);
+        upBtn.setOnClickListener(v -> {
+            Toast.makeText(this, "up 按钮被点击了", Toast.LENGTH_SHORT).show();
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eUp);
+        });
+
+        Button downBtn = findViewById(R.id.down);
+        downBtn.setOnClickListener(v -> {
+            annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eDown);
+            Toast.makeText(this, "down 按钮被点击了", Toast.LENGTH_SHORT).show();
+        });
+
     }
 
     @Override
     protected void onResume() {
-        Log.e(TAG,"onResume");
+        Log.e(TAG, "onResume");
         super.onResume();
         annotationGLSurfaceView.onResume();
     }
 
     @Override
     protected void onPause() {
-        Log.e(TAG,"onPause");
+        Log.e(TAG, "onPause");
         super.onPause();
         annotationGLSurfaceView.onPause();
     }
 
     @Override
     protected void onRestart() {
-        Log.e(TAG,"onRestart");
+        Log.e(TAG, "onRestart");
         super.onRestart();
         startMusicService();
     }
 
     @Override
     protected void onStop() {
-        Log.e(TAG,"onStop");
+        Log.e(TAG, "onStop");
         super.onStop();
         stopMusicService();
     }
@@ -249,8 +288,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         stopMusicService();
     }
 
-    private void startMusicService(){
-        Log.e(TAG,"init MusicService");
+    private void startMusicService() {
+        Log.e(TAG, "init MusicService");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundService(new Intent(this, MusicService.class));
         } else {
@@ -258,14 +297,14 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         }
     }
 
-    private void stopMusicService(){
+    private void stopMusicService() {
         Intent bgmIntent = new Intent(this, MusicService.class);
         stopService(bgmIntent);
     }
 
-    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode){
+    private void updateUI(AnnotationViewModel.AnnotationMode annotationMode) {
         resetUI4AllMode();
-        switch (annotationMode){
+        switch (annotationMode) {
             case LOCAL_FILE_EDITABLE:
                 showCommonUI();
                 showUI4LocalFileMode();
@@ -278,7 +317,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 showUI4BigDataMode();
                 break;
             case NONE:
-                Log.e(TAG,"Default UI");
+                Log.e(TAG, "Default UI");
                 break;
             default:
                 ToastEasy("Something wrong with annotation mode !");
@@ -349,12 +388,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (data == null){
+        if (data == null) {
             return;
         }
 
-        if (resultCode == RESULT_OK){
-            switch (requestCode){
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
                 case OPEN_LOCAL_FILE:
                     annotationViewModel.openLocalFile(data);
                     break;
@@ -367,12 +406,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 default:
                     ToastEasy("UnSupportable request type !");
             }
-        }else {
+        } else {
             ToastEasy("Something wrong when get content !");
         }
     }
 
-    private void openFile(){
+    private void openFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile"},
                         new OnSelectListener() {
@@ -393,21 +432,21 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 .show();
     }
 
-    private void openLocalFile(){
+    private void openLocalFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, OPEN_LOCAL_FILE);
     }
 
-    private void loadLocalFile(){
+    private void loadLocalFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
         startActivityForResult(intent, LOAD_LOCAL_FILE);
     }
 
-    private void screenCapture(Uri uri){
+    private void screenCapture(Uri uri) {
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -420,8 +459,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         ImageInfoRepository.getInstance().getScreenCaptureFilePath().setValue(null);
     }
 
-    private void moreFunctions(){
-        String[] centerList = new String[] {"Analyze Swc", "Filter by example", "Settings"};
+    private void moreFunctions() {
+        String[] centerList = new String[]{"Analyze Swc", "Filter by example", "Settings"};
         new XPopup.Builder(this)
                 .maxHeight(1500)
                 .asCenterList("More Functions...", centerList,
@@ -448,9 +487,9 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 .show();
     }
 
-    private void analyzeSwc(){
+    private void analyzeSwc() {
         new XPopup.Builder(this)
-                .asCenterList("Morphology calculate", new String[] {"Analyze swc file", "Analyze current tracing"},
+                .asCenterList("Morphology calculate", new String[]{"Analyze swc file", "Analyze current tracing"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -469,23 +508,23 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 .show();
     }
 
-    private void analyzeSwcFile(){
+    private void analyzeSwcFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         startActivityForResult(intent, OPEN_ANALYSIS_SWC);
     }
 
-    private void analyzeCurTracing(){
+    private void analyzeCurTracing() {
         NeuronTree neuronTree = annotationGLSurfaceView.getNeuronTree();
-        if (neuronTree.listNeuron.isEmpty()){
+        if (neuronTree.listNeuron.isEmpty()) {
             ToastEasy("Empty tracing, do nothing");
         } else {
             executorService.submit(() -> annotationViewModel.analyzeCurTracing(neuronTree));
         }
     }
 
-    private void settings(){
+    private void settings() {
         new MDDialog.Builder(this)
                 .setContentView(R.layout.annotation_settings)
                 .setContentViewOperator(new MDDialog.ContentViewOperator() {
@@ -521,10 +560,14 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                 preferenceSetting.setContrast(seekParams.progress);
                                 annotationGLSurfaceView.updateRenderOptions();
                             }
+
                             @Override
-                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) { }
+                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
+                            }
+
                             @Override
-                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) { }
+                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+                            }
                         });
 
                         bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -533,10 +576,14 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                 preferenceMusic.setBackgroundSound(progress);
                                 updateMusicVolume();
                             }
+
                             @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+                            }
+
                             @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) { }
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+                            }
                         });
 
                         buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -545,10 +592,14 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                 preferenceMusic.setButtonSound(progress);
                                 updateMusicVolume();
                             }
+
                             @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+                            }
+
                             @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) { }
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+                            }
                         });
 
                         actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -557,14 +608,19 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                                 preferenceMusic.setActionSound(progress);
                                 updateMusicVolume();
                             }
+
                             @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) { }
+                            public void onStartTrackingTouch(SeekBar seekBar) {
+                            }
+
                             @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) { }
+                            public void onStopTrackingTouch(SeekBar seekBar) {
+                            }
                         });
                     }
                 })
-                .setNegativeButton("Cancel", v -> { })
+                .setNegativeButton("Cancel", v -> {
+                })
                 .setPositiveButton("Confirm", v -> {
                     annotationGLSurfaceView.requestRender();
                     playButtonSound();
@@ -574,8 +630,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 .show();
     }
 
-    private void showCommonUI(){
-        if (commonView == null){
+    private void showCommonUI() {
+        if (commonView == null) {
             // load layout view
             LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -643,12 +699,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
         switch (view.getId()) {
             case R.id.draw_i:
-                if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)){
+                if (annotationGLSurfaceView.setEditMode(EditMode.PAINT_CURVE)) {
                     addCurve.setImageResource(R.drawable.ic_draw);
                 }
                 break;
             case R.id.pinpoint:
-                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)){
+                if (annotationGLSurfaceView.setEditMode(EditMode.PINPOINT)) {
                     addMarker.setImageResource(R.drawable.ic_add_marker);
                 }
                 break;
@@ -657,12 +713,12 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
                 executorService.submit(() -> annotationGLSurfaceView.APP2());
                 break;
             case R.id.delete_curve:
-                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)){
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_CURVE)) {
                     deleteCurve.setImageResource(R.drawable.ic_delete_curve);
                 }
                 break;
             case R.id.delete_marker:
-                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)){
+                if (annotationGLSurfaceView.setEditMode(EditMode.DELETE_MARKER)) {
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
                 break;
@@ -670,8 +726,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     }
 
     @SuppressLint("NonConstantResourceId")
-    private boolean onMenuItemLongClick(View view){
-        switch (view.getId()){
+    private boolean onMenuItemLongClick(View view) {
+        switch (view.getId()) {
             case R.id.draw_i:
                 ColorPickerDialog.newBuilder()
                         .setShowColorShades(false)
@@ -710,7 +766,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     @SuppressLint("NonConstantResourceId")
     public void onColorSelected(int dialogId, int color) {
         String colorRGB = Integer.toHexString(color).toUpperCase(Locale.ROOT);
-        switch (dialogId){
+        switch (dialogId) {
             case R.id.draw_i:
                 annotationGLSurfaceView.setLastCurveType(V_NeuronSWC_unit.colorToType(colorRGB));
                 break;
@@ -720,8 +776,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         }
     }
 
-    private void showUI4LocalFileMode(){
-        if (localFileModeView == null){
+    private void showUI4LocalFileMode() {
+        if (localFileModeView == null) {
             // load layout view
             LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -741,8 +797,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         }
     }
 
-    private void showUI4BigDataMode(){
-        if (bigDataModeView == null){
+    private void showUI4BigDataMode() {
+        if (bigDataModeView == null) {
             // load layout view
             LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
                     LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
@@ -754,26 +810,26 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         }
     }
 
-    private void resetUI4AllMode(){
+    private void resetUI4AllMode() {
         hideUI4LocalFileMode();
         hideUI4BigDataMode();
         hideCommonUI();
     }
 
-    private void hideUI4LocalFileMode(){
-        if (localFileModeView != null){
+    private void hideUI4LocalFileMode() {
+        if (localFileModeView != null) {
             localFileModeView.setVisibility(View.GONE);
         }
     }
 
-    private void hideUI4BigDataMode(){
-        if (bigDataModeView != null){
+    private void hideUI4BigDataMode() {
+        if (bigDataModeView != null) {
             bigDataModeView.setVisibility(View.GONE);
         }
     }
 
-    private void hideCommonUI(){
-        if (commonView != null){
+    private void hideCommonUI() {
+        if (commonView != null) {
             commonView.setVisibility(View.GONE);
         }
     }
@@ -781,6 +837,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
     /**
      * display the result of morphology calculate
+     *
      * @param featureList the features of result
      */
     @SuppressLint("DefaultLocale")
@@ -882,7 +939,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         featuresDisplay.show();
     }
 
-    private void setResultContentView(View contentView, String[] title, int[] titleId, int[] contentId, int[] itemLayoutId, double[] result, String titleString){
+    private void setResultContentView(View contentView, String[] title, int[] titleId, int[] contentId, int[] itemLayoutId, double[] result, String titleString) {
         if (title.length == 8) {
             for (int i = 8; i < itemLayoutId.length; i++) {
                 contentView.findViewById(itemLayoutId[i]).setVisibility(View.GONE);
@@ -915,6 +972,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
     /**
      * format output of morphology feature's value
+     *
      * @param value feature's value
      * @return Number of digits
      */
@@ -928,7 +986,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         }
     }
 
-    public static void start(Context context){
+    public static void start(Context context) {
         Intent intent = new Intent(context, AnnotationActivity.class);
         context.startActivity(intent);
     }

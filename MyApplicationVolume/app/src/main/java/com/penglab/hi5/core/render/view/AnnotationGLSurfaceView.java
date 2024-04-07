@@ -735,4 +735,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     public void setBigData(boolean isBigData) {
         this.isBigData = isBigData;
     }
+
+    public void setFaceDirection(AnnotationRender.FaceDirection direction) {
+        annotationRender.setFaceDirection(direction);
+    }
 }

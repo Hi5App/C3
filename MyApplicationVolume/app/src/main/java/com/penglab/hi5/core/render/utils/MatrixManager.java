@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.penglab.hi5.basic.MyAnimation;
 
+import java.util.Arrays;
+
 /**
  * Created by Jackiexing on 12/25/21
  */
@@ -27,6 +29,20 @@ public class MatrixManager {
 
     private final MyAnimation myAnimation = new MyAnimation();
 
+    public void clone(MatrixManager other){
+        this.projectionMatrix = other.projectionMatrix;
+        System.arraycopy(other.persProjectionMatrix, 0, this.persProjectionMatrix, 0, other.persProjectionMatrix.length);
+        System.arraycopy(other.orthProjectionMatrix, 0, this.orthProjectionMatrix, 0, other.orthProjectionMatrix.length);
+        System.arraycopy(other.viewMatrix, 0, this.viewMatrix, 0, other.viewMatrix.length);
+        System.arraycopy(other.translate2Matrix, 0, this.translate2Matrix, 0, other.translate2Matrix.length);
+        System.arraycopy(other.zoomMatrix, 0, this.zoomMatrix, 0, other.zoomMatrix.length);
+        System.arraycopy(other.rotateMatrix, 0, this.rotateMatrix, 0, other.rotateMatrix.length);
+        System.arraycopy(other.translateMatrix, 0, this.translateMatrix, 0, other.translateMatrix.length);
+        System.arraycopy(other.modelMatrix, 0, this.modelMatrix, 0, other.modelMatrix.length);
+        System.arraycopy(other.modelTempMatrix, 0, this.modelTempMatrix, 0, other.modelTempMatrix.length);
+        System.arraycopy(other.finalMatrix, 0, this.finalMatrix, 0, other.finalMatrix.length);
+        System.arraycopy(other.finalTempMatrix, 0, this.finalTempMatrix, 0, other.finalTempMatrix.length);
+    }
     public void initMatrix() {
         // set the camera position (View matrix)
         Matrix.setLookAtM(viewMatrix, 0, 0, 0, -2, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
@@ -111,6 +127,11 @@ public class MatrixManager {
         Matrix.rotateM(tempRotateMatrix, 0, distanceX * 70, 0.0f, 1.0f, 0.0f);
 
         Matrix.multiplyMM(rotateMatrix, 0, tempRotateMatrix, 0, rotateMatrix, 0);
+        updateFinalMatrix();
+    }
+
+    public void rotate(float[] matrix){
+        System.arraycopy(matrix, 0, this.rotateMatrix, 0, matrix.length);
         updateFinalMatrix();
     }
 

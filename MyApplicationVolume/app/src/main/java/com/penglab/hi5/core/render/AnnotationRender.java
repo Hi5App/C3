@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -37,6 +38,7 @@ import com.penglab.hi5.data.model.img.FilePath;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +70,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private final MyDraw myDraw = new MyDraw();
 
     private final RenderOptions renderOptions;
+    private final MatrixManager m_InitModelMatrixManager;
     private final MatrixManager matrixManager;
     private final AnnotationDataManager annotationDataManager;
 
@@ -80,9 +83,9 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private String imageInfo;
 
 
-
-    public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions){
+    public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions) {
         this.annotationDataManager = annotationDataManager;
+        m_InitModelMatrixManager = matrixManager;
         this.matrixManager = matrixManager;
         this.renderOptions = renderOptions;
     }
@@ -90,7 +93,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     @Override
     public void
     onSurfaceCreated(GL10 gl, EGLConfig config) {
-        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        GLES30.glClearColor(121f / 255f, 134f / 255f, 203f / 255f, 1.0f);
 
         // init shader program
         MyPattern.initProgram();
@@ -112,7 +115,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         mCaptureBuffer = ByteBuffer.allocate(screenHeight * screenWidth * 4);
 
-        if (surfaceChanged){
+        if (surfaceChanged) {
             if (image4DSimple != null) {
                 initPatterns();
                 myPattern.setNeedSetContent(true);
@@ -125,7 +128,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // set the background
-        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        GLES30.glClearColor(121f / 255f, 134f / 255f, 203f / 255f, 1.0f);
 
         // 把颜色缓冲区设置为我们预设的颜色
         GLES30.glEnable(GLES30.GL_DEPTH_TEST);
@@ -155,20 +158,21 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         GLES30.glDisable(GLES30.GL_DEPTH_TEST);
     }
 
-    public void init3DImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize){
+    public void init3DImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize) {
         this.image4DSimple = image4DSimple;
         this.normalizedSize = normalizedSize;
         this.originalSize = originalSize;
         this.is2DImage = false;
 
         initPatterns();
+        m_InitModelMatrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         myPattern.setNeedSetContent(true);
         myAxis.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
-    public void init2DImageInfo(Image4DSimple image4DSimple, Bitmap bitmap2D, float[] normalizedSize, int[] originalSize){
+    public void init2DImageInfo(Image4DSimple image4DSimple, Bitmap bitmap2D, float[] normalizedSize, int[] originalSize) {
         this.image4DSimple = image4DSimple;
         this.bitmap2D = bitmap2D;
         this.normalizedSize = normalizedSize;
@@ -176,87 +180,89 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         this.is2DImage = true;
 
         initPatterns();
+        m_InitModelMatrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), true);
         matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), true);
         myPattern2D.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
-    public void initSwcInfo(NeuronTree neuronTree, float[] normalizedSize, int[] originalSize){
+    public void initSwcInfo(NeuronTree neuronTree, float[] normalizedSize, int[] originalSize) {
         this.normalizedSize = normalizedSize;
         this.originalSize = originalSize;
         this.is2DImage = false;
         annotationDataManager.loadNeuronTree(neuronTree, false);
 
         initPatterns();
+        m_InitModelMatrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         matrixManager.initMatrixByFile(normalizedSize, renderOptions.getScale(), false);
         myAxis.setNeedSetContent(true);
         myDraw.setNeedDraw(true);
     }
 
-    private void initPatterns(){
+    private void initPatterns() {
         myPattern.setNeedReleaseMemory(true);
         myPattern2D.setNeedReleaseMemory(true);
         myDraw.setNeedReleaseMemory(true);
         myAxis.setNeedReleaseMemory(true);
     }
 
-    private void freeMemory(){
-        if (myPattern.isNeedReleaseMemory()){
+    private void freeMemory() {
+        if (myPattern.isNeedReleaseMemory()) {
             myPattern.releaseMemory();
         }
-        if (myPattern2D.isNeedReleaseMemory()){
+        if (myPattern2D.isNeedReleaseMemory()) {
             myPattern2D.releaseMemory();
         }
-        if (myAxis.isNeedReleaseMemory()){
+        if (myAxis.isNeedReleaseMemory()) {
             myAxis.releaseMemory();
         }
-        if (myDraw.isNeedReleaseMemory()){
+        if (myDraw.isNeedReleaseMemory()) {
             myDraw.releaseMemory();
         }
     }
 
-    private void setResource(){
-        if (myPattern.isNeedSetContent()){
+    private void setResource() {
+        if (myPattern.isNeedSetContent()) {
             myPattern.setImage(image4DSimple, screenWidth, screenHeight, normalizedSize);
         }
-        if (myAxis.isNeedSetContent()){
+        if (myAxis.isNeedSetContent()) {
             myAxis.setAxis(normalizedSize);
         }
-        if (myPattern2D.isNeedSetContent()){
+        if (myPattern2D.isNeedSetContent()) {
             myPattern2D.setContent(bitmap2D, originalSize[0], originalSize[1], normalizedSize);
         }
     }
 
-    private void autoRotate(){
+    private void autoRotate() {
         matrixManager.autoRotate();
     }
 
-    private void drawFrame(){
-        if (myPattern.isNeedDraw()){
+    private void drawFrame() {
+        if (myPattern.isNeedDraw()) {
             myPattern.drawVolume_3d(matrixManager.getFinalMatrix(),
                     renderOptions.isImageChanging() && renderOptions.isDownSampling(), renderOptions.getContrast());
         }
-        if (myPattern2D.isNeedDraw()){
+        if (myPattern2D.isNeedDraw()) {
             myPattern2D.draw(matrixManager.getFinalMatrix());
         }
-        if (myAxis.isNeedDraw()){
+        if (myAxis.isNeedDraw()) {
             myAxis.draw(matrixManager.getFinalMatrix());
         }
-        if (myDraw.isNeedDraw() && renderOptions.getIfShowSWC()){
+        if (myDraw.isNeedDraw() && renderOptions.getIfShowSWC()) {
             drawNeuronSwc(annotationDataManager.getCurSwcList());
             drawNeuronSwc(annotationDataManager.getSyncSwcList());
             drawMarker(annotationDataManager.getMarkerList());
             drawMarker(annotationDataManager.getSyncMarkerList());
         }
-        if (renderOptions.isShowFingerTrajectory()){
+        if (renderOptions.isShowFingerTrajectory()) {
             drawTrajectory();
         }
     }
 
-    private void screenCapture(){
-        if (renderOptions.isScreenCapture()){
+    private void screenCapture() {
+        if (renderOptions.isScreenCapture()) {
             mCaptureBuffer.rewind();
-            GLES30.glReadPixels(0,0, screenWidth, screenHeight, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
+            GLES30.glReadPixels(0, 0, screenWidth, screenHeight, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
             renderOptions.setScreenCapture(false);
             exeService.submit(new Runnable() {
                 @Override
@@ -287,15 +293,15 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
     }
 
-    public void zoom(float ratio){
+    public void zoom(float ratio) {
         matrixManager.zoom(ratio, renderOptions);
     }
 
-    public void rotate(float distanceX, float distanceY){
+    public void rotate(float distanceX, float distanceY) {
         matrixManager.rotate(distanceX, distanceY);
     }
 
-    public void drawNeuronSwc(V_NeuronSWC_list swcList){
+    public void drawNeuronSwc(V_NeuronSWC_list swcList) {
         if (swcList.nsegs() > 0) {
             ArrayList<Float> lines = new ArrayList<Float>();
             for (int i = 0; i < swcList.seg.size(); i++) {
@@ -320,7 +326,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
                         continue;
                     }
                     V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                    if (parent == null){
+                    if (parent == null) {
                         continue;
                     }
                     lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
@@ -337,8 +343,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
     }
 
-    public void showSwc()
-    {
+    public void showSwc() {
         if (ifShowSWC) {
             V_NeuronSWC_list curSwcList = annotationDataManager.getCurSwcList();
 
@@ -365,7 +370,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
                             continue;
                         }
                         V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                        if (parent == null){
+                        if (parent == null) {
                             continue;
                         }
                         lines.add((float) ((originalSize[0] - parent.x) / originalSize[0] * normalizedSize[0]));
@@ -449,7 +454,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
                             continue;
                         }
                         V_NeuronSWC_unit parent = swcUnitMap.get(j);
-                        if (parent == null){
+                        if (parent == null) {
                             continue;
                         }
 //                                Log.d(TAG, "lines.add: " + parent.x + " " + parent.y + " " + parent.z + " " + child.x + " " + child.y + " " + child.z);
@@ -506,29 +511,29 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
     }
 
-    private void drawTrajectory(){
-        if(fingerTrajectory != null && fingerTrajectory.length > 0){
+    private void drawTrajectory() {
+        if (fingerTrajectory != null && fingerTrajectory.length > 0) {
             myDraw.drawPoints(fingerTrajectory, fingerTrajectory.length / 3);
             myDraw.freePoint();
         }
     }
 
-    public void updateFingerTrajectory(List<Float> fingerTrajectory){
-        if (fingerTrajectory.size() == 0){
+    public void updateFingerTrajectory(List<Float> fingerTrajectory) {
+        if (fingerTrajectory.size() == 0) {
             this.fingerTrajectory = null;
         }
 
         float[] data = new float[fingerTrajectory.size()];
-        for (int i = 0; i < fingerTrajectory.size(); i++){
-            data[i] =  fingerTrajectory.get(i);
+        for (int i = 0; i < fingerTrajectory.size(); i++) {
+            data[i] = fingerTrajectory.get(i);
         }
         this.fingerTrajectory = data;
     }
 
     /*
-    *for collaboration activity
-    *
-    * */
+     *for collaboration activity
+     *
+     * */
 
 //    public void syncAddSegSWC(V_NeuronSWC seg) {
 //        annotationDataManager.syncAddSegSWC(seg);
@@ -551,19 +556,13 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
 //    }
 
 
-
-
-
-
-
-
-    public NeuronTree getNeuronTree(){
+    public NeuronTree getNeuronTree() {
         return annotationDataManager.getNeuronTree();
     }
 
-    public float[] modeToVolume(float[] point){
-        if (point == null){
-            Log.e(TAG,"null array in modeToVolume");
+    public float[] modeToVolume(float[] point) {
+        if (point == null) {
+            Log.e(TAG, "null array in modeToVolume");
             return null;
         }
 
@@ -575,9 +574,9 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         return result;
     }
 
-    public float[] volumeToModel(float[] point){
-        if (point == null){
-            Log.e(TAG,"null array in volumeToModel");
+    public float[] volumeToModel(float[] point) {
+        if (point == null) {
+            Log.e(TAG, "null array in volumeToModel");
             return null;
         }
 
@@ -591,5 +590,93 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
 
     public void setImageInfo(String imageInfo) {
         this.imageInfo = imageInfo;
+    }
+
+    // front back left right up down
+    public enum FaceDirection {
+        eFront,
+        eBack,
+        eLeft,
+        eRight,
+        eUp,
+        eDown
+    }
+
+    // 注意：下列旋转矩阵参数是以实际视觉效果为准，可能并不符合预想
+    // 旋转到前方向的矩阵
+    public static float[] getFrontMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        return rotationMatrix;
+    }
+
+    // 旋转到后方向的矩阵
+    public static float[] getBackMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.rotateM(rotationMatrix, 0, 180, 0, 1, 0); // 绕Y轴旋转180度
+        return rotationMatrix;
+    }
+
+    // 旋转到右方向的矩阵
+    public static float[] getRightMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.rotateM(rotationMatrix, 0, -90, 0, 1, 0); // 绕Y轴逆时针旋转90度
+        return rotationMatrix;
+    }
+
+    // 旋转到左方向的矩阵
+    public static float[] getLeftMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.rotateM(rotationMatrix, 0, 90, 0, 1, 0); // 绕Y轴顺时针旋转90度
+        return rotationMatrix;
+    }
+
+    // 旋转到上方向的矩阵
+    public static float[] getUpMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.rotateM(rotationMatrix, 0, -90, 1, 0, 0); // 绕X轴逆时针旋转90度
+        return rotationMatrix;
+    }
+
+    // 旋转到下方向的矩阵
+    public static float[] getDownMatrix() {
+        float[] rotationMatrix = new float[16];
+        Matrix.setIdentityM(rotationMatrix, 0);
+        Matrix.rotateM(rotationMatrix, 0, 90, 1, 0, 0); // 绕X轴顺时针旋转90度
+        return rotationMatrix;
+    }
+
+    public void setFaceDirection(FaceDirection direction) {
+        MatrixManager temp = new MatrixManager();
+        temp.clone(m_InitModelMatrixManager);
+        Log.v("Init", Arrays.toString(m_InitModelMatrixManager.getFinalMatrix()));
+
+        switch (direction) {
+            case eFront:
+                temp.rotate(getFrontMatrix());
+                break;
+            case eBack:
+                temp.rotate(getBackMatrix());
+                break;
+            case eLeft:
+                temp.rotate(getLeftMatrix());
+                break;
+            case eRight:
+                temp.rotate(getRightMatrix());
+                break;
+            case eUp:
+                temp.rotate(getUpMatrix());
+                break;
+            case eDown:
+                temp.rotate(getDownMatrix());
+                break;
+        }
+
+        matrixManager.clone(temp);
+        Log.v("After", Arrays.toString(matrixManager.getFinalMatrix()));
     }
 }
