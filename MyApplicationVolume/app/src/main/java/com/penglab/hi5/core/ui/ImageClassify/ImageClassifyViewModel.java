@@ -1,8 +1,8 @@
 package com.penglab.hi5.core.ui.ImageClassify;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.data.MarkerFactoryDataSource.NO_MORE_FILE;
-import static com.penglab.hi5.data.MarkerFactoryDataSource.UPLOAD_SUCCESSFULLY;
+import static com.penglab.hi5.data.ImageClassifyDataSource.NO_MORE_FILE;
+import static com.penglab.hi5.data.ImageClassifyDataSource.UPLOAD_SUCCESSFULLY;
 
 import android.util.Log;
 
@@ -52,8 +52,6 @@ public class ImageClassifyViewModel extends ViewModel {
     private int curDownloadIndex = 0;
     private boolean isDownloading = false;
     private boolean noFileLeft = false;
-
-    public enum AnnotationMode{ BIG_DATA, NONE }
     public enum WorkStatus{
         IMAGE_FILE_EXPIRED, START_TO_DOWNLOAD_IMAGE,  NO_MORE_FILE, DOWNLOAD_IMAGE_FINISH, NONE
     }
@@ -68,7 +66,7 @@ public class ImageClassifyViewModel extends ViewModel {
         this.imageInfoRepository = imageInfoRepository;
         this.imageClassifyDataSource = imageClassifyDataSource;
         initPreDownloadThread();
-        initCheckFreshThread();
+//        initCheckFreshThread();
     }
 
     public ImageClassifyDataSource getImageClassifyDataSource() {
@@ -78,6 +76,9 @@ public class ImageClassifyViewModel extends ViewModel {
     public LiveData<ImageClassifyViewModel.WorkStatus> getWorkStatus() {
         return workStatus;
     }
+    public ImageInfo getCurImageInfo() {
+        return curImageInfo;
+    }
 
     private void getRatingImageList() {
         imageClassifyDataSource.getRatingImageListResponse();
@@ -85,15 +86,14 @@ public class ImageClassifyViewModel extends ViewModel {
 
     public void downloadSingleRatingImage() {
         String imageName = lastDownloadImageInfo.getImageName();
-        Log.e(TAG,"rating_image"+imageName);
         imageClassifyDataSource.getDownloadSingleRatingImageResponse(imageName);
     }
 
     public void uploadUserResult(String ratingType, String additionalInfo) {
-        if (!curImageInfo.ifStillFresh() && !curImageInfo.isAlreadyUpload()) {
-            uploadedUserResult.setValue(new ResourceResult(false, "Expired"));
-            return;
-        }
+//        if (!curImageInfo.isAlreadyUpload()) {
+//            uploadedUserResult.setValue(new ResourceResult(false, "Expired"));
+//            return;
+//        }
         String imageName = curImageInfo.getImageName();
         imageClassifyDataSource.uploadUserRatingResultResponse(imageName,ratingType,additionalInfo);
         if (!curImageInfo.isAlreadyUpload()) {
@@ -101,9 +101,6 @@ public class ImageClassifyViewModel extends ViewModel {
         }
     }
 
-    public ImageInfo getCurImageInfo() {
-        return curImageInfo;
-    }
 
     public LiveData<ResourceResult> monitorDownloadedImageResult() {
         return downloadedRatingImageResult;
@@ -135,7 +132,6 @@ public class ImageClassifyViewModel extends ViewModel {
                 } catch (JSONException | org.json.JSONException e) {
                     e.printStackTrace();
                 }
-
             } else if (data instanceof String && ((String) data).equals(NO_MORE_FILE)) {
                 workStatus.setValue(ImageClassifyViewModel.WorkStatus.NO_MORE_FILE);
                 noFileLeft = true;
@@ -191,20 +187,14 @@ public class ImageClassifyViewModel extends ViewModel {
             Log.e(TAG,"Download rating image result is error !");
             isDownloading = false;
         }
-
     }
-
 
     public void openNewFile() {
         noFileLeft = false;
-        while (lastIndex < imageInfoList.size() - 1) {
-            ImageInfo imageInfo = imageInfoList.get(lastIndex + 1);
-            if (imageInfo.ifStillFresh()) {
-                break;
-            }
-            lastIndex++;
+        if (lastIndex + 4 >= imageInfoList.size() && !isDownloading) {
+            initPreDownloadThread();
         }
-        if (lastIndex + 1 >= imageInfoList.size()) {
+        if (lastIndex + 2 >= imageInfoList.size()) {
             workStatus.setValue(ImageClassifyViewModel.WorkStatus.START_TO_DOWNLOAD_IMAGE);
         } else {
             curIndex = ++lastIndex;
@@ -216,7 +206,7 @@ public class ImageClassifyViewModel extends ViewModel {
         curImageInfo = imageInfoList.get(curIndex);
         curImageInfo.setCreatedTime(System.currentTimeMillis());
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image"+ "/" + curImageInfo.getImageName() ;
-        String fileName =FileManager.getFileName(filePath);
+        String fileName = FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
         imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String >(filePath), fileType);
         downloadedRatingImageResult.setValue(new ResourceResult(true));
@@ -225,8 +215,7 @@ public class ImageClassifyViewModel extends ViewModel {
     public void previousFile() {
         int tempCurIndex = curIndex;
         while (tempCurIndex > 0) {
-            if ((imageInfoList.get(tempCurIndex - 1).ifStillFresh()
-                    || (imageInfoList.get(tempCurIndex - 1).isAlreadyUpload()))) {
+            if ((imageInfoList.get(tempCurIndex - 1).isAlreadyUpload())) {
                 break;
             }
             tempCurIndex--;
@@ -244,8 +233,7 @@ public class ImageClassifyViewModel extends ViewModel {
     public void nextFile() {
         int tempCurIndex = curIndex;
         while (tempCurIndex < imageInfoList.size() - 1) {
-            if ((imageInfoList.get(tempCurIndex + 1).ifStillFresh()
-                    || (imageInfoList.get(tempCurIndex + 1).isAlreadyUpload()))) {
+            if ((imageInfoList.get(tempCurIndex + 1).isAlreadyUpload())) {
                 break;
             }
             tempCurIndex++;
@@ -268,12 +256,7 @@ public class ImageClassifyViewModel extends ViewModel {
         executorService.submit(new Runnable() {
             @Override
             public void run() {
-                while (true) {
-                    if (lastIndex > imageInfoList.size() - 7 && !isDownloading && !noFileLeft) {
-                        getRatingImageList();
-                        isDownloading = true;
-                    }
-                }
+                getRatingImageList();
             }
         });
     }
@@ -283,7 +266,7 @@ public class ImageClassifyViewModel extends ViewModel {
             @Override
             public void run() {
                 if (curImageInfo != null &&
-                        !curImageInfo.isAlreadyUpload() && !curImageInfo.ifStillFresh()) {
+                        !curImageInfo.isAlreadyUpload()) {
                     if (workStatus.getValue() != ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED) {
                         workStatus.postValue(ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED);
                     }

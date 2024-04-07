@@ -7,9 +7,13 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,6 +66,10 @@ public class ImageClassifyActivity  extends AppCompatActivity {
     private final Handler uiHandler = new Handler();
     private BasePopupView downloadingPopupView;
 
+    private boolean isImageExist = false;
+
+    private boolean isFirstSpecialClick = true;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_classify);
@@ -86,6 +94,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 switch (workStatus) {
                     case NO_MORE_FILE:
                         hideDownloadingProgressBar();
+                        isImageExist = false;
                         ToastEasy("No more file need to process !", Toast.LENGTH_LONG);
                         break;
 
@@ -144,6 +153,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                     ImageInfo imageInfo = imageClassifyViewModel.getCurImageInfo();
                     imageIdLocationTextView.setText(imageInfo.getImageName());
                     annotationGLSurfaceView.setImageInfoInRender(imageInfo.getImageName());
+                    isImageExist = true;
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
@@ -237,7 +247,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 return true;
 
             case R.id.share:
-//                annotationGLSurfaceView.screenCapture();
+                annotationGLSurfaceView.screenCapture();
                 playButtonSound();
                 return true;
 
@@ -344,7 +354,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
                         SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
                         SwitchCompat autoUploadSwitch = contentView.findViewById(R.id.autoUpload_mode);
-                        SwitchCompat pinpointStrokeSwitch = contentView.findViewById(R.id.switch_marker_mode);
                         IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
                         SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
                         SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
@@ -352,7 +361,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
                         downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
                         autoUploadSwitch.setChecked(preferenceSoma.getAutoUploadMode());
-                        pinpointStrokeSwitch.setChecked(preferenceSetting.getPointStrokeMode());
                         contrastIndicator.setProgress(preferenceSetting.getContrast());
                         bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
                         buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
@@ -371,20 +379,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                                 preferenceSetting.setDownSampleMode(isChecked);
                                 annotationGLSurfaceView.updateRenderOptions();
                                 annotationGLSurfaceView.requestRender();
-                            }
-                        });
-
-                        pinpointStrokeSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
-                                preferenceSetting.setPointStroke(isChecked);
-                                if (annotationGLSurfaceView.getEditModeValue() != EditMode.NONE) {
-                                    if (isChecked) {
-                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT);
-                                    } else {
-                                        annotationGLSurfaceView.setEditMode(EditMode.PINPOINT_STROKE);
-                                    }
-                                }
                             }
                         });
 
@@ -464,12 +458,18 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             contrastSeekBar = (SeekBar) findViewById(R.id.rating_SeekBar);
             layoutSubcategories3 = findViewById(R.id.layoutSubcategoryWindow3);
             layoutSubcategories4 = findViewById(R.id.layoutSubcategoryWindow4);
+
+
+            Button btnHorizontal = findViewById(R.id.btnHorizontal);
+            Button btnVertical = findViewById(R.id.btnVertical);
+            Button btnSlanting = findViewById(R.id.btnSlanting);
+            Button btnOther = findViewById(R.id.btnOther);
+            Button btnInterceptive = findViewById(R.id.btnInterceptive);
+            Button btnUntruncated = findViewById(R.id.btnUntruncated);
+            Button btnNormal = findViewById(R.id.btnNormal);
+            Button btnSpecial = findViewById(R.id.btnSpecial);
             editTextRemark = findViewById(R.id.editTextRemark);
 
-            Button btnCategory1 = findViewById(R.id.btnCategory1);
-            Button btnCategory2 = findViewById(R.id.btnCategory2);
-            Button btnCategory3 = findViewById(R.id.btnCategory3);
-            Button btnCategory4 = findViewById(R.id.btnCategory4);
 
             contrastSeekBar.setProgress(preferenceSetting.getContrast());
             contrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -491,21 +491,29 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             previousFile.setOnClickListener(v -> previousFile());
             nextFile.setOnClickListener(v -> nextFile());
 
-            btnCategory1.setOnClickListener(new View.OnClickListener() {
+            btnHorizontal.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"1","");
+                    if(isImageExist){
+                        navigateFile(true,true,"1_horizontal","");
+                    } else{
+                        ToastEasy("please open image file first");
+                    }
                 }
             });
 
-            btnCategory2.setOnClickListener(new View.OnClickListener() {
+            btnVertical.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    navigateFile(true,true,"2","");
+                    if(isImageExist){
+                    navigateFile(true,true,"2_vertical","");
+                    }else{
+                        ToastEasy("please open image file first");
+                    }
                 }
             });
 
-            btnCategory3.setOnClickListener(new View.OnClickListener() {
+            btnSlanting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(layoutSubcategories3.getVisibility() == View.GONE) {
@@ -517,14 +525,96 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 }
             });
 
-            btnCategory4.setOnClickListener(new View.OnClickListener() {
+            btnOther.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(layoutSubcategories4.getVisibility() == View.GONE){
                         layoutSubcategories4.setVisibility(View.VISIBLE);
-
                     }else{
                         layoutSubcategories4.setVisibility(View.GONE);
+                    }
+                }
+            });
+
+            btnInterceptive.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(isImageExist){
+                    navigateFile(true,true,"3.1_interceptive","");}
+                    else {
+                        ToastEasy("please open image first");
+                    }
+                }
+            });
+
+            btnUntruncated.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(isImageExist) {
+                        navigateFile(true, true, "3.2_untruncated", "");
+                    }else {
+                        ToastEasy("please open image first");
+                    }
+                }
+            });
+
+            btnNormal.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(isImageExist){
+                    navigateFile(true,true,"4.1_normal","");
+                    } else {
+                        ToastEasy("please open image first");
+                    }
+                }
+            });
+
+            btnSpecial.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // 如果是第一次点击特殊按钮，则显示编辑框
+                    if (isFirstSpecialClick) {
+                        editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
+                        isFirstSpecialClick = false;
+                    }
+
+                    // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
+                    if (btnSpecial.isEnabled()) {
+                        if (!editTextRemark.getText().toString().isEmpty()) {
+                            if (isImageExist) {
+                                navigateFile(true, true, "4.2_special", editTextRemark.getText().toString());
+                                editTextRemark.setText("");
+                                btnSpecial.setEnabled(false);
+                                btnSpecial.setBackgroundColor(Color.GRAY);
+                            } else {
+                                ToastEasy("please open image first");
+                            }
+                        }
+                    }
+                }
+            });
+
+            editTextRemark.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // do nothing
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                    // do nothing
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    if (!editable.toString().isEmpty()) {
+                        // 如果编辑框有内容，则使特殊按钮可点击，设置背景为橙色
+                        btnSpecial.setEnabled(true);
+                        btnSpecial.setBackgroundColor(Color.parseColor("#F4A460"));
+                    } else {
+                        // 如果编辑框为空，则特殊按钮不可点击，设置背景为灰色
+                        btnSpecial.setEnabled(false);
+                        btnSpecial.setBackgroundColor(Color.GRAY);
                     }
                 }
             });
