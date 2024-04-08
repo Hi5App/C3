@@ -18,6 +18,8 @@ public class PreferenceSetting {
     private static Context mContext;
     private final SharedPreferences pref;
 
+    private int contrastEnhanceRatio;
+
     public static void init(Context context){
         mContext = context;
     }
@@ -34,6 +36,16 @@ public class PreferenceSetting {
     }
     private PreferenceSetting(){
         pref = mContext.getSharedPreferences("settings", Context.MODE_PRIVATE);
+    }
+
+    public int getContrastEnhanceRatio(){
+        return pref.getInt("ContrastEnhanceRatio",1);
+    }
+
+    public void setContrastEnhanceRatio(int ratio){
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("ContrastEnhanceRatio", ratio);
+        editor.apply();
     }
 
     public void setPref(boolean DownSampleMode, int Contrast){

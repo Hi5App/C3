@@ -240,7 +240,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private void drawFrame() {
         if (myPattern.isNeedDraw()) {
             myPattern.drawVolume_3d(matrixManager.getFinalMatrix(),
-                    renderOptions.isImageChanging() && renderOptions.isDownSampling(), renderOptions.getContrast());
+                    renderOptions.isImageChanging() && renderOptions.isDownSampling(), renderOptions.getContrast(), renderOptions.getContrastEnhanceRatio());
         }
         if (myPattern2D.isNeedDraw()) {
             myPattern2D.draw(matrixManager.getFinalMatrix());
@@ -653,7 +653,6 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     public void setFaceDirection(FaceDirection direction) {
         MatrixManager temp = new MatrixManager();
         temp.clone(m_InitModelMatrixManager);
-        Log.v("Init", Arrays.toString(m_InitModelMatrixManager.getFinalMatrix()));
 
         switch (direction) {
             case eFront:
@@ -677,6 +676,5 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         }
 
         matrixManager.clone(temp);
-        Log.v("After", Arrays.toString(matrixManager.getFinalMatrix()));
     }
 }

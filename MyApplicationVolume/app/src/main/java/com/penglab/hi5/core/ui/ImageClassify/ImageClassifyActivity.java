@@ -40,6 +40,7 @@ import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
 import com.penglab.hi5.core.music.MusicService;
+import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
@@ -176,6 +177,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 }
             }
         });
+
     }
 
         protected void onResume() {
@@ -459,7 +461,55 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
-            contrastSeekBar = (SeekBar) findViewById(R.id.rating_SeekBar);
+            contrastSeekBar = (SeekBar) findViewById(R.id.contrast_value);
+            SeekBar contrastEnhanceRatio = (SeekBar) findViewById(R.id.contrast_enhance_ratio);
+            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
+            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+                    if(fromuser){
+                        preferenceSetting.setContrastEnhanceRatio(progress);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    }
+                }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) { }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    annotationGLSurfaceView.requestRender();
+                }});
+
+            Button frontBtn = findViewById(R.id.front_ic);
+            frontBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eFront);
+            });
+
+            Button backBtn = findViewById(R.id.back_ic);
+            backBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eBack);
+            });
+
+            Button leftBtn = findViewById(R.id.left_ic);
+            leftBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eLeft);
+            });
+
+            Button rightBtn = findViewById(R.id.right_ic);
+            rightBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eRight);
+            });
+
+            Button upBtn = findViewById(R.id.up_ic);
+            upBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eUp);
+            });
+
+            Button downBtn = findViewById(R.id.down_ic);
+            downBtn.setOnClickListener(v -> {
+                annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eDown);
+            });
+
             layoutSubcategories3 = findViewById(R.id.layoutSubcategoryWindow3);
             layoutSubcategories4 = findViewById(R.id.layoutSubcategoryWindow4);
 

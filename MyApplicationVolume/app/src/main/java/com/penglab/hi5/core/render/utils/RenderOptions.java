@@ -19,6 +19,8 @@ public class RenderOptions {
 
     private float contrast;
 
+    private int contrastEnhanceRatio;
+
     private float scale;
 
     private boolean ifShowAnnotation = true;
@@ -34,6 +36,15 @@ public class RenderOptions {
         this.imageChanging = false;
         this.screenCapture = false;
         this.scale = 2.5f;
+        this.contrastEnhanceRatio = 1;
+    }
+
+    public int getContrastEnhanceRatio(){
+        return contrastEnhanceRatio;
+    }
+
+    public void setContrastEnhanceRatio(int ratio){
+        contrastEnhanceRatio = ratio;
     }
 
     public boolean isDownSampling() {
@@ -95,5 +106,6 @@ public class RenderOptions {
     public void update(){
         this.downSampling = preferenceSetting.getDownSampleMode();
         this.contrast = preferenceSetting.getContrast() / 100.0f + 1.0f;
+        this.contrastEnhanceRatio = preferenceSetting.getContrastEnhanceRatio();
     }
 }

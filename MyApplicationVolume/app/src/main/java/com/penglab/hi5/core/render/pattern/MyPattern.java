@@ -548,7 +548,7 @@ public class MyPattern extends BasicPattern {
 
 
 
-    public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast) {
+    public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio) {
         // Add program to OpenGL ES environment
         GLES30.glUseProgram(mProgram_simple);
 
@@ -576,7 +576,7 @@ public class MyPattern extends BasicPattern {
         GLES20.glUniform1fv(dimHandle,3, dimBuffer);
 
         contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
-        GLES20.glUniform1f(contrastHandle,contrast);
+        GLES20.glUniform1f(contrastHandle,contrast*contrastEnhanceRatio);
 
         GLES30.glActiveTexture(GLES30.GL_TEXTURE0); // 设置使用的纹理编号
         if (ifDownSampling)

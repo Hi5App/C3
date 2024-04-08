@@ -59,6 +59,7 @@ import com.warkiz.widget.SeekParams;
 
 import com.robinhood.ticker.TickerView;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -112,6 +113,8 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private TickerView scoreTickerView;
 
     private int featureDisplayId;
+
+    private ArrayList<byte[]> mLeakyContainer = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -218,38 +221,32 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
         Button frontBtn = findViewById(R.id.front);
         frontBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "front 按钮被点击了", Toast.LENGTH_SHORT).show();
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eFront);
         });
 
         Button backBtn = findViewById(R.id.back);
         backBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "back 按钮被点击了", Toast.LENGTH_SHORT).show();
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eBack);
         });
 
         Button leftBtn = findViewById(R.id.left);
         leftBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "left 按钮被点击了", Toast.LENGTH_SHORT).show();
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eLeft);
         });
 
         Button rightBtn = findViewById(R.id.right);
         rightBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "right 按钮被点击了", Toast.LENGTH_SHORT).show();
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eRight);
         });
 
         Button upBtn = findViewById(R.id.up);
         upBtn.setOnClickListener(v -> {
-            Toast.makeText(this, "up 按钮被点击了", Toast.LENGTH_SHORT).show();
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eUp);
         });
 
         Button downBtn = findViewById(R.id.down);
         downBtn.setOnClickListener(v -> {
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eDown);
-            Toast.makeText(this, "down 按钮被点击了", Toast.LENGTH_SHORT).show();
         });
 
     }

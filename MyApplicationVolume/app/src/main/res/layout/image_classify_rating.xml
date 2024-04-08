@@ -6,6 +6,78 @@
     android:layout_height="match_parent">
 
 
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/face_direction_control_panel_ic"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_marginTop="64dp"
+        android:layout_gravity="fill_horizontal"
+        android:background="@color/transparent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <Button
+            android:id="@+id/front_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            android:background="@drawable/front"
+            app:layout_constraintStart_toEndOf="@id/left_ic"
+            app:layout_constraintTop_toBottomOf="@id/up_ic" />
+
+        <Button
+            android:id="@+id/back_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="@drawable/back"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            app:layout_constraintStart_toEndOf="@id/front_ic"
+            app:layout_constraintTop_toBottomOf="@id/up_ic" />
+
+        <Button
+            android:id="@+id/left_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="@drawable/left"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/up_ic" />
+
+        <Button
+            android:id="@+id/right_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="@drawable/right"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            app:layout_constraintStart_toEndOf="@id/back_ic"
+            app:layout_constraintTop_toBottomOf="@id/up_ic" />
+
+        <Button
+            android:id="@+id/up_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="@drawable/up"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            app:layout_constraintStart_toEndOf="@id/left_ic"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/down_ic"
+            android:layout_width="48dp"
+            android:layout_height="32dp"
+            android:background="@drawable/down"
+            app:cornerRadius="24dp"
+            android:layout_margin="3dp"
+            app:layout_constraintStart_toEndOf="@id/left_ic"
+            app:layout_constraintTop_toBottomOf="@id/left_ic" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
     <com.penglab.hi5.basic.utils.view.ImageButtonExt
         android:id="@+id/previous_file"
         android:layout_width="35dp"
@@ -157,24 +229,55 @@
             />
     </LinearLayout>
 
-    <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
-        android:id="@+id/seekbar_wrapper"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/contrast_setting"
         android:layout_width="wrap_content"
         android:layout_height="150dp"
-        tools:ignore="MissingConstraints"
-        android:layout_marginStart="15dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf ="@+id/next_file">
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="15dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf ="@+id/next_file"
+        >
 
-        <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
-            android:id="@+id/rating_SeekBar"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:min="-50"
-            android:max="150"
-            android:splitTrack="false"
-            app:seekBarRotation="CW270" /> <!-- Rotation: CW90 or CW270 -->
-    </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
+        <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+            android:id="@+id/seekbar_wrapper1"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+
+            <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+                android:id="@+id/contrast_enhance_ratio"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:min="1"
+                android:max="100"
+                android:splitTrack="false"
+                app:seekBarRotation="CW270"
+                /> <!-- Rotation: CW90 or CW270 -->
+        </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
+
+        <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper
+            android:id="@+id/seekbar_wrapper2"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            android:layout_marginLeft="10dp"
+            app:layout_constraintStart_toEndOf="@+id/seekbar_wrapper1"
+            app:layout_constraintTop_toTopOf="parent"
+        >
+            <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBar
+                android:id="@+id/contrast_value"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:min="-50"
+                android:max="150"
+                android:splitTrack="false"
+                app:seekBarRotation="CW270"
+                /> <!-- Rotation: CW90 or CW270 -->
+        </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>>
 </androidx.constraintlayout.widget.ConstraintLayout>
 
 
