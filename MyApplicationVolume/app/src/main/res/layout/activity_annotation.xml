@@ -33,16 +33,16 @@
         >
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/control_panel"
+            android:id="@+id/face_direction_control_panel"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_gravity="fill_horizontal"
             app:layout_constraintTop_toTopOf="parent">
 
             <Button
                 android:id="@+id/front"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="front"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -54,7 +54,7 @@
             <Button
                 android:id="@+id/back"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="back"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -66,7 +66,7 @@
             <Button
                 android:id="@+id/left"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="left"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -78,7 +78,7 @@
             <Button
                 android:id="@+id/right"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="right"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -90,7 +90,7 @@
             <Button
                 android:id="@+id/up"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="up"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -102,7 +102,7 @@
             <Button
                 android:id="@+id/down"
                 android:layout_width="64dp"
-                android:layout_height="32dp"
+                android:layout_height="36dp"
                 android:text="down"
                 android:textColor="@android:color/white"
                 android:textSize="12sp"
@@ -114,6 +114,81 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cut_control_panel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="fill_horizontal"
+            app:layout_constraintTop_toBottomOf="@id/face_direction_control_panel">
+
+<!--            <TextView-->
+<!--                android:id="@+id/x_cut_textview"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:text="X-Cut Range:"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                />-->
+
+<!--            <com.google.android.material.slider.RangeSlider-->
+<!--                android:id="@+id/x_cut_slider"-->
+<!--                android:layout_width="256dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                app:layout_constraintTop_toTopOf="@id/x_cut_textview"-->
+<!--                app:layout_constraintStart_toEndOf="@id/x_cut_textview"-->
+<!--                android:theme="@style/AppThemeMd3"-->
+<!--                app:values="@array/initial_slider_values"-->
+<!--                android:valueFrom="0.0"-->
+<!--                android:valueTo="100.0"-->
+<!--                android:stepSize="1.0"-->
+<!--                />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/y_cut_textview"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:text="Y-Cut Range:"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/x_cut_textview"-->
+<!--                />-->
+
+<!--            <com.google.android.material.slider.RangeSlider-->
+<!--                android:id="@+id/y_cut_slider"-->
+<!--                android:layout_width="256dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/x_cut_slider"-->
+<!--                app:layout_constraintStart_toEndOf="@id/x_cut_textview"-->
+<!--                android:theme="@style/AppThemeMd3"-->
+<!--                app:values="@array/initial_slider_values"-->
+<!--                android:valueFrom="0.0"-->
+<!--                android:valueTo="100.0"-->
+<!--                android:stepSize="1.0"-->
+<!--                />-->
+
+<!--            <TextView-->
+<!--                android:id="@+id/z_cut_textview"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="48dp"-->
+<!--                android:text="Z-Cut Range:"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/y_cut_textview"-->
+<!--                />-->
+
+<!--            <com.google.android.material.slider.RangeSlider-->
+<!--                android:id="@+id/z_cut_slider"-->
+<!--                android:layout_width="256dp"-->
+<!--                android:layout_height="48dp"-->
+<!--                app:layout_constraintTop_toBottomOf="@id/y_cut_slider"-->
+<!--                app:layout_constraintStart_toEndOf="@id/y_cut_textview"-->
+<!--                android:theme="@style/AppThemeMd3"-->
+<!--                app:values="@array/initial_slider_values"-->
+<!--                android:valueFrom="0.0"-->
+<!--                android:valueTo="100.0"-->
+<!--                android:stepSize="1.0"-->
+<!--                />-->
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
         <com.penglab.hi5.core.render.view.AnnotationGLSurfaceView
             android:id="@+id/gl_surface_view"
             android:layout_width="0dp"
@@ -121,7 +196,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/control_panel" />
+            app:layout_constraintTop_toBottomOf="@id/cut_control_panel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
