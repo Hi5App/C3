@@ -531,9 +531,13 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnOther.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    layoutSubcategories4.setVisibility(View.VISIBLE);
-                    btnSpecial.setVisibility(View.VISIBLE);
-                    editTextRemark.setVisibility(View.VISIBLE);
+                    if(layoutSubcategories4.getVisibility() == View.GONE){
+                        layoutSubcategories4.setVisibility(View.VISIBLE);
+                        btnSpecial.setVisibility(View.VISIBLE);
+                        editTextRemark.setVisibility(View.VISIBLE);
+                    }else{
+                        layoutSubcategories4.setVisibility(View.GONE);
+                    }
                 }
             });
 

@@ -66,7 +66,6 @@ public class ImageClassifyViewModel extends ViewModel {
         this.imageInfoRepository = imageInfoRepository;
         this.imageClassifyDataSource = imageClassifyDataSource;
         initPreDownloadThread();
-//        initCheckFreshThread();
     }
 
     public ImageClassifyDataSource getImageClassifyDataSource() {
