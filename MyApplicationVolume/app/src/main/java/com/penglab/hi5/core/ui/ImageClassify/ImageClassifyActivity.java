@@ -72,7 +72,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
 
     private boolean isImageExist = false;
 
-    private boolean isFirstSpecialClick = true;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -336,7 +335,8 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                             public void onSelect(int position, String text) {
                                 switch (text) {
                                     case "Settings":
-                                        settings();
+                                        ToastEasy("To be added");
+//                                        settings();
                                         break;
                                     default:
                                         ToastEasy("Something wrong with more functions...");
@@ -470,7 +470,6 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             Button btnOther = findViewById(R.id.btnOther);
             Button btnInterceptive = findViewById(R.id.btnInterceptive);
             Button btnUntruncated = findViewById(R.id.btnUntruncated);
-            Button btnNormal = findViewById(R.id.btnNormal);
             Button btnSpecial = findViewById(R.id.btnSpecial);
             editTextRemark = findViewById(R.id.editTextRemark);
 
@@ -532,11 +531,9 @@ public class ImageClassifyActivity  extends AppCompatActivity {
             btnOther.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(layoutSubcategories4.getVisibility() == View.GONE){
-                        layoutSubcategories4.setVisibility(View.VISIBLE);
-                    }else{
-                        layoutSubcategories4.setVisibility(View.GONE);
-                    }
+                    layoutSubcategories4.setVisibility(View.VISIBLE);
+                    btnSpecial.setVisibility(View.VISIBLE);
+                    editTextRemark.setVisibility(View.VISIBLE);
                 }
             });
 
@@ -562,26 +559,10 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                 }
             });
 
-            btnNormal.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(isImageExist){
-                    navigateFile(true,true,"4.1_normal","");
-                    } else {
-                        ToastEasy("please open image first");
-                    }
-                }
-            });
 
             btnSpecial.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // 如果是第一次点击特殊按钮，则显示编辑框
-                    if (isFirstSpecialClick) {
-                        editTextRemark.setVisibility(View.VISIBLE); // 设置为可见
-                        isFirstSpecialClick = false;
-                    }
-
                     // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
                     if (btnSpecial.isEnabled()) {
                         if (!editTextRemark.getText().toString().isEmpty()) {

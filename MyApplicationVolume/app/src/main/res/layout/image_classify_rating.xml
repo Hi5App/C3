@@ -138,14 +138,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">
 
-    <!-- 第四类子按钮 -->
-        <Button
-            android:id="@+id/btnNormal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="normal"
-            android:textColor="@android:color/black"
-            android:layout_marginEnd="8dp"/>
 
         <!-- 第四类小类按钮2 -->
         <Button

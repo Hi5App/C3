@@ -84,22 +84,33 @@ public class ImageClassifyDataSource {
         }
     }
 
-    public void uploadUserRatingResultResponse(String imageName, String ratingEnum, String additionalRatingDescription)
-    {
+    public void uploadUserRatingResultResponse(String imageName, String ratingEnum, String additionalRatingDescription) {
         try {
-            HttpUtilsRating.uploadUserRatingResultWithOkHttp(InfoCache.getAccount(),InfoCache.getToken(), imageName,ratingEnum, additionalRatingDescription,new Callback() {
+            HttpUtilsRating.uploadUserRatingResultWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), imageName, ratingEnum, additionalRatingDescription, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     uploadUserRatingResult.postValue(new Result.Error(new Exception("Connect failed when getUpdateImageResult !")));
                 }
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG,"receive response");
+                    Log.e(TAG, "receive response");
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        uploadUserRatingResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+                        try {
+                            String responseBody = response.body().string();
+                            JSONObject jsonResponse = new JSONObject(responseBody);
+                            String status = jsonResponse.optString("Status", "");
+                            if (status.equals("OK")) {
+                                uploadUserRatingResult.postValue(new Result.Success<String>(UPLOAD_SUCCESSFULLY));
+                            } else {
+                                uploadUserRatingResult.postValue(new Result.Error(new Exception("Failed to uploadUserRatingResult: " + responseBody)));
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            uploadUserRatingResult.postValue(new Result.Error(new Exception("Failed to parse server response")));
+                        }
                     } else {
-                        Log.e(TAG,"response: " + response.body().string());
+                        Log.e(TAG, "response: " + response.body().string());
                         uploadUserRatingResult.postValue(new Result.Error(new Exception("Fail to getUpdateImageResult !")));
                     }
                     response.close();
