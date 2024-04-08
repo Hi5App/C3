@@ -52,6 +52,10 @@ import com.penglab.hi5.data.model.img.ImageInfo;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
+
 import cn.carbs.android.library.MDDialog;
 
 public class ImageClassifyActivity  extends AppCompatActivity {
@@ -582,7 +586,14 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                     if (btnSpecial.isEnabled()) {
                         if (!editTextRemark.getText().toString().isEmpty()) {
                             if (isImageExist) {
-                                navigateFile(true, true, "4.2_special", editTextRemark.getText().toString());
+                                String remark = editTextRemark.getText().toString();
+                                String utf8String = null;
+                                try {
+                                    utf8String = new String(remark.getBytes("UTF-8"), "UTF-8");
+                                } catch (UnsupportedEncodingException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                navigateFile(true, true, "4.2_special", utf8String);
                                 editTextRemark.setText("");
                                 btnSpecial.setEnabled(false);
                                 btnSpecial.setBackgroundColor(Color.GRAY);
