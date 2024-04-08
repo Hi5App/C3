@@ -252,7 +252,7 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:min="1"
-                android:max="100"
+                android:max="50"
                 android:splitTrack="false"
                 app:seekBarRotation="CW270"
                 /> <!-- Rotation: CW90 or CW270 -->
@@ -270,8 +270,8 @@
                 android:id="@+id/contrast_value"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:min="-50"
-                android:max="150"
+                android:min="-100"
+                android:max="100"
                 android:splitTrack="false"
                 app:seekBarRotation="CW270"
                 /> <!-- Rotation: CW90 or CW270 -->

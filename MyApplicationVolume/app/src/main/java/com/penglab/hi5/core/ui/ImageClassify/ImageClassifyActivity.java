@@ -158,6 +158,7 @@ public class ImageClassifyActivity  extends AppCompatActivity {
                     imageIdLocationTextView.setText(imageInfo.getImageName());
                     annotationGLSurfaceView.setImageInfoInRender(imageInfo.getImageName());
                     isImageExist = true;
+                    annotationGLSurfaceView.updateRenderOptions();
                 } else {
                     ToastEasy(resourceResult.getError());
                 }
