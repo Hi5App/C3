@@ -209,13 +209,6 @@ public class ImageClassifyViewModel extends ViewModel {
 
     public void previousFile() {
         int tempCurIndex = curIndex;
-//        while (tempCurIndex > 0) {
-//            if ((imageInfoList.get(tempCurIndex - 1).isAlreadyUpload())) {
-//                Log.e(TAG,"!");
-//                break;
-//            }
-//            tempCurIndex--;
-//        }
         if (tempCurIndex == 0) {
             ToastEasy("You have reached the earliest image !");
         } else if (tempCurIndex <= imageInfoList.size() - 1 && tempCurIndex > 0) {
@@ -227,25 +220,6 @@ public class ImageClassifyViewModel extends ViewModel {
     }
 
     public void nextFile() {
-//        int tempCurIndex = curIndex;
-//        while (tempCurIndex < imageInfoList.size() - 1) {
-//            if ((imageInfoList.get(tempCurIndex + 1).isAlreadyUpload())) {
-//                break;
-//            }
-//            tempCurIndex++;
-//        }
-//        if (tempCurIndex == imageInfoList.size()-1) {
-//            // open new file
-//            openNewFile();
-//        } else if (tempCurIndex < imageInfoList.size()-1 && tempCurIndex >= 0) {
-//            curIndex = tempCurIndex+1;
-//            if (curIndex > lastIndex) {
-//                lastIndex = curIndex;
-//            }
-//            openFileWithCurIndex();
-//        } else {
-//            ToastEasy("Something wrong with curIndex");
-//        }
         if (curIndex + 1 > lastIndex) {
             openNewFile();
         } else {
@@ -261,20 +235,6 @@ public class ImageClassifyViewModel extends ViewModel {
                 getRatingImageList();
             }
         });
-    }
-
-    private void initCheckFreshThread() {
-        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                if (curImageInfo != null &&
-                        !curImageInfo.isAlreadyUpload()) {
-                    if (workStatus.getValue() != ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED) {
-                        workStatus.postValue(ImageClassifyViewModel.WorkStatus.IMAGE_FILE_EXPIRED);
-                    }
-                }
-            }
-        }, 30,30, TimeUnit.SECONDS);
     }
 
     public void shutDownThreadPool() {
