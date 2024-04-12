@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Callback;
+import okhttp3.Dispatcher;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -21,7 +22,7 @@ import okhttp3.Response;
 public class HttpUtils {
 
     protected static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
-//    protected static final String SERVER_IP = "http://192.168.3.79:8000";
+    //    protected static final String SERVER_IP = "http://192.168.3.79:8000";
     protected static final String SERVER_IP = "http://114.117.165.134:26000";
     protected static final String DBMS_SERVER_IP = "http://114.117.165.134:14252";
 
@@ -41,12 +42,13 @@ public class HttpUtils {
 //            e.printStackTrace();
 //        }
 //    }
+
     private static final OkHttpClient client =
             new OkHttpClient.Builder()
-            .connectTimeout(20, TimeUnit.SECONDS)
-            .writeTimeout(20, TimeUnit.SECONDS)
-            .readTimeout(20, TimeUnit.SECONDS)
-            .build();
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
+                    .build();
 
     protected static void asyncPostRequest(String url, RequestBody body, Callback callback) {
         Request request;

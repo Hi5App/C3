@@ -63,19 +63,19 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     private final String TAG = "AnnotationGLSurfaceView";
     private final int DEFAULT_SIZE = 128;
     private final boolean[][] selections =
-            {{true,true,true,false,false,false,false},
-             {true,true,true,false,false,false,false},
-             {false,false,false,false,false,false,false},
-             {false,false,false,false,false,false,false},
-             {false,false,false,false,false,false,false},
-             {true,true,true,false,false,false,false}};
+            {{true, true, true, false, false, false, false},
+                    {true, true, true, false, false, false, false},
+                    {false, false, false, false, false, false, false},
+                    {false, false, false, false, false, false, false},
+                    {false, false, false, false, false, false, false},
+                    {true, true, true, false, false, false, false}};
     private final SwitchMutableLiveData<EditMode> editMode = new SwitchMutableLiveData<>(EditMode.NONE);
 
     private final RenderOptions renderOptions = new RenderOptions();
     private final MatrixManager matrixManager = new MatrixManager();
     private final AnnotationDataManager annotationDataManager = new AnnotationDataManager();
-    private final AnnotationHelper annotationHelper = new AnnotationHelper(annotationDataManager, matrixManager);
-    private final AnnotationRender annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions);
+    private AnnotationHelper annotationHelper = new AnnotationHelper(annotationDataManager, matrixManager);
+    private AnnotationRender annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions);
 
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
 
@@ -106,13 +106,13 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         setPreserveEGLContextOnPause(true);
 
         // 当发生交互时重新执行渲染， 需要配合requestRender();
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @Override
     @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean onTouchEvent(MotionEvent event) {
-        try{
+        try {
             // ACTION_DOWN 不 return true，就无触发后面的各个事件
             if (event != null) {
                 final float currentX = toOpenGLCoord(this, event.getX(), true);
@@ -122,7 +122,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     case MotionEvent.ACTION_DOWN:
                         lastX = currentX;
                         lastY = currentY;
-                        switch (Objects.requireNonNull(editMode.getValue())){
+                        switch (Objects.requireNonNull(editMode.getValue())) {
                             case PAINT_CURVE:
                             case PINPOINT_STROKE:
                             case PINPOINT_CHECK:
@@ -157,7 +157,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                         break;
                     case MotionEvent.ACTION_MOVE:
                         if (isZooming && isZoomingNotStop) {
-                            if (!is2DImage()){
+                            if (!is2DImage()) {
                                 renderOptions.setImageChanging(true);
                             }
 
@@ -182,8 +182,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                             x1_start = x2;
                             y1_start = y2;
                         } else if (!isZooming) {
-                            if (editMode.getValue() == EditMode.NONE){
-                                if (!is2DImage()){
+                            if (editMode.getValue() == EditMode.NONE) {
+                                if (!is2DImage()) {
                                     renderOptions.setImageChanging(true);
                                 }
                                 annotationRender.rotate(currentX - lastX, currentY - lastY);
@@ -193,8 +193,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                             } else {
                                 // play music when curve / marker action start
                                 // The step ACTION_DOWN will add 3 item into fingerTrajectory
-                                if (fingerTrajectory.size() <= 3){
-                                    switch (Objects.requireNonNull(editMode.getValue())){
+                                if (fingerTrajectory.size() <= 3) {
+                                    switch (Objects.requireNonNull(editMode.getValue())) {
                                         case PINPOINT:
                                         case PINPOINT_STROKE:
                                         case PINPOINT_CHECK:
@@ -219,7 +219,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                         break;
 
                     case MotionEvent.ACTION_POINTER_UP:
-                        if (editMode.getValue() == EditMode.NONE){
+                        if (editMode.getValue() == EditMode.NONE) {
                             renderOptions.setImageChanging(false);
                         }
                         isZoomingNotStop = false;
@@ -231,10 +231,10 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     case MotionEvent.ACTION_UP:
                         if (!isZooming) {
                             try {
-                                switch (Objects.requireNonNull(editMode.getValue())){
+                                switch (Objects.requireNonNull(editMode.getValue())) {
                                     case ZOOM:
                                         editMode.setValue(EditMode.NONE);
-                                        float [] center = annotationHelper.solveMarkerCenter(currentX, currentY);
+                                        float[] center = annotationHelper.solveMarkerCenter(currentX, currentY);
                                         if (center != null) {
 
                                             //Communicator communicator = Communicator.getInstance();
@@ -248,7 +248,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
                                     case ZOOM_IN_ROI:
                                         editMode.setValue(EditMode.NONE);
-                                        float [] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
+                                        float[] roiCenter = annotationHelper.getROICenter(fingerTrajectory, isBigData);
                                         if (roiCenter != null) {
 //                                            Communicator communicator = Communicator.getInstance();
 //                                            communicator.navigateAndZoomInBlock((int) roiCenter[0] - 64, (int) roiCenter[1] - 64, (int) roiCenter[2] - 64);
@@ -260,17 +260,17 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
                                     case PINPOINT:
                                         // TODO: set score
-                                        if (is2DImage()){
+                                        if (is2DImage()) {
                                             annotationHelper.add2DMarker(currentX, currentY);
                                         } else {
-                                            annotationHelper.addMarker(currentX,currentY,isBigData);
+                                            annotationHelper.addMarker(currentX, currentY, isBigData);
                                             onScoreWinWithTouchEventListener.run();
                                         }
                                         requestRender();
                                         break;
 
                                     case PINPOINT_STROKE:
-                                        if (is2DImage()){
+                                        if (is2DImage()) {
                                             annotationHelper.add2DMarker(currentX, currentY);
                                         } else {
                                             annotationHelper.addMarkerByStroke(fingerTrajectory, isBigData);
@@ -280,7 +280,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         break;
 
                                     case PINPOINT_CHECK:
-                                        annotationHelper.addMarkerInSWC(currentX, currentY,isBigData);
+                                        annotationHelper.addMarkerInSWC(currentX, currentY, isBigData);
                                         onScoreWinWithTouchEventListener.run();
                                         requestRender();
                                         break;
@@ -304,7 +304,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         renderOptions.setShowFingerTrajectory(false);
                                         // TODO: set score
 
-                                        if (is2DImage()){
+                                        if (is2DImage()) {
                                             annotationHelper.add2DCurve(fingerTrajectory);
                                         } else {
                                             Future<String> future = exeService.submit(new Callable<String>() {
@@ -332,13 +332,13 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         break;
 
                                     case DELETE_CURVE:
-                                        Log.e(TAG,"enter delete curve");
+                                        Log.e(TAG, "enter delete curve");
                                         annotationHelper.deleteCurve(fingerTrajectory, isBigData);
                                         requestRender();
                                         break;
 
                                     case SPLIT:
-                                        Log.e(TAG,"enter split curve");
+                                        Log.e(TAG, "enter split curve");
                                         annotationHelper.splitCurve(fingerTrajectory, isBigData);
                                         requestRender();
                                         break;
@@ -348,7 +348,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                                         requestRender();
                                         break;
                                 }
-                            } catch (Exception e){
+                            } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
@@ -363,15 +363,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                 return true;
             }
             return false;
-        }catch (IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
         return false;
     }
 
-    public void syncSplitSegSWC(Vector<V_NeuronSWC> segs){
+    public void syncSplitSegSWC(Vector<V_NeuronSWC> segs) {
         annotationDataManager.syncSplitSegSWC(segs);
     }
+
     public void syncAddSegSWC(Vector<V_NeuronSWC> segs) {
         annotationDataManager.syncAddSegSWC(segs);
     }
@@ -388,7 +389,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncAddMarker(imageMarkers);
     }
 
-    public void syncAddMarkerGlobal(ImageMarker imageMarker){
+    public void syncAddMarkerGlobal(ImageMarker imageMarker) {
         annotationDataManager.syncAddMarkerGlobal(imageMarker);
     }
 
@@ -396,32 +397,31 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncDelMarker(imageMarkers);
     }
 
-    public void syncDelMarkerGlobal(ImageMarker imageMarker)
-    {
+    public void syncDelMarkerGlobal(ImageMarker imageMarker) {
         annotationDataManager.syncDelMarkerGlobal(imageMarker);
     }
 
-    private void clearFingerTrajectory(){
+    private void clearFingerTrajectory() {
         fingerTrajectory.clear();
         renderOptions.setShowFingerTrajectory(false);
         annotationRender.updateFingerTrajectory(fingerTrajectory);
     }
 
-    private void updateFingerTrajectory(float x, float y){
+    private void updateFingerTrajectory(float x, float y) {
         fingerTrajectory.add(x);
         fingerTrajectory.add(y);
         fingerTrajectory.add(-1.0f);
     }
 
-    private boolean is2DImage(){
+    private boolean is2DImage() {
         return (fileType == FileType.JPG || fileType == FileType.PNG);
     }
 
-    public LiveData<EditMode> getEditMode(){
+    public LiveData<EditMode> getEditMode() {
         return editMode;
     }
 
-    public boolean setEditMode(EditMode mode){
+    public boolean setEditMode(EditMode mode) {
         return editMode.setSwitchableValue(mode);
     }
 
@@ -429,24 +429,24 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return editMode.getValue();
     }
 
-    public void updateRenderOptions(){
+    public void updateRenderOptions() {
         renderOptions.update();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public void openFile(){
+    public void openFile() {
         BasicFile basicFile = imageInfoRepository.getBasicImage();
         FilePath<?> filePath = basicFile.getFilePath();
         Log.d("openfile", filePath.getData().toString());
         FileType fileType = basicFile.getFileType();
         this.fileType = fileType;
 
-        switch (fileType){
+        switch (fileType) {
             case V3DPBD:
             case V3DRAW:
             case TIFF:
                 Image4DSimple curImage = Image4DSimple.loadImage(filePath, fileType);
-                if (curImage != null){
+                if (curImage != null) {
                     image4DSimple = curImage;
                     update3DFileSize(new Integer[]{(int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     renderOptions.initOptions();
@@ -459,7 +459,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case PNG:
                 Bitmap bitmap2D = Image4DSimple.loadImage2D(filePath);
                 Image4DSimple curImage2D = Image4DSimple.loadImage2D(bitmap2D, filePath.getData().toString());
-                if (bitmap2D != null && curImage2D != null){
+                if (bitmap2D != null && curImage2D != null) {
                     image4DSimple = curImage2D;
                     update2DImageSize(new Integer[]{
                             bitmap2D.getWidth(), bitmap2D.getHeight(), Math.max(bitmap2D.getWidth(), bitmap2D.getHeight())});
@@ -471,41 +471,41 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             case SWC:
             case ESWC:
                 NeuronTree neuronTree = NeuronTree.parse(filePath);
-                if (neuronTree != null){
+                if (neuronTree != null) {
                     update3DFileSize(new Integer[]{DEFAULT_SIZE, DEFAULT_SIZE, DEFAULT_SIZE});
                     annotationDataManager.init(isBigData);
-                    annotationRender.initSwcInfo(neuronTree, normalizedSize, originalSize );
+                    annotationRender.initSwcInfo(neuronTree, normalizedSize, originalSize);
                 }
                 break;
             default:
                 ToastEasy("Unsupported file !");
         }
-//        requestRender();
+        requestRender();
     }
 
-    public void loadFile(){
+    public void loadFile() {
         BasicFile basicFile = imageInfoRepository.getBasicFile();
         FilePath<?> filePath = basicFile.getFilePath();
         FileType fileType = basicFile.getFileType();
 
-        switch (fileType){
+        switch (fileType) {
             case ANO:
-                Log.e(TAG,"load .ano file !");
+                Log.e(TAG, "load .ano file !");
                 break;
             case SWC:
             case ESWC:
-                Log.e(TAG,"load .swc file !");
+                Log.e(TAG, "load .swc file !");
                 NeuronTree neuronTree = NeuronTree.parse(filePath);
-                if (neuronTree == null){
+                if (neuronTree == null) {
                     ToastEasy("Something wrong with this .swc/.eswc file, can't load it");
                 } else {
                     annotationDataManager.loadNeuronTree(neuronTree, false);
                 }
                 break;
             case APO:
-                Log.e(TAG,"load .apo file !");
+                Log.e(TAG, "load .apo file !");
                 MarkerList markerList = ApoReader.parse(filePath);
-                if (markerList == null){
+                if (markerList == null) {
                     ToastEasy("Something wrong with this .apo file, can't load it");
                 } else {
                     annotationDataManager.loadMarkerList(markerList);
@@ -517,105 +517,105 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
-    public void zoomIn(){
+    public void zoomIn() {
         annotationRender.zoom(2.0f);
         requestRender();
     }
 
-    public void zoomOut(){
+    public void zoomOut() {
         annotationRender.zoom(0.5f);
         requestRender();
     }
 
-    public void autoRotateStart(){
+    public void autoRotateStart() {
         renderOptions.setImageChanging(true);
         matrixManager.autoRotateStart();
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         requestRender();
     }
 
-    public void importApo(ArrayList<ArrayList<Float>> apo){
+    public void importApo(ArrayList<ArrayList<Float>> apo) {
         annotationHelper.importApo(apo);
     }
 
-    public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert){
+    public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert) {
         annotationHelper.convertCoordsForMarker(downloadCoordinateConvert);
     }
 
-    public void convertCoordsForSWC(CoordinateConvert downloadCoordinateConvert){
+    public void convertCoordsForSWC(CoordinateConvert downloadCoordinateConvert) {
         annotationHelper.convertCoordsForSWC(downloadCoordinateConvert);
     }
 
 
-    public void importNeuronTree(NeuronTree nt, boolean needSync){
-        annotationHelper.importNeuronTree(nt,needSync);
+    public void importNeuronTree(NeuronTree nt, boolean needSync) {
+        annotationHelper.importNeuronTree(nt, needSync);
     }
 
-    public void autoRotateStop(){
+    public void autoRotateStop() {
         renderOptions.setImageChanging(false);
         matrixManager.autoRotateStop();
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         requestRender();
     }
 
-    public void undo(){
+    public void undo() {
         try {
-            if (!annotationDataManager.undo()){
+            if (!annotationDataManager.undo()) {
                 ToastEasy("nothing to undo");
             }
-        } catch (Exception e){
-          e.printStackTrace();
-        }
-        requestRender();
-    }
-
-    public void redo(){
-        try {
-            if (!annotationDataManager.redo()){
-                ToastEasy("nothing to redo");
-            }
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         requestRender();
     }
 
-    public void setLastCurveType(int curveType){
+    public void redo() {
+        try {
+            if (!annotationDataManager.redo()) {
+                ToastEasy("nothing to redo");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        requestRender();
+    }
+
+    public void setLastCurveType(int curveType) {
         annotationHelper.setLastCurveType(curveType);
     }
 
-    public void setLastMarkerType(int markerType){
+    public void setLastMarkerType(int markerType) {
         annotationHelper.setLastMarkerType(markerType);
     }
 
-    public int getLastCurveType(){
-        Log.e("LastCurveType",":"+annotationHelper.getLastCurveType());
+    public int getLastCurveType() {
+        Log.e("LastCurveType", ":" + annotationHelper.getLastCurveType());
         return annotationHelper.getLastCurveType();
     }
 
-    public int getLastMarkerType(){
+    public int getLastMarkerType() {
         return annotationHelper.getLastMarkerType();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
-    public boolean APP2(){
+    public boolean APP2() {
         boolean result = annotationHelper.APP2(image4DSimple, is2DImage(), isBigData);
         requestRender();
         return result;
     }
 
-    public boolean GD(){
+    public boolean GD() {
         boolean result = annotationHelper.GD(image4DSimple, is2DImage(), isBigData);
         requestRender();
         return result;
     }
 
-    public void clearAllTracing(){
+    public void clearAllTracing() {
         annotationDataManager.clearAllTracing();
         requestRender();
     }
 
-    public void screenCapture(){
+    public void screenCapture() {
         renderOptions.setScreenCapture(true);
         requestRender();
     }
@@ -625,21 +625,21 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         if (renderOptions.getIfShowSWC()) {
             renderOptions.setIfShowSWC(false);
             return false;
-        }else{
+        } else {
             renderOptions.setIfShowSWC(true);
             return true;
         }
     }
 
-    public void pixelClassification(){
-        if (annotationDataManager.getNeuronTree() != null && image4DSimple != null){
+    public void pixelClassification() {
+        if (annotationDataManager.getNeuronTree() != null && image4DSimple != null) {
             NeuronTree neuronTree = annotationDataManager.getNeuronTree();
             PixelClassification pixelClassification = new PixelClassification();
             pixelClassification.setSelections(selections);
 
             try {
                 image4DSimple = pixelClassification.getPixelClassificationResult(image4DSimple, neuronTree);
-                if (image4DSimple != null){
+                if (image4DSimple != null) {
                     update3DFileSize(new Integer[]{
                             (int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
@@ -647,7 +647,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     annotationDataManager.init(isBigData);
                 }
                 requestRender();
-            } catch (Exception e){
+            } catch (Exception e) {
                 ToastEasy(e.getMessage());
             }
         } else {
@@ -659,15 +659,15 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return image4DSimple;
     }
 
-    public NeuronTree getNeuronTree(){
+    public NeuronTree getNeuronTree() {
         return annotationDataManager.getNeuronTree();
     }
 
-    public MarkerList getMarkerList(){
+    public MarkerList getMarkerList() {
         return annotationDataManager.getMarkerList();
     }
 
-    private void update3DFileSize(Integer[] size){
+    private void update3DFileSize(Integer[] size) {
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
         originalSize[0] = size[0];
@@ -679,7 +679,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         normalizedSize[2] = (float) size[2] / maxSize;
     }
 
-    private void update2DImageSize(Integer[] size){
+    private void update2DImageSize(Integer[] size) {
         float maxSize = (float) Collections.max(Arrays.asList(size));
 
         originalSize[0] = size[0];
@@ -700,7 +700,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     }
 
     public void syncNeuronTree(NeuronTree neuronTree) {
-        annotationDataManager.loadNeuronTree(neuronTree,true);
+        annotationDataManager.loadNeuronTree(neuronTree, true);
         requestRender();
     }
 

@@ -2,7 +2,8 @@ import java.text.SimpleDateFormat
 
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
-def releaseTime() {
+
+static def releaseTime() {
     SimpleDateFormat formatter = new SimpleDateFormat("yyMMdd");
     Date curDate = new Date(System.currentTimeMillis());
     return formatter.format(curDate);
@@ -43,9 +44,9 @@ android {
         }
     }
 
-    android.applicationVariants.all {
+    android.applicationVariants.configureEach {
         variant ->
-            variant.outputs.all {
+            variant.outputs.configureEach {
                 outputFileName = "Hi5_V${defaultConfig.versionName}_${releaseTime()}.apk"
 
             }

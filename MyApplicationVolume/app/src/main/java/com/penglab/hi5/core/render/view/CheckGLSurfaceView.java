@@ -71,7 +71,7 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView {
         setPreserveEGLContextOnPause(true);
 
         // 当发生交互时重新执行渲染， 需要配合requestRender()
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 
     }
 
@@ -265,14 +265,14 @@ public class CheckGLSurfaceView extends BasicGLSurfaceView {
     public void autoRotateStart(){
         renderOptions.setImageChanging(true);
         matrixManager.autoRotateStart();
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         requestRender();
     }
 
     public void autoRotateStop(){
         renderOptions.setImageChanging(false);
         matrixManager.autoRotateStop();
-        setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         requestRender();
     }
 

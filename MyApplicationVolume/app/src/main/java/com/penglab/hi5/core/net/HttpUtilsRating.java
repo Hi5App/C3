@@ -1,13 +1,24 @@
 package com.penglab.hi5.core.net;
 
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+
+import android.util.Log;
+
+import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyViewModel;
+import com.penglab.hi5.core.ui.ImageClassify.RatingImageInfo;
+
 import org.json.JSONObject;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
+import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
@@ -43,30 +54,79 @@ public class HttpUtilsRating extends HttpUtils {
         }
     }
 
-    public static void downloadSingleRattingImageWithOkHttpAsync(String imageName, Callback callback) {
-        try {
-            asyncPostRequest(URL_DOWNLOAD_RATING_IMAGE + imageName, RequestBody.create(null, ""), callback);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    public static void downloadFile(RatingImageInfo ratingImageInfo, ImageClassifyViewModel imageClassifyViewModel) {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(URL_DOWNLOAD_RATING_IMAGE + ratingImageInfo.ImageName).build();
 
-    public static Future<Response> downloadSingleRattingImageWithOkHttpSync(String imageName) {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        Callable<Response> callable = new Callable<Response>() {
+        client.newCall(request).enqueue(new Callback() {
             @Override
-            public Response call() throws Exception {
+            public void onFailure(Call call, IOException e) {
+                ratingImageInfo.DownloadFailed = true;
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String ImagePath = InfoCache.getContext().getExternalFilesDir(null) + "/Image";
+                String imageStorePath = ImagePath + "/" + ratingImageInfo.ImageName;
+                InputStream in = null;
+                FileOutputStream out = null;
+
+                if (ratingImageInfo.IsDownloadCompleted && ratingImageInfo.LocalImageFile != null && !ratingImageInfo.LocalImageFile.isEmpty()) {
+                    ratingImageInfo.DownloadFailed = true;
+                    Log.e("httpUtilsRating", "Image file has been downloaded before ! Image: " + ratingImageInfo.LocalImageFile);
+                    return;
+                }
+
                 try {
-                    return syncPostRequest(URL_DOWNLOAD_RATING_IMAGE + imageName, RequestBody.create(null, ""));
-                } catch (Exception e) {
+                    in = response.body().byteStream();
+
+                    File dir = new File(ImagePath);
+                    if (!dir.exists()) {
+                        if (!dir.mkdirs()) {
+                            ToastEasy("FileHelper: Fail to create directory !");
+                            return;
+                        }
+                    }
+
+                    File file = new File(imageStorePath);
+                    out = new FileOutputStream(file);
+                    byte[] buffer = new byte[1024*1024];
+                    int len;
+                    while ((len = in.read(buffer)) != -1) {
+                        out.write(buffer, 0, len);
+                    }
+
+                    Log.e("httpUtilsRating", "image file name: " + ratingImageInfo.ImageName);
+                    Log.e("httpUtilsRating", "image file size: " + file.length());
+
+                    ratingImageInfo.LocalImageFile=imageStorePath;
+                    ratingImageInfo.IsDownloading = false;
+                    ratingImageInfo.IsDownloadCompleted = true;
+
+                    if(imageClassifyViewModel != null) {
+                        if(imageClassifyViewModel.acquireReScheduledDownloadImageInfo().getValue()!=null && imageClassifyViewModel.acquireReScheduledDownloadImageInfo().getValue().ImageName.equals(ratingImageInfo.ImageName)) {
+                            imageClassifyViewModel.acquireReScheduledDownloadImageInfo().postValue(null);
+                        }
+                    }
+
+                }
+                catch (Exception e) {
+                    ratingImageInfo.DownloadFailed = true;
+                    Log.e("httpUtilsRating", "Response from server is error when download image !");
                     e.printStackTrace();
                 }
-                return null;
+                finally {
+                    if (in != null) {
+                        in.close();
+                    }
+                    if (out != null) {
+                        out.close();
+                    }
+                }
             }
-        };
-        return executor.submit(callable);
+        });
     }
-
 }
 
 

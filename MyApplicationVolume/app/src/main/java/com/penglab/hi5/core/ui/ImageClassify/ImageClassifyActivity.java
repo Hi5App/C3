@@ -1,6 +1,5 @@
 package com.penglab.hi5.core.ui.ImageClassify;
 
-
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
 
@@ -9,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
@@ -16,6 +16,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.impl.LoadingPopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.FileManager;
@@ -50,8 +52,12 @@ import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 import cn.carbs.android.library.MDDialog;
+
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class ImageClassifyActivity extends AppCompatActivity {
     private AnnotationGLSurfaceView mAnnotationGLSurfaceView;
@@ -63,6 +69,41 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private LinearLayout layoutSubcategories3, layoutSubcategories4;
     private EditText mEditTextRemark;
 
+    private LoadingPopupView mDownloadingPopupView;
+
+    private final Handler uiHandler = new Handler();
+    private Timer mRenderTimer = new Timer();
+
+    private TimerTask mRenderTask = new TimerTask() {
+        @Override
+        public void run() {
+            mAnnotationGLSurfaceView.requestRender();
+        }
+    };
+
+    private Timer mDownloadControlTimer = new Timer();
+
+    private TimerTask mDownloadControlTask = new TimerTask() {
+        @Override
+        public void run() {
+            if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted()) {
+                uiHandler.post(() -> {
+                    hideDownloadingProgressBar();
+                    if (mImageClassifyViewModel.acquireCurrentImage().getValue() == null) {
+                        mImageClassifyViewModel.acquireNextImage();
+                    }
+                });
+            }else{
+                mImageClassifyViewModel.getNextRatingImagesInfoDeque().forEach(ratingImageInfo -> {
+                    if (!mImageClassifyViewModel.isImageFileExist(ratingImageInfo) && !ratingImageInfo.IsDownloading) {
+                        ratingImageInfo.IsDownloading = true;
+                        mImageClassifyViewModel.downloadImageFileAsync(ratingImageInfo);
+                    }
+                });
+            }
+        }
+    };
+
     public static void start(Context context) {
         Intent intent = new Intent(context, ImageClassifyActivity.class);
         context.startActivity(intent);
@@ -71,6 +112,9 @@ public class ImageClassifyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_image_classify);
+
+        mDownloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
+        mDownloadingPopupView.setFocusable(false);
 
         mToolbar = findViewById(R.id.toolbar_image_classify);
         setSupportActionBar(mToolbar);
@@ -85,29 +129,68 @@ public class ImageClassifyActivity extends AppCompatActivity {
         updateUI();
 
         mImageClassifyViewModel.acquireCurrentImage().observe(this, imageInfo -> {
+            renderImageFile(imageInfo);
+        });
+
+        mImageClassifyViewModel.acquireReScheduledDownloadImageInfo().observe(this, imageInfo -> {
             if (imageInfo == null) {
-                return;
+                hideDownloadingProgressBar();
+                RatingImageInfo currentImageInfo = mImageClassifyViewModel.acquireCurrentImage().getValue();
+                renderImageFile(currentImageInfo);
+            } else {
+                showDownloadingProgressBar();
             }
-
-            if (!mImageClassifyViewModel.isImageFileExist(imageInfo)) {
-                Log.e("ImageClassifyActivity", "Image file not exist, download it first.");
-                mImageClassifyViewModel.downloadImageFileSync(imageInfo);
-                return;
-
-            }
-
-            String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image/" + imageInfo.ImageName;
-            String fileName = FileManager.getFileName(filePath);
-            FileType fileType = FileManager.getFileType(filePath);
-            mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
-
-            mAnnotationGLSurfaceView.openFile();
-            mImageIdLocationTextView.setText(imageInfo.ImageName);
-            mAnnotationGLSurfaceView.setImageInfoInRender(imageInfo.ImageName);
-            mAnnotationGLSurfaceView.updateRenderOptions();
         });
 
         mImageClassifyViewModel.acquireImagesManually();
+
+        showDownloadingProgressBar();
+
+        // 开始定时器，延迟0毫秒后开始，每隔500毫秒执行一次
+        mRenderTimer.schedule(mRenderTask, 0, 500);
+        mDownloadControlTimer.schedule(mDownloadControlTask, 0, 500);
+    }
+
+    private void renderImageFile(RatingImageInfo imageInfo) {
+        if (imageInfo == null) {
+            return;
+        }
+
+        if (!mImageClassifyViewModel.isImageFileExist(imageInfo)) {
+            Log.e("ImageClassifyActivity", "Image file not exist, download it first. Image: " + imageInfo.ImageName + " , Reschedule download task...");
+            mImageClassifyViewModel.reScheduleDownloadImageFileAsync(imageInfo);
+            return;
+        }
+
+        String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image/" + imageInfo.ImageName;
+        String fileName = FileManager.getFileName(filePath);
+        FileType fileType = FileManager.getFileType(filePath);
+        mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
+
+        mAnnotationGLSurfaceView.openFile();
+        mImageIdLocationTextView.setText(imageInfo.ImageName);
+        mAnnotationGLSurfaceView.setImageInfoInRender(imageInfo.ImageName);
+        mAnnotationGLSurfaceView.updateRenderOptions();
+
+        mAnnotationGLSurfaceView.requestRender();
+    }
+
+    private void showDownloadingProgressBar() {
+        mDownloadingPopupView.show();
+        uiHandler.postDelayed(this::timeOutHandler, 60 * 1000);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void hideDownloadingProgressBar() {
+        mDownloadingPopupView.dismiss();
+        uiHandler.removeCallbacks(this::timeOutHandler);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void timeOutHandler() {
+        mDownloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        ToastEasy("Download images time out! Please try again!");
     }
 
     public void setSupportActionBar(Toolbar mToolbar) {
@@ -250,86 +333,64 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 }
             });
 
-            btnVertical.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                        navigateFile(true, true, "2_vertical", "");
-                    } else {
-                        ToastEasy("please open image file first");
-                    }
+            btnVertical.setOnClickListener(v -> {
+                if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
+                    navigateFile(true, true, "2_vertical", "");
+                } else {
+                    ToastEasy("please open image file first");
                 }
             });
 
-            btnSlanting.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (layoutSubcategories3.getVisibility() == View.GONE) {
-                        layoutSubcategories3.setVisibility(View.VISIBLE);
+            btnSlanting.setOnClickListener(v -> {
+                if (layoutSubcategories3.getVisibility() == View.GONE) {
+                    layoutSubcategories3.setVisibility(View.VISIBLE);
 
-                    } else {
-                        layoutSubcategories3.setVisibility(View.GONE);
-                    }
+                } else {
+                    layoutSubcategories3.setVisibility(View.GONE);
                 }
             });
 
-            btnOther.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (layoutSubcategories4.getVisibility() == View.GONE) {
-                        layoutSubcategories4.setVisibility(View.VISIBLE);
-                        btnSpecial.setVisibility(View.VISIBLE);
-                        mEditTextRemark.setVisibility(View.VISIBLE);
-                    } else {
-                        layoutSubcategories4.setVisibility(View.GONE);
-                    }
+            btnOther.setOnClickListener(v -> {
+                if (layoutSubcategories4.getVisibility() == View.GONE) {
+                    layoutSubcategories4.setVisibility(View.VISIBLE);
+                    btnSpecial.setVisibility(View.VISIBLE);
+                    mEditTextRemark.setVisibility(View.VISIBLE);
+                } else {
+                    layoutSubcategories4.setVisibility(View.GONE);
                 }
             });
 
-            btnInterceptive.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                        navigateFile(true, true, "3.1_interceptive", "");
-                    } else {
-                        ToastEasy("please open image first");
-                    }
+            btnInterceptive.setOnClickListener(v -> {
+                if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
+                    navigateFile(true, true, "3.1_interceptive", "");
+                } else {
+                    ToastEasy("please open image first");
                 }
             });
 
-            btnUntruncated.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                        navigateFile(true, true, "3.2_untruncated", "");
-                    } else {
-                        ToastEasy("please open image first");
-                    }
+            btnUntruncated.setOnClickListener(v -> {
+                if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
+                    navigateFile(true, true, "3.2_untruncated", "");
+                } else {
+                    ToastEasy("please open image first");
                 }
             });
 
 
-            btnSpecial.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
-                    if (btnSpecial.isEnabled()) {
-                        if (!mEditTextRemark.getText().toString().isEmpty()) {
-                            if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                                String remark = mEditTextRemark.getText().toString();
-                                String utf8String = null;
-                                try {
-                                    utf8String = new String(remark.getBytes("UTF-8"), "UTF-8");
-                                } catch (UnsupportedEncodingException e) {
-                                    throw new RuntimeException(e);
-                                }
-                                navigateFile(true, true, "4.2_special", utf8String);
-                                mEditTextRemark.setText("");
-                                btnSpecial.setEnabled(false);
-                                btnSpecial.setBackgroundColor(Color.GRAY);
-                            } else {
-                                ToastEasy("please open image first");
-                            }
+            btnSpecial.setOnClickListener(v -> {
+                // 当特殊按钮可点击且被点击时执行上传数据到服务器的操作
+                if (btnSpecial.isEnabled()) {
+                    if (!mEditTextRemark.getText().toString().isEmpty()) {
+                        if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
+                            String remark = mEditTextRemark.getText().toString();
+                            String utf8String = null;
+                            utf8String = new String(remark.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                            navigateFile(true, true, "4.2_special", utf8String);
+                            mEditTextRemark.setText("");
+                            btnSpecial.setEnabled(false);
+                            btnSpecial.setBackgroundColor(Color.GRAY);
+                        } else {
+                            ToastEasy("please open image first");
                         }
                     }
                 }
@@ -383,7 +444,6 @@ public class ImageClassifyActivity extends AppCompatActivity {
              3.2:
              4.1:
              4.2:
-
          */
         if (needUpload) {
             mImageClassifyViewModel.uploadUserRatingResult(ratingType, additionalInfo);
@@ -441,176 +501,15 @@ public class ImageClassifyActivity extends AppCompatActivity {
         new XPopup.Builder(this)
                 .maxHeight(1500)
                 .asCenterList("More Functions...", new String[]{"Settings"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Settings":
-                                        ToastEasy("To be added");
+                        (position, text) -> {
+                            if (text.equals("Settings")) {
+                                ToastEasy("To be added");
 //                                        settings();
-                                        break;
-                                    default:
-                                        ToastEasy("Something wrong with more functions...");
-                                }
+                            } else {
+                                ToastEasy("Something wrong with more functions...");
                             }
                         })
                 .show();
     }
 
 }
-//public class ImageClassifyActivity  extends AppCompatActivity {
-//    private mAnnotationGLSurfaceView mAnnotationGLSurfaceView;
-//    private ImageClassifyViewModel imageClassifyViewModel;
-//    private View mImageClassifyView;
-//    private LinearLayout layoutSubcategories3, layoutSubcategories4;
-//    private EditText editTextRemark;
-
-//    private TextView imageIdLocationTextView;
-//    private final Handler uiHandler = new Handler();
-//    private BasePopupView downloadingPopupView;
-//
-//    private boolean isImageExist = false;
-//
-//
-//    protected void onCreate(Bundle savedInstanceState) {
-//        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
-
-//
-//        imageClassifyViewModel.getWorkStatus().observe(this, new Observer<ImageClassifyViewModel.WorkStatus>() {
-//            @Override
-//            public void onChanged(ImageClassifyViewModel.WorkStatus workStatus) {
-//                if (workStatus == null) {
-//                    return;
-//                }
-//                switch (workStatus) {
-//                    case NO_MORE_FILE:
-//                        hideDownloadingProgressBar();
-//                        isImageExist = false;
-//                        ToastEasy("No more file need to process !", Toast.LENGTH_LONG);
-//                        break;
-//
-//                    case START_TO_DOWNLOAD_IMAGE:
-//                        showDownloadingProgressBar();
-//                        break;
-//
-//                    case DOWNLOAD_IMAGE_FINISH:
-//                        hideDownloadingProgressBar();
-//                        imageClassifyViewModel.openNewFile();
-//                        break;
-//
-//                    case IMAGE_FILE_EXPIRED:
-//                        warning4ExpiredFile();
-//                        break;
-//                }
-//            }
-//        });
-//
-//        imageClassifyViewModel.getImageClassifyDataSource().getRatingImageListResult().observe(this, new Observer<Result>() {
-//            @Override
-//            public void onChanged(Result result) {
-//                if (result == null) {
-//                    return;
-//                }
-//                imageClassifyViewModel.handleRatingImageList(result);
-//            }
-//        });
-//
-//        imageClassifyViewModel.getImageClassifyDataSource().getUploadUserRatingResult().observe(this, new Observer<Result>() {
-//            @Override
-//            public void onChanged(Result result) {
-//                imageClassifyViewModel.handleUploadUserResult(result);
-//            }
-//        });
-//
-//        imageClassifyViewModel.getImageClassifyDataSource().getDownloadSingleRatingImageResult().observe(this, new Observer<Result>() {
-//            @Override
-//            public void onChanged(Result result) {
-//                if (result == null) {
-//                    return;
-//                }
-//                imageClassifyViewModel.handleDownloadRatingImage(result);
-//            }
-//        });
-//
-//        imageClassifyViewModel.monitorDownloadedImageResult().observe(this, new Observer<ResourceResult>() {
-//            @RequiresApi(api = Build.VERSION_CODES.N)
-//            @Override
-//            public void onChanged(ResourceResult resourceResult) {
-//                if (resourceResult == null){
-//                    return;
-//                }
-//                if (resourceResult.isSuccess()){
-//                    mAnnotationGLSurfaceView.openFile();
-//                    ImageInfo imageInfo = imageClassifyViewModel.getCurImageInfo();
-//                    imageIdLocationTextView.setText(imageInfo.getImageName());
-//                    mAnnotationGLSurfaceView.setImageInfoInRender(imageInfo.getImageName());
-//                    isImageExist = true;
-//                    mAnnotationGLSurfaceView.updateRenderOptions();
-//                } else {
-//                    ToastEasy(resourceResult.getError());
-//                }
-//
-//            }
-//        });
-//
-//        imageClassifyViewModel.monitorUploadedUserResult().observe(this, new Observer<ResourceResult>() {
-//            @Override
-//            public void onChanged(ResourceResult resourceResult) {
-//                if (resourceResult.isSuccess()) {
-//                    ToastEasy("Upload image successfully !");
-//                } else if (resourceResult.getError().equals("Expired")) {
-//                    ToastEasy("The image you just upload is expired.");
-//                } else {
-//                    ToastEasy("Upload failed");
-//                }
-//            }
-//        });
-//
-//    }
-//
-//
-//    private void showDownloadingProgressBar() {
-//        downloadingPopupView.show();
-//        uiHandler.postDelayed(this::timeOutHandler, 30 * 1000);
-//        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//    }
-//
-//    private void hideDownloadingProgressBar() {
-//        downloadingPopupView.dismiss();
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//    }
-//
-
-//
-
-//    private void warning4ExpiredFile() {
-//        new XPopup.Builder(this)
-//                .dismissOnTouchOutside(false)
-//                .asConfirm("Warning...",
-//                        "Current file is expired, will change another file for you.",
-//                        () -> navigateFile(false, true, "-1",""),
-//                        () -> navigateFile(false, true, "-1",""))
-//                .setConfirmText("Confirm")
-//                .setCancelText("I know")
-//                .show();
-//    }
-//
-//    private void timeOutHandler() {
-//        downloadingPopupView.dismiss();
-//        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-//    }
-//
-//    private void openFile() {
-//        imageClassifyViewModel.openNewFile();
-//        }
-//
-
-
-
-
-
-
-
-
-
-

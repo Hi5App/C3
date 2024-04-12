@@ -3518,12 +3518,12 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
                 myrenderer.setIfDownSampling(true);
                 Rotation_i.setImageResource(R.drawable.ic_block_red_24dp);
                 myrenderer.myAnimation.quickStart();
-                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
             } else {
                 myrenderer.setIfDownSampling(false);
                 Rotation_i.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
                 myrenderer.myAnimation.quickStop();
-                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                 myGLSurfaceView.requestRender();
             }
 
@@ -4163,11 +4163,11 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
 
                             Rotation_i.setVisibility(View.GONE);
                             animation_i.setVisibility(View.VISIBLE);
-                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                         } else {
                             Rotation_i.setVisibility(View.VISIBLE);
                             animation_i.setVisibility(View.GONE);
-                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+                            myGLSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
                         }
                     }
                 })
@@ -4713,7 +4713,7 @@ public class MainActivity extends BaseActivity implements ReceiveMsgInterface {
             setPreserveEGLContextOnPause(true);
 
             // 当发生交互时重新执行渲染， 需要配合requestRender();
-            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+            setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 //            setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 
         }
