@@ -43,7 +43,7 @@ public class HttpUtils {
 //        }
 //    }
 
-    private static final OkHttpClient client =
+    public static final OkHttpClient client =
             new OkHttpClient.Builder()
                     .connectTimeout(30, TimeUnit.SECONDS)
                     .writeTimeout(30, TimeUnit.SECONDS)

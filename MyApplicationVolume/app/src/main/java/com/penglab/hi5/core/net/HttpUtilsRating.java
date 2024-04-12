@@ -55,8 +55,7 @@ public class HttpUtilsRating extends HttpUtils {
     }
 
     public static void downloadFile(RatingImageInfo ratingImageInfo, ImageClassifyViewModel imageClassifyViewModel) {
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(URL_DOWNLOAD_RATING_IMAGE + ratingImageInfo.ImageName).build();
+        Request request = new Request.Builder().url(URL_DOWNLOAD_RATING_IMAGE + ratingImageInfo.ImageName).get().build();
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -84,7 +83,7 @@ public class HttpUtilsRating extends HttpUtils {
                     File dir = new File(ImagePath);
                     if (!dir.exists()) {
                         if (!dir.mkdirs()) {
-                            ToastEasy("FileHelper: Fail to create directory !");
+                            Log.e("httpUtilsRating", "FileHelper: Fail to create directory !");
                             return;
                         }
                     }
