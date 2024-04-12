@@ -13,6 +13,7 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
 
 /**
  * Created by Jackiexing on 12/15/21
@@ -81,12 +82,12 @@ public class HttpUtils {
 //        }
 //    }
 
-    protected static void syncPostRequest(String url, RequestBody body, Callback callback) throws IOException {
+    protected static Response syncPostRequest(String url, RequestBody body) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .post(body)
                 .build();
-        client.newCall(request).execute();
+        return client.newCall(request).execute();
     }
 
     protected static void asyncGetRequest(String url, Callback callback) {
