@@ -35,24 +35,24 @@ allprojects {
     }
 }
 
-ext {
-    compileSdkVersion = 29
-    buildToolsVersion = '29.0.3'
-    minSdkVersion = 19
-    targetSdkVersion = 28
-    appTargetSdkVersion = 28
-    versionCode = 150
-    versionName = '8.1.0'
-    sdkSourceCompatibility = 1.8
-    sdkTargetCompatibility = 1.8
-    appSourceCompatibility = 1.8
-    appTargetCompatibility = 1.8
-    nimOutputDir = "nim-outputs-${versionName}-${getBuildTime()}-${getGitVersion()}"
-
-    //参考other-sdks 下的版本， 严格按照绑定的NRTC 版本来 ，使用 fetch_nrtc.sh 更新NRTC时会自动修改
-    nosSdkVersion = '1.0.1'
-    reportSdkVersion = '2.0.1'
-}
+//ext {
+//    compileSdkVersion = 30
+//    buildToolsVersion "30.0.2"
+//    minSdkVersion = 26
+//    targetSdkVersion = 30
+//    appTargetSdkVersion = 30
+//    versionCode = 150
+//    versionName = '8.1.0'
+//    sdkSourceCompatibility = 1.8
+//    sdkTargetCompatibility = 1.8
+//    appSourceCompatibility = 1.8
+//    appTargetCompatibility = 1.8
+//    nimOutputDir = "nim-outputs-${versionName}-${getBuildTime()}-${getGitVersion()}"
+//
+//    //参考other-sdks 下的版本， 严格按照绑定的NRTC 版本来 ，使用 fetch_nrtc.sh 更新NRTC时会自动修改
+//    nosSdkVersion = '1.0.1'
+//    reportSdkVersion = '2.0.1'
+//}
 
 
 

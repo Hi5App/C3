@@ -1,16 +1,15 @@
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
 
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.appTargetSdkVersion
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionName
-
-        renderscriptTargetApi rootProject.ext.compileSdkVersion
+        minSdkVersion 26
+        targetSdkVersion 30
+        versionCode = 150
+        versionName = '8.1.0'
+        renderscriptTargetApi 30
         renderscriptSupportModeEnabled true
     }
 
@@ -28,8 +27,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility rootProject.ext.appSourceCompatibility
-        targetCompatibility rootProject.ext.appTargetCompatibility
+        sourceCompatibility  1.8
+        targetCompatibility  1.8
     }
 
     packagingOptions{
