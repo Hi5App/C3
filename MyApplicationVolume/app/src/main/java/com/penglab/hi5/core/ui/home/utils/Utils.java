@@ -57,27 +57,27 @@ public class Utils {
                     case "Annotation":
                         AnnotationActivity.start(context);
                         break;
-                    case "Check":
-                        QualityInspectionActivity.start(context);
-                        break;
-                    case "Smart Imaging":
-                        S2Activity.start(context);
-                        break;
+//                    case "Check":
+//                        QualityInspectionActivity.start(context);
+//                        break;
+//                    case "Smart Imaging":
+//                        S2Activity.start(context);
+//                        break;
                     case "Collaboration":
                         CollaborationActivity.start(context);
                         break;
                     case "Synapse Validation":
                         BoutonDetectionActivity.start(context);
                         break;
-                    case "Chat":
-                        ChatActivity.start(context);
-                        break;
-                    case "Image Processing":
-                        PluginSystemActivity.start(context);
-                        break;
-                    case "Image Classify":
-                        ImageClassifyActivity.start(context);
-                        break;
+//                    case "Chat":
+//                        ChatActivity.start(context);
+//                        break;
+//                    case "Image Processing":
+//                        PluginSystemActivity.start(context);
+//                        break;
+//                    case "Image Classify":
+//                        ImageClassifyActivity.start(context);
+//                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;

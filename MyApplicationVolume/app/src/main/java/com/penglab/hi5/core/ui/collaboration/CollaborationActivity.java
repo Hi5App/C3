@@ -5,8 +5,10 @@ import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
@@ -20,7 +22,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -40,13 +41,9 @@ import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.lxj.xpopup.interfaces.OnCancelListener;
 import com.lxj.xpopup.interfaces.OnConfirmListener;
-import com.lxj.xpopup.interfaces.OnInputConfirmListener;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
-import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.Observer;
-import com.netease.nimlib.sdk.msg.MsgServiceObserve;
-import com.netease.nimlib.sdk.msg.SystemMessageObserver;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
 import com.netease.nimlib.sdk.msg.model.IMMessage;
@@ -56,14 +53,12 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.XYZ;
-import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
 import com.penglab.hi5.chat.nim.reminder.ReminderManager;
 import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
 import com.penglab.hi5.core.BaseActivity;
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
@@ -72,38 +67,25 @@ import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
-import com.penglab.hi5.core.render.AnnotationRender;
-import com.penglab.hi5.core.render.utils.AnnotationHelper;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
-import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
-import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.annotation.EditMode;
-import com.penglab.hi5.core.ui.check.CheckArborInfoState;
 import com.penglab.hi5.data.Result;
-import com.penglab.hi5.data.dataStore.database.Image;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
-import com.penglab.hi5.data.model.img.PotentialArborMarkerInfo;
-import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class CollaborationActivity extends BaseActivity implements ReceiveMsgInterface, ColorPickerDialogListener {
 
@@ -119,6 +101,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
     private static Context mainContext;
+
+    private AlertDialog dialog;
 
     private static final int HANDLER_SHOW_DOWNLOADING_POPUPVIEW = 0;
     private static final int HANDLER_HIDE_DOWNLOADING_POPUPVIEW = 1;
@@ -144,6 +128,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageView deleteMarker;
     private ImageView splitCurve;
     private Button collaborateResButton;
+
+    private Button btnUserList;
 
     private ImageButton collaborateRightButton;
 
@@ -190,7 +176,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         server will send user list when the users in current room are changed
          */
-        if (msg.startsWith("/activeusers:")) {
+        if (msg.startsWith("/onlineusers:")) {
             String[] users = msg.split(":")[1].split(",");
             List<String> newUserList = Arrays.asList(users);
             updateUserList(newUserList);
@@ -844,61 +830,59 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 .show();
     }
 
+    public void showUserList(Activity activity) {
+        Log.d("MyApp", "showUserList function called"); // Add a log statement to check if the function is called
 
-    private static void acceptInvitation(String path, String soma) {
+        if (MsgConnector.userList.isEmpty()) {
+            Toast.makeText(activity, "No online users found", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-        String[] list = path.split("/");
-        String roomName = list[list.length - 1];
+        // Convert the online user list to a string array
+        String[] userList = MsgConnector.userList.toArray(new String[0]);
+        Log.e(TAG,"Uerlist"+userList);
 
-        Communicator communicator = Communicator.getInstance();
-        communicator.initSoma(soma);
-        communicator.setPath(path);
-        Communicator.BrainNum = path.split("/")[1];
-        conPath = path;
-        firstLoad = true;
+        // Create the AlertDialog only if it's null
+        if (dialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Online Users")
+                    .setItems(userList, null);
+            dialog = builder.create();
+        }
 
-        ServerConnector serverConnector = ServerConnector.getInstance();
-        serverConnector.sendMsg("LOADFILES:2 " + path);
-        serverConnector.setRoomName(roomName);
-    }
-
-    private void showUserList() {
-        String[] userList = (String[]) MsgConnector.userList.toArray();
-        String[] list = new String[userList.length + 1];
-        list[userList.length] = "invite friend to join...";
-        System.arraycopy(userList, 0, list, 0, userList.length);
-        new XPopup.Builder(this)
-                //.maxWidth(600)
-                .asCenterList("User List", list,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                if (position < userList.length)
-                                    Toast_in_Thread("User " + text + " in Room !");
-                                else {
-//                                    showFriendsList(userList);
-                                }
-                            }
-                        })
-                .show();
+        // Show the dialog if the activity is running
+        if (!activity.isFinishing() && !activity.isDestroyed()) {
+            // Show the dialog attached to the activity's window
+            dialog.show();
+        }
     }
 
     private void updateUserList(List<String> newUserList) {
-
-        for (int i = 0; i < newUserList.size(); i++) {
-            if (!MsgConnector.userList.contains(newUserList.get(i)) && newUserList.get(i) != String.valueOf(id)) {
-                Toast_in_Thread("User " + newUserList.get(i) + " join !");
+        List<String> addedUsers = new ArrayList<>();
+        for (String user : newUserList) {
+            if (!MsgConnector.userList.contains(user) && !user.equals(username)) {
+                addedUsers.add(user);
             }
         }
-
-        for (int i = 0; i < MsgConnector.userList.size(); i++) {
-            if (!newUserList.contains(MsgConnector.userList.get(i))) {
-                Toast_in_Thread("User " + MsgConnector.userList.get(i) + " left !");
-            }
+        for (String user : addedUsers) {
+            Toast_in_Thread("User " + user + " joined!");
         }
 
-        MsgConnector.userList = newUserList;
+        List<String> removedUsers = new ArrayList<>();
+        for (String user : MsgConnector.userList) {
+            if (!newUserList.contains(user)) {
+                removedUsers.add(user);
+            }
+        }
+        for (String user : removedUsers) {
+            Toast_in_Thread("User " + user + " left!");
+        }
+
+        // Update MsgConnector.userList with the new user list
+        MsgConnector.userList.clear();
+        MsgConnector.userList.addAll(newUserList);
     }
+
 
     public void loadBigDataApo(String filepath) {
 
@@ -1015,6 +999,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             collaborateResButton = findViewById(R.id.collaborate_res_button);
             collaborateResButton.setVisibility(View.VISIBLE);
 
+            btnUserList = findViewById(R.id.collaborate_user_list);
+            btnUserList.setVisibility(View.VISIBLE);
+
             ROI_i = new ImageButton(this);
             ROI_i.setImageResource(R.drawable.ic_roi);
             ROI_i.setBackgroundResource(R.drawable.circle_normal);
@@ -1035,6 +1022,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu_collaborate);
 
             collaborateResButton.setOnClickListener(new CollaborateButtonClickListener());
+            btnUserList.setOnClickListener(new CollaborateButtonClickListener());
 
             ROI_i.setOnClickListener(new Button.OnClickListener() {
                 @Override
@@ -1252,6 +1240,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             switch (v.getId()) {
                 case R.id.collaborate_res_button:
                     showResListPopup();
+                    break;
+                case R.id.collaborate_user_list:
+                    showUserList(CollaborationActivity.this);
                     break;
                 case R.id.collaborate_right_file_button:
                     collaborationViewModel.shiftBlock(ShiftDirection.RIGHT);
