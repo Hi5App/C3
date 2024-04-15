@@ -840,7 +840,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         // Convert the online user list to a string array
         String[] userList = MsgConnector.userList.toArray(new String[0]);
-        Log.e(TAG,"Uerlist"+userList);
+        Log.e(TAG,"Userlist"+userList);
 
         // Create the AlertDialog only if it's null
         if (dialog == null) {

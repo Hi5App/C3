@@ -229,7 +229,7 @@ public class BoutonDetectionViewModel extends ViewModel {
                 String fileName = FileManager.getFileName((String) data);
                 FileType fileType =FileManager.getFileType((String) data);
                 imageInfoRepository.getBasicFile().setFileInfo(fileName,new FilePath<String>((String) data),fileType);
-                FilePath filePath = new FilePath(Myapplication.getContext().getExternalFilesDir(null) + "/swc" +fileName);
+                FilePath filePath = new FilePath(Myapplication.getContext().getExternalFilesDir(null) + "/swc/" +fileName);
                 NeuronTree neuronTree = NeuronTree.parse(filePath);
                 NeuronTree neuronTreeCoordinateConvert = NeuronTree.convertGlobalToLocal(neuronTree, coordinateConvert);
                 if (neuronTreeCoordinateConvert == null) {
