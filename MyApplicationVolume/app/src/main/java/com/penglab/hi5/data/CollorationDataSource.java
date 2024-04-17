@@ -133,14 +133,6 @@ public class CollorationDataSource {
                                         new XYZ ((float)neuronInfo.getDouble("x"),
                                                 (float)neuronInfo.getDouble("y"),
                                                 (float)neuronInfo.getDouble("z"))));
-//                                if(neuronInfo.getString("name").equals("18454_00019")){
-//                                    neuronList.add(new CollaborateNeuronInfo(neuronInfo.getString("imageid"),
-//                                            neuronInfo.getString("name"),
-//                                            new XYZ ((float)neuronInfo.getDouble("x"),
-//                                                    (float)neuronInfo.getDouble("y"),
-//                                                    (float)neuronInfo.getDouble("z"))));
-//                                }
-
                             }
                             neuronListResult.postValue(new Result.Success<List<CollaborateNeuronInfo>>(neuronList));
                         } catch (Exception exception) {

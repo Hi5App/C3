@@ -512,7 +512,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 if (result instanceof Result.Success) {
                     List<String> data = (List<String>) ((Result.Success<?>) result).getData();
                     String[] str = new String[data.size()];
-                    String[] anoListShow = data.toArray(str);
+//                    String[] anoListShow = data.toArray(str);
+                    String[] anoListShow = {"18454_00019"};
                     new XPopup.Builder(CollaborationActivity.this).
                             maxHeight(1350).
                             maxWidth(800).

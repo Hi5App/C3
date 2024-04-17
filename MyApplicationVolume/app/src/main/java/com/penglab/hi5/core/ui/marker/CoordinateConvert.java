@@ -17,6 +17,14 @@ public class CoordinateConvert {
     private int resIndex;
     private int imgSize=128;
 
+    public XYZ convertGlobalToLocal(double x, double y, double z, int imageSizeX,int imageSizeY,int imageSizeZ) {
+        XYZ node = convertMaxResToCurRes(x, y, z, resIndex);
+        node.x -= startLocation.x + (imgSize - imageSizeX) / 2;
+        node.y -= startLocation.y + (imgSize - imageSizeY) / 2;
+        node.z -= startLocation.z + (imgSize - imageSizeZ) / 2;
+        return node;
+    }
+
     public XYZ convertGlobalToLocal(double x, double y, double z) {
         XYZ node = convertMaxResToCurRes(x, y, z, resIndex);
         node.x -= startLocation.x;
