@@ -517,6 +517,30 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
+    public void setCutx_left_value(float cutx_left_value) {
+        annotationRender.setCutx_left_value(cutx_left_value);
+    }
+
+    public void setCutx_right_value(float cutx_right_value) {
+        annotationRender.setCutx_right_value(cutx_right_value);
+    }
+
+    public void setCuty_left_value(float cuty_left_value) {
+        annotationRender.setCuty_left_value(cuty_left_value);
+    }
+
+    public void setCuty_right_value(float cuty_right_value) {
+        annotationRender.setCuty_right_value(cuty_right_value);
+    }
+
+    public void setCutz_left_value(float cutz_left_value) {
+        annotationRender.setCutz_left_value(cutz_left_value);
+    }
+
+    public void setCutz_right_value(float cutz_right_value) {
+        annotationRender.setCutz_right_value(cutz_right_value);
+    }
+
     public void zoomIn() {
         annotationRender.zoom(2.0f);
         requestRender();

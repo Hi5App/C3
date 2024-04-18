@@ -2,10 +2,8 @@ package com.penglab.hi5.core.render.pattern;
 
 import android.content.Context;
 import android.content.Intent;
-import android.opengl.GLES20;
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.penglab.hi5.basic.ByteTranslate;
 import com.penglab.hi5.basic.image.Image4DSimple;
@@ -24,15 +22,11 @@ import static com.penglab.hi5.core.render.pattern.ShaderHelper.initShaderProgram
 
 
 public class MyPattern extends BasicPattern {
-
     private static final String TAG = "MyPattern";
-    private final int scale = 128;
-    private int count = 0;
 
     //两个shader program
     private static int mProgram_simple;
     private static int mProgram_raycasting;
-    private static int mProgram_curve;
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer vertexPreBuffer;
@@ -42,10 +36,6 @@ public class MyPattern extends BasicPattern {
     private ShortBuffer drawListPreBuffer;
     private FloatBuffer dimBuffer;
 
-    private FloatBuffer vertexBuffer_curve;
-    private FloatBuffer colorBuffer_suqre;
-
-
     private ByteBuffer  imageBuffer;
     private ByteBuffer  imageDSBuffer;
     private ShortBuffer imageShortBuffer;
@@ -54,28 +44,26 @@ public class MyPattern extends BasicPattern {
     private IntBuffer   imageIntDSBuffer;
     private ByteBuffer  imageBuffer_FBO;
 
-
     private int positionHandle = 0;
     private int colorHandle = 1;
     private int vPMatrixHandle;
     private int dimHandle;
     private int contrastHandle;
-    private int trAMatrixHandle;
-    private int thresholdHandle;
-
-    private int positionHandle_suqre;
-    private int colorHandle_square;
-    private int vPMatrixHandle_square;
-
     private ByteTranslate byteTranslate;
 
     private int[] vol_tex = new int[1]; //生成纹理id;
     private int[] fbo_tex = new int[1]; //生成纹理id;
     private int[] vol_texDS = new int[1];
-    private int[] backCoord = new int[1]; //生成纹理id;
-
     private int[] fbo = new int[1];//生成framebuffer
     private int[] rbo = new int[1];//生成renderbuffer
+
+    // cut value
+    private float cutx_left_value;
+    private float cutx_right_value;
+    private float cuty_left_value;
+    private float cuty_right_value;
+    private float cutz_left_value;
+    private float cutz_right_value;
 
 
     private int fboBackCoord;
@@ -103,6 +91,30 @@ public class MyPattern extends BasicPattern {
     private int threshold;
 
     private boolean ifGame = false;
+
+    public void setCutx_left_value(float cutx_left_value) {
+        this.cutx_left_value = cutx_left_value;
+    }
+
+    public void setCutx_right_value(float cutx_right_value) {
+        this.cutx_right_value = cutx_right_value;
+    }
+
+    public void setCuty_left_value(float cuty_left_value) {
+        this.cuty_left_value = cuty_left_value;
+    }
+
+    public void setCuty_right_value(float cuty_right_value) {
+        this.cuty_right_value = cuty_right_value;
+    }
+
+    public void setCutz_left_value(float cutz_left_value) {
+        this.cutz_left_value = cutz_left_value;
+    }
+
+    public void setCutz_right_value(float cutz_right_value) {
+        this.cutz_right_value = cutz_right_value;
+    }
 
     public static enum Mode{NORMAL, GAME};
     private Mode mode = Mode.NORMAL;
@@ -132,37 +144,11 @@ public class MyPattern extends BasicPattern {
     private int drawlistLength = 36;
 
 
-    private final float[] vertexPoints_square={
-            // Front face
-            -1.0f,  1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            1.0f,  1.0f, 0.0f,
-    };
-
-
-    private final float[] TexCoord_square={
-            // Front face
-            0.0f, 0.0f,
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f,
-    };
-
-    private final short[] drawlist_quare = {
-
-            0, 1, 2,      0, 2, 3,    // Front face
-
-    };
-
-
-
-
     // opengl es 3.0 ------------------------------------------------------------------------------
 
 
     private static final String vertexShaderCode_1 =
-                    "#version 300 es\n" +
+                    "#version 320 es\n" +
                     "layout (location = 0) in vec4 a_position;" +
                     "layout (location = 1) in vec4 a_color;" +
                     "uniform mat4 uMVPMatrix;" +
@@ -178,7 +164,7 @@ public class MyPattern extends BasicPattern {
 
 
     private static final String fragmentShaderCode_1 =
-                    "#version 300 es\n" +
+                    "#version 320 es\n" +
                     "precision mediump float;" +
 
                     "in vec4 backColor;" +
@@ -187,9 +173,6 @@ public class MyPattern extends BasicPattern {
                     "void main() {" +
                     "   fragColor = backColor;" +
                     "}";
-
-
-
 
     private static final String vertexShaderCode_2 =
                     // This matrix member variable provides a hook to manipulate
@@ -209,10 +192,8 @@ public class MyPattern extends BasicPattern {
                     "  frontColor = a_color;" +
                     "}";
 
-
-
     private static final String fragmentShaderCode_2 =
-                    "#version 320 es\n" +
+            "#version 320 es\n" +
                     "precision highp float;" +
 
                     "in vec4 frontColor;" +
@@ -223,6 +204,14 @@ public class MyPattern extends BasicPattern {
 
                     "uniform highp float dim[3];" +
                     "uniform highp float contrast;" +
+
+//                    "uniform highp float cutx_left;"+
+//                    "uniform highp float cutx_right;"+
+//                    "uniform highp float cuty_left;"+
+//                    "uniform highp float cuty_right;"+
+//                    "uniform highp float cutz_left;"+
+//                    "uniform highp float cutz_right;"+
+
                     "layout (location = 0) out vec4 fragColor;" +
 
                     "void main(void)" +
@@ -268,9 +257,15 @@ public class MyPattern extends BasicPattern {
 //                    "     if(accumulatedValue.r > 0.15 && accumulatedValue.g > 0.15 && accumulatedValue.b > 0.15)\n" +
 //                    "         break;" +
 
+//                    "   // Check if the current position is within the cut-off values"+
+//                    "   if(vpos.x < cutx_left || vpos.x > cutx_right || vpos.y < cuty_left || vpos.y > cuty_right || vpos.z < cutz_left || vpos.z > cutz_right)"+
+//                    "   {"+
+//                    "       discard; // Discard the fragment or set its color to transparent"+
+//                    "   }"+
+
                     "     if(vpos.x > 1.0 || vpos.y > 1.0 || vpos.z > 1.0 || accumulatedValue.a>=1.0)" +
                     "         break;" +
-                    "  }" +
+                    "}" +
 //                    "  accumulatedValue.r *= contrast;" +
 //                    "  accumulatedValue.g *= contrast;" +
 //                    "  accumulatedValue.b *= contrast;" +
@@ -282,11 +277,11 @@ public class MyPattern extends BasicPattern {
     public static void initProgram(){
         // 创建两个着色器程序
         mProgram_simple = initShaderProgram(TAG, vertexShaderCode_1, fragmentShaderCode_1);
-        Log.v(TAG, "mProgram_simple: " + Integer.toString(mProgram_simple));
+        Log.v(TAG, "mProgram_simple: " + mProgram_simple);
 
 
         mProgram_raycasting = initShaderProgram(TAG, vertexShaderCode_2, fragmentShaderCode_2);
-        Log.v(TAG, "mProgram_raycasting: " + Integer.toString(mProgram_raycasting));
+        Log.v(TAG, "mProgram_raycasting: " + mProgram_raycasting);
     }
 
 
@@ -370,19 +365,19 @@ public class MyPattern extends BasicPattern {
      */
     @Override
     protected void finalize(){
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 fbo_tex, //纹理id的数组
                 0  //偏移量
         );
 
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 vol_tex, //纹理id的数组
                 0  //偏移量
         );
 
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 vol_texDS, //纹理id的数组
                 0  //偏移量
@@ -423,6 +418,7 @@ public class MyPattern extends BasicPattern {
                     mz[0], mz[1], mz[2],
                     mz[0], 0.0f,  mz[2],
 
+                    // Left face
                     // Left face
                     0.0f, 0.0f,  0.0f,
                     0.0f, 0.0f,  mz[2],
@@ -550,54 +546,70 @@ public class MyPattern extends BasicPattern {
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio) {
         // Add program to OpenGL ES environment
-        GLES30.glUseProgram(mProgram_simple);
+        GLES32.glUseProgram(mProgram_simple);
 
         //绑定帧缓冲id，将对象绑定到环境的帧缓冲单元
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, fboBackCoord);
+        GLES32.glBindFramebuffer(GLES32.GL_FRAMEBUFFER, fboBackCoord);
 
-        GLES30.glClearDepthf(-50.0f);
-        GLES30.glDepthFunc(GLES30.GL_GEQUAL);
+        GLES32.glClearDepthf(-50.0f);
+        GLES32.glDepthFunc(GLES32.GL_GEQUAL);
 
         // first pass draw
         drawCubePre(mvpMatrix, mProgram_simple);
 
         //解除绑定
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER, 0);
+        GLES32.glBindFramebuffer(GLES32.GL_FRAMEBUFFER, 0);
 
 
 
 
         // Add program to OpenGL ES environment
-        GLES30.glUseProgram(mProgram_raycasting);
-        GLES30.glClearDepthf(50.0f);
-        GLES30.glDepthFunc(GLES30.GL_LEQUAL);
+        GLES32.glUseProgram(mProgram_raycasting);
+        GLES32.glClearDepthf(50.0f);
+        GLES32.glDepthFunc(GLES32.GL_LEQUAL);
 
-        dimHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "dim");
-        GLES20.glUniform1fv(dimHandle,3, dimBuffer);
+        dimHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "dim");
+        GLES32.glUniform1fv(dimHandle,3, dimBuffer);
 
-        contrastHandle = GLES30.glGetUniformLocation(mProgram_raycasting, "contrast");
-        GLES20.glUniform1f(contrastHandle,contrast*contrastEnhanceRatio);
+        contrastHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "contrast");
+        GLES32.glUniform1f(contrastHandle,contrast*contrastEnhanceRatio);
 
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0); // 设置使用的纹理编号
+        GLES32.glActiveTexture(GLES32.GL_TEXTURE0); // 设置使用的纹理编号
         if (ifDownSampling)
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, vol_texDS[0]);
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_3D, vol_texDS[0]);
         else
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_3D, vol_tex[0]); // 绑定指定的纹理id
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_3D, vol_tex[0]); // 绑定指定的纹理id
 
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE1); // 设置使用的纹理编号
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, fbo_tex[0]); // 绑定指定的纹理id
+        GLES32.glActiveTexture(GLES32.GL_TEXTURE1); // 设置使用的纹理编号
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, fbo_tex[0]); // 绑定指定的纹理id
 
 
         // 将纹理单元传递片段着色器的uVolData
-        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uVolData"), 0);
+        GLES32.glUniform1i(GLES32.glGetUniformLocation(mProgram_raycasting,"uVolData"), 0);
 
         // 将纹理单元传递片段着色器的uBackCoord
-        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgram_raycasting,"uBackCoord"), 1);
+        GLES32.glUniform1i(GLES32.glGetUniformLocation(mProgram_raycasting,"uBackCoord"), 1);
+
+        // 获取uniform cut变量的位置
+        int cutxLeftHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutx_left");
+        int cutxRightHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutx_right");
+        int cutyLeftHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cuty_left");
+        int cutyRightHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cuty_right");
+        int cutzLeftHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutz_left");
+        int cutzRightHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutz_right");
+
+        // 设置uniform cut变量的值
+//        GLES32.glUniform1f(cutxLeftHandle, cutx_left_value);
+//        GLES32.glUniform1f(cutxRightHandle, cutx_right_value);
+//        GLES32.glUniform1f(cutyLeftHandle, cuty_left_value);
+//        GLES32.glUniform1f(cutyRightHandle, cuty_right_value);
+//        GLES32.glUniform1f(cutzLeftHandle, cutz_left_value);
+//        GLES32.glUniform1f(cutzRightHandle, cutz_right_value);
 
         drawCube(mvpMatrix, mProgram_raycasting);
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0); //解除绑定指定的纹理id
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0); //解除绑定指定的纹理id
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,0); //解除绑定指定的纹理id
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_3D,0); //解除绑定指定的纹理id
 
     }
 
@@ -609,66 +621,66 @@ public class MyPattern extends BasicPattern {
 
     private int initFBO(int width, int height){
 
-        GLES30.glGenFramebuffers(  //创建帧缓冲对象
+        GLES32.glGenFramebuffers(  //创建帧缓冲对象
                 1, //产生帧缓冲id的数量
                 fbo,  //帧缓冲id的数组
                 0  //偏移量
         );
 
         //绑定帧缓冲id，将对象绑定到环境的帧缓冲单元
-        GLES30.glBindFramebuffer(GLES30.GL_FRAMEBUFFER,fbo[0]);
+        GLES32.glBindFramebuffer(GLES32.GL_FRAMEBUFFER,fbo[0]);
 
         //创建randerbuffer
-        GLES30.glGenRenderbuffers(
+        GLES32.glGenRenderbuffers(
                 1,
                 rbo,
                 0
         );
 
-        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER,rbo[0]);
+        GLES32.glBindRenderbuffer(GLES32.GL_RENDERBUFFER,rbo[0]);
 
-        GLES30.glRenderbufferStorage(GLES30.GL_RENDERBUFFER, GLES30.GL_DEPTH_COMPONENT16, width, height);
+        GLES32.glRenderbufferStorage(GLES32.GL_RENDERBUFFER, GLES32.GL_DEPTH_COMPONENT16, width, height);
 
-        GLES30.glFramebufferRenderbuffer(GLES30.GL_FRAMEBUFFER, GLES30.GL_DEPTH_ATTACHMENT, GLES30.GL_RENDERBUFFER, rbo[0]);
+        GLES32.glFramebufferRenderbuffer(GLES32.GL_FRAMEBUFFER, GLES32.GL_DEPTH_ATTACHMENT, GLES32.GL_RENDERBUFFER, rbo[0]);
 
-        GLES30.glBindRenderbuffer(GLES30.GL_RENDERBUFFER, 0);
+        GLES32.glBindRenderbuffer(GLES32.GL_RENDERBUFFER, 0);
 
-        GLES30.glGenTextures(  //创建纹理对象
+        GLES32.glGenTextures(  //创建纹理对象
                 1, //产生纹理id的数量
                 fbo_tex, //纹理id的数组
                 0  //偏移量
         );
 
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,fbo_tex[0]);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,fbo_tex[0]);
 
         imageBuffer_FBO = CreateBuffer(new byte[width * height * 4]);
 
-        GLES30.glTexImage2D(
-                GLES30.GL_TEXTURE_2D,
+        GLES32.glTexImage2D(
+                GLES32.GL_TEXTURE_2D,
                 0,
-                GLES30.GL_RGBA,
+                GLES32.GL_RGBA,
                 width,
                 height,
                 0,
-                GLES30.GL_RGBA,
-                GLES30.GL_UNSIGNED_BYTE,
+                GLES32.GL_RGBA,
+                GLES32.GL_UNSIGNED_BYTE,
                 imageBuffer_FBO);
 
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,
-                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,
+                GLES32.GL_TEXTURE_MIN_FILTER,GLES32.GL_NEAREST);//设置MIN 采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,
+                GLES32.GL_TEXTURE_MAG_FILTER,GLES32.GL_LINEAR);//设置MAG采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,
+                GLES32.GL_TEXTURE_WRAP_S,GLES32.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,
+                GLES32.GL_TEXTURE_WRAP_T,GLES32.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 
-        GLES30.glFramebufferTexture2D(GLES30.GL_FRAMEBUFFER, GLES30.GL_COLOR_ATTACHMENT0, GLES30.GL_TEXTURE_2D, fbo_tex[0], 0);
+        GLES32.glFramebufferTexture2D(GLES32.GL_FRAMEBUFFER, GLES32.GL_COLOR_ATTACHMENT0, GLES32.GL_TEXTURE_2D, fbo_tex[0], 0);
 
 
-        int uStatus = GLES30.glCheckFramebufferStatus(GLES30.GL_FRAMEBUFFER);
-        if(uStatus != GLES30.GL_FRAMEBUFFER_COMPLETE) {
+        int uStatus = GLES32.glCheckFramebufferStatus(GLES32.GL_FRAMEBUFFER);
+        if(uStatus != GLES32.GL_FRAMEBUFFER_COMPLETE) {
             Log.v("ReInitFBO()","glCheckFramebufferStatus=%X");
             return -1;
         }
@@ -694,7 +706,7 @@ public class MyPattern extends BasicPattern {
         data_length = image.getDatatype().ordinal();
         isBig = image.getIsBig();
 
-        GLES30.glGenTextures(  //创建纹理对象
+        GLES32.glGenTextures(  //创建纹理对象
                 1, //产生纹理id的数量
                 vol_tex, //纹理id的数组
                 0  //偏移量
@@ -707,18 +719,18 @@ public class MyPattern extends BasicPattern {
 
 
         //绑定纹理id，将对象绑定到环境的纹理单元
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,vol_tex[0]);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_3D,vol_tex[0]);
 
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_MIN_FILTER,GLES32.GL_NEAREST);//设置MIN 采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_MAG_FILTER,GLES32.GL_LINEAR);//设置MAG采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_S,GLES32.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_T,GLES32.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_R,GLES32.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 
 
 //        byte [] image_data = getIntensity_3d();
@@ -727,16 +739,16 @@ public class MyPattern extends BasicPattern {
         if (data_length == 1) {
             byte [] image_data = getIntensity_3d(data_src);
             imageBuffer = CreateBuffer(image_data);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_w,   //宽
                     vol_h,   //高
                     vol_d,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_BYTE,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_BYTE,
                     imageBuffer
             );
             imageBuffer.clear();
@@ -749,16 +761,16 @@ public class MyPattern extends BasicPattern {
 //            imageShortBuffer.put(image_data);
             imageShortBuffer = ShortBuffer.wrap(image_data);
             imageShortBuffer.position(0);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_w,   //宽
                     vol_h,   //高
                     vol_d,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_SHORT,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_SHORT,
                     imageShortBuffer
             );
             imageShortBuffer.clear();
@@ -767,56 +779,56 @@ public class MyPattern extends BasicPattern {
             int [] image_data = getIntensity_int3d(data_src);
             imageIntBuffer = IntBuffer.wrap(image_data);
             imageIntBuffer.position(0);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_w,   //宽
                     vol_h,   //高
                     vol_d,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_INT,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_INT,
                     imageIntBuffer
             );
             imageIntBuffer.clear();
             imageIntBuffer = null;
         }
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_3D,0);
 
-        GLES30.glGenTextures(  //创建纹理对象
+        GLES32.glGenTextures(  //创建纹理对象
                 1, //产生纹理id的数量
                 vol_texDS, //纹理id的数组
                 0  //偏移量
         );
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,vol_texDS[0]);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_3D,vol_texDS[0]);
 
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);//设置MIN 采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);//设置MAG采样方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
-        GLES30.glTexParameterf(GLES30.GL_TEXTURE_3D,
-                GLES30.GL_TEXTURE_WRAP_R,GLES30.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_MIN_FILTER,GLES32.GL_NEAREST);//设置MIN 采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_MAG_FILTER,GLES32.GL_LINEAR);//设置MAG采样方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_S,GLES32.GL_CLAMP_TO_EDGE);//设置S轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_T,GLES32.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
+        GLES32.glTexParameterf(GLES32.GL_TEXTURE_3D,
+                GLES32.GL_TEXTURE_WRAP_R,GLES32.GL_CLAMP_TO_EDGE);//设置T轴拉伸方式
 
         if (data_length == 1) {
             byte [] image_data = getIntensity_3dDownSample(data_src);
             imageDSBuffer = CreateBuffer(image_data);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_wDS,   //宽
                     vol_hDS,   //高
                     vol_dDS,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_BYTE,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_BYTE,
                     imageDSBuffer
             );
             imageDSBuffer.clear();
@@ -829,16 +841,16 @@ public class MyPattern extends BasicPattern {
 //            imageShortBuffer.put(image_data);
             imageShortDSBuffer = ShortBuffer.wrap(image_data);
             imageShortDSBuffer.position(0);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_wDS,   //宽
                     vol_hDS,   //高
                     vol_dDS,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_SHORT,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_SHORT,
                     imageShortDSBuffer
             );
             imageShortDSBuffer.clear();
@@ -847,23 +859,23 @@ public class MyPattern extends BasicPattern {
             int [] image_data = getIntensity_int3dDownSample(data_src);
             imageIntDSBuffer = IntBuffer.wrap(image_data);
             imageIntDSBuffer.position(0);
-            GLES30.glTexImage3D(
-                    GLES30.GL_TEXTURE_3D, //纹理类型
+            GLES32.glTexImage3D(
+                    GLES32.GL_TEXTURE_3D, //纹理类型
                     0,//纹理的层次，0表示基本图像层，可以理解为直接贴图
-                    GLES30.GL_RGBA, //图片的格式
+                    GLES32.GL_RGBA, //图片的格式
                     vol_wDS,   //宽
                     vol_hDS,   //高
                     vol_dDS,   //切片数
                     0, //纹理边框尺寸();
-                    GLES30.GL_RGBA,
-                    GLES30.GL_UNSIGNED_INT,
+                    GLES32.GL_RGBA,
+                    GLES32.GL_UNSIGNED_INT,
                     imageIntDSBuffer
             );
             imageIntDSBuffer.clear();
             imageIntDSBuffer = null;
         }
 
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_3D,0);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_3D,0);
 
     }
 
@@ -1171,51 +1183,51 @@ public class MyPattern extends BasicPattern {
 
     public void drawCubePre(float[] mvpMatrix, int mProgram) {
 
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+        GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT | GLES32.GL_DEPTH_BUFFER_BIT);
 
         // get the common handle
         getHandle(mProgram);
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
-//        GLES30.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
+//        GLES32.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
         // 准备坐标数据
-        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT, false, 0, vertexPreBuffer);
+        GLES32.glVertexAttribPointer(positionHandle, 3, GLES32.GL_FLOAT, false, 0, vertexPreBuffer);
 
         // 准备颜色数据
-        GLES30.glVertexAttribPointer(colorHandle, 4, GLES30.GL_FLOAT, false, 0, colorPreBuffer);
+        GLES32.glVertexAttribPointer(colorHandle, 4, GLES32.GL_FLOAT, false, 0, colorPreBuffer);
 
         // 通过索引来绘制
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, 36, GLES30.GL_UNSIGNED_SHORT, drawListPreBuffer);
+        GLES32.glDrawElements(GLES32.GL_TRIANGLES, 36, GLES32.GL_UNSIGNED_SHORT, drawListPreBuffer);
 
         // 禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(positionHandle);
-        GLES30.glDisableVertexAttribArray(colorHandle);
+        GLES32.glDisableVertexAttribArray(positionHandle);
+        GLES32.glDisableVertexAttribArray(colorHandle);
 
     }
 
     public void drawCube(float[] mvpMatrix, int mProgram) {
 
-        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+        GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT | GLES32.GL_DEPTH_BUFFER_BIT);
 
         // get the common handle
         getHandle(mProgram);
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
-//        GLES30.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
+//        GLES32.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
         // 准备坐标数据
-        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer);
+        GLES32.glVertexAttribPointer(positionHandle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer);
 
         // 准备颜色数据
-        GLES30.glVertexAttribPointer(colorHandle, 4, GLES30.GL_FLOAT, false, 0, colorBuffer);
+        GLES32.glVertexAttribPointer(colorHandle, 4, GLES32.GL_FLOAT, false, 0, colorBuffer);
 
         // 通过索引来绘制
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, drawlistLength, GLES30.GL_UNSIGNED_SHORT, drawListBuffer);
+        GLES32.glDrawElements(GLES32.GL_TRIANGLES, drawlistLength, GLES32.GL_UNSIGNED_SHORT, drawListBuffer);
 
         // 禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(positionHandle);
-        GLES30.glDisableVertexAttribArray(colorHandle);
+        GLES32.glDisableVertexAttribArray(positionHandle);
+        GLES32.glDisableVertexAttribArray(colorHandle);
 
     }
 
@@ -1335,46 +1347,46 @@ public class MyPattern extends BasicPattern {
 
         //get handle to vertex shader's vPosition member
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(positionHandle);
+        GLES32.glEnableVertexAttribArray(positionHandle);
 
         //get handle to vertex shader's vPosition member
         //启用纹理的句柄
-        GLES30.glEnableVertexAttribArray(colorHandle);
+        GLES32.glEnableVertexAttribArray(colorHandle);
 
         // get handle to vertex shader's uMVPMatrix member
-        vPMatrixHandle = GLES30.glGetUniformLocation(mProgram,"uMVPMatrix");
+        vPMatrixHandle = GLES32.glGetUniformLocation(mProgram,"uMVPMatrix");
 
     }
 
     @Override
     public void releaseMemory() {
         super.releaseMemory();
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 fbo_tex, //纹理id的数组
                 0  //偏移量
         );
 
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 vol_tex, //纹理id的数组
                 0  //偏移量
         );
 
-        GLES30.glDeleteTextures( //删除纹理对象
+        GLES32.glDeleteTextures( //删除纹理对象
                 1, //删除纹理id的数量
                 vol_texDS, //纹理id的数组
                 0  //偏移量
         );
 
 
-        GLES30.glDeleteFramebuffers(
+        GLES32.glDeleteFramebuffers(
                 1,
                 fbo,
                 0);
 
 
-        GLES30.glDeleteRenderbuffers(
+        GLES32.glDeleteRenderbuffers(
                 1,
                 rbo,
                 0);

@@ -34,6 +34,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.slider.RangeSlider;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
@@ -75,7 +76,6 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private static final int OPEN_LOCAL_FILE = 1;
     private static final int OPEN_ANALYSIS_SWC = 2;
     private static final int LOAD_LOCAL_FILE = 3;
-    private static final int COLOR_MAP_COLUMNS = 4;
 
     private final HashMap<EditMode, Integer> editModeIconMap = new HashMap<EditMode, Integer>() {{
         put(EditMode.NONE, 0);
@@ -151,59 +151,47 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             }
         });
 
-        annotationViewModel.getAnnotationMode().observe(this, new Observer<AnnotationViewModel.AnnotationMode>() {
-            @Override
-            public void onChanged(AnnotationViewModel.AnnotationMode annotationMode) {
-                if (annotationMode == null) {
-                    return;
-                }
-                updateOptionsMenu(annotationMode);
-                updateUI(annotationMode);
+        annotationViewModel.getAnnotationMode().observe(this, annotationMode -> {
+            if (annotationMode == null) {
+                return;
+            }
+            updateOptionsMenu(annotationMode);
+            updateUI(annotationMode);
+        });
+
+        annotationViewModel.getAnalyzeSwcResults().observe(this, features -> {
+            if (features == null) {
+                ToastEasy("Empty features !");
+                return;
+            }
+            featureDisplayId = 0;
+            displayAnalyzeResults(features);
+        });
+
+        annotationViewModel.getRotateStatus().observe(this, rotateStatus -> {
+            if (rotateStatus == null) {
+                return;
+            }
+            switch (rotateStatus) {
+                case STOP:
+                    if (rotate != null) {
+                        rotate.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
+                        annotationGLSurfaceView.autoRotateStop();
+                    }
+                    break;
+                case ROTATING:
+                    rotate.setImageResource(R.drawable.ic_block_red_24dp);
+                    annotationGLSurfaceView.autoRotateStart();
+                    break;
             }
         });
 
-        annotationViewModel.getAnalyzeSwcResults().observe(this, new Observer<List<double[]>>() {
-            @Override
-            public void onChanged(List<double[]> features) {
-                if (features == null) {
-                    ToastEasy("Empty features !");
-                    return;
-                }
-                featureDisplayId = 0;
-                displayAnalyzeResults(features);
+        annotationGLSurfaceView.getEditMode().observe(this, editMode -> {
+            if (editMode == null) {
+                return;
             }
-        });
-
-        annotationViewModel.getRotateStatus().observe(this, new Observer<AnnotationViewModel.RotateStatus>() {
-            @Override
-            public void onChanged(AnnotationViewModel.RotateStatus rotateStatus) {
-                if (rotateStatus == null) {
-                    return;
-                }
-                switch (rotateStatus) {
-                    case STOP:
-                        if (rotate != null) {
-                            rotate.setImageResource(R.drawable.ic_3d_rotation_red_24dp);
-                            annotationGLSurfaceView.autoRotateStop();
-                        }
-                        break;
-                    case ROTATING:
-                        rotate.setImageResource(R.drawable.ic_block_red_24dp);
-                        annotationGLSurfaceView.autoRotateStart();
-                        break;
-                }
-            }
-        });
-
-        annotationGLSurfaceView.getEditMode().observe(this, new Observer<EditMode>() {
-            @Override
-            public void onChanged(EditMode editMode) {
-                if (editMode == null) {
-                    return;
-                }
-                if (editModeIconMap.get(editMode) != null && editModeIndicator != null) {
-                    editModeIndicator.setImageResource(editModeIconMap.get(editMode));
-                }
+            if (editModeIconMap.get(editMode) != null && editModeIndicator != null) {
+                editModeIndicator.setImageResource(editModeIconMap.get(editMode));
             }
         });
 
@@ -249,6 +237,27 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eDown);
         });
 
+        RangeSlider xRangeSlider = findViewById(R.id.x_cut_slider);
+        xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+            List<Float> values = xRangeSlider.getValues();
+            annotationGLSurfaceView.setCutx_left_value(values.get(0));
+            annotationGLSurfaceView.setCutx_right_value(values.get(1));
+        });
+
+        RangeSlider yRangeSlider = findViewById(R.id.y_cut_slider);
+        yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+            List<Float> values = yRangeSlider.getValues();
+            annotationGLSurfaceView.setCuty_left_value(values.get(0));
+            annotationGLSurfaceView.setCuty_right_value(values.get(1));
+        });
+
+        RangeSlider zRangeSlider = findViewById(R.id.z_cut_slider);
+        zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+            List<Float> values = zRangeSlider.getValues();
+            annotationGLSurfaceView.setCutz_left_value(values.get(0));
+            annotationGLSurfaceView.setCutz_right_value(values.get(1));
+        });
+
     }
 
     @Override
@@ -287,11 +296,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
     private void startMusicService() {
         Log.e(TAG, "init MusicService");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundService(new Intent(this, MusicService.class));
-        } else {
-            startService(new Intent(this, MusicService.class));
-        }
+        startForegroundService(new Intent(this, MusicService.class));
     }
 
     private void stopMusicService() {
@@ -411,19 +416,16 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private void openFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String item) {
-                                switch (item) {
-                                    case "Open LocalFile":
-                                        openLocalFile();
-                                        break;
-                                    case "Open BigData":
-                                        ToastEasy("BigData is under maintenance ！");
-                                        break;
-                                    default:
-                                        ToastEasy("Something wrong in function openFile !");
-                                }
+                        (position, item) -> {
+                            switch (item) {
+                                case "Open LocalFile":
+                                    openLocalFile();
+                                    break;
+                                case "Open BigData":
+                                    ToastEasy("BigData is under maintenance ！");
+                                    break;
+                                default:
+                                    ToastEasy("Something wrong in function openFile !");
                             }
                         })
                 .show();
@@ -461,24 +463,21 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         new XPopup.Builder(this)
                 .maxHeight(1500)
                 .asCenterList("More Functions...", centerList,
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Analyze Swc":
-                                        analyzeSwc();
-                                        break;
-                                    case "Animate":
-                                        break;
-                                    case "Filter by example":
-                                        executorService.submit(() -> annotationGLSurfaceView.pixelClassification());
-                                        break;
-                                    case "Settings":
-                                        settings();
-                                        break;
-                                    default:
-                                        ToastEasy("Something wrong with more functions...");
-                                }
+                        (position, text) -> {
+                            switch (text) {
+                                case "Analyze Swc":
+                                    analyzeSwc();
+                                    break;
+                                case "Animate":
+                                    break;
+                                case "Filter by example":
+                                    executorService.submit(() -> annotationGLSurfaceView.pixelClassification());
+                                    break;
+                                case "Settings":
+                                    settings();
+                                    break;
+                                default:
+                                    ToastEasy("Something wrong with more functions...");
                             }
                         })
                 .show();
@@ -487,19 +486,16 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private void analyzeSwc() {
         new XPopup.Builder(this)
                 .asCenterList("Morphology calculate", new String[]{"Analyze swc file", "Analyze current tracing"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String text) {
-                                switch (text) {
-                                    case "Analyze swc file":
-                                        analyzeSwcFile();
-                                        break;
-                                    case "Analyze current tracing":
-                                        analyzeCurTracing();
-                                        break;
-                                    default:
-                                        ToastEasy("Default in analysis");
-                                }
+                        (position, text) -> {
+                            switch (text) {
+                                case "Analyze swc file":
+                                    analyzeSwcFile();
+                                    break;
+                                case "Analyze current tracing":
+                                    analyzeCurTracing();
+                                    break;
+                                default:
+                                    ToastEasy("Default in analysis");
                             }
                         })
                 .show();
@@ -524,97 +520,90 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private void settings() {
         new MDDialog.Builder(this)
                 .setContentView(R.layout.annotation_settings)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-                        PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
-                        PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
+                .setContentViewOperator(contentView -> {
+                    PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+                    PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
 
-                        SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
-                        IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
-                        SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                        SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                        SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
-                        Spinner bgmSpinner = contentView.findViewById(R.id.bgm_spinner);
+                    SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
+                    IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
+                    SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+                    SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+                    SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
-                        downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
-                        contrastIndicator.setProgress(preferenceSetting.getContrast());
-                        bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
-                        buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
-                        actionVolumeBar.setProgress(preferenceMusic.getActionSound());
+                    downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
+                    contrastIndicator.setProgress(preferenceSetting.getContrast());
+                    bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
+                    buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
+                    actionVolumeBar.setProgress(preferenceMusic.getActionSound());
 
-                        downSampleSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                            @Override
-                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                                preferenceSetting.setDownSampleMode(isChecked);
-                                annotationGLSurfaceView.updateRenderOptions();
-                            }
-                        });
+                    downSampleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        preferenceSetting.setDownSampleMode(isChecked);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    });
 
-                        contrastIndicator.setOnSeekChangeListener(new OnSeekChangeListener() {
-                            @Override
-                            public void onSeeking(SeekParams seekParams) {
-                                preferenceSetting.setContrast(seekParams.progress);
-                                annotationGLSurfaceView.updateRenderOptions();
-                            }
+                    contrastIndicator.setOnSeekChangeListener(new OnSeekChangeListener() {
+                        @Override
+                        public void onSeeking(SeekParams seekParams) {
+                            preferenceSetting.setContrast(seekParams.progress);
+                            annotationGLSurfaceView.updateRenderOptions();
+                        }
 
-                            @Override
-                            public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
-                            }
+                        @Override
+                        public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
+                        }
 
-                            @Override
-                            public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
-                            }
-                        });
+                        @Override
+                        public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+                        }
+                    });
 
-                        bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                preferenceMusic.setBackgroundSound(progress);
-                                updateMusicVolume();
-                            }
+                    bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            preferenceMusic.setBackgroundSound(progress);
+                            updateMusicVolume();
+                        }
 
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {
-                            }
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+                        }
 
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {
-                            }
-                        });
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+                        }
+                    });
 
-                        buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                preferenceMusic.setButtonSound(progress);
-                                updateMusicVolume();
-                            }
+                    buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            preferenceMusic.setButtonSound(progress);
+                            updateMusicVolume();
+                        }
 
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {
-                            }
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+                        }
 
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {
-                            }
-                        });
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+                        }
+                    });
 
-                        actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                            @Override
-                            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                                preferenceMusic.setActionSound(progress);
-                                updateMusicVolume();
-                            }
+                    actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                        @Override
+                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                            preferenceMusic.setActionSound(progress);
+                            updateMusicVolume();
+                        }
 
-                            @Override
-                            public void onStartTrackingTouch(SeekBar seekBar) {
-                            }
+                        @Override
+                        public void onStartTrackingTouch(SeekBar seekBar) {
+                        }
 
-                            @Override
-                            public void onStopTrackingTouch(SeekBar seekBar) {
-                            }
-                        });
-                    }
+                        @Override
+                        public void onStopTrackingTouch(SeekBar seekBar) {
+                        }
+                    });
                 })
                 .setNegativeButton("Cancel", v -> {
                 })
@@ -899,37 +888,28 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
         featuresDisplay = new MDDialog.Builder(this)
                 .setContentView(R.layout.analysis_result)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-                        // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        // analysis_result next page
-                        Button next = (Button) contentView.findViewById(R.id.ar_right);
-                        next.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (featureList.size() > 1) {
-                                    featureDisplayId = (featureDisplayId + 1) % featureList.size();
-                                    double[] result = featureList.get(featureDisplayId);
-                                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
-                                    featuresDisplay.show();
-                                }
-                            }
-                        });
-                        Button previous = (Button) contentView.findViewById(R.id.ar_left);
-                        previous.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (featureList.size() > 1) {
-                                    featureDisplayId = (featureDisplayId - 1 + featureList.size()) % featureList.size();
-                                    double[] result = featureList.get(featureDisplayId);
-                                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
-                                    featuresDisplay.show();
-                                }
-                            }
-                        });
-                        setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
-                    }
+                .setContentViewOperator(contentView -> {
+                    // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+                    // analysis_result next page
+                    Button next = (Button) contentView.findViewById(R.id.ar_right);
+                    next.setOnClickListener(v -> {
+                        if (featureList.size() > 1) {
+                            featureDisplayId = (featureDisplayId + 1) % featureList.size();
+                            double[] result1 = featureList.get(featureDisplayId);
+                            setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
+                            featuresDisplay.show();
+                        }
+                    });
+                    Button previous = (Button) contentView.findViewById(R.id.ar_left);
+                    previous.setOnClickListener(v -> {
+                        if (featureList.size() > 1) {
+                            featureDisplayId = (featureDisplayId - 1 + featureList.size()) % featureList.size();
+                            double[] result1 = featureList.get(featureDisplayId);
+                            setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
+                            featuresDisplay.show();
+                        }
+                    });
+                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
                 })
                 .setShowTitle(false)
                 .create();

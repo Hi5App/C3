@@ -677,4 +677,28 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
 
         matrixManager.clone(temp);
     }
+
+    public void setCutx_left_value(float cutx_left_value) {
+        myPattern.setCutx_left_value(cutx_left_value);
+    }
+
+    public void setCutx_right_value(float cutx_right_value) {
+        myPattern.setCutx_right_value(cutx_right_value);
+    }
+
+    public void setCuty_left_value(float cuty_left_value) {
+        myPattern.setCuty_left_value(cuty_left_value);
+    }
+
+    public void setCuty_right_value(float cuty_right_value) {
+        myPattern.setCuty_right_value(cuty_right_value);
+    }
+
+    public void setCutz_left_value(float cutz_left_value) {
+        myPattern.setCutz_left_value(cutz_left_value);
+    }
+
+    public void setCutz_right_value(float cutz_right_value) {
+        myPattern.setCutz_right_value(cutz_right_value);
+    }
 }
