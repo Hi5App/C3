@@ -155,6 +155,10 @@ public class ImageClassifyActivity extends AppCompatActivity {
         mToolbar = findViewById(R.id.toolbar_image_classify);
         setSupportActionBar(mToolbar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
         mAnnotationGLSurfaceView = findViewById(R.id.gl_surface_view);
         mAnnotationGLSurfaceView.setBigData(true);
 
@@ -240,8 +244,11 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
     public void setSupportActionBar(Toolbar mToolbar) {
-        mToolbar.getMenu().clear();
+        if(mToolbar.getMenu().size() != 0){
+            mToolbar.getMenu().clear();
+        }
         mToolbar.inflateMenu(R.menu.image_classify_menu);
+        super.setSupportActionBar(mToolbar);
     }
 
     protected void onResume() {
