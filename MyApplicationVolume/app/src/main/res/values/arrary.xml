@@ -22,6 +22,13 @@
         <item>YELLOW</item>
     </string-array>
 
+    <string-array name="user_options">
+        <item>yewen</item>
+        <item>wyt</item>
+        <item>rj</item>
+    </string-array>
+
+
     <array name="initial_slider_values">
         <item>0.0</item>
         <item>100.0</item>

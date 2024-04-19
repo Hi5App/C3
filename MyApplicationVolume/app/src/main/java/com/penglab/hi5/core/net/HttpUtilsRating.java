@@ -7,6 +7,7 @@ import android.util.Log;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyViewModel;
 import com.penglab.hi5.core.ui.ImageClassify.RatingImageInfo;
+import com.penglab.hi5.core.ui.home.utils.Utils;
 
 import org.json.JSONObject;
 
@@ -27,6 +28,8 @@ public class HttpUtilsRating extends HttpUtils {
     private static final String URL_GET_RATING_IMAGE_LIST = SERVER_IP + "/dynamic/GetRatingImageList";
     private static final String URL_UPDATE_RATING_RESULT = SERVER_IP + "/dynamic/UpdateRatingResult";
     private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP +"/dynamic/GetRatingImageFile/";
+
+    private static final String URL_GET_RATTING_RESULT = SERVER_IP +"/dynamic/GetRatingResult";
 
     public static void getRattingImageListWithOkHttp(String username,String password, int count, Callback callback) {
         try {
@@ -125,6 +128,27 @@ public class HttpUtilsRating extends HttpUtils {
                 }
             }
         });
+    }
+
+
+
+    public static void queryUserRattingTableWithOkHttp(String username, String password, String queryUserName, String queryStartTime, String queryEndTime, Callback callback) {
+        try {
+            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+            jsonObject.put("QueryUserName", queryUserName);
+            jsonObject.put("QueryStartTime", rfc3339StartTime);
+            jsonObject.put("QueryEndTime", rfc3339EndTime);
+
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            asyncPostRequest(URL_GET_RATTING_RESULT, body, callback);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
 

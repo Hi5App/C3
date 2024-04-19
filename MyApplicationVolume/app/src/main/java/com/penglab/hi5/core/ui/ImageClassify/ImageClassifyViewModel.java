@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.net.HttpUtilsRating;
+import com.penglab.hi5.core.ui.QualityInspection.QueryCheckerResult;
 import com.penglab.hi5.data.ImageClassifyDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.UserInfoRepository;
@@ -21,7 +22,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -38,6 +41,8 @@ public class ImageClassifyViewModel extends ViewModel {
     private Deque<RatingImageInfo> mNextRatingImagesInfoDeque = new ArrayDeque<>();
     private final MutableLiveData<RatingImageInfo> mReScheduledDownloadImageInfo = new MutableLiveData<>();
 
+    private final MutableLiveData<List<UserRatingResultInfo>> mUserRatingResultTable = new MutableLiveData<>();
+
     public ImageClassifyViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, ImageClassifyDataSource imageClassifyDataSource) {
         this.mUserInfoRepository = userInfoRepository;
         this.mImageInfoRepository = imageInfoRepository;
@@ -49,6 +54,8 @@ public class ImageClassifyViewModel extends ViewModel {
     public Deque<RatingImageInfo> getNextRatingImagesInfoDeque() {
         return mNextRatingImagesInfoDeque;
     }
+
+    public MutableLiveData<List<UserRatingResultInfo>> getmUserRatingResultTable () {return mUserRatingResultTable;}
 
     public boolean isNextImageDequeDownloadCompleted() {
         for (RatingImageInfo ratingImageInfo : mNextRatingImagesInfoDeque) {
@@ -263,6 +270,53 @@ public class ImageClassifyViewModel extends ViewModel {
         } else {
             ToastEasy("Current Image is not being downloaded! Please waiting...");
         }
+    }
+
+    public void requestRatingTable(String queryUserName, String queryStartTime, String queryEndTime) {
+        HttpUtilsRating.queryUserRattingTableWithOkHttp(
+                InfoCache.getAccount(), InfoCache.getToken(), queryUserName, queryStartTime, queryEndTime, new Callback() {
+                    @Override
+                    public void onFailure(Call call, IOException e) {
+                        Log.e(TAG, "Connect failed when getting request rating table!");
+                    }
+
+                    @Override
+                    public void onResponse(Call call, Response response) throws IOException {
+                        Log.e(TAG, "Received response");
+                        int responseCode = response.code();
+                        if (responseCode == 200) {
+                            String str = response.body().string();
+                            if (str != null) {
+                                Log.e("Get rating result", str);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(str);
+                                    String status = jsonObject.optString("Status");
+                                    if (status.equals("OK")) {
+                                        JSONArray ratingResults = jsonObject.getJSONArray("RatingQueryResult");
+                                        ArrayList<UserRatingResultInfo> userRatingResultInfoList = new ArrayList<>();
+                                        for (int i = 0; i < ratingResults.length(); i++) {
+                                            JSONObject ratingResult = ratingResults.getJSONObject(i);
+                                            UserRatingResultInfo userRatingResultInfo = new UserRatingResultInfo();
+                                            userRatingResultInfo.imageName = ratingResult.optString("ImageName");
+                                            userRatingResultInfo.ratingEnum = ratingResult.optString("RatingEnum");
+                                            userRatingResultInfo.additionalRatingDescription = ratingResult.optString("AdditionalRatingDescription");
+                                            userRatingResultInfo.uploadTime = ratingResult.optString("UploadTime");
+                                            userRatingResultInfoList.add(userRatingResultInfo);
+
+                                        }
+                                        mUserRatingResultTable.setValue(userRatingResultInfoList);
+
+                                    } else {
+                                        Log.e(TAG, "Status is not OK: " + status);
+                                    }
+                                } catch (JSONException e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
+                        }
+                        response.close();
+                    }
+                });
     }
 
     public boolean isLoggedIn() {

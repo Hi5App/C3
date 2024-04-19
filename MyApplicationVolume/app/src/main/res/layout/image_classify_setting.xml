@@ -1,0 +1,73 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Spinner
+        android:id="@+id/start_time_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/end_time_spinner"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"/>
+
+    <Spinner
+        android:id="@+id/end_time_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/start_time_spinner"
+        app:layout_constraintTop_toTopOf="@+id/start_time_spinner"
+        app:layout_constraintEnd_toStartOf="@+id/user_spinner"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"/>
+
+    <Spinner
+        android:id="@+id/user_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/end_time_spinner"
+        app:layout_constraintTop_toTopOf="@+id/start_time_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="20dp"/>
+
+    <Button
+        android:id="@+id/query_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Query"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/start_time_spinner"
+        app:layout_constraintEnd_toStartOf="@+id/download_button"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginEnd="10dp"/>
+
+    <Button
+        android:id="@+id/download_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Download"
+        app:layout_constraintStart_toEndOf="@+id/query_button"
+        app:layout_constraintTop_toBottomOf="@+id/user_spinner"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="20dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_table"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/download_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="20dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

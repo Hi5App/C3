@@ -17,7 +17,7 @@
         app:showAsAction="always"/>
 
     <item
-        android:id="@+id/more"
+        android:id="@+id/more_settings"
         android:orderInCategory="6"
         android:title="more"
         android:icon="@drawable/ic_more_vert_black_24dp"

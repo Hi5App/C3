@@ -28,6 +28,10 @@ import com.penglab.hi5.data.UserInfoRepository;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -57,27 +61,27 @@ public class Utils {
                     case "Annotation":
                         AnnotationActivity.start(context);
                         break;
-//                    case "Check":
-//                        QualityInspectionActivity.start(context);
-//                        break;
-//                    case "Smart Imaging":
-//                        S2Activity.start(context);
-//                        break;
+                    case "Check":
+                        QualityInspectionActivity.start(context);
+                        break;
+                    case "Smart Imaging":
+                        S2Activity.start(context);
+                        break;
                     case "Collaboration":
                         CollaborationActivity.start(context);
                         break;
                     case "Synapse Validation":
                         BoutonDetectionActivity.start(context);
                         break;
-//                    case "Chat":
-//                        ChatActivity.start(context);
-//                        break;
-//                    case "Image Processing":
-//                        PluginSystemActivity.start(context);
-//                        break;
-//                    case "Image Classify":
-//                        ImageClassifyActivity.start(context);
-//                        break;
+                    case "Chat":
+                        ChatActivity.start(context);
+                        break;
+                    case "Image Processing":
+                        PluginSystemActivity.start(context);
+                        break;
+                    case "Image Classify":
+                        ImageClassifyActivity.start(context);
+                        break;
                     case "Help":
                         HelpActivity.start(context);
                         break;
@@ -86,6 +90,20 @@ public class Utils {
                 }
             }
         });
+    }
+
+    public static String convertToRFC3339(String dateTimeString) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+            Date date = inputFormat.parse(dateTimeString);
+
+            SimpleDateFormat outputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+            outputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public static class LibraryObject {

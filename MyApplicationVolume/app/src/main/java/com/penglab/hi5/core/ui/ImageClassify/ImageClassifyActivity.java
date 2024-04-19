@@ -1,14 +1,20 @@
 package com.penglab.hi5.core.ui.ImageClassify;
 
+import static com.penglab.hi5.chat.nim.main.helper.MessageHelper.TAG;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.core.Myapplication.playButtonSound;
-
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
@@ -17,24 +23,34 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.impl.LoadingPopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
+//import com.penglab.hi5.Manifest;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
@@ -42,6 +58,7 @@ import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.home.utils.Utils;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.dataStore.PreferenceSoma;
@@ -51,13 +68,28 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import cn.carbs.android.library.MDDialog;
+import jxl.Cell;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.json.JSONException;
+
 
 public class ImageClassifyActivity extends AppCompatActivity {
     private AnnotationGLSurfaceView mAnnotationGLSurfaceView;
@@ -68,6 +100,10 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private SeekBar mContrastSeekBar;
     private LinearLayout layoutSubcategories3, layoutSubcategories4;
     private EditText mEditTextRemark;
+
+    private Spinner userSpinner,startTimeSpinner,endTimeSpinner;
+
+    private Button queryButton,downloadButton;
 
     private LoadingPopupView mDownloadingPopupView;
 
@@ -139,6 +175,16 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 renderImageFile(currentImageInfo);
             } else {
                 showDownloadingProgressBar();
+            }
+        });
+
+        mImageClassifyViewModel.getmUserRatingResultTable().observe(this, new Observer<List<UserRatingResultInfo>>() {
+            @Override
+            public void onChanged(List<UserRatingResultInfo> userRatingResultInfos) {
+                if(userRatingResultInfos == null){
+                    return;
+                }
+                generateExcel(userRatingResultInfos);
             }
         });
 
@@ -464,22 +510,22 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 finish();
                 return true;
             case R.id.file:
+                Log.e(TAG,"enter file");
                 if (mImageClassifyViewModel.isLoggedIn()) {
                     mImageClassifyViewModel.acquireImagesManually();
                 } else {
                     ToastEasy("PLease login first!");
                 }
-                playButtonSound();
                 return true;
 
             case R.id.share:
                 mAnnotationGLSurfaceView.screenCapture();
-                playButtonSound();
                 return true;
 
-            case R.id.more:
+            case R.id.more_settings:
+                ToastEasy("click");
+                Log.e(TAG,"enter the setting function");
                 moreFunctions();
-                playButtonSound();
                 return true;
 
             default:
@@ -503,8 +549,8 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 .asCenterList("More Functions...", new String[]{"Settings"},
                         (position, text) -> {
                             if (text.equals("Settings")) {
-                                ToastEasy("To be added");
-//                                        settings();
+                                Log.e(TAG,"enter settings");
+                                settings();
                             } else {
                                 ToastEasy("Something wrong with more functions...");
                             }
@@ -512,4 +558,154 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 .show();
     }
 
-}
+    public void settings() {
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.image_classify_setting)
+                .setContentViewOperator(new MDDialog.ContentViewOperator() {
+                    @Override
+                    public void operate(View contentView) {
+                        startTimeSpinner = contentView.findViewById(R.id.start_time_spinner);
+                        endTimeSpinner = contentView.findViewById(R.id.end_time_spinner);
+                        userSpinner = contentView.findViewById(R.id.user_spinner);
+                        queryButton = contentView.findViewById(R.id.query_button);
+                        downloadButton = contentView.findViewById(R.id.download_button);
+                        setupSpinners();
+                        queryButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Fetch data from server and display in table
+                                fetchDataFromServer();
+                            }
+                        });
+                        downloadButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                // Generate Excel file and provide download option
+//                                generateExcel();
+                            }
+                        });
+                    }});
+    }
+
+    public void setupSpinners() {
+        startTimeSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDateTimePickerDialog(startTimeSpinner);
+            }
+        });
+
+        // End time spinner
+        endTimeSpinner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDateTimePickerDialog(endTimeSpinner);
+            }
+        });
+
+        ArrayAdapter<CharSequence> userAdapter = ArrayAdapter.createFromResource(this,
+                R.array.user_options, android.R.layout.simple_spinner_item);
+        userAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        userSpinner.setAdapter(userAdapter);
+    }
+
+    public void showDateTimePickerDialog(final Spinner spinner) {
+        // Get current date and time
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        int minute = calendar.get(Calendar.MINUTE);
+        int second = calendar.get(Calendar.SECOND);
+
+        // Create a TimePickerDialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        // Construct RFC3339 formatted string
+                        Calendar selectedDateTime = Calendar.getInstance();
+                        selectedDateTime.set(Calendar.YEAR, year);
+                        selectedDateTime.set(Calendar.MONTH, month);
+                        selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                        selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        selectedDateTime.set(Calendar.MINUTE, minute);
+                        selectedDateTime.set(Calendar.SECOND, second);
+                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                        String formattedDateTime = sdf.format(selectedDateTime.getTime());
+                        // Set the selected date and time to the spinner
+                        ((EditText) spinner.getSelectedView()).setText(formattedDateTime);
+                    }
+                }, hourOfDay, minute, true); // true indicates 24-hour time format
+
+        // Show the TimePickerDialog
+        timePickerDialog.show();
+    }
+
+    public void fetchDataFromServer() {
+        String queryUserName = (String) userSpinner.getSelectedItem();
+        String queryStartTime = Utils.convertToRFC3339((String) startTimeSpinner.getSelectedItem());
+        String queryEndTime = Utils.convertToRFC3339((String) endTimeSpinner.getSelectedItem());
+        mImageClassifyViewModel.requestRatingTable(queryUserName, queryStartTime, queryEndTime);
+    }
+
+    public void generateExcel(List<UserRatingResultInfo> userRatingResultInfos) {
+        // Check permission
+        if (ContextCompat.checkSelfPermission(ImageClassifyActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            ActivityCompat.requestPermissions(ImageClassifyActivity.this,
+                    new String[]{ Manifest.permission.WRITE_EXTERNAL_STORAGE },
+                    1);
+        } else {
+            // Pass the data to RecyclerView adapter
+            RecyclerView recyclerView = findViewById(R.id.recycler_view_table);
+            ImageClassifyTableAdapter adapter = new ImageClassifyTableAdapter(userRatingResultInfos); // Your custom adapter
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+            recyclerView.setAdapter(adapter);
+        }
+    }
+
+    private void createExcelFile(List<UserRatingResultInfo> userRatingResultInfos) {
+        XSSFWorkbook workbook = new XSSFWorkbook();
+        XSSFSheet sheet = workbook.createSheet("Table Data");
+        try {
+            int rowNum = 0;
+            // Add headers
+            Row headerRow = sheet.createRow(rowNum++);
+            headerRow.createCell(0).setCellValue("Image Name");
+            headerRow.createCell(1).setCellValue("Rating");
+            headerRow.createCell(2).setCellValue("Additional Rating Description");
+            headerRow.createCell(3).setCellValue("Upload Time");
+
+            // Add data
+            for (int i = 0; i < userRatingResultInfos.size(); i++) {
+                UserRatingResultInfo resultInfo = userRatingResultInfos.get(i);
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(resultInfo.imageName);
+                row.createCell(1).setCellValue(resultInfo.ratingEnum);
+                row.createCell(2).setCellValue(resultInfo.additionalRatingDescription);
+                row.createCell(3).setCellValue(resultInfo.uploadTime);
+            }
+
+            // Save the workbook to external storage
+            String fileName = "table_data.xlsx";
+            String filePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/" + fileName;
+            try (FileOutputStream outputStream = new FileOutputStream(new File(filePath))) {
+                workbook.write(outputStream);
+                Toast.makeText(ImageClassifyActivity.this, "Excel file created and saved to Downloads", Toast.LENGTH_SHORT).show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(ImageClassifyActivity.this, "Failed to create Excel file", Toast.LENGTH_SHORT).show();
+            }
+        } finally {
+            try {
+                workbook.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    }
