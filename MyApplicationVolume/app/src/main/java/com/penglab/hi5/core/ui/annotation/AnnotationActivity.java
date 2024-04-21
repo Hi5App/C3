@@ -238,24 +238,27 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
         });
 
         RangeSlider xRangeSlider = findViewById(R.id.x_cut_slider);
-        xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+        xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
             List<Float> values = xRangeSlider.getValues();
-            annotationGLSurfaceView.setCutx_left_value(values.get(0));
-            annotationGLSurfaceView.setCutx_right_value(values.get(1));
+            annotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
+            annotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
+            annotationGLSurfaceView.requestRender();
         });
 
         RangeSlider yRangeSlider = findViewById(R.id.y_cut_slider);
         yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
             List<Float> values = yRangeSlider.getValues();
-            annotationGLSurfaceView.setCuty_left_value(values.get(0));
-            annotationGLSurfaceView.setCuty_right_value(values.get(1));
+            annotationGLSurfaceView.setCuty_left_value(values.get(0) /100);
+            annotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
+            annotationGLSurfaceView.requestRender();
         });
 
         RangeSlider zRangeSlider = findViewById(R.id.z_cut_slider);
         zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
             List<Float> values = zRangeSlider.getValues();
-            annotationGLSurfaceView.setCutz_left_value(values.get(0));
-            annotationGLSurfaceView.setCutz_right_value(values.get(1));
+            annotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
+            annotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
+            annotationGLSurfaceView.requestRender();
         });
 
     }

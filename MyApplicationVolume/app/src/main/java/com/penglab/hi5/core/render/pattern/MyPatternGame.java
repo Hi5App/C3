@@ -7,7 +7,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.opengl.GLES20;
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
@@ -832,18 +832,18 @@ public class MyPatternGame {
 
     public void drawMap(float [] matrix){
         Log.v(TAG, "drawMap");
-        GLES30.glUseProgram(mProgramGame);
+        GLES32.glUseProgram(mProgramGame);
 
         getHandle(mProgramGame);
 
-        GLES30.glVertexAttribPointer(positionHandle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer);
+        GLES32.glVertexAttribPointer(positionHandle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer);
 
-        GLES30.glUniformMatrix4fv(mvpMatrixHandle, 1, false, matrix, 0);
+        GLES32.glUniformMatrix4fv(mvpMatrixHandle, 1, false, matrix, 0);
 
-        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, vertexPoints.length/3);
+        GLES32.glDrawArrays(GLES32.GL_POINTS, 0, vertexPoints.length/3);
 
-        GLES30.glDisable(positionHandle);
-        GLES30.glDisable(mvpMatrixHandle);
+        GLES32.glDisable(positionHandle);
+        GLES32.glDisable(mvpMatrixHandle);
     }
 
     public void drawMarker(float [] mvpMatrix, float [] modelMatrix){
@@ -852,47 +852,47 @@ public class MyPatternGame {
 
         bufferSet_Type(6);
 
-//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glUseProgram(mProgramMarker);
+        GLES32.glUseProgram(mProgramMarker);
 
-        GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+        GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
 
         //准备f法向量数据
-        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        // GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+        GLES32.glEnableVertexAttribArray(normalizePoints_handle);
 
 
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgramMarker,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgramMarker,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
         // get handle to vertex shader's uNormalMatrix member
-        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgramMarker,"uNormalMatrix");
+        int normalizeMatrixHandle_marker = GLES32.glGetUniformLocation(mProgramMarker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+        GLES32.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
         for (int i = 0; i < lightPoints.size(); i++){
             bufferSet_Marker(lightPoints.get(i).x, lightPoints.get(i).y, lightPoints.get(i).z, lightPoints.get(i).radius, mvpMatrix, lightPoints.get(i).type, lightPoints.get(i).proportion);
 
             //准备坐标数据
-            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+            GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
             //启用顶点的句柄
-            GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+            GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
             //准备颜色数据
-            GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
-            GLES30.glEnableVertexAttribArray(colorPoints_handle);
+            GLES32.glVertexAttribPointer(colorPoints_handle,3,GLES32.GL_FLOAT, false, 0,colorBuffer_marker);
+            GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
+            GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, markerPoints.length/3);
         }
 
         Log.d("DrawMarker", "RemovedPoints: " + Integer.toString(removedPoints.size()));
@@ -901,69 +901,69 @@ public class MyPatternGame {
             bufferSet_Marker(removedPoints.get(i).x, removedPoints.get(i).y, removedPoints.get(i).z, removedPoints.get(i).radius, mvpMatrix, removedPoints.get(i).type, removedPoints.get(i).proportion);
 
             //准备坐标数据
-            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+            GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
             //启用顶点的句柄
-            GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+            GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
             //准备颜色数据
-            GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
-            GLES30.glEnableVertexAttribArray(colorPoints_handle);
+            GLES32.glVertexAttribPointer(colorPoints_handle,3,GLES32.GL_FLOAT, false, 0,colorBuffer_marker);
+            GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, markerPoints.length/3);
+            GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, markerPoints.length/3);
         }
 
 //        bufferSet_Marker(0.5f, 0.5f, 0.5f, 6);
 //
 //        //准备坐标数据
-//        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+//        GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
 //        //启用顶点的句柄
-//        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+//        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 //
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, markerPoints.length/3);
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
-        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(normalizePoints_handle);
 
-        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+        GLES32.glDisableVertexAttribArray(colorPoints_handle);
     }
 
     public void drawFlag(float [] matrix, float [] pos, int num){
         bufferSet_Flag(matrix, pos);
 
-        GLES30.glUseProgram(mProgramFlag);
+        GLES32.glUseProgram(mProgramFlag);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_flag);
+        GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_flag);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, flagPoints.length / 3);
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, flagPoints.length / 3);
 
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
 
         bufferSet_Numbers(matrix, pos);
 
-        GLES30.glUseProgram(mProgramNumbers);
+        GLES32.glUseProgram(mProgramNumbers);
 
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, numbersTexture[num][0]); //绑定指定的纹理id
+        GLES32.glActiveTexture(GLES32.GL_TEXTURE0); //设置使用的纹理编号
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, numbersTexture[num][0]); //绑定指定的纹理id
 
-        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_numbers);
+        GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_numbers);
 
-        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
-        GLES30.glVertexAttribPointer(coordPoints_handle, 2, GLES30.GL_FLOAT, false, 0, coordBuffer_numbers);
+        GLES32.glVertexAttribPointer(coordPoints_handle, 2, GLES32.GL_FLOAT, false, 0, coordBuffer_numbers);
 
-        GLES30.glEnableVertexAttribArray(coordPoints_handle);
+        GLES32.glEnableVertexAttribArray(coordPoints_handle);
 
-        GLES30.glUniform1i(GLES30.glGetUniformLocation(mProgramNumbers, "vTexture"), 0);
+        GLES32.glUniform1i(GLES32.glGetUniformLocation(mProgramNumbers, "vTexture"), 0);
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, coordNumbers.length / 2);
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLES, 0, coordNumbers.length / 2);
 
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
-        GLES30.glDisableVertexAttribArray(coordPoints_handle);
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, 0);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(coordPoints_handle);
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, 0);
     }
 
     private void bufferSet_Marker(float x, float y, float z, float r, float [] matrix, int type, float proportion){
@@ -1144,9 +1144,9 @@ public class MyPatternGame {
     }
 
     private void getHandle(int mProgram){
-        GLES30.glEnableVertexAttribArray(positionHandle);
-//        GLES30.glEnable(colorHandle);
-        mvpMatrixHandle = GLES30.glGetUniformLocation(mProgram, "uMVPMatrix");
+        GLES32.glEnableVertexAttribArray(positionHandle);
+//        GLES32.glEnable(colorHandle);
+        mvpMatrixHandle = GLES32.glGetUniformLocation(mProgram, "uMVPMatrix");
     }
 
     public void removePointsByCenter(float [] pos){
@@ -1429,29 +1429,29 @@ public class MyPatternGame {
             Log.d("CreateBGTexture", "!!!!!!");
 
             //生成纹理
-            GLES30.glGenTextures(1,backgroundTexture,0);
+            GLES32.glGenTextures(1,backgroundTexture,0);
 
             //生成纹理
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,backgroundTexture[0]);
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,backgroundTexture[0]);
 
             //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_MIN_FILTER,GLES32.GL_NEAREST);
 
             //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,GLES32.GL_TEXTURE_MAG_FILTER,GLES32.GL_LINEAR);
 
             //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_S,GLES32.GL_CLAMP_TO_EDGE);
 
             //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_T,GLES32.GL_CLAMP_TO_EDGE);
 
             //根据以上指定的参数，生成一个2D纹理
-            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, mBitmap, 0);
+            GLUtils.texImage2D(GLES32.GL_TEXTURE_2D, 0, mBitmap, 0);
 
-            GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+            GLES32.glGenerateMipmap(GLES32.GL_TEXTURE_2D);
 
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,0);
         }
 
     }
@@ -1498,21 +1498,21 @@ public class MyPatternGame {
 
         GLES20.glUseProgram(mProgramBackground);
 
-        GLES30.glActiveTexture(GLES30.GL_TEXTURE0); //设置使用的纹理编号
-        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, backgroundTexture[0]); //绑定指定的纹理id
+        GLES32.glActiveTexture(GLES32.GL_TEXTURE0); //设置使用的纹理编号
+        GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, backgroundTexture[0]); //绑定指定的纹理id
 
-        int glHMatrix = GLES30.glGetUniformLocation(mProgramBackground, "vMatrix");
+        int glHMatrix = GLES32.glGetUniformLocation(mProgramBackground, "vMatrix");
         GLES20.glUniformMatrix4fv(glHMatrix,1,false,bgMatrix,0);
 
-        int glHPosition = GLES30.glGetAttribLocation(mProgramBackground, "vPosition");
+        int glHPosition = GLES32.glGetAttribLocation(mProgramBackground, "vPosition");
         GLES20.glEnableVertexAttribArray(glHPosition);
 
-        int glHCoordinate = GLES30.glGetAttribLocation(mProgramBackground, "vCoordinate");
+        int glHCoordinate = GLES32.glGetAttribLocation(mProgramBackground, "vCoordinate");
         GLES20.glEnableVertexAttribArray(glHCoordinate);
 
-        GLES20.glUniform1i(GLES30.glGetUniformLocation(mProgramBackground, "vTexture"), 0);
+        GLES20.glUniform1i(GLES32.glGetUniformLocation(mProgramBackground, "vTexture"), 0);
 
-//        GLES30.glClear(GLES30.GL_COLOR_BUFFER_BIT | GLES30.GL_DEPTH_BUFFER_BIT);
+//        GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT | GLES32.GL_DEPTH_BUFFER_BIT);
 
 //        setBackgroundBuffer();
 //        setPanoramicPosition();
@@ -1561,30 +1561,30 @@ public class MyPatternGame {
 //            canvas.drawText(font, -textWidth / 2, baseLineY, p);
             canvas.drawText(font, 100, 150, p);
 
-            GLES30.glEnable(GLES30.GL_TEXTURE_2D);
+            GLES32.glEnable(GLES32.GL_TEXTURE_2D);
 
-            GLES30.glGenTextures(1, numbersTexture[i], 0);
+            GLES32.glGenTextures(1, numbersTexture[i], 0);
 
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, numbersTexture[i][0]);
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D, numbersTexture[i][0]);
 
             //设置缩小过滤为使用纹理中坐标最接近的一个像素的颜色作为需要绘制的像素颜色
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER,GLES30.GL_NEAREST);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_MIN_FILTER,GLES32.GL_NEAREST);
 
             //设置放大过滤为使用纹理中坐标最接近的若干个颜色，通过加权平均算法得到需要绘制的像素颜色
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D,GLES30.GL_TEXTURE_MAG_FILTER,GLES30.GL_LINEAR);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D,GLES32.GL_TEXTURE_MAG_FILTER,GLES32.GL_LINEAR);
 
             //设置环绕方向S，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S,GLES30.GL_CLAMP_TO_EDGE);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_S,GLES32.GL_CLAMP_TO_EDGE);
 
             //设置环绕方向T，截取纹理坐标到[1/2n,1-1/2n]。将导致永远不会与border融合
-            GLES30.glTexParameterf(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T,GLES30.GL_CLAMP_TO_EDGE);
+            GLES32.glTexParameterf(GLES32.GL_TEXTURE_2D, GLES32.GL_TEXTURE_WRAP_T,GLES32.GL_CLAMP_TO_EDGE);
 
             //根据以上指定的参数，生成一个2D纹理
-            GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, numbersBitmap[i], 0);
+            GLUtils.texImage2D(GLES32.GL_TEXTURE_2D, 0, numbersBitmap[i], 0);
 
-            GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
+            GLES32.glGenerateMipmap(GLES32.GL_TEXTURE_2D);
 
-            GLES30.glBindTexture(GLES30.GL_TEXTURE_2D,0);
+            GLES32.glBindTexture(GLES32.GL_TEXTURE_2D,0);
 
 
         }

@@ -699,6 +699,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         originalSize[2] = size[2];
 
         normalizedSize[0] = (float) size[0] / maxSize;
+        normalizedSize[0] = (float) size[0] / maxSize;
         normalizedSize[1] = (float) size[1] / maxSize;
         normalizedSize[2] = (float) size[2] / maxSize;
     }

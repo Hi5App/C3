@@ -9,7 +9,7 @@ import static javax.microedition.khronos.opengles.GL10.GL_SRC_ALPHA;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -75,7 +75,7 @@ public class CheckRender implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         Log.d(TAG,"onSurfaceCreated successfully");
 
-        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        GLES32.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
 
         // init shader program
         MyPattern.initProgram();
@@ -88,7 +88,7 @@ public class CheckRender implements GLSurfaceView.Renderer {
 
     @Override
     public void onSurfaceChanged(GL10 gl, int screenWidth, int screenHeight) {
-        GLES30.glViewport(0, 0, screenWidth, screenHeight);
+        GLES32.glViewport(0, 0, screenWidth, screenHeight);
 
         // this projection matrix is applied to object coordinates
         this.screenWidth = screenWidth;
@@ -100,14 +100,14 @@ public class CheckRender implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         // set the background
-        GLES30.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
+        GLES32.glClearColor(121f/255f, 134f/255f, 203f/255f, 1.0f);
 
         // 把颜色缓冲区设置为我们预设的颜色
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
-        GLES30.glEnable(GL_ALPHA_TEST);
-        GLES30.glEnable(GL_BLEND);
-        GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
+        GLES32.glEnable(GL_ALPHA_TEST);
+        GLES32.glEnable(GL_BLEND);
+        GLES32.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+        GLES32.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // free memory for old pattern
         freeMemory();
@@ -124,9 +124,9 @@ public class CheckRender implements GLSurfaceView.Renderer {
         // screenCapture
         screenCapture();
 
-        GLES30.glDisable(GL_BLEND);
-        GLES30.glDisable(GL_ALPHA_TEST);
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES32.glDisable(GL_BLEND);
+        GLES32.glDisable(GL_ALPHA_TEST);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
     }
 
     public void init3DImageInfo(Image4DSimple image4DSimple, float[] normalizedSize, int[] originalSize){
@@ -264,7 +264,7 @@ public class CheckRender implements GLSurfaceView.Renderer {
     private void screenCapture() {
         if (renderOptions.isScreenCapture()) {
             mCaptureBuffer.rewind();
-            GLES30.glReadPixels(0, 0, screenWidth, screenHeight, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
+            GLES32.glReadPixels(0, 0, screenWidth, screenHeight, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, mCaptureBuffer);
             renderOptions.setScreenCapture(false);
             exeService.submit(new Runnable() {
                 @Override

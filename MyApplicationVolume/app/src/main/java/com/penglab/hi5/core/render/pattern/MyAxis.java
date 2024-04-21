@@ -1,6 +1,6 @@
 package com.penglab.hi5.core.render.pattern;
 
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.util.Log;
 
 import java.nio.ByteBuffer;
@@ -171,55 +171,55 @@ public class MyAxis extends BasicPattern {
 
     public void drawAxis(float[] mvpMatrix){
 
-        GLES30.glUseProgram(mProgram_axis);
+        GLES32.glUseProgram(mProgram_axis);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_axis);
+        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_axis);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
+        GLES32.glEnableVertexAttribArray(0);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(1, 4, GLES30.GL_FLOAT, false, 0, colorBuffer_axis);
+        GLES32.glVertexAttribPointer(1, 4, GLES32.GL_FLOAT, false, 0, colorBuffer_axis);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(1);
+        GLES32.glEnableVertexAttribArray(1);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_axis = GLES30.glGetUniformLocation(mProgram_axis,"uMVPMatrix");
+        int vPMatrixHandle_axis = GLES32.glGetUniformLocation(mProgram_axis,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_axis, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_axis, 1, false, mvpMatrix, 0);
 
         // 绘制三个点
-        GLES30.glLineWidth(5);
-        GLES30.glDrawArrays(GLES30.GL_LINES, 0, 6);
+        GLES32.glLineWidth(5);
+        GLES32.glDrawArrays(GLES32.GL_LINES, 0, 6);
 
         // 禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
-        GLES30.glDisableVertexAttribArray(1);
+        GLES32.glDisableVertexAttribArray(0);
+        GLES32.glDisableVertexAttribArray(1);
 
     }
 
     public void drawBorder(float[] mvpMatrix){
 
-        GLES30.glUseProgram(mProgram_border);
+        GLES32.glUseProgram(mProgram_border);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_border);
+        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_border);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
+        GLES32.glEnableVertexAttribArray(0);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_border = GLES30.glGetUniformLocation(mProgram_border,"uMVPMatrix");
+        int vPMatrixHandle_border = GLES32.glGetUniformLocation(mProgram_border,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_border, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_border, 1, false, mvpMatrix, 0);
 
         //绘制三个点
-        GLES30.glLineWidth(3);
-        GLES30.glDrawElements(GLES30.GL_LINES, 24, GLES30.GL_UNSIGNED_SHORT, ListBuffer_border);
+        GLES32.glLineWidth(3);
+        GLES32.glDrawElements(GLES32.GL_LINES, 24, GLES32.GL_UNSIGNED_SHORT, ListBuffer_border);
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
+        GLES32.glDisableVertexAttribArray(0);
 
     }
 

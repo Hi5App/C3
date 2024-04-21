@@ -1,6 +1,6 @@
 package com.penglab.hi5.core.render.pattern;
 
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -549,131 +549,131 @@ public class MyDraw extends BasicPattern {
 
         BufferSet_GameModel(locAfterDivide[0], locAfterDivide[1], locAfterDivide[2], type, dir, head);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
-//        GLES30.glUseProgram(mProgram_points);
-        GLES30.glUseProgram(mProgram_game);
+//        GLES32.glUseProgram(mProgram_points);
+        GLES32.glUseProgram(mProgram_game);
 
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+        GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_model);
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+        GLES32.glVertexAttribPointer(colorPoints_handle,3,GLES32.GL_FLOAT, false, 0,colorBuffer_model);
+        GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_game,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_game,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
 
         // get handle to vertex shader's uMVPMatrix member
-//        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+//        int normalizeMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader
-//        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+//        GLES32.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
 
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, modelVertex.length/3);
 
         // 通过索引来绘制
-        GLES30.glDrawElements(GLES30.GL_TRIANGLES, drawList_model.length, GLES30.GL_UNSIGNED_SHORT, drawListBuffer_model);
+        GLES32.glDrawElements(GLES32.GL_TRIANGLES, drawList_model.length, GLES32.GL_UNSIGNED_SHORT, drawListBuffer_model);
 
-//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+//        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0, colorBuffer_skeleton);
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+        GLES32.glVertexAttribPointer(colorPoints_handle,3,GLES32.GL_FLOAT, false, 0, colorBuffer_skeleton);
+        GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
-        GLES30.glLineWidth(5);
-        GLES30.glDrawElements(GLES30.GL_LINES, drawList_skeleton.length, GLES30.GL_UNSIGNED_SHORT, drawListBuffer_skeleton);
+        GLES32.glLineWidth(5);
+        GLES32.glDrawElements(GLES32.GL_LINES, drawList_skeleton.length, GLES32.GL_UNSIGNED_SHORT, drawListBuffer_skeleton);
 
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
-        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(normalizePoints_handle);
 
-        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+        GLES32.glDisableVertexAttribArray(colorPoints_handle);
 
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
     }
 
     public void drawMarker(float[] mvpMatrix, float[] modelMatrix, float x, float y, float z, int type, float radius){
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
-        GLES30.glUseProgram(mProgram_marker);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
+        GLES32.glUseProgram(mProgram_marker);
 
         if (radius == 0.01f) {
             //准备坐标数据
-            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker_0_01);
+            GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker_0_01);
         } else if (radius == 0.02f){
             //准备坐标数据
-            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker_0_02);
+            GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker_0_02);
         } else {
             BufferSet_Marker_Vertex(radius);
 
             //准备坐标数据
-            GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+            GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
         }
 
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
         if (radius < 0.015f){
             //准备f法向量数据
-            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+            GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
         }else {
             //准备f法向量数据
-            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+            GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker);
         }
         //启用f法向量的句柄
-        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+        GLES32.glEnableVertexAttribArray(normalizePoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
         // get handle to vertex shader's uNormalMatrix member
-        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+        int normalizeMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+        GLES32.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
-        int offsetHandle_marker = GLES30.glGetUniformLocation(mProgram_marker, "offset");
+        int offsetHandle_marker = GLES32.glGetUniformLocation(mProgram_marker, "offset");
 
-        GLES30.glUniform1fv(offsetHandle_marker, 3, new float[]{x, y, z}, 0);
+        GLES32.glUniform1fv(offsetHandle_marker, 3, new float[]{x, y, z}, 0);
 
         float [] colorMarker = new float[3];
         for (int i = 0; i < 3; i++) {
             colorMarker[i] = colormap[type % 11][i];
         }
 
-        int colorHandle_marker = GLES30.glGetUniformLocation(mProgram_marker, "color");
+        int colorHandle_marker = GLES32.glGetUniformLocation(mProgram_marker, "color");
 
-        GLES30.glUniform1fv(colorHandle_marker, 3, colorMarker, 0);
+        GLES32.glUniform1fv(colorHandle_marker, 3, colorMarker, 0);
 
         if (radius == 0.01f){
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker_0_01.length/3);
+            GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker_0_01.length/3);
         } else if (radius == 0.02f) {
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker_0_02.length/3);
+            GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker_0_02.length/3);
         } else {
-            GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length / 3);
+            GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length / 3);
         }
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
-        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(normalizePoints_handle);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
     }
 
@@ -684,59 +684,59 @@ public class MyDraw extends BasicPattern {
 
 //        System.out.println("set marker end");
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glUseProgram(mProgram_marker);
+        GLES32.glUseProgram(mProgram_marker);
 
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(vertexPoints_handle, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+        GLES32.glVertexAttribPointer(vertexPoints_handle, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(vertexPoints_handle);
+        GLES32.glEnableVertexAttribArray(vertexPoints_handle);
 
         if (radius < 0.015f){
             //准备f法向量数据
-            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
+            GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker_small);
         }else {
             //准备f法向量数据
-            GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+            GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker);
         }
         //准备f法向量数据
-        // GLES30.glVertexAttribPointer(normalizePoints_handle, 3, GLES30.GL_FLOAT, false, 0, normalizeBuffer_marker);
+        // GLES32.glVertexAttribPointer(normalizePoints_handle, 3, GLES32.GL_FLOAT, false, 0, normalizeBuffer_marker);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(normalizePoints_handle);
+        GLES32.glEnableVertexAttribArray(normalizePoints_handle);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle,3,GLES30.GL_FLOAT, false, 0,colorBuffer_marker);
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+        GLES32.glVertexAttribPointer(colorPoints_handle,3,GLES32.GL_FLOAT, false, 0,colorBuffer_marker);
+        GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_marker,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
 
         // get handle to vertex shader's uNormalMatrix member
-        int normalizeMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
+        int normalizeMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_marker,"uNormalMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
+        GLES32.glUniformMatrix4fv(normalizeMatrixHandle_marker, 1, false, modelMatrix, 0);
 
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
-//        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(vertexPoints_handle);
-        GLES30.glDisableVertexAttribArray(normalizePoints_handle);
+        GLES32.glDisableVertexAttribArray(vertexPoints_handle);
+        GLES32.glDisableVertexAttribArray(normalizePoints_handle);
 
-        GLES30.glDisableVertexAttribArray(colorPoints_handle);
+        GLES32.glDisableVertexAttribArray(colorPoints_handle);
 
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 
     }
 
@@ -748,92 +748,92 @@ public class MyDraw extends BasicPattern {
         }
         BufferSet_Line(line, type);
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glUseProgram(mProgram_line);
+        GLES32.glUseProgram(mProgram_line);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
+        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_line);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
+        GLES32.glEnableVertexAttribArray(0);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle, 3, GLES30.GL_FLOAT, false, 0, colorBuffer_line);
+        GLES32.glVertexAttribPointer(colorPoints_handle, 3, GLES32.GL_FLOAT, false, 0, colorBuffer_line);
         //启用颜色的句柄
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+        GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_line,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
-        GLES30.glLineWidth(3);
+        GLES32.glLineWidth(3);
 
-        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
+        GLES32.glDrawArrays(GLES32.GL_LINES, 0, line.length/3);
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
+        GLES32.glDisableVertexAttribArray(0);
 
         //禁止颜色的句柄
-        GLES30.glDisableVertexAttribArray(2);
+        GLES32.glDisableVertexAttribArray(2);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
     }
 
     public void drawPoints(float[]  linePoints, int num){
-        GLES30.glUseProgram(mProgram_points);
+        GLES32.glUseProgram(mProgram_points);
 
         BufferSet_Points(linePoints);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_points);
+        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_points);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
+        GLES32.glEnableVertexAttribArray(0);
 
         //绘制点
-        GLES30.glDrawArrays(GLES30.GL_POINTS, 0, num);
+        GLES32.glDrawArrays(GLES32.GL_POINTS, 0, num);
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
+        GLES32.glDisableVertexAttribArray(0);
     }
 
     public void drawSplitPoints(float [] mvpMatrix, float x, float y, float z, int type){
         BufferSet_Marker(x, y, z, type, splitRadius);
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 
-        GLES30.glUseProgram(mProgram_line);
+        GLES32.glUseProgram(mProgram_line);
 
         //准备坐标数据
-        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_marker);
+        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_marker);
         //启用顶点的句柄
-        GLES30.glEnableVertexAttribArray(0);
+        GLES32.glEnableVertexAttribArray(0);
 
         //准备颜色数据
-        GLES30.glVertexAttribPointer(colorPoints_handle, 3, GLES30.GL_FLOAT, false, 0, colorBuffer_marker);
+        GLES32.glVertexAttribPointer(colorPoints_handle, 3, GLES32.GL_FLOAT, false, 0, colorBuffer_marker);
         //启用颜色的句柄
-        GLES30.glEnableVertexAttribArray(colorPoints_handle);
+        GLES32.glEnableVertexAttribArray(colorPoints_handle);
 
         // get handle to vertex shader's uMVPMatrix member
-        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
+        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_line,"uMVPMatrix");
 
         // Pass the projection and view transformation to the shader
-        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 
-        GLES30.glLineWidth(3);
+        GLES32.glLineWidth(3);
 
-        GLES30.glDrawArrays(GLES30.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
+        GLES32.glDrawArrays(GLES32.GL_TRIANGLE_FAN, 0, vertexPoints_marker.length/3);
 
         //禁止顶点数组的句柄
-        GLES30.glDisableVertexAttribArray(0);
+        GLES32.glDisableVertexAttribArray(0);
 
         //禁止颜色的句柄
-        GLES30.glDisableVertexAttribArray(2);
+        GLES32.glDisableVertexAttribArray(2);
 
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
     }
 
 //    public void drawEswc(float [] mvpMatrix, ArrayList<Float> lineDrawed){
@@ -843,31 +843,31 @@ public class MyDraw extends BasicPattern {
 //        }
 //        BufferSet_Line(line);
 //
-//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 //
-//        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+//        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 //
-//        GLES30.glUseProgram(mProgram_line);
+//        GLES32.glUseProgram(mProgram_line);
 //
 //        //准备坐标数据
-//        GLES30.glVertexAttribPointer(0, 3, GLES30.GL_FLOAT, false, 0, vertexBuffer_line);
+//        GLES32.glVertexAttribPointer(0, 3, GLES32.GL_FLOAT, false, 0, vertexBuffer_line);
 //        //启用顶点的句柄
-//        GLES30.glEnableVertexAttribArray(0);
+//        GLES32.glEnableVertexAttribArray(0);
 //
 //        // get handle to vertex shader's uMVPMatrix member
-//        int vPMatrixHandle_marker = GLES30.glGetUniformLocation(mProgram_line,"uMVPMatrix");
+//        int vPMatrixHandle_marker = GLES32.glGetUniformLocation(mProgram_line,"uMVPMatrix");
 //
 //        // Pass the projection and view transformation to the shader
-//        GLES30.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
+//        GLES32.glUniformMatrix4fv(vPMatrixHandle_marker, 1, false, mvpMatrix, 0);
 //
-//        GLES30.glLineWidth(3);
+//        GLES32.glLineWidth(3);
 //
-//        GLES30.glDrawArrays(GLES30.GL_LINES, 0, line.length/3);
+//        GLES32.glDrawArrays(GLES32.GL_LINES, 0, line.length/3);
 //
 //        //禁止顶点数组的句柄
-//        GLES30.glDisableVertexAttribArray(0);
+//        GLES32.glDisableVertexAttribArray(0);
 //
-//        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+//        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
 //    }
 
 

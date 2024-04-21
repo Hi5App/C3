@@ -9,7 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.opengl.GLES10;
-import android.opengl.GLES30;
+import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.Build;
@@ -264,7 +264,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         Log.d(TAG, "onSurfaceCreated successfully");
 
         // 深蓝
-        GLES30.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
+        GLES32.glClearColor(0.098f, 0.098f, 0.439f, 1.0f);
 
         /*
         init shader program
@@ -301,7 +301,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
     // 画面大小发生改变后
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         // 设置视图窗口
-        GLES30.glViewport(0, 0, width, height);
+        GLES32.glViewport(0, 0, width, height);
 
         boolean surfaceChanged = (screen_w != width || screen_h != height);
         screen_w = width;
@@ -391,17 +391,17 @@ public class MyRenderer implements GLSurfaceView.Renderer {
          the color of background
          */
         //浅蓝
-//        GLES30.glClearColor(0.623f, 0.658f, 0.854f, 1.0f);
+//        GLES32.glClearColor(0.623f, 0.658f, 0.854f, 1.0f);
         //中蓝
-        GLES30.glClearColor(121f / 255f, 134f / 255f, 203f / 255f, 1.0f);
+        GLES32.glClearColor(121f / 255f, 134f / 255f, 203f / 255f, 1.0f);
 
 
         // 把颜色缓冲区设置为我们预设的颜色
-        GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+        GLES32.glEnable(GLES32.GL_DEPTH_TEST);
         GLES10.glEnable(GL_ALPHA_TEST);
-        GLES30.glEnable(GL_BLEND);
-        GLES30.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-        GLES30.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GLES32.glEnable(GL_BLEND);
+        GLES32.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
+        GLES32.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         if (ifclear) {
             if (fileType == FileType.V3draw || fileType == FileType.TIF || fileType == FileType.V3dPBD) { //
@@ -728,9 +728,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                         if (!ifGame) {
                             myAxis.draw(finalMatrix);
                         } else {
-                            GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+                            GLES32.glDisable(GLES32.GL_DEPTH_TEST);
                             myAxis.draw(finalSmallMapMatrix);
-                            GLES30.glEnable(GLES30.GL_DEPTH_TEST);
+                            GLES32.glEnable(GLES32.GL_DEPTH_TEST);
                         }
                     }
 
@@ -759,9 +759,9 @@ public class MyRenderer implements GLSurfaceView.Renderer {
         }
 
 
-        GLES30.glDisable(GL_BLEND);
-        GLES30.glDisable(GL_ALPHA_TEST);
-        GLES30.glDisable(GLES30.GL_DEPTH_TEST);
+        GLES32.glDisable(GL_BLEND);
+        GLES32.glDisable(GL_ALPHA_TEST);
+        GLES32.glDisable(GLES32.GL_DEPTH_TEST);
 
     }
 
@@ -771,7 +771,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
      */
     private void shareScreenCapture() {
         mCaptureBuffer.rewind();
-        GLES30.glReadPixels(0, 0, screen_w, screen_h, GLES30.GL_RGBA, GLES30.GL_UNSIGNED_BYTE, mCaptureBuffer);
+        GLES32.glReadPixels(0, 0, screen_w, screen_h, GLES32.GL_RGBA, GLES32.GL_UNSIGNED_BYTE, mCaptureBuffer);
         isTakePic = false;
         new Thread(new Runnable() {
             @Override
