@@ -14,12 +14,16 @@ import com.penglab.hi5.R;
 
 import java.util.List;
 
-public class ImageClassifyTableAdapter extends RecyclerView.Adapter {
+public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassifyTableAdapter.ViewHolder> {
     private List<UserRatingResultInfo> data;
     private Context context;
 
     public ImageClassifyTableAdapter(List<UserRatingResultInfo> data) {
         this.data = data;
+    }
+
+    public List<UserRatingResultInfo> getUserRatingResultInfos (){
+        return data;
     }
 
     @NonNull
@@ -31,13 +35,15 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+        UserRatingResultInfo info =data.get(position);
+        holder.bind(info);
     }
 
     @Override
     public int getItemCount() {
-        return data.size();
+
+        return data != null ? data.size() : 0;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -70,6 +76,8 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter {
             uploadTimeTextView.setTypeface(boldTypeface);
         }
     }
+
+
 
 
 }

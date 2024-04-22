@@ -224,10 +224,22 @@
             android:id="@+id/editTextRemark"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="please enter supplementary info.."
+            android:text="other"
             android:visibility="gone"
             />
     </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/downSample_mode"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="155dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/circle_normal"
+        android:src="@drawable/ic_iamge_downsample_foreground" />
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/contrast_setting"

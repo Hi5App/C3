@@ -292,22 +292,32 @@ public class ImageClassifyViewModel extends ViewModel {
                                     JSONObject jsonObject = new JSONObject(str);
                                     String status = jsonObject.optString("Status");
                                     if (status.equals("OK")) {
-                                        JSONArray ratingResults = jsonObject.getJSONArray("RatingQueryResult");
-                                        ArrayList<UserRatingResultInfo> userRatingResultInfoList = new ArrayList<>();
-                                        for (int i = 0; i < ratingResults.length(); i++) {
-                                            JSONObject ratingResult = ratingResults.getJSONObject(i);
-                                            UserRatingResultInfo userRatingResultInfo = new UserRatingResultInfo();
-                                            userRatingResultInfo.imageName = ratingResult.optString("ImageName");
-                                            userRatingResultInfo.ratingEnum = ratingResult.optString("RatingEnum");
-                                            userRatingResultInfo.additionalRatingDescription = ratingResult.optString("AdditionalRatingDescription");
-                                            userRatingResultInfo.uploadTime = ratingResult.optString("UploadTime");
-                                            userRatingResultInfoList.add(userRatingResultInfo);
-
+                                        if (!jsonObject.isNull("RatingQueryResult")) {
+                                            JSONArray ratingResults = jsonObject.getJSONArray("RatingQueryResult");
+                                            ArrayList<UserRatingResultInfo> userRatingResultInfoList = new ArrayList<>();
+                                            for (int i = 0; i < ratingResults.length(); i++) {
+                                                JSONObject ratingResult = ratingResults.getJSONObject(i);
+                                                UserRatingResultInfo userRatingResultInfo = new UserRatingResultInfo();
+                                                userRatingResultInfo.imageName = ratingResult.optString("ImageName").split("_")[0];
+                                                userRatingResultInfo.ratingEnum = ratingResult.optString("RatingEnum");
+                                                userRatingResultInfo.additionalRatingDescription = ratingResult.optString("AdditionalRatingDescription");
+                                                userRatingResultInfo.uploadTime = ratingResult.optString("UploadTime");
+                                                userRatingResultInfoList.add(userRatingResultInfo);
+                                            }
+                                            if (!userRatingResultInfoList.isEmpty()) {
+                                                mUserRatingResultTable.postValue(userRatingResultInfoList);
+                                            } else {
+                                                // 发布一个空结果通知的信息
+                                                mUserRatingResultTable.postValue(new ArrayList<>());
+                                            }
+                                        } else {
+                                            ToastEasy("RatingQueryResult is null");
+                                            // 发布一个空结果通知的信息
+                                            mUserRatingResultTable.postValue(new ArrayList<>());
                                         }
-                                        mUserRatingResultTable.setValue(userRatingResultInfoList);
-
                                     } else {
                                         Log.e(TAG, "Status is not OK: " + status);
+                                        mUserRatingResultTable.postValue(new ArrayList<>());  // 可以在这里处理错误状态
                                     }
                                 } catch (JSONException e) {
                                     throw new RuntimeException(e);
