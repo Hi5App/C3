@@ -134,15 +134,15 @@ public class HttpUtilsRating extends HttpUtils {
 
     public static void queryUserRattingTableWithOkHttp(String username, String password, String queryUserName, String queryStartTime, String queryEndTime, Callback callback) {
         try {
-            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
-            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
 
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("UserName", username);
             jsonObject.put("Password", password);
             jsonObject.put("QueryUserName", queryUserName);
-            jsonObject.put("QueryStartTime", rfc3339StartTime);
-            jsonObject.put("QueryEndTime", rfc3339EndTime);
+            jsonObject.put("QueryStartTime", queryStartTime);
+            jsonObject.put("QueryEndTime", queryEndTime);
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
             asyncPostRequest(URL_GET_RATTING_RESULT, body, callback);
