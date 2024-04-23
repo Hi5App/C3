@@ -122,7 +122,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private TimerTask mDownloadControlTask = new TimerTask() {
         @Override
         public void run() {
-            if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted()) {
+            if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted() && !mImageClassifyViewModel.getNextRatingImagesInfoDeque().isEmpty()) {
                 uiHandler.post(() -> {
                     hideDownloadingProgressBar();
                     if (mImageClassifyViewModel.acquireCurrentImage().getValue() == null) {
@@ -182,18 +182,14 @@ public class ImageClassifyActivity extends AppCompatActivity {
             }
         });
 
-        mImageClassifyViewModel.getmUserRatingResultTable().observe(this, new Observer<List<UserRatingResultInfo>>() {
-            @Override
-            public void onChanged(List<UserRatingResultInfo> userRatingResultInfos) {
-                if(userRatingResultInfos == null){
-                    return;
-                }
-                generateExcel(userRatingResultInfos);
+        mImageClassifyViewModel.getmUserRatingResultTable().observe(this, userRatingResultInfos -> {
+            if(userRatingResultInfos == null){
+                return;
             }
+            generateExcel(userRatingResultInfos);
         });
 
         mImageClassifyViewModel.acquireImagesManually();
-
         showDownloadingProgressBar();
 
         // 开始定时器，延迟0毫秒后开始，每隔500毫秒执行一次
@@ -215,7 +211,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image/" + imageInfo.ImageName;
         String fileName = FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
-        mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
+        mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<>(filePath), fileType);
 
         mAnnotationGLSurfaceView.openFile();
         mImageIdLocationTextView.setText(imageInfo.ImageName);
@@ -289,8 +285,8 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
             ImageButtonExt previousFile = findViewById(R.id.previous_file);
             ImageButtonExt nextFile = findViewById(R.id.next_file);
-            mContrastSeekBar = (SeekBar) findViewById(R.id.contrast_value);
-            SeekBar contrastEnhanceRatio = (SeekBar) findViewById(R.id.contrast_enhance_ratio);
+            mContrastSeekBar = findViewById(R.id.contrast_value);
+            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
             contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
             contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -568,47 +564,29 @@ public class ImageClassifyActivity extends AppCompatActivity {
     public void settings() {
         new MDDialog.Builder(this)
                 .setContentView(R.layout.image_classify_setting)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-                        startTimeSpinner = contentView.findViewById(R.id.start_time_spinner);
-                        endTimeSpinner = contentView.findViewById(R.id.end_time_spinner);
-                        userSpinner = contentView.findViewById(R.id.user_spinner);
-                        queryButton = contentView.findViewById(R.id.query_button);
-                        downloadButton = contentView.findViewById(R.id.download_button);
-                        setupSpinners();
-                        queryButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Fetch data from server and display in table
-                                fetchDataFromServer();
-                            }
-                        });
-                        downloadButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Generate Excel file and provide download option
+                .setContentViewOperator(contentView -> {
+                    startTimeSpinner = contentView.findViewById(R.id.start_time_spinner);
+                    endTimeSpinner = contentView.findViewById(R.id.end_time_spinner);
+                    userSpinner = contentView.findViewById(R.id.user_spinner);
+                    queryButton = contentView.findViewById(R.id.query_button);
+                    downloadButton = contentView.findViewById(R.id.download_button);
+                    setupSpinners();
+                    queryButton.setOnClickListener(v -> {
+                        // Fetch data from server and display in table
+                        fetchDataFromServer();
+                    });
+                    downloadButton.setOnClickListener(v -> {
+                        // Generate Excel file and provide download option
 //                                generateExcel();
-                            }
-                        });
-                    }});
+                    });
+                });
     }
 
     public void setupSpinners() {
-        startTimeSpinner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePickerDialog(startTimeSpinner);
-            }
-        });
+        startTimeSpinner.setOnClickListener(v -> showDateTimePickerDialog(startTimeSpinner));
 
         // End time spinner
-        endTimeSpinner.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePickerDialog(endTimeSpinner);
-            }
-        });
+        endTimeSpinner.setOnClickListener(v -> showDateTimePickerDialog(endTimeSpinner));
 
         ArrayAdapter<CharSequence> userAdapter = ArrayAdapter.createFromResource(this,
                 R.array.user_options, android.R.layout.simple_spinner_item);
@@ -628,22 +606,19 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
         // Create a TimePickerDialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(this,
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        // Construct RFC3339 formatted string
-                        Calendar selectedDateTime = Calendar.getInstance();
-                        selectedDateTime.set(Calendar.YEAR, year);
-                        selectedDateTime.set(Calendar.MONTH, month);
-                        selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-                        selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
-                        selectedDateTime.set(Calendar.MINUTE, minute);
-                        selectedDateTime.set(Calendar.SECOND, second);
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
-                        String formattedDateTime = sdf.format(selectedDateTime.getTime());
-                        // Set the selected date and time to the spinner
-                        ((EditText) spinner.getSelectedView()).setText(formattedDateTime);
-                    }
+                (view, hourOfDay1, minute1) -> {
+                    // Construct RFC3339 formatted string
+                    Calendar selectedDateTime = Calendar.getInstance();
+                    selectedDateTime.set(Calendar.YEAR, year);
+                    selectedDateTime.set(Calendar.MONTH, month);
+                    selectedDateTime.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay1);
+                    selectedDateTime.set(Calendar.MINUTE, minute1);
+                    selectedDateTime.set(Calendar.SECOND, second);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
+                    String formattedDateTime = sdf.format(selectedDateTime.getTime());
+                    // Set the selected date and time to the spinner
+                    ((EditText) spinner.getSelectedView()).setText(formattedDateTime);
                 }, hourOfDay, minute, true); // true indicates 24-hour time format
 
         // Show the TimePickerDialog
