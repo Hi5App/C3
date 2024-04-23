@@ -714,7 +714,8 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
 
         // 文件路径
-        File csvFile = new File(this.getExternalFilesDir(null), "UserRatings.csv");
+        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File csvFile = new File(downloadDir, "UserRatings.csv");
 
         try (FileWriter writer = new FileWriter(csvFile)) {
             // 写入标题头
