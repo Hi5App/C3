@@ -128,7 +128,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private TimerTask mDownloadControlTask = new TimerTask() {
         @Override
         public void run() {
-            if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted()) {
+            if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted() && !mImageClassifyViewModel.getNextRatingImagesInfoDeque().isEmpty()) {
                 uiHandler.post(() -> {
                     hideDownloadingProgressBar();
                     if (mImageClassifyViewModel.acquireCurrentImage().getValue() == null) {
@@ -188,15 +188,12 @@ public class ImageClassifyActivity extends AppCompatActivity {
             }
         });
 
-        mImageClassifyViewModel.getmUserRatingResultTable().observe(this, new Observer<List<UserRatingResultInfo>>() {
-            @Override
-            public void onChanged(List<UserRatingResultInfo> userRatingResultInfos) {
-                if(userRatingResultInfos == null || userRatingResultInfos.isEmpty()){
-                    Toast.makeText(getApplicationContext(),"no data available",Toast.LENGTH_SHORT);
-                    return;
-                }
-                generateExcel(userRatingResultInfos);
+        mImageClassifyViewModel.getmUserRatingResultTable().observe(this, userRatingResultInfos -> {
+            if(userRatingResultInfos == null || userRatingResultInfos.isEmpty()){
+                Toast.makeText(getApplicationContext(),"no data available",Toast.LENGTH_SHORT);
+                return;
             }
+            generateExcel(userRatingResultInfos);
         });
 
         mImageClassifyViewModel.acquireImagesManually();
@@ -222,7 +219,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image/" + imageInfo.ImageName;
         String fileName = FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
-        mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
+        mImageClassifyViewModel.getImageInfoRepository().getBasicImage().setFileInfo(fileName, new FilePath<>(filePath), fileType);
 
         mAnnotationGLSurfaceView.openFile();
         mImageIdLocationTextView.setText(imageInfo.ImageName);
@@ -298,27 +295,24 @@ public class ImageClassifyActivity extends AppCompatActivity {
             ImageButtonExt nextFile = findViewById(R.id.next_file);
 
             ImageButton downSampleMode = findViewById(R.id.downSample_mode);
-            downSampleMode.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // 在这里处理点击事件的逻辑
-                    boolean newCheckedState = !preferenceSetting.getDownSampleMode();
-                    preferenceSetting.setDownSampleMode(newCheckedState);
-                    // 根据新的状态更新图像图案
-                    if (newCheckedState) {
-                        downSampleMode.setImageResource(R.drawable.ic_iamge_downsample_foreground);
-                    } else {
-                        downSampleMode.setImageResource(R.drawable.ic_iamge_downsample_off_foreground);
-                    }
-                    // 更新相关视图
-                    mAnnotationGLSurfaceView.updateRenderOptions();
-                    mAnnotationGLSurfaceView.requestRender();
+            downSampleMode.setOnClickListener(v -> {
+                // 在这里处理点击事件的逻辑
+                boolean newCheckedState = !preferenceSetting.getDownSampleMode();
+                preferenceSetting.setDownSampleMode(newCheckedState);
+                // 根据新的状态更新图像图案
+                if (newCheckedState) {
+                    downSampleMode.setImageResource(R.drawable.ic_iamge_downsample_foreground);
+                } else {
+                    downSampleMode.setImageResource(R.drawable.ic_iamge_downsample_off_foreground);
                 }
+                // 更新相关视图
+                mAnnotationGLSurfaceView.updateRenderOptions();
+                mAnnotationGLSurfaceView.requestRender();
             });
             downSampleMode.setImageResource(preferenceSetting.getDownSampleMode() ? R.drawable.ic_iamge_downsample_foreground : R.drawable.ic_iamge_downsample_off_foreground);
 
-            mContrastSeekBar = (SeekBar) findViewById(R.id.contrast_value);
-            SeekBar contrastEnhanceRatio = (SeekBar) findViewById(R.id.contrast_enhance_ratio);
+            mContrastSeekBar = findViewById(R.id.contrast_value);
+            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
             contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
             contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
@@ -572,32 +566,24 @@ public class ImageClassifyActivity extends AppCompatActivity {
     public void settings() {
         new MDDialog.Builder(this)
                 .setContentView(R.layout.image_classify_setting)
-                .setContentViewOperator(new MDDialog.ContentViewOperator() {
-                    @Override
-                    public void operate(View contentView) {
-                        start_time_edit_text = contentView.findViewById(R.id.start_time_edit_text);
-                        end_time_edit_text = contentView.findViewById(R.id.end_time_edit_text);
-                        userSpinner = contentView.findViewById(R.id.user_spinner);
-                        queryButton = contentView.findViewById(R.id.query_button);
-                        downloadButton = contentView.findViewById(R.id.download_button);
-                        timeRecycleView = contentView.findViewById(R.id.recycler_view_table);
+                .setContentViewOperator(contentView -> {
+                    start_time_edit_text = contentView.findViewById(R.id.start_time_edit_text);
+                    end_time_edit_text = contentView.findViewById(R.id.end_time_edit_text);
+                    userSpinner = contentView.findViewById(R.id.user_spinner);
+                    queryButton = contentView.findViewById(R.id.query_button);
+                    downloadButton = contentView.findViewById(R.id.download_button);
+                    timeRecycleView = contentView.findViewById(R.id.recycler_view_table);
 
-                        setupSpinners();
-                        queryButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                // Fetch data from server and display in table
-                                fetchDataFromServer();
-                            }
-                        });
-                        downloadButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Log.e(TAG,"DOWNLOAD BEGIN!");
-                                exportDataToExcel();
-                            }
-                        });
-                    }}).setNegativeButton("Cancel", v -> { })
+                    setupSpinners();
+                    queryButton.setOnClickListener(v -> {
+                        // Fetch data from server and display in table
+                        fetchDataFromServer();
+                    });
+                    downloadButton.setOnClickListener(v -> {
+                        Log.e(TAG,"DOWNLOAD BEGIN!");
+                        exportDataToExcel();
+                    });
+                }).setNegativeButton("Cancel", v -> { })
                         .setPositiveButton("Confirm", v -> {
                             playButtonSound();
                         })
@@ -607,19 +593,9 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
     public void setupSpinners() {
-        start_time_edit_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePicker(start_time_edit_text);
-            }
-        });
+        start_time_edit_text.setOnClickListener(v -> showDateTimePicker(start_time_edit_text));
 
-        end_time_edit_text.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDateTimePicker(end_time_edit_text);
-            }
-        });
+        end_time_edit_text.setOnClickListener(v -> showDateTimePicker(end_time_edit_text));
 
         ArrayAdapter<CharSequence> userAdapter = ArrayAdapter.createFromResource(this,
                 R.array.user_options, android.R.layout.simple_spinner_item);
@@ -631,24 +607,21 @@ public class ImageClassifyActivity extends AppCompatActivity {
         final View dialogView = View.inflate(this, R.layout.data_time_picker, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
 
-        dialogView.findViewById(R.id.date_time_set).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DatePicker datePicker = (DatePicker) dialogView.findViewById(R.id.date_picker);
-                TimePicker timePicker = (TimePicker) dialogView.findViewById(R.id.time_picker);
+        dialogView.findViewById(R.id.date_time_set).setOnClickListener(view -> {
+            DatePicker datePicker = dialogView.findViewById(R.id.date_picker);
+            TimePicker timePicker = dialogView.findViewById(R.id.time_picker);
 
-                Calendar calendar = new GregorianCalendar(datePicker.getYear(),
-                        datePicker.getMonth(),
-                        datePicker.getDayOfMonth(),
-                        timePicker.getCurrentHour(),
-                        timePicker.getCurrentMinute());
+            Calendar calendar = new GregorianCalendar(datePicker.getYear(),
+                    datePicker.getMonth(),
+                    datePicker.getDayOfMonth(),
+                    timePicker.getCurrentHour(),
+                    timePicker.getCurrentMinute());
 
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Desired format
-                String dateTime = formatter.format(calendar.getTime());
-                editText.setText(dateTime);
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); // Desired format
+            String dateTime = formatter.format(calendar.getTime());
+            editText.setText(dateTime);
 
-                alertDialog.dismiss();
-            }
+            alertDialog.dismiss();
         });
         alertDialog.setView(dialogView);
         alertDialog.show();
