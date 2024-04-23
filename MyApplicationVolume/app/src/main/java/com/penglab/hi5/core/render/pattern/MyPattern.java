@@ -257,7 +257,7 @@ public class MyPattern extends BasicPattern {
                     "  {" +
 
                     "   // Check if the current position is within the cut-off values\n" +
-                    "   if((vpos.x / dim[0]) < cutx_left*dim[0] || (vpos.x / dim[0]) > cutx_right*dim[0] || (vpos.y/dim[1]) < cuty_left*dim[1] || (vpos.y/dim[1]) > cuty_right*dim[1] || (vpos.z/dim[2]) < cutz_left*dim[2] || (vpos.z/dim[2]) > cutz_right*dim[2]) " +
+                    "   if((vpos.x / dim[0]) < cutx_left || (vpos.x / dim[0]) > cutx_right || (vpos.y/dim[1]) < cuty_left || (vpos.y/dim[1]) > cuty_right || (vpos.z/dim[2]) < cutz_left || (vpos.z/dim[2]) > cutz_right) " +
                     "   {" +
                     "        continue;" +
                     "   }" +
@@ -731,7 +731,8 @@ public class MyPattern extends BasicPattern {
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio) {
 
-        setCudePreVertex();
+//        setCudePreVertex();
+
         bufferSet();
 
         // Add program to OpenGL ES environment

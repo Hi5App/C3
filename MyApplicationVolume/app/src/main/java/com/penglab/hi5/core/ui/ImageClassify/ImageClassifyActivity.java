@@ -736,4 +736,4 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
     }
 
-    }
+}
