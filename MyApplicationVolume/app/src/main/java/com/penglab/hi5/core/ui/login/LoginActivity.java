@@ -361,8 +361,9 @@ public class LoginActivity extends AppCompatActivity{
 //        HomeActivity.start(LoginActivity.this);
 //        finish();
 //    }
-    private void showCollaborateActivity() {
+    private void showCollaborateActivity(){
         CollaborationActivity.start(LoginActivity.this);
+        finish();
     }
 
     public static void start(Context context) {

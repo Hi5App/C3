@@ -135,12 +135,12 @@ public class SplashScreenActivity extends AppCompatActivity {
                     new Handler().postDelayed(this, 100);
                     return;
                 }
-
 //                if (canAutoLogin()) {
 ////                    Log.e(TAG,"Temperaly");
 ////                    autoLogin();
 //                } else {
                 LoginActivity.start(SplashScreenActivity.this);
+                finish();
 //                }
             }
         }, 1500);

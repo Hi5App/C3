@@ -104,7 +104,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                                    onIntent();
 //                                } else {
                                 LoginActivity.start(SplashScreenActivity.this);
-//                                    finish();
+                                finish();
 //                                }
                             }
                         }
@@ -204,7 +204,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                                onIntent();
 //                            } else {
                                 LoginActivity.start(SplashScreenActivity.this);
-//                                finish();
+                                finish();
 //                            }
                         }
                     }
@@ -230,7 +230,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                            onIntent();
 //                        } else {
                             LoginActivity.start(SplashScreenActivity.this);
-//                            finish();
+                            finish();
 //                        }
                     }
                 };
@@ -480,7 +480,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                            ToastEasy("runnable.run()5");
 
                                 LoginActivity.start(SplashScreenActivity.this);
-//                                finish();
+                                finish();
 //                            }
                         }
                     };
