@@ -27,6 +27,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -68,10 +69,12 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionActivity;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -101,6 +104,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private boolean copyFile = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
+
+    private SeekBar mContrastSeekBar;
     private static Context mainContext;
 
     private AlertDialog dialog;
@@ -383,7 +388,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         Bundle bundle = new Bundle();
         bundle.putString("Toast_msg", message);
         msg.setData(bundle);
-        puiHandler.sendMessage(msg);
     }
 
     @Override
@@ -391,56 +395,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     }
 
-    @SuppressLint("HandlerLeak")
-    private static Handler puiHandler = new Handler() {
-        // 覆写这个方法，接收并处理消息。
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case HANDLER_SHOW_DOWNLOADING_POPUPVIEW:
-                    downloadingPopupView.show();
-                    Activity activity = getActivityFromContext(mainContext);
-                    activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    break;
-
-                case HANDLER_HIDE_DOWNLOADING_POPUPVIEW:
-                    downloadingPopupView.dismiss();
-                    Activity activity_2 = getActivityFromContext(mainContext);
-                    activity_2.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-                    break;
-
-                case HANDLER_SET_BUTTONS_BIGDATA:
-                    break;
-
-                case HANDLER_NETWORK_TIME_OUT:
-                    Toast.makeText(context, "Time out, please try again!", Toast.LENGTH_SHORT).show();
-                    break;
-
-                case HANDLER_SET_FILENAME_BIGDATA:
-                    break;
-
-                case HANDLER_TOAST_INFO_STATIC:
-                    String Toast_msg = msg.getData().getString("Toast_msg");
-                    Toast.makeText(getContext(), Toast_msg, Toast.LENGTH_SHORT).show();
-                    break;
-
-                case HANDLER_SHOW_PROGRESSBAR:
-                    break;
-
-                case HANDLER_SHOW_SYNCING_POPUPVIEW:
-                    syncingPopupView.show();
-                    break;
-
-                case HANDLER_HIDE_SYNCING_POPUPVIEW:
-                    syncingPopupView.dismiss();
-                    break;
-
-                default:
-                    break;
-            }
-        }
-    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -518,7 +472,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 if (result instanceof Result.Success) {
                     List<String> data = (List<String>) ((Result.Success<?>) result).getData();
                     String[] str = new String[data.size()];
-                    String[] anoListShow = data.toArray(str);
+//                    String[] anoListShow = data.toArray(str);
+                    String[] anoListShow = {"18454_00019","00029_P001_T01-S001_MFG_R0460_WY-20220415_GYC"};
                     new XPopup.Builder(CollaborationActivity.this).
                             maxHeight(1350).
                             maxWidth(800).
@@ -858,7 +813,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         // Show the dialog if the activity is running
         if (!activity.isFinishing() && !activity.isDestroyed()) {
-            // Show the dialog attached to the activity's window
             dialog.show();
         }
     }
@@ -986,6 +940,29 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
             collaborateCheckFileButton.setVisibility(View.GONE);
 
+            mContrastSeekBar = findViewById(R.id.contrast_collaborate);
+            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
+            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
+            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+                    if (fromuser) {
+                        preferenceSetting.setContrastEnhanceRatio(progress);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    annotationGLSurfaceView.requestRender();
+                }
+            });
+
+
 
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
@@ -1014,7 +991,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             FrameLayout.LayoutParams lp_ROI_i = new FrameLayout.LayoutParams(120, 120);
             lp_ROI_i.gravity = Gravity.BOTTOM | Gravity.LEFT;
-            lp_ROI_i.setMargins(20, 0, 300, 480);
+            lp_ROI_i.setMargins(20, 0, 300, 400);
             this.addContentView(ROI_i,lp_ROI_i);
 
             editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
@@ -1210,6 +1187,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 openFile();
                 return true;
 
+            case R.id.more:
+                moreFunctions();
+                return true;
+
 //            case R.id.share:
 //                annotationGLSurfaceView.screenCapture();
 //                return true;
@@ -1311,6 +1292,36 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     }
                 }).show();
 
+    }
+
+    private void moreFunctions() {
+        new XPopup.Builder(this)
+                .maxHeight(1500)
+                .asCenterList("More Collaborations...", new String[]{"Soma Pinpointing", "Synapse Validation"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Soma Pinpointing":
+                                        somaPinpointing();
+                                        break;
+                                    case "Synapse Validation":
+                                        synapseValidation();
+                                        break;
+                                    default:
+                                        ToastEasy("Something wrong with more functions...");
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void somaPinpointing(){
+        MarkerFactoryActivity.start(CollaborationActivity.this);
+    }
+
+    private void synapseValidation() {
+        BoutonDetectionActivity.start(CollaborationActivity.this);
     }
 
 

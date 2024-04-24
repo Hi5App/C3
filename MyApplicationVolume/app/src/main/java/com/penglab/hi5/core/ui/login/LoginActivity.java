@@ -227,11 +227,11 @@ public class LoginActivity extends AppCompatActivity{
                     loginViewModel.login(usernameEditText.getText().toString(), passwordEditText.getText().toString());
                     break;
                 case R.id.visitor_login:
-                    playButtonSound();
-                    ifGuestLogin = true;
-                    HomeActivity.start(LoginActivity.this);
-                    Toast.makeText(getApplicationContext(),"you are now logged in as a visitor",Toast.LENGTH_SHORT).show();
-                    finish();
+//                    playButtonSound();
+//                    ifGuestLogin = true;
+//                    HomeActivity.start(LoginActivity.this);
+                    Toast.makeText(getApplicationContext(),"you need to login first to use the collaborate function",Toast.LENGTH_SHORT).show();
+//                    finish();
                     break;
                 case R.id.goto_register:
                     RegisterActivity.start(LoginActivity.this);

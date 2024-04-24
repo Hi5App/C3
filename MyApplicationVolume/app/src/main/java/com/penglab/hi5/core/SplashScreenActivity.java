@@ -100,12 +100,12 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                                 }
 
                                 customSplash = false;
-                                if (canAutoLogin()) {
-                                    onIntent();
-                                } else {
-                                    LoginActivity.start(SplashScreenActivity.this);
-                                    finish();
-                                }
+//                                if (canAutoLogin()) {
+//                                    onIntent();
+//                                } else {
+                                LoginActivity.start(SplashScreenActivity.this);
+//                                    finish();
+//                                }
                             }
                         }
                     };
@@ -200,12 +200,12 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                             }
 
                             customSplash = false;
-                            if (canAutoLogin()) {
-                                onIntent();
-                            } else {
+//                            if (canAutoLogin()) {
+//                                onIntent();
+//                            } else {
                                 LoginActivity.start(SplashScreenActivity.this);
-                                finish();
-                            }
+//                                finish();
+//                            }
                         }
                     }
                 };
@@ -226,12 +226,12 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
                         }
 
                         customSplash = false;
-                        if (canAutoLogin()) {
-                            onIntent();
-                        } else {
+//                        if (canAutoLogin()) {
+//                            onIntent();
+//                        } else {
                             LoginActivity.start(SplashScreenActivity.this);
-                            finish();
-                        }
+//                            finish();
+//                        }
                     }
                 };
                 if (customSplash) {
@@ -472,16 +472,16 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 //                        ToastEasy("runnable.run()3");
 
                             customSplash = false;
-                            if (canAutoLogin()) {
-//                            ToastEasy("runnable.run()4");
-
-                                onIntent();
-                            } else {
+//                            if (canAutoLogin()) {
+////                            ToastEasy("runnable.run()4");
+//
+//                                onIntent();
+//                            } else {
 //                            ToastEasy("runnable.run()5");
 
                                 LoginActivity.start(SplashScreenActivity.this);
-                                finish();
-                            }
+//                                finish();
+//                            }
                         }
                     };
                     if (customSplash) {
