@@ -30,6 +30,7 @@ import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
+import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
@@ -389,8 +390,9 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
         InfoCache.setToken(preferenceLogin.getPassword());
 
 //        MainActivity.actionStart(SplashScreenActivity.this, account);
-        HomeActivity.start(SplashScreenActivity.this);
-        ToastEasy("Welcome, " + account +" !");
+//        HomeActivity.start(SplashScreenActivity.this);
+        CollaborationActivity.start(SplashScreenActivity.this);
+        ToastEasy("Welcome entering in CAR_Mobile !");
         finish();
     }
 

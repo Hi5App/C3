@@ -71,6 +71,7 @@ import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
+import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
@@ -273,7 +274,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 }
 
                 if (msg.startsWith("/retypeline_norm:")) {
-//                    Log.e(TAG,"retypeline_norm");
 
                     String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
@@ -294,7 +294,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String[] singleMsg = msg.split(";");
             for (String singlemsg : singleMsg) {
                 String regex = "/WARN_(.*):(.*)";
-                System.out.println("enter 0000000000000000");
 
                 // 编译正则表达式
                 Pattern pattern = Pattern.compile(regex);
@@ -315,7 +314,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String sender = header.split(" ")[0].trim();
                     listWithHeader2.remove(0);
                     if(sender.equals("server")){
-                        System.out.println("enter 1111111111111111111");
                         if(reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
                                 reason.equals("BranchingError") || reason.equals("NearBifurcation")){
                             Communicator communicator = Communicator.getInstance();
@@ -454,15 +452,16 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         toolbar = findViewById(R.id.toolbar_collaboration);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Collaboration");
 
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+//        getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
         collaborationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(CollaborationViewModel.class);
 
         downloadingPopupView = new XPopup.Builder(this)
-                .asLoading("Downloading......");
+                .asLoading("Call Hi5 Programming......");
 
         syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
@@ -501,6 +500,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                         }
                     }
                     collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(index));
+                    downloadingPopupView.show();
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            downloadingPopupView.dismiss();
+                        }
+                    }, 2000);
+
                 }
             }
         });
@@ -1054,25 +1061,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
                     .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("App2 tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.APP2());
-//            }).normalImageRes(R.drawable.ic_neuron));
-//
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
-//                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("GD tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.GD());
-//            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
-//                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
-
         } else {
             commonView.setVisibility(View.VISIBLE);
         }
@@ -1206,7 +1194,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                LoginActivity.start(CollaborationActivity.this);
+//                finish();
                 return true;
 
 //            case R.id.undo:

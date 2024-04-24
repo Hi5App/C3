@@ -10,7 +10,7 @@
         android:id="@id/lay_login_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@mipmap/bg_login_1"
+        android:background="@mipmap/bg_login_car"
         android:orientation="vertical"
         android:paddingBottom="16dp">
 
@@ -18,22 +18,13 @@
             android:id="@id/ly_retrieve_bar"
             layout="@layout/activity_main_login_navigation_bar" />
 
-        <ImageView
-            android:id="@+id/iv_login_logo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:contentDescription="@null"
-            android:paddingTop="20dp"
-            android:scaleType="centerInside"
-            app:srcCompat="@mipmap/logo_2" />
 
         <LinearLayout
             android:id ="@+id/ll_login_username"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginLeft="24dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="198dp"
             android:layout_marginRight="24dp"
             android:background="@drawable/bg_login_input_ok"
             android:gravity="center_vertical"
@@ -50,7 +41,7 @@
             <View
                 android:layout_width="1px"
                 android:layout_height="22dp"
-                android:background="@color/login_line_color" />
+                android:background="@color/black_alpha_60" />
 
             <EditText
                 android:id="@+id/username"
@@ -70,8 +61,8 @@
                 android:minLines="1"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/login_line_color"
+                android:textColor="@color/black_alpha_60"
+                android:textColorHint="@color/black_alpha_60"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/font_16"/>
 
@@ -109,7 +100,7 @@
             <View
                 android:layout_width="1px"
                 android:layout_height="22dp"
-                android:background="@color/login_line_color" />
+                android:background="@color/black_alpha_60" />
 
             <EditText
                 android:id="@+id/password"
@@ -128,8 +119,8 @@
                 android:minLines="1"
                 android:paddingLeft="4dp"
                 android:paddingRight="4dp"
-                android:textColor="@color/white"
-                android:textColorHint="@color/login_line_color"
+                android:textColor="@color/black"
+                android:textColorHint="@color/black_alpha_60"
                 android:textCursorDrawable="@null"
                 android:textSize="@dimen/font_16"/>
             <ImageView
@@ -157,7 +148,7 @@
             android:elevation="0dp"
             android:outlineProvider="none"
             android:text="@string/action_sign_in"
-            android:textColor="@color/character_bg"
+            android:textColor="@color/black"
             android:textSize="15sp"
             tools:targetApi="lollipop" />
 
@@ -172,7 +163,7 @@
             android:elevation="0dp"
             android:outlineProvider="none"
             android:text="@string/action_register"
-            android:textColor="@color/white"
+            android:textColor="@color/black"
             android:textSize="15sp"
             android:translationZ="0dp"
             tools:targetApi="lollipop" />

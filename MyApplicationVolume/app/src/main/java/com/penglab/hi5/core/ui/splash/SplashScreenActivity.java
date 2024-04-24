@@ -23,6 +23,7 @@ import com.penglab.hi5.basic.utils.AppStatusManager;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.login.LoggedInUserView;
 import com.penglab.hi5.core.ui.login.LoginActivity;
@@ -92,7 +93,8 @@ public class SplashScreenActivity extends AppCompatActivity {
                 }
                 if (loginResult.getSuccess() != null) {
                     updateUiWithUser(loginResult.getSuccess());
-                    showHomeActivity();
+                    showCollaborateActivity();
+//                    showHomeActivity();
                 }
                 setResult(Activity.RESULT_OK);
             }
@@ -134,18 +136,19 @@ public class SplashScreenActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (canAutoLogin()) {
-                    autoLogin();
-                } else {
-                    LoginActivity.start(SplashScreenActivity.this);
-                }
+//                if (canAutoLogin()) {
+////                    Log.e(TAG,"Temperaly");
+////                    autoLogin();
+//                } else {
+                LoginActivity.start(SplashScreenActivity.this);
+//                }
             }
         }, 1500);
     }
 
-    private boolean canAutoLogin() {
-        return PreferenceLogin.getInstance().getAutoLogin();
-    }
+//    private boolean canAutoLogin() {
+//        return PreferenceLogin.getInstance().getAutoLogin();
+//    }
 
     private void autoLogin() {
         if (!TextUtils.isEmpty(preferenceLogin.getUsername()) && !TextUtils.isEmpty(preferenceLogin.getPassword())) {
@@ -157,7 +160,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getNickName() + " !";
+        String welcome = "Welcome entering in CAR_Mobile !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 
@@ -167,6 +170,11 @@ public class SplashScreenActivity extends AppCompatActivity {
 
     private void showHomeActivity(){
         HomeActivity.start(SplashScreenActivity.this);
+        finish();
+    }
+
+    private void showCollaborateActivity() {
+        CollaborationActivity.start(SplashScreenActivity.this);
         finish();
     }
 

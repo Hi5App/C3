@@ -35,6 +35,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.penglab.hi5.R;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.home.screens.HomeActivity;
 import com.penglab.hi5.core.ui.password.FindPasswordActivity;
 import com.penglab.hi5.core.ui.register.RegisterActivity;
@@ -98,7 +99,7 @@ public class LoginActivity extends AppCompatActivity{
         mIvLoginPwdDel = findViewById(R.id.iv_login_pwd_del);
 
         mLayBackBar = findViewById(R.id.ly_retrieve_bar);
-        mIvLoginLogo = findViewById(R.id.iv_login_logo);
+//        mIvLoginLogo = findViewById(R.id.iv_login_logo);
 
         /* load local user info */
         if (preferenceLogin.getRem_or_not()){
@@ -137,7 +138,8 @@ public class LoginActivity extends AppCompatActivity{
                     preferenceLogin.setPref(usernameEditText.getText().toString(),
                             passwordEditText.getText().toString(),id,true,true);
                     updateUiWithUser(loginResult.getSuccess());
-                    showHomeActivity();
+                    showCollaborateActivity();
+//                    showHomeActivity();
                     setResult(Activity.RESULT_OK);
                 }
             }
@@ -211,7 +213,7 @@ public class LoginActivity extends AppCompatActivity{
 
         mIvLoginUsernameDel.setOnClickListener(new MyClick());
         mIvLoginPwdDel.setOnClickListener(new MyClick());
-        mLayBackBar.getViewTreeObserver().addOnGlobalLayoutListener(new MyViewTreeObserver());
+//        mLayBackBar.getViewTreeObserver().addOnGlobalLayoutListener(new MyViewTreeObserver());
 
     }
 
@@ -275,71 +277,71 @@ public class LoginActivity extends AppCompatActivity{
     }
 
     // 显示或隐藏logo
-    public class MyViewTreeObserver implements ViewTreeObserver.OnGlobalLayoutListener {
-
-        private int mLogoHeight;
-        private int mLogoWidth;
-
-        @Override
-        public void onGlobalLayout() {
-            final ImageView ivLogo =mIvLoginLogo;
-            Rect KeypadRect = new Rect();
-
-            mLayBackBar.getWindowVisibleDisplayFrame(KeypadRect);
-
-            int screenHeight = mLayBackBar.getRootView().getHeight();
-            int keypadHeight = screenHeight - KeypadRect.bottom;
-
-            // 隐藏logo
-            if (keypadHeight > 300 && ivLogo.getTag() == null) {
-                final int height = ivLogo.getHeight();
-                final int width = ivLogo.getWidth();
-                this.mLogoHeight = height;
-                this.mLogoWidth = width;
-
-                ivLogo.setTag(true);
-
-                ValueAnimator valueAnimator = ValueAnimator.ofFloat(1, 0);
-                valueAnimator.setDuration(400).setInterpolator(new DecelerateInterpolator());
-                valueAnimator.addUpdateListener(animation -> {
-                    float animatedValue = (float) animation.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = ivLogo.getLayoutParams();
-                    layoutParams.height = (int) (height * animatedValue);
-                    layoutParams.width = (int) (width * animatedValue);
-                    ivLogo.requestLayout();
-                    ivLogo.setAlpha(animatedValue);
-                });
-
-                if (valueAnimator.isRunning()) {
-                    valueAnimator.cancel();
-                }
-                valueAnimator.start();
-            }
-            // 显示logo
-            else if (keypadHeight < 300 && ivLogo.getTag() != null) {
-                final int height = mLogoHeight;
-                final int width = mLogoWidth;
-
-                ivLogo.setTag(null);
-
-                ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-                valueAnimator.setDuration(400).setInterpolator(new DecelerateInterpolator());
-                valueAnimator.addUpdateListener(animation -> {
-                    float animatedValue = (float) animation.getAnimatedValue();
-                    ViewGroup.LayoutParams layoutParams = ivLogo.getLayoutParams();
-                    layoutParams.height = (int) (height * animatedValue);
-                    layoutParams.width = (int) (width * animatedValue);
-                    ivLogo.requestLayout();
-                    ivLogo.setAlpha(animatedValue);
-                });
-
-                if (valueAnimator.isRunning()) {
-                    valueAnimator.cancel();
-                }
-                valueAnimator.start();
-            }
-        }
-    }
+//    public class MyViewTreeObserver implements ViewTreeObserver.OnGlobalLayoutListener {
+//
+//        private int mLogoHeight;
+//        private int mLogoWidth;
+//
+//        @Override
+//        public void onGlobalLayout() {
+//            final ImageView ivLogo =mIvLoginLogo;
+//            Rect KeypadRect = new Rect();
+//
+//            mLayBackBar.getWindowVisibleDisplayFrame(KeypadRect);
+//
+//            int screenHeight = mLayBackBar.getRootView().getHeight();
+//            int keypadHeight = screenHeight - KeypadRect.bottom;
+//
+//            // 隐藏logo
+//            if (keypadHeight > 300 && ivLogo.getTag() == null) {
+//                final int height = ivLogo.getHeight();
+//                final int width = ivLogo.getWidth();
+//                this.mLogoHeight = height;
+//                this.mLogoWidth = width;
+//
+//                ivLogo.setTag(true);
+//
+//                ValueAnimator valueAnimator = ValueAnimator.ofFloat(1, 0);
+//                valueAnimator.setDuration(400).setInterpolator(new DecelerateInterpolator());
+//                valueAnimator.addUpdateListener(animation -> {
+//                    float animatedValue = (float) animation.getAnimatedValue();
+//                    ViewGroup.LayoutParams layoutParams = ivLogo.getLayoutParams();
+//                    layoutParams.height = (int) (height * animatedValue);
+//                    layoutParams.width = (int) (width * animatedValue);
+//                    ivLogo.requestLayout();
+//                    ivLogo.setAlpha(animatedValue);
+//                });
+//
+//                if (valueAnimator.isRunning()) {
+//                    valueAnimator.cancel();
+//                }
+//                valueAnimator.start();
+//            }
+//            // 显示logo
+//            else if (keypadHeight < 300 && ivLogo.getTag() != null) {
+//                final int height = mLogoHeight;
+//                final int width = mLogoWidth;
+//
+//                ivLogo.setTag(null);
+//
+//                ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+//                valueAnimator.setDuration(400).setInterpolator(new DecelerateInterpolator());
+//                valueAnimator.addUpdateListener(animation -> {
+//                    float animatedValue = (float) animation.getAnimatedValue();
+//                    ViewGroup.LayoutParams layoutParams = ivLogo.getLayoutParams();
+//                    layoutParams.height = (int) (height * animatedValue);
+//                    layoutParams.width = (int) (width * animatedValue);
+//                    ivLogo.requestLayout();
+//                    ivLogo.setAlpha(animatedValue);
+//                });
+//
+//                if (valueAnimator.isRunning()) {
+//                    valueAnimator.cancel();
+//                }
+//                valueAnimator.start();
+//            }
+//        }
+//    }
 
     @Override
     protected void onDestroy() {
@@ -348,16 +350,19 @@ public class LoginActivity extends AppCompatActivity{
 
     private void updateUiWithUser(LoggedInUserView model) {
         String welcome = getString(R.string.welcome) + model.getNickName() + " !";
-        Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
+        Toast.makeText(getApplicationContext(), "welcome to enter the CAR_Mobile", Toast.LENGTH_LONG).show();
     }
 
     private void showLoginFailed(@Nullable String errorString) {
         Toast.makeText(getApplicationContext(), errorString, Toast.LENGTH_LONG).show();
     }
 
-    private void showHomeActivity(){
-        HomeActivity.start(LoginActivity.this);
-        finish();
+//    private void showHomeActivity(){
+//        HomeActivity.start(LoginActivity.this);
+//        finish();
+//    }
+    private void showCollaborateActivity() {
+        CollaborationActivity.start(LoginActivity.this);
     }
 
     public static void start(Context context) {
