@@ -105,20 +105,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
-    private SeekBar mContrastSeekBar;
     private static Context mainContext;
-
     private AlertDialog dialog;
 
-    private static final int HANDLER_SHOW_DOWNLOADING_POPUPVIEW = 0;
-    private static final int HANDLER_HIDE_DOWNLOADING_POPUPVIEW = 1;
-    private static final int HANDLER_SET_BUTTONS_BIGDATA = 2;
-    private static final int HANDLER_NETWORK_TIME_OUT = 3;
-    private static final int HANDLER_SET_FILENAME_BIGDATA = 4;
     private static final int HANDLER_TOAST_INFO_STATIC = 5;
-    private static final int HANDLER_SHOW_PROGRESSBAR = 6;
-    private static final int HANDLER_SHOW_SYNCING_POPUPVIEW = 9;
-    private static final int HANDLER_HIDE_SYNCING_POPUPVIEW = 10;
 
     public static String username;
 
@@ -940,27 +930,27 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
             collaborateCheckFileButton.setVisibility(View.GONE);
 
-            mContrastSeekBar = findViewById(R.id.contrast_collaborate);
-            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
-            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
-            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
-                    if (fromuser) {
-                        preferenceSetting.setContrastEnhanceRatio(progress);
-                        annotationGLSurfaceView.updateRenderOptions();
-                    }
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    annotationGLSurfaceView.requestRender();
-                }
-            });
+//            mContrastSeekBar = findViewById(R.id.contrast_collaborate);
+//            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
+//            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
+//            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+//                @Override
+//                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+//                    if (fromuser) {
+//                        preferenceSetting.setContrastEnhanceRatio(progress);
+//                        annotationGLSurfaceView.updateRenderOptions();
+//                    }
+//                }
+//
+//                @Override
+//                public void onStartTrackingTouch(SeekBar seekBar) {
+//                }
+//
+//                @Override
+//                public void onStopTrackingTouch(SeekBar seekBar) {
+//                    annotationGLSurfaceView.requestRender();
+//                }
+//            });
 
 
 
