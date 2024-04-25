@@ -931,30 +931,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
             collaborateCheckFileButton.setVisibility(View.GONE);
 
-//            mContrastSeekBar = findViewById(R.id.contrast_collaborate);
-//            SeekBar contrastEnhanceRatio = findViewById(R.id.contrast_enhance_ratio);
-//            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
-//            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-//                @Override
-//                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
-//                    if (fromuser) {
-//                        preferenceSetting.setContrastEnhanceRatio(progress);
-//                        annotationGLSurfaceView.updateRenderOptions();
-//                    }
-//                }
-//
-//                @Override
-//                public void onStartTrackingTouch(SeekBar seekBar) {
-//                }
-//
-//                @Override
-//                public void onStopTrackingTouch(SeekBar seekBar) {
-//                    annotationGLSurfaceView.requestRender();
-//                }
-//            });
-
-
-
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
         }

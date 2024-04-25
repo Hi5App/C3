@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
+import com.penglab.hi5.core.collaboration.connector.ExecutorServiceProvider;
 
 import org.apache.commons.io.IOUtils;
 
@@ -23,25 +24,19 @@ public class MsgSender {
 
     private final String TAG = "MsgSender";
 
-    private final ExecutorService executorService;
+//    private final ExecutorService executorService;
 
-    public MsgSender(){
-        executorService = Executors.newFixedThreadPool(4);
-    }
+//    public MsgSender(){
+//        executorService = Executors.newFixedThreadPool(4);
+//    }
     public boolean sendMsg(Socket socket, String message, boolean waited, boolean resend, ReconnectionInterface reconnectionInterface) {
         if (socket == null || !socket.isConnected()) {
             ToastEasy("Fail to Send Message, check the network please !");
             return false;
         }
 
-        synchronized (this) {
-            if (executorService.isShutdown()) {
-                Log.e(TAG, "Executor service is shut down, cannot send message.");
-                return false;
-            }
-        }
 
-        Future<Boolean> result = executorService.submit(() -> {
+        Future<Boolean> result = ExecutorServiceProvider.getExecutorService().submit(() -> {
             try {
                 OutputStream out = socket.getOutputStream();
                 String data = !message.startsWith("/login") ? message + "\n" : message;
@@ -78,7 +73,7 @@ public class MsgSender {
 
     public boolean testConnection(Socket socket){
 
-        Future<Boolean> result = executorService.submit(new Callable<Boolean>() {
+        Future<Boolean> result = ExecutorServiceProvider.getExecutorService().submit(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
                 try {
@@ -184,6 +179,6 @@ public class MsgSender {
     }
 
     public void close(){
-        executorService.shutdown();
+        ExecutorServiceProvider.shutdownService();
     }
 }
