@@ -74,10 +74,12 @@ public class CollorationDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
+                    String responseBody = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "responseData: " + response.body().string());
+                        Log.e(TAG, "responseData: " + responseBody);
                         try {
-                            String[] brainNumber = response.body().string().split(",");
+
+                            String[] brainNumber = responseBody.split(",");
                             Log.e("brainNumberSize",""+brainNumber.length);
                             brianListResult.postValue(new Result.Success<String[]>(brainNumber));
                         } catch (Exception e) {
@@ -87,7 +89,7 @@ public class CollorationDataSource {
                         response.body().close();
                         response.close();
                     } else if (responseCode == 502) {
-                        if (response.body().string().trim().equals("Empty")) {
+                        if (responseBody.trim().equals("Empty")) {
                             Log.e(TAG,"get Empty response");
                             brianListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
                         }
@@ -115,11 +117,11 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    Log.e(TAG, "response getNeuron: " + response.body().string());
-
+                    String responseBody = response.body().string();
+                    Log.e(TAG, "response getNeuron: " + responseBody);
                     if (responseCode == 200) {
                         try {
-                            JSONArray neuronNameArray = new JSONArray(response.body().string());
+                            JSONArray neuronNameArray = new JSONArray(responseBody);
                             List<CollaborateNeuronInfo> neuronList = new ArrayList<>();
                             for (int i=0; i<neuronNameArray.length(); i++){
                                 JSONObject neuronInfo = neuronNameArray.getJSONObject(i);
@@ -140,7 +142,7 @@ public class CollorationDataSource {
                         neuronListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
 //                        }
                     } else {
-                        Log.e(TAG, "response update arbor result: " + response.body().string());
+                        Log.e(TAG, "response update arbor result: " + responseBody);
                         neuronListResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
                     }
                 }
@@ -169,10 +171,11 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
+                    String responseBody = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response getAno: " + response.body().string());
+                        Log.e(TAG, "response getAno: " + responseBody);
                         try {
-                            JSONObject resultJson = new JSONObject(response.body().string());
+                            JSONObject resultJson = new JSONObject(responseBody);
                             JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
                             boolean status = metaInfo.getBoolean("Status");
                             String message = metaInfo.getString("Message");
@@ -199,7 +202,7 @@ public class CollorationDataSource {
                         response.close();
                     }
                     else {
-                        Log.e(TAG, "response update arbor result: " + response.body().string());
+                        Log.e(TAG, "response update arbor result: " + responseBody);
                         anoListResult.postValue(new Result.Error(new Exception("Fail to get swcmetainfo !")));
                     }
                 }
@@ -225,10 +228,11 @@ public class CollorationDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
+                    String responseBody = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response loadano: " + response.body().string());
+                        Log.e(TAG, "response loadano: " + responseBody);
                         try {
-                            JSONObject loadAnoArray = new JSONObject(response.body().string());
+                            JSONObject loadAnoArray = new JSONObject(responseBody);
                             downloadAnoResult.postValue(new Result.Success<JSONObject>(loadAnoArray));
                         } catch (Exception exception) {
                             exception.printStackTrace();
@@ -237,12 +241,11 @@ public class CollorationDataSource {
                         response.body().close();
                         response.close();
                     } else if (responseCode == 502) {
-                        if (response.body().string().trim().equals("Empty")) {
+                        if (responseBody.trim().equals("Empty")) {
                             Log.e(TAG, "get Empty response");
                             downloadAnoResult.postValue(new Result.Success<String>(NO_MORE_FILE));
                         }
                     } else {
-//                        Log.e(TAG, "response update arbor result: " + response.body().string());
                         downloadAnoResult.postValue(new Result.Error(new Exception("Fail to get query arbor result !")));
                     }
                 }
@@ -271,11 +274,12 @@ public class CollorationDataSource {
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
+                    String responseBody = response.body().string();
                     Log.e(TAG,"responsecode of getuserid"+responseCode);
                     if (responseCode == 200) {
-                        Log.e(TAG, "responseData_getuserid: " +  response.body().string());
+                        Log.e(TAG, "responseData_getuserid: " +  responseBody);
                         try {
-                            JSONObject resultJson = new JSONObject( response.body().string());
+                            JSONObject resultJson = new JSONObject(responseBody);
                             JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
                             boolean status = metaInfo.getBoolean("Status");
                             String message = metaInfo.getString("Message");
