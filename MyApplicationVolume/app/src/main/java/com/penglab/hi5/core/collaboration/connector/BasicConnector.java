@@ -60,6 +60,7 @@ public abstract class BasicConnector {
                      */
                     if (mSocket.isConnected()) {
                         Log.e(TAG, "Connect Server Successfully !");
+
                     } else {
                         ToastEasy("Can't Connect Server, Try Again Please!");
                     }

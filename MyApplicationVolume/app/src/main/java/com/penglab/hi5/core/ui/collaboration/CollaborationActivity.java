@@ -102,6 +102,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
     private boolean copyFile = false;
+
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
 
@@ -463,7 +464,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     List<String> data = (List<String>) ((Result.Success<?>) result).getData();
                     String[] str = new String[data.size()];
 //                    String[] anoListShow = data.toArray(str);
-                    String[] anoListShow = {"18454_00019","00029_P001_T01-S001_MFG_R0460_WY-20220415_GYC"};
+                    String[] anoListShow = {"18454_00019","00029_P001_T01-S001_MFG_R0460_WY-20220415_GYC_03"};
                     new XPopup.Builder(CollaborationActivity.this).
                             maxHeight(1350).
                             maxWidth(800).
@@ -1162,7 +1163,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         switch (item.getItemId()) {
             case android.R.id.home:
                 LoginActivity.start(CollaborationActivity.this);
-//                finish();
+                finish();
                 return true;
 
 //            case R.id.undo:
@@ -1313,6 +1314,5 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private void synapseValidation() {
         BoutonDetectionActivity.start(CollaborationActivity.this);
     }
-
 
 }

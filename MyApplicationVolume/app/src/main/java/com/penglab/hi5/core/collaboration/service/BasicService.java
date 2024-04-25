@@ -27,7 +27,7 @@ public abstract class BasicService extends Service {
     //    private static String TAG = BasicService.class.getSimpleName();
     protected String TAG;
 
-    private ReceiveMsgInterface receiveMsgInterface;
+    private volatile ReceiveMsgInterface receiveMsgInterface;
 
     // Binder given to clients
     private final IBinder binder = new LocalBinder();
@@ -136,7 +136,7 @@ public abstract class BasicService extends Service {
      * thread for read and process msg
      */
     class ReadThread extends Thread {
-        private Socket mSocket;
+        private volatile Socket mSocket;
         private InputStream is;
         private boolean isReconnect = false;         /* when the something wrong with the connect, and need to reconnect in the service */
         private boolean isReset = false;             /* when the connector release the connect, and need to reset connect in this thread */
@@ -204,6 +204,9 @@ public abstract class BasicService extends Service {
         @Override
         public void run() {
             super.run();
+            while(mSocket == null){
+
+            }
             if (mSocket != null) {
                 try {
                     is = mSocket.getInputStream();
@@ -342,7 +345,9 @@ public abstract class BasicService extends Service {
                         }
                         out.close();
 
+                        while(receiveMsgInterface==null){
 
+                        }
                         receiveMsgInterface.onRecMessage("File:" + dataType.filepath + "/" + dataType.filename);
 
 
@@ -465,6 +470,9 @@ public abstract class BasicService extends Service {
             if (msg.endsWith("\n")) {
                 Log.e(TAG,"ProcessMsg: "+msg);
                 resetDataType();
+                while(receiveMsgInterface==null){
+
+                }
                 receiveMsgInterface.onRecMessage(msg.trim());
 
                 return true;

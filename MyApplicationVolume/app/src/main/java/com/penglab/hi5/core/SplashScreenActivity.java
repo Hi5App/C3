@@ -29,6 +29,7 @@ import com.penglab.hi5.chat.nim.util.sys.SysInfoUtil;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
+import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 import com.penglab.hi5.core.ui.login.LoginActivity;
