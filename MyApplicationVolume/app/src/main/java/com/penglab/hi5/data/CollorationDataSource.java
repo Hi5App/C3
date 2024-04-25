@@ -36,8 +36,6 @@ public class CollorationDataSource {
 
     private final String TAG = "CollorationDataSource";
 
-    private String responseData;
-
     private int userId;
     public int getUserId(){
         return userId;
@@ -77,10 +75,9 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     int responseCode = response.code();
                     if (responseCode == 200) {
-                        responseData = response.body().string();
-                        Log.e(TAG, "responseData: " + responseData);
+                        Log.e(TAG, "responseData: " + response.body().string());
                         try {
-                            String[] brainNumber = responseData.split(",");
+                            String[] brainNumber = response.body().string().split(",");
                             Log.e("brainNumberSize",""+brainNumber.length);
                             brianListResult.postValue(new Result.Success<String[]>(brainNumber));
                         } catch (Exception e) {
@@ -90,8 +87,7 @@ public class CollorationDataSource {
                         response.body().close();
                         response.close();
                     } else if (responseCode == 502) {
-                        responseData = response.body().string();
-                        if (responseData.trim().equals("Empty")) {
+                        if (response.body().string().trim().equals("Empty")) {
                             Log.e(TAG,"get Empty response");
                             brianListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
                         }
@@ -112,19 +108,18 @@ public class CollorationDataSource {
             HttpUtilsCollaborate.getNeuronsWithOkHttp(userInfo, brainNum, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    neuronListResult.postValue(new Result.Error(new Exception("Connect failed when update arbor result !")));
+                    neuronListResult.postValue(new Result.Error(new Exception("Connect failed when update neuron result !")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
-                    Log.e(TAG, "response getNeuron: " + responseData);
+                    Log.e(TAG, "response getNeuron: " + response.body().string());
 
                     if (responseCode == 200) {
                         try {
-                            JSONArray neuronNameArray = new JSONArray(responseData);
+                            JSONArray neuronNameArray = new JSONArray(response.body().string());
                             List<CollaborateNeuronInfo> neuronList = new ArrayList<>();
                             for (int i=0; i<neuronNameArray.length(); i++){
                                 JSONObject neuronInfo = neuronNameArray.getJSONObject(i);
@@ -174,12 +169,10 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response getAno: " + responseData);
-                        // process response
+                        Log.e(TAG, "response getAno: " + response.body().string());
                         try {
-                            JSONObject resultJson = new JSONObject(responseData);
+                            JSONObject resultJson = new JSONObject(response.body().string());
                             JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
                             boolean status = metaInfo.getBoolean("Status");
                             String message = metaInfo.getString("Message");
@@ -218,55 +211,6 @@ public class CollorationDataSource {
         }
     }
 
-    public void getAno(String neuronNum) {
-        try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsCollaborate.getAnoWithOkHttp(userInfo, neuronNum, new Callback() {
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    anoListResult.postValue(new Result.Error(new Exception("Connect failed when update get ano result !")));
-                }
-
-                @Override
-                public void onResponse(Call call, Response response) throws IOException {
-                    Log.e(TAG, "responseCode" + response.code());
-                    int responseCode = response.code();
-                    responseData = response.body().string();
-                    if (responseCode == 200) {
-                        Log.e(TAG, "response getAno: " + responseData);
-                        // process response
-                        try {
-                            JSONArray anoNameArray = new JSONArray(responseData);
-                            List<String> anoNameList = new ArrayList<String>();
-                            for(int i =0;i<anoNameArray.length();i++){
-                                JSONObject anoInfo = anoNameArray.getJSONObject(i);
-                                anoNameList.add(anoInfo.getString("name"));
-                            }
-                            anoListResult.postValue(new Result.Success<List<String>>(anoNameList));
-                        } catch (Exception exception) {
-                            exception.printStackTrace();
-                            anoListResult.postValue(new Result.Error(new Exception("Fail to parse anolist result !")));
-                        }
-                        response.body().close();
-                        response.close();
-                    } else if (responseCode == 502) {
-                        responseData = response.body().string();
-                        if (responseData.trim().equals("Empty")) {
-                            Log.e(TAG, "get Empty response");
-                            anoListResult.postValue(new Result.Success<String>(NO_MORE_FILE));
-                        }
-                    } else {
-                        Log.e(TAG, "response update arbor result: " + response.body().string());
-                        anoListResult.postValue(new Result.Error(new Exception("Fail to get ano list !")));
-                    }
-                }
-            });
-
-        } catch (Exception e) {
-            anoListResult.postValue(new Result.Error(new IOException("Check the network please !", e)));
-            e.printStackTrace();
-        }
-    }
 
     public void loadAno(String brainNumber,String neuronNumber,String ano) {
 
@@ -280,14 +224,11 @@ public class CollorationDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-//                    Log.e(TAG, "responseCode_loadano" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
                     if (responseCode == 200) {
-                        Log.e(TAG, "response loadano: " + responseData);
-                        // process response
+                        Log.e(TAG, "response loadano: " + response.body().string());
                         try {
-                            JSONObject loadAnoArray = new JSONObject(responseData);
+                            JSONObject loadAnoArray = new JSONObject(response.body().string());
                             downloadAnoResult.postValue(new Result.Success<JSONObject>(loadAnoArray));
                         } catch (Exception exception) {
                             exception.printStackTrace();
@@ -296,8 +237,7 @@ public class CollorationDataSource {
                         response.body().close();
                         response.close();
                     } else if (responseCode == 502) {
-                        responseData = response.body().string();
-                        if (responseData.trim().equals("Empty")) {
+                        if (response.body().string().trim().equals("Empty")) {
                             Log.e(TAG, "get Empty response");
                             downloadAnoResult.postValue(new Result.Success<String>(NO_MORE_FILE));
                         }
@@ -333,10 +273,9 @@ public class CollorationDataSource {
                     int responseCode = response.code();
                     Log.e(TAG,"responsecode of getuserid"+responseCode);
                     if (responseCode == 200) {
-                        responseData = response.body().string();
-                        Log.e(TAG, "responseData_getuserid: " + responseData);
+                        Log.e(TAG, "responseData_getuserid: " +  response.body().string());
                         try {
-                            JSONObject resultJson = new JSONObject(responseData);
+                            JSONObject resultJson = new JSONObject( response.body().string());
                             JSONObject metaInfo = resultJson.getJSONObject("metaInfo");
                             boolean status = metaInfo.getBoolean("Status");
                             String message = metaInfo.getString("Message");

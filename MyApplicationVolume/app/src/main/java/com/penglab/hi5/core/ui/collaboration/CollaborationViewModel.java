@@ -163,11 +163,6 @@ public class CollaborationViewModel extends ViewModel {
 
     }
 
-    public void handleNeuronNumber(String neuronNumber) {
-        potentialDownloadNeuronInfo.setNeuronNumber(neuronNumber);
-        getAno(neuronNumber);
-    }
-
     public LiveData<CollaborationViewModel.AnnotationMode> getAnnotationMode() {
         return annotationMode;
     }
@@ -175,7 +170,6 @@ public class CollaborationViewModel extends ViewModel {
     public void handleAnoResult(String anoName) {
         getDownloadAno(anoName);
         getNeuronList(potentialDownloadNeuronInfo.getBrainName());
-
         collorationDataSource.loadAno(potentialDownloadNeuronInfo.getBrainName(), potentialDownloadNeuronInfo.getNeuronName(), anoName);
 
     }
@@ -227,9 +221,9 @@ public class CollaborationViewModel extends ViewModel {
         collorationDataSource.getAno();
     }
 
-    public void getAno(String neuronNumber) {
-        collorationDataSource.getAno(neuronNumber);
-    }
+//    public void getAno(String neuronNumber) {
+//        collorationDataSource.getAno(neuronNumber);
+//    }
 
     public void getDownloadAno(String anoName) {
         String[] parts = anoName.split("_");

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <string name="app_name" translatable="false">Hi 5</string>
+    <string name="app_name_linshi" translatable="false">CAR</string>
     <string name="Button" translatable="false">Local</string>
     <string name="Button_remote" translatable="false">Remote</string>
     <string name="text" translatable="false">filename</string>

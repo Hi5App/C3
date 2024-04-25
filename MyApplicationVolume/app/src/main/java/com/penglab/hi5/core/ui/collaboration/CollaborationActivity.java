@@ -157,8 +157,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     private List<String> neuronNumberList = new ArrayList<>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
-
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override

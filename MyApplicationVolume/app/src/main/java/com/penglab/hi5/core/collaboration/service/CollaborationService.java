@@ -81,7 +81,7 @@ public class CollaborationService extends BasicService {
     }
 
     /* when fail to send msg in service, reConnect the socket; use synchronized to avoid the using conflict of socket */
-    public void reConnection(){
+    public void reConnection() {
         Log.e(TAG,"Start to reConnect");
         synchronized (lockForMsgSocket){
             if(!mBasicConnector.checkConnection()){
