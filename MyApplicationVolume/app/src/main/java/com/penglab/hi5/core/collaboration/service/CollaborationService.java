@@ -53,6 +53,7 @@ public class CollaborationService extends BasicService {
         // The service is no longer used and is being destroyed
         Log.d(TAG, "onDestroy");
         super.onDestroy();
+        isReleased = false;
     }
 
 
