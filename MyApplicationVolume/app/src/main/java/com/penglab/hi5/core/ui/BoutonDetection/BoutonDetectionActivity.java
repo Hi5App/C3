@@ -134,10 +134,12 @@ public class BoutonDetectionActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar_quality_control);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setTitle("Synapse Validation");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
+        downloadingPopupView = new XPopup.Builder(this).asLoading("Call Hi5 programming......");
         boutonDetectionViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(BoutonDetectionViewModel.class);
         boutonDetectionViewModel.getAnnotationMode().observe(this, new Observer<BoutonDetectionViewModel.AnnotationMode>() {
             @Override

@@ -155,11 +155,12 @@ public class MarkerFactoryActivity extends AppCompatActivity {
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Soma Pinpointing");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
 
-        downloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
+        downloadingPopupView = new XPopup.Builder(this).asLoading("Call Hi5 programming......");
         markerFactoryViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(MarkerFactoryViewModel.class);
         markerFactoryViewModel.getAnnotationMode().observe(this, new Observer<MarkerFactoryViewModel.AnnotationMode>() {
             @Override
