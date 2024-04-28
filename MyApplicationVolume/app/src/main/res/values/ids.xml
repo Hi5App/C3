@@ -8,4 +8,5 @@
     <item name="switch_cam" type="id"/>
     <item name="layoutSubcategoryWindow3" type="id" />
     <item name="layoutSubcategoryWindow4" type="id" />
+    <item name="iv_login_logo" type="id" />
 </resources>

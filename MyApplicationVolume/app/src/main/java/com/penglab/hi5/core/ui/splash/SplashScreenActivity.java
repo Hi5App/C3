@@ -157,7 +157,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     }
 
     private void updateUiWithUser(LoggedInUserView model) {
-        String welcome = getString(R.string.welcome) + model.getNickName() + " !";
+        String welcome = getString(R.string.welcome) + model.getUserId() + " !";
         Toast.makeText(getApplicationContext(), welcome, Toast.LENGTH_LONG).show();
     }
 

@@ -22,7 +22,7 @@ android {
         versionCode 1
         multiDexEnabled true
 
-        versionName "2.7.4"
+        versionName "2.7.6"
 
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

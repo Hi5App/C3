@@ -171,7 +171,7 @@ public class HomeActivity extends BaseActivity implements NavigationView.OnNavig
                     return;
                 }
                 if (homeViewModel.isLogged()) {
-                    nickName.setText(userView.getNickName());
+                    nickName.setText(userView.getUserId());
                     email.setText(userView.getEmail());
                 } else {
                     nickName.setText(GUEST_NICKNAME);

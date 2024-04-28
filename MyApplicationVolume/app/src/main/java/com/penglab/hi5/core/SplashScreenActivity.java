@@ -390,7 +390,7 @@ public class SplashScreenActivity extends BaseActivity implements ReceiveMsgInte
 
 //        MainActivity.actionStart(SplashScreenActivity.this, account);
         HomeActivity.start(SplashScreenActivity.this);
-        ToastEasy("Welcome, " + account +" !");
+        ToastEasy("Welcome into Hi5 !");
         finish();
     }
 

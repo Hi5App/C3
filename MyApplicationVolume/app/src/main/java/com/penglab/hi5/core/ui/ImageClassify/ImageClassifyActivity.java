@@ -439,6 +439,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
             btnInterceptive.setOnClickListener(v -> {
                 if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
                     navigateFile(true, true, "3.1_interceptive", "");
+                    layoutSubcategories3.setVisibility(View.GONE);
                 } else {
                     ToastEasy("please open image first");
                 }
@@ -447,6 +448,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
             btnUntruncated.setOnClickListener(v -> {
                 if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
                     navigateFile(true, true, "3.2_untruncated", "");
+                    layoutSubcategories3.setVisibility(View.GONE);
                 } else {
                     ToastEasy("please open image first");
                 }
@@ -460,6 +462,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                         String utf8String = new String(remark.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
                         navigateFile(true, true, "4.2_special", utf8String);
                         mEditTextRemark.setText("other"); // 重设为默认值
+                        layoutSubcategories4.setVisibility(View.GONE);
                     } else {
                         ToastEasy("please open image first");
                     }
