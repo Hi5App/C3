@@ -17,11 +17,27 @@ import java.util.List;
 public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassifyTableAdapter.ViewHolder> {
     private List<UserRatingResultInfo> data;
     private Context context;
+    private static final int TYPE_ITEM = 0;
+    private static final int TYPE_FOOTER = 1;
 
-    public ImageClassifyTableAdapter(List<UserRatingResultInfo> data) {
-        this.data = data;
+    public interface DataCallback {
+        void onTotalCountAvailable(int totalCount);
+        void onDetailAvailable(List<UserRatingResultInfo> details);
     }
+    private DataCallback dataCallback;
 
+    public ImageClassifyTableAdapter(Context context,List<UserRatingResultInfo> data, DataCallback dataCallback) {
+        this.context = context;
+        this.data = data;
+        this.dataCallback = dataCallback;
+    }
+    public int getItemViewType(int position) {
+        if (position == 0) {
+            return TYPE_FOOTER; // 总数显示在第一行
+        } else {
+            return TYPE_ITEM;
+        }
+    }
     public List<UserRatingResultInfo> getUserRatingResultInfos (){
         return data;
     }
@@ -29,29 +45,48 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        context = parent.getContext();
-        View view = LayoutInflater.from(context).inflate(R.layout.item_table_row, parent, false);
-        return new ViewHolder(view);
+        if(context == null){
+            throw new IllegalStateException("Context must not be null");
+        }
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view;
+        if (viewType == TYPE_ITEM) {
+            view =inflater.inflate(R.layout.item_table_row, parent, false);
+        } else {
+            view =inflater.inflate(R.layout.item_footer_row, parent, false);
+        }
+        return new ViewHolder(view, viewType);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        UserRatingResultInfo info =data.get(position);
-        holder.bind(info);
+        if (getItemViewType(position) == TYPE_FOOTER) {
+            holder.bindTotal(data.size()); // 总计行
+        } else {
+            // 注意这里由于总计行是第一行，数据行的索引需要减1
+            UserRatingResultInfo info = data.get(position - 1); // 注意索引变化
+            holder.bind(info);
+        }
     }
 
     @Override
     public int getItemCount() {
-
-        return data != null ? data.size() : 0;
+        if (data != null) {
+            return data.size() + 1; // 加1因为包括总计行
+        }
+        return 1; // 如果没有数据，仍然显示总计行
     }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView totalTextView;
 
         private TextView imageNameTextView, ratingTextView, descriptionTextView, uploadTimeTextView;
 
-        public ViewHolder(@NonNull View itemView) {
+        public ViewHolder(@NonNull View itemView, int viewType) {
             super(itemView);
+            if(viewType == TYPE_FOOTER){
+                totalTextView = itemView.findViewById(R.id.total_text_view);
+            } else {
+
             imageNameTextView = itemView.findViewById(R.id.image_name_text_view);
             ratingTextView = itemView.findViewById(R.id.rating_text_view);
             descriptionTextView = itemView.findViewById(R.id.description_text_view);
@@ -59,8 +94,8 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
 
             // 设置边框
             itemView.setBackgroundResource(R.drawable.table_border);
+            }
         }
-
         public void bind(UserRatingResultInfo resultInfo) {
             // 设置数据
             imageNameTextView.setText(resultInfo.imageName);
@@ -75,9 +110,10 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
             descriptionTextView.setTypeface(boldTypeface);
             uploadTimeTextView.setTypeface(boldTypeface);
         }
+        public void bindTotal(int total) {
+            if (totalTextView != null) {
+                totalTextView.setText("Total: " + total);
+            }
+        }
     }
-
-
-
-
 }

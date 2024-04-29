@@ -193,7 +193,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"no data available",Toast.LENGTH_SHORT);
                 return;
             }
-            generateExcel(userRatingResultInfos);
+            generateExcel(userRatingResultInfos,false);
         });
 
         mImageClassifyViewModel.acquireImagesManually();
@@ -638,7 +638,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
 
-    public void generateExcel(List<UserRatingResultInfo> userRatingResultInfos) {
+    public void generateExcel(List<UserRatingResultInfo> userRatingResultInfos, boolean showDetails) {
         if(timeRecycleView == null) {
             Toast.makeText(this, "RecyclerView not initialized", Toast.LENGTH_SHORT).show();
             return;
@@ -652,8 +652,27 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     1);
         } else {
-            // Pass the data to RecyclerView adapter
-            ImageClassifyTableAdapter adapter = new ImageClassifyTableAdapter(userRatingResultInfos);
+            // Pass the data to RecyclerView adapter with callback implementation
+            ImageClassifyTableAdapter adapter = new ImageClassifyTableAdapter(this,userRatingResultInfos, new ImageClassifyTableAdapter.DataCallback() {
+                @Override
+                public void onTotalCountAvailable(int totalCount) {
+                    if (!showDetails) {
+                        Toast.makeText(ImageClassifyActivity.this, "Total count: " + totalCount, Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onDetailAvailable(List<UserRatingResultInfo> details) {
+                    if (showDetails) {
+                        // Logic to display details or create an Excel file
+                        Toast.makeText(ImageClassifyActivity.this, "Details are available in console/log", Toast.LENGTH_LONG).show();
+                        for (UserRatingResultInfo detail : details) {
+                            Log.i("Detail", "Image: " + detail.imageName + ", Rating: " + detail.ratingEnum);
+                        }
+                    }
+                }
+            });
+
             timeRecycleView.setLayoutManager(new LinearLayoutManager(this));
             timeRecycleView.setAdapter(adapter);
         }
