@@ -148,7 +148,7 @@ public class MyPattern extends BasicPattern {
     private int drawlistLength = 36;
 
 
-    // opengl es 3.0 ------------------------------------------------------------------------------
+    // opengl es 3.2 ------------------------------------------------------------------------------
 
 
     private static final String vertexShaderCode_1 =
@@ -170,27 +170,12 @@ public class MyPattern extends BasicPattern {
             "#version 320 es\n" +
                     "precision mediump float;" +
 
-                    "uniform highp float cutx_left;" +
-                    "uniform highp float cutx_right;" +
-                    "uniform highp float cuty_left;" +
-                    "uniform highp float cuty_right;" +
-                    "uniform highp float cutz_left;" +
-                    "uniform highp float cutz_right;" +
-
                     "in vec4 backColor;" +
                     "in vec4 pos;" +
 
                     "layout (location = 0) out vec4 fragColor;" +
 
                     "void main() {" +
-
-//                    "   // Check if the current position is within the cut-off values\n"+
-//                    "   if((pos.x) < cutx_left || (pos.x) > cutx_right || (pos.y) < cuty_left || (pos.y) > cuty_right || (pos.z) < cutz_left || (pos.z) > cutz_right) "+
-//                    "   {"+
-//                    "        fragColor = vec4(0.0, 0.0, 0.0, 0.0); // Set to transparent\n"+
-//                    "        return;"+
-//                    "   }"+
-
                     "   fragColor = backColor;" +
                     "}";
 
@@ -256,16 +241,15 @@ public class MyPattern extends BasicPattern {
                     "  for(int i = 0; i < steps; i+=stepSize)" + // 从入射点开始遍历体素，找灰度值最大的
                     "  {" +
 
-                    "   // Check if the current position is within the cut-off values\n" +
-                    "   if((vpos.x / dim[0]) < cutx_left || (vpos.x / dim[0]) > cutx_right || (vpos.y/dim[1]) < cuty_left || (vpos.y/dim[1]) > cuty_right || (vpos.z/dim[2]) < cutz_left || (vpos.z/dim[2]) > cutz_right) " +
-                    "   {" +
-                    "        continue;" +
-                    "   }" +
+//                    "   // Check if the current position is within the cut-off values\n" +
+//                    "   if((vpos.x / dim[0]) < cutx_left || (vpos.x / dim[0]) > cutx_right || (vpos.y/dim[1]) < cuty_left || (vpos.y/dim[1]) > cuty_right || (vpos.z/dim[2]) < cutz_left || (vpos.z/dim[2]) > cutz_right) " +
+//                    "   {" +
+//                    "        continue;" +
+//                    "   }" +
 
                     "     vec4 texture_value;" +
-                    "     texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+                    "     texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
                     "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
-//                    "     value = vec4(texture_value.x, texture_value.y, texture_value.z, texture_value.x);" +
 
 //                    "     if(value.r <= 3.0/255.0 && value.g <= 3.0/255.0 && value.b <= 3.0/255.0)" +
 //                    "         stepSize = 2;" +
@@ -573,165 +557,162 @@ public class MyPattern extends BasicPattern {
     public void setCudePreVertex() {
         vertexPoints = new float[]{
                 // Front face
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
 
                 // Back face
-                0.0f, 0.0f, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
 
                 // Top face
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
 
                 // Bottom face
-                0.0f, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
 
                 // Right face
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
 
                 // Left face
-                // Left face
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
         };
 
         vertexPointsPre = new float[]{
                 // Front face
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
 
                 // Back face
-                0.0f, 0.0f, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
 
                 // Top face
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
 
                 // Bottom face
-                0.0f, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
 
                 // Right face
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
                 mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
 
                 // Left face
-                // Left face
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
         };
-
-        Colors = new float[]{
-                // Front face
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-
-                // Back face
-                0.0f, 0.0f, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-
-                // Top face
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-
-                // Bottom face
-                0.0f, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-
-                // Right face
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-
-                // Left face
-                // Left face
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-        };
-
-        ColorsPre = new float[]{
-                // Front face
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-
-                // Back face
-                0.0f, 0.0f, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-
-                // Top face
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-
-                // Bottom face
-                0.0f, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-
-                // Right face
-                mmz[0]*cutx_right_value, 0.0f, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
-
-                // Left face
-                // Left face
-                0.0f, 0.0f, 0.0f,
-                0.0f, 0.0f, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                0.0f, mmz[1]*cuty_right_value, 0.0f,
-        };
+//        Colors = new float[]{
+//                // Front face
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//
+//                // Back face
+//                0.0f, 0.0f, 0.0f,
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//
+//                // Top face
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//
+//                // Bottom face
+//                0.0f, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//
+//                // Right face
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//
+//                // Left face
+//                // Left face
+//                0.0f, 0.0f, 0.0f,
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//        };
+//
+//        ColorsPre = new float[]{
+//                // Front face
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//
+//                // Back face
+//                0.0f, 0.0f, 0.0f,
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//
+//                // Top face
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//
+//                // Bottom face
+//                0.0f, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//
+//                // Right face
+//                mmz[0]*cutx_right_value, 0.0f, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, 0.0f,
+//                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                mmz[0]*cutx_right_value, 0.0f, mmz[2]*cutz_right_value,
+//
+//                // Left face
+//                // Left face
+//                0.0f, 0.0f, 0.0f,
+//                0.0f, 0.0f, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+//                0.0f, mmz[1]*cuty_right_value, 0.0f,
+//        };
     }
 
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio) {
 
-//        setCudePreVertex();
+        setCudePreVertex();
 
         bufferSet();
 
@@ -1351,17 +1332,6 @@ public class MyPattern extends BasicPattern {
     }
 
 
-    // int 转 byte array
-    private static byte[] intToByteArray(int i) {
-        byte[] result = new byte[4];
-        result[0] = (byte) ((i >> 24) & 0xFF);
-        result[1] = (byte) ((i >> 16) & 0xFF);
-        result[2] = (byte) ((i >> 8) & 0xFF);
-        result[3] = (byte) (i & 0xFF);
-        return result;
-    }
-
-
     public void drawCubePre(float[] mvpMatrix, int mProgram) {
         GLES32.glClear(GLES32.GL_COLOR_BUFFER_BIT | GLES32.GL_DEPTH_BUFFER_BIT);
 
@@ -1371,22 +1341,6 @@ public class MyPattern extends BasicPattern {
         // Pass the projection and view transformation to the shader
         GLES32.glUniformMatrix4fv(vPMatrixHandle, 1, false, mvpMatrix, 0);
 //        GLES32.glUniformMatrix4fv(trAMatrixHandle, 1, false, translateAfterMatrix, 0);
-
-        // 获取uniform cut变量的位置
-        int cutxLeftHandle = GLES32.glGetUniformLocation(mProgram, "cutx_left");
-        int cutxRightHandle = GLES32.glGetUniformLocation(mProgram, "cutx_right");
-        int cutyLeftHandle = GLES32.glGetUniformLocation(mProgram, "cuty_left");
-        int cutyRightHandle = GLES32.glGetUniformLocation(mProgram, "cuty_right");
-        int cutzLeftHandle = GLES32.glGetUniformLocation(mProgram, "cutz_left");
-        int cutzRightHandle = GLES32.glGetUniformLocation(mProgram, "cutz_right");
-
-        // 设置uniform cut变量的值
-        GLES32.glUniform1f(cutxLeftHandle, cutx_left_value);
-        GLES32.glUniform1f(cutxRightHandle, cutx_right_value);
-        GLES32.glUniform1f(cutyLeftHandle, cuty_left_value);
-        GLES32.glUniform1f(cutyRightHandle, cuty_right_value);
-        GLES32.glUniform1f(cutzLeftHandle, cutz_left_value);
-        GLES32.glUniform1f(cutzRightHandle, cutz_right_value);
 
         // 准备坐标数据
         GLES32.glVertexAttribPointer(positionHandle, 3, GLES32.GL_FLOAT, false, 0, vertexPreBuffer);
