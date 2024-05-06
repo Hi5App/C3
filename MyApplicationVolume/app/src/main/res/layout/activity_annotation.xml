@@ -32,81 +32,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/cut_control_panel"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="fill_horizontal"
-            app:layout_constraintTop_toBottomOf="@id/face_direction_control_panel">
-
-            <TextView
-                android:id="@+id/x_cut_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="X-Cut Range:"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                />
-
-            <com.google.android.material.slider.RangeSlider
-                android:id="@+id/x_cut_slider"
-                android:layout_width="256dp"
-                android:layout_height="48dp"
-                app:layout_constraintTop_toTopOf="@id/x_cut_textview"
-                app:layout_constraintStart_toEndOf="@id/x_cut_textview"
-                android:theme="@style/AppThemeMd3"
-                app:values="@array/initial_slider_values"
-                android:valueFrom="0.0"
-                android:valueTo="100.0"
-                android:stepSize="1.0"
-                />
-
-            <TextView
-                android:id="@+id/y_cut_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="Y-Cut Range:"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/x_cut_textview"
-                />
-
-            <com.google.android.material.slider.RangeSlider
-                android:id="@+id/y_cut_slider"
-                android:layout_width="256dp"
-                android:layout_height="48dp"
-                app:layout_constraintTop_toBottomOf="@id/x_cut_slider"
-                app:layout_constraintStart_toEndOf="@id/x_cut_textview"
-                android:theme="@style/AppThemeMd3"
-                app:values="@array/initial_slider_values"
-                android:valueFrom="0.0"
-                android:valueTo="100.0"
-                android:stepSize="1.0"
-                />
-
-            <TextView
-                android:id="@+id/z_cut_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="48dp"
-                android:text="Z-Cut Range:"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/y_cut_textview"
-                />
-
-            <com.google.android.material.slider.RangeSlider
-                android:id="@+id/z_cut_slider"
-                android:layout_width="256dp"
-                android:layout_height="48dp"
-                app:layout_constraintTop_toBottomOf="@id/y_cut_slider"
-                app:layout_constraintStart_toEndOf="@id/y_cut_textview"
-                android:theme="@style/AppThemeMd3"
-                app:values="@array/initial_slider_values"
-                android:valueFrom="0.0"
-                android:valueTo="100.0"
-                android:stepSize="1.0"
-                />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
         <com.penglab.hi5.core.render.view.AnnotationGLSurfaceView
             android:id="@+id/gl_surface_view"
             android:layout_width="0dp"
@@ -115,7 +40,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/cut_control_panel"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.0" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -124,15 +49,16 @@
             android:layout_height="110dp"
             android:layout_gravity="fill_horizontal"
             android:background="@color/transparent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_editor_absoluteX="0dp">
 
             <Button
                 android:id="@+id/front"
                 android:layout_width="48dp"
                 android:layout_height="32dp"
-                app:cornerRadius="24dp"
                 android:layout_margin="3dp"
                 android:background="@drawable/front"
+                app:cornerRadius="24dp"
                 app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintTop_toBottomOf="@id/up" />
 
@@ -140,9 +66,9 @@
                 android:id="@+id/back"
                 android:layout_width="48dp"
                 android:layout_height="32dp"
+                android:layout_margin="3dp"
                 android:background="@drawable/back"
                 app:cornerRadius="24dp"
-                android:layout_margin="3dp"
                 app:layout_constraintStart_toEndOf="@id/front"
                 app:layout_constraintTop_toBottomOf="@id/up" />
 
@@ -150,9 +76,9 @@
                 android:id="@+id/left"
                 android:layout_width="48dp"
                 android:layout_height="32dp"
+                android:layout_margin="3dp"
                 android:background="@drawable/left"
                 app:cornerRadius="24dp"
-                android:layout_margin="3dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/up" />
 
@@ -160,9 +86,9 @@
                 android:id="@+id/right"
                 android:layout_width="48dp"
                 android:layout_height="32dp"
+                android:layout_margin="3dp"
                 android:background="@drawable/right"
                 app:cornerRadius="24dp"
-                android:layout_margin="3dp"
                 app:layout_constraintStart_toEndOf="@id/back"
                 app:layout_constraintTop_toBottomOf="@id/up" />
 
@@ -170,9 +96,9 @@
                 android:id="@+id/up"
                 android:layout_width="48dp"
                 android:layout_height="32dp"
+                android:layout_margin="3dp"
                 android:background="@drawable/up"
                 app:cornerRadius="24dp"
-                android:layout_margin="3dp"
                 app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -185,6 +111,18 @@
                 android:layout_margin="3dp"
                 app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintTop_toBottomOf="@id/left" />
+
+            <Button
+                android:id="@+id/range_cut_button"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="64dp"
+                android:background="@drawable/range_cut"
+                app:cornerRadius="24dp"
+                app:layout_constraintTop_toTopOf="@id/face_direction_control_panel"
+                app:layout_constraintEnd_toEndOf="@id/face_direction_control_panel"
+                />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

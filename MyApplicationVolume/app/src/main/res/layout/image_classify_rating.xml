@@ -75,6 +75,16 @@
             app:layout_constraintStart_toEndOf="@id/left_ic"
             app:layout_constraintTop_toBottomOf="@id/left_ic" />
 
+        <Button
+            android:id="@+id/range_cut_button_ic"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:background="@drawable/range_cut"
+            app:cornerRadius="24dp"
+            android:layout_margin="16dp"
+            app:layout_constraintTop_toTopOf="@id/face_direction_control_panel_ic"
+            app:layout_constraintEnd_toEndOf="@id/face_direction_control_panel_ic"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

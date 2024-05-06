@@ -1,8 +1,29 @@
 package com.penglab.hi5.core.ui.annotation;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import static com.penglab.hi5.core.Myapplication.playButtonSound;
+import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
+
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
+import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -14,31 +35,10 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.SeekBar;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.material.slider.RangeSlider;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.nightonke.boommenu.BoomButtons.TextOutsideCircleButton;
 import com.nightonke.boommenu.BoomMenuButton;
@@ -58,9 +58,6 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
-import com.robinhood.ticker.TickerView;
-
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -110,11 +107,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private ImageButton editModeIndicator;
     private ImageButton rotate;
 
-    private TickerView scoreTickerView;
-
     private int featureDisplayId;
-
-    private ArrayList<byte[]> mLeakyContainer = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -237,29 +230,39 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             annotationGLSurfaceView.setFaceDirection(AnnotationRender.FaceDirection.eDown);
         });
 
-        RangeSlider xRangeSlider = findViewById(R.id.x_cut_slider);
-        xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
-            List<Float> values = xRangeSlider.getValues();
-            annotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
-            annotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
-            annotationGLSurfaceView.requestRender();
+        Button openPopupButton = findViewById(R.id.range_cut_button);
+        openPopupButton.setOnClickListener(v -> {
+            PopupWindow popupWindow = new PopupWindow(LayoutInflater.from(AnnotationActivity.this).inflate(R.layout.popup_rangecut, null)
+                    , ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            popupWindow.setOutsideTouchable(true);
+            popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(AnnotationActivity.this, R.drawable.global_blue_round_box_4));
+            popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER,0,0);
+
+            RangeSlider xRangeSlider = popupWindow.getContentView().findViewById(R.id.x_cut_slider);
+            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
+                List<Float> values = xRangeSlider.getValues();
+                annotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
+                annotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
+                annotationGLSurfaceView.requestRender();
+            });
+
+            RangeSlider yRangeSlider = popupWindow.getContentView().findViewById(R.id.y_cut_slider);
+            yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                List<Float> values = yRangeSlider.getValues();
+                annotationGLSurfaceView.setCuty_left_value(values.get(0) /100);
+                annotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
+                annotationGLSurfaceView.requestRender();
+            });
+
+            RangeSlider zRangeSlider = popupWindow.getContentView().findViewById(R.id.z_cut_slider);
+            zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                List<Float> values = zRangeSlider.getValues();
+                annotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
+                annotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
+                annotationGLSurfaceView.requestRender();
+            });
         });
 
-        RangeSlider yRangeSlider = findViewById(R.id.y_cut_slider);
-        yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
-            List<Float> values = yRangeSlider.getValues();
-            annotationGLSurfaceView.setCuty_left_value(values.get(0) /100);
-            annotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
-            annotationGLSurfaceView.requestRender();
-        });
-
-        RangeSlider zRangeSlider = findViewById(R.id.z_cut_slider);
-        zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
-            List<Float> values = zRangeSlider.getValues();
-            annotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
-            annotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
-            annotationGLSurfaceView.requestRender();
-        });
 
     }
 

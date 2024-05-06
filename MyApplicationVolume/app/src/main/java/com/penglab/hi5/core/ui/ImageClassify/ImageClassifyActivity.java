@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.os.Environment;
@@ -21,9 +22,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -33,6 +37,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -50,6 +55,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.slider.RangeSlider;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.impl.LoadingPopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
@@ -61,6 +67,7 @@ import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
+import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
 import com.penglab.hi5.core.ui.home.utils.Utils;
 import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
@@ -170,9 +177,43 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
         mImageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
 
-        mImageClassifyViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(ImageClassifyViewModel.class);
-
         updateUI();
+
+        Button openPopupButton = mImageClassifyView.findViewById(R.id.range_cut_button_ic);
+
+        openPopupButton.setOnClickListener(v -> {
+            PopupWindow popupWindow = new PopupWindow(LayoutInflater.from(ImageClassifyActivity.this).inflate(R.layout.popup_rangecut, null)
+                    , ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            popupWindow.setOutsideTouchable(true);
+            popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(ImageClassifyActivity.this, R.drawable.global_blue_round_box_4));
+            popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER,0,0);
+
+            RangeSlider xRangeSlider = popupWindow.getContentView().findViewById(R.id.x_cut_slider);
+            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
+                List<Float> values = xRangeSlider.getValues();
+                mAnnotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
+                mAnnotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
+                mAnnotationGLSurfaceView.requestRender();
+            });
+
+            RangeSlider yRangeSlider = popupWindow.getContentView().findViewById(R.id.y_cut_slider);
+            yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                List<Float> values = yRangeSlider.getValues();
+                mAnnotationGLSurfaceView.setCuty_left_value(values.get(0) /100);
+                mAnnotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
+                mAnnotationGLSurfaceView.requestRender();
+            });
+
+            RangeSlider zRangeSlider = popupWindow.getContentView().findViewById(R.id.z_cut_slider);
+            zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                List<Float> values = zRangeSlider.getValues();
+                mAnnotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
+                mAnnotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
+                mAnnotationGLSurfaceView.requestRender();
+            });
+        });
+
+        mImageClassifyViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(ImageClassifyViewModel.class);
 
         mImageClassifyViewModel.acquireCurrentImage().observe(this, imageInfo -> {
             renderImageFile(imageInfo);
