@@ -20,6 +20,8 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
 
+    private boolean showDetails;
+
     public interface DataCallback {
         void onTotalCountAvailable(int totalCount);
         void onDetailAvailable(List<UserRatingResultInfo> details);
@@ -30,6 +32,11 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
         this.context = context;
         this.data = data;
         this.dataCallback = dataCallback;
+    }
+
+    public void setShowDetails(boolean showDetails) {
+        this.showDetails = showDetails;
+        notifyDataSetChanged();
     }
     public int getItemViewType(int position) {
         if (position == 0) {
@@ -60,21 +67,28 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        if (getItemViewType(position) == TYPE_FOOTER) {
-            holder.bindTotal(data.size()); // 总计行
+        if(showDetails) {
+            if (getItemViewType(position) == TYPE_FOOTER) {
+                holder.bindTotal(data.size()); // 总计行
+            } else {
+                // 注意这里由于总计行是第一行，数据行的索引需要减1
+                UserRatingResultInfo info = data.get(position - 1); // 注意索引变化
+                holder.bind(info);
+            }
         } else {
-            // 注意这里由于总计行是第一行，数据行的索引需要减1
-            UserRatingResultInfo info = data.get(position - 1); // 注意索引变化
-            holder.bind(info);
+            if(position ==0){
+                holder.bindTotal(data.size());
+            }
         }
     }
 
     @Override
     public int getItemCount() {
-        if (data != null) {
-            return data.size() + 1; // 加1因为包括总计行
+        if(showDetails) {
+            return  data.size() +1;
+        }else {
+            return 1;
         }
-        return 1; // 如果没有数据，仍然显示总计行
     }
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView totalTextView;

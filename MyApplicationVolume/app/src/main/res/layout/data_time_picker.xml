@@ -9,13 +9,15 @@
         android:id="@+id/date_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:datePickerMode="spinner" />
+        android:datePickerMode="spinner"
+        style="@style/CustomDatePickerStyle"/>
 
     <TimePicker
         android:id="@+id/time_picker"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:timePickerMode="spinner" />
+        android:timePickerMode="spinner"
+        style="@style/CustomTimePickerStyle"/>
 
     <Button
         android:id="@+id/date_time_set"

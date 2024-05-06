@@ -95,4 +95,18 @@
     </style>
 
 
+
+    <style name="CustomDatePickerStyle" parent="android:Widget.Material.DatePicker">
+        <item name="android:textColorPrimary">@color/pink</item>
+        <item name="android:textColorSecondary">@color/pink</item>
+        <item name="android:textColor">@color/pink</item>
+    </style>
+
+    <style name="CustomTimePickerStyle" parent="android:Widget.Material.TimePicker">
+        <item name="android:textColorPrimary">@color/pink</item>
+        <item name="android:textColorSecondary">@color/pink</item>
+        <item name="android:textColor">@color/pink</item>
+    </style>
+
+
 </resources>

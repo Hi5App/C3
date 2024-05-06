@@ -32,6 +32,7 @@ import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
@@ -118,6 +119,9 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
     private Button btnSpecial;
 
+    private CheckBox showDetailsCheckbox;
+
+    private boolean currentShowDetails = false;
     private LoadingPopupView mDownloadingPopupView;
 
     private final Handler uiHandler = new Handler();
@@ -234,7 +238,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(),"no data available",Toast.LENGTH_SHORT);
                 return;
             }
-            generateExcel(userRatingResultInfos,false);
+            generateExcel(userRatingResultInfos,currentShowDetails);
         });
 
         mImageClassifyViewModel.acquireImagesManually();
@@ -617,11 +621,12 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     queryButton = contentView.findViewById(R.id.query_button);
                     downloadButton = contentView.findViewById(R.id.download_button);
                     timeRecycleView = contentView.findViewById(R.id.recycler_view_table);
+                    showDetailsCheckbox = contentView.findViewById(R.id.show_details_checkbox);
 
                     setupSpinners();
                     queryButton.setOnClickListener(v -> {
                         // Fetch data from server and display in table
-                        fetchDataFromServer();
+                        fetchDataFromServer(showDetailsCheckbox.isChecked());
                     });
                     downloadButton.setOnClickListener(v -> {
                         Log.e(TAG,"DOWNLOAD BEGIN!");
@@ -671,7 +676,8 @@ public class ImageClassifyActivity extends AppCompatActivity {
         alertDialog.show();
     }
 
-    public void fetchDataFromServer() {
+    public void fetchDataFromServer(boolean showDetails) {
+        this.currentShowDetails = showDetails;
         String queryUserName = (String) userSpinner.getSelectedItem();
         String queryStartTime = start_time_edit_text.getText().toString();
         String queryEndTime = end_time_edit_text.getText().toString();
@@ -713,7 +719,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     }
                 }
             });
-
+            adapter.setShowDetails(showDetailsCheckbox.isChecked());
             timeRecycleView.setLayoutManager(new LinearLayoutManager(this));
             timeRecycleView.setAdapter(adapter);
         }
