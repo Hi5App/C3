@@ -248,7 +248,7 @@ public class MyPattern extends BasicPattern {
 //                    "   }" +
 
                     "     vec4 texture_value;" +
-                    "     texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
+                    "     texture_value = texture(uVolData, vec3((1.0-vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (1.0-vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
                     "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
 
 //                    "     if(value.r <= 3.0/255.0 && value.g <= 3.0/255.0 && value.b <= 3.0/255.0)" +
