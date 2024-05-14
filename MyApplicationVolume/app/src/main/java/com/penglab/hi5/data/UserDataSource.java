@@ -97,7 +97,7 @@ public class UserDataSource {
     public void getUserId(String username) {
         try {
             JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserToken", "");
-            JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.01.19");
+            JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.05.06");
             JSONObject param = new JSONObject();
             param.put("UserName",username);
             param.put("UserVerifyInfo",userVerifyInfo);

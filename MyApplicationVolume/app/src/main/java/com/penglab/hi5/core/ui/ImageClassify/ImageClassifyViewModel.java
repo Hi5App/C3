@@ -171,6 +171,7 @@ public class ImageClassifyViewModel extends ViewModel {
 
 //        synchronized (mLock) {
         if (mNextRatingImagesInfoDeque.isEmpty()) {
+            RequestGetImages(1);
             return null;
         }
 
