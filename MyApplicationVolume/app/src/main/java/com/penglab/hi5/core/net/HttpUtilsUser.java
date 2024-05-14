@@ -11,7 +11,7 @@ import okhttp3.RequestBody;
 public class HttpUtilsUser extends HttpUtils {
     private static final String URL_REGISTER = SERVER_IP + "/release/user/register";
     private static final String URL_LOGIN = SERVER_IP + "/release/user/login";
-    private static final String URL_GETUSERID = DBMS_SERVER_IP + "/proto.DBMS/GetUser";
+    private static final String URL_GETUSERID = DBMS_SERVER_IP + "/proto.DBMS/GetUserByName";
     private static final String URL_UPDATE_PASSWORD = SERVER_IP + "/release/user/updatepassword";
     private static final String URL_FIND_PASSWORD = SERVER_IP + "/release/user/forgetpassword";
 
