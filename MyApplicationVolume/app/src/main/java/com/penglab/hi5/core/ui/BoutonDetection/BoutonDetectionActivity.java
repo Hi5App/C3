@@ -122,13 +122,10 @@ public class BoutonDetectionActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_quality_inspection);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_quality_inspection);
-        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-            @Override
-            public void run() {
+        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(() -> {
 //                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
 //                    qualityInspectionViewModel.winScoreByPinPoint();
 //                }
-            }
         });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_quality_control);

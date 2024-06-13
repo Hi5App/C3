@@ -217,6 +217,8 @@ public class MyPattern extends BasicPattern {
                     "uniform highp float cutz_left;" +
                     "uniform highp float cutz_right;" +
 
+                    "uniform bool ReverseTextureSampleDirection;" +
+
                     "layout (location = 0) out vec4 fragColor;" +
 
                     "void main(void)" +
@@ -240,15 +242,16 @@ public class MyPattern extends BasicPattern {
 
                     "  for(int i = 0; i < steps; i+=stepSize)" + // 从入射点开始遍历体素，找灰度值最大的
                     "  {" +
-
-//                    "   // Check if the current position is within the cut-off values\n" +
-//                    "   if((vpos.x / dim[0]) < cutx_left || (vpos.x / dim[0]) > cutx_right || (vpos.y/dim[1]) < cuty_left || (vpos.y/dim[1]) > cuty_right || (vpos.z/dim[2]) < cutz_left || (vpos.z/dim[2]) > cutz_right) " +
-//                    "   {" +
-//                    "        continue;" +
-//                    "   }" +
-
                     "     vec4 texture_value;" +
-                    "     texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
+
+                    "     if(ReverseTextureSampleDirection)" +
+                    "     {" +
+                    "         texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+                    "     }" +
+                    "     else {" +
+                    "         texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
+                    "     }" +
+
                     "     value = vec4(texture_value.x * contrast, texture_value.y * contrast, texture_value.z * contrast, texture_value.x);" +
 
 //                    "     if(value.r <= 3.0/255.0 && value.g <= 3.0/255.0 && value.b <= 3.0/255.0)" +
@@ -557,78 +560,78 @@ public class MyPattern extends BasicPattern {
     public void setCudePreVertex() {
         vertexPoints = new float[]{
                 // Front face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
 
                 // Back face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
 
                 // Top face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
 
                 // Bottom face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
 
                 // Right face
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
 
                 // Left face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
         };
 
         vertexPointsPre = new float[]{
                 // Front face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
 
                 // Back face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
 
                 // Top face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
 
                 // Bottom face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
 
                 // Right face
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_right_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_right_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
 
                 // Left face
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_left_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_left_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_right_value,
-                mmz[0]*cutx_left_value, mmz[1]*cuty_right_value, mmz[2]*cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_left_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_left_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_right_value,
+                mmz[0] * cutx_left_value, mmz[1] * cuty_right_value, mmz[2] * cutz_left_value,
         };
 //        Colors = new float[]{
 //                // Front face
@@ -710,7 +713,7 @@ public class MyPattern extends BasicPattern {
     }
 
 
-    public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio) {
+    public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio, boolean reverseTextureSampleDirection) {
 
         setCudePreVertex();
 
@@ -766,6 +769,8 @@ public class MyPattern extends BasicPattern {
         int cutzLeftHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutz_left");
         int cutzRightHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "cutz_right");
 
+        int ReverseTextureSampleDirectionHandle = GLES32.glGetUniformLocation(mProgram_raycasting, "ReverseTextureSampleDirection");
+
         // 设置uniform cut变量的值
         GLES32.glUniform1f(cutxLeftHandle, cutx_left_value);
         GLES32.glUniform1f(cutxRightHandle, cutx_right_value);
@@ -773,6 +778,7 @@ public class MyPattern extends BasicPattern {
         GLES32.glUniform1f(cutyRightHandle, cuty_right_value);
         GLES32.glUniform1f(cutzLeftHandle, cutz_left_value);
         GLES32.glUniform1f(cutzRightHandle, cutz_right_value);
+        GLES32.glUniform1i(ReverseTextureSampleDirectionHandle, reverseTextureSampleDirection ? 1 : 0);
 
         drawCube(mvpMatrix, mProgram_raycasting);
 

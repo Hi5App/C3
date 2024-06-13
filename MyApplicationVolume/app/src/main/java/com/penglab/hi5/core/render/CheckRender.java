@@ -170,7 +170,7 @@ public class CheckRender implements GLSurfaceView.Renderer {
 
     private void drawFrame(){
         if (myPattern.isNeedDraw()){
-            myPattern.drawVolume_3d(matrixManager.getFinalMatrix(), renderOptions.isDownSampling(), renderOptions.getContrast(), renderOptions.getContrastEnhanceRatio());
+            myPattern.drawVolume_3d(matrixManager.getFinalMatrix(), renderOptions.isDownSampling(), renderOptions.getContrast(), renderOptions.getContrastEnhanceRatio(), true);
         }
         if (myAxis.isNeedDraw()){
             myAxis.draw(matrixManager.getFinalMatrix());

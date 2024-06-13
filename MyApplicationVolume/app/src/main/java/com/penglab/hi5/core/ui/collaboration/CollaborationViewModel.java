@@ -3,38 +3,28 @@ package com.penglab.hi5.core.ui.collaboration;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.ui.collaboration.CollaborationActivity.Toast_in_Thread_static;
 
-import android.content.Context;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.huawei.hms.support.api.PendingResultImpl;
-import com.lxj.xpopup.XPopup;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
-import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.collaboration.Communicator;
-import com.penglab.hi5.core.collaboration.basic.ImageInfo;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
-import com.penglab.hi5.core.collaboration.service.CollaborationService;
-import com.penglab.hi5.core.ui.QualityInspection.QualityInspectionViewModel;
 import com.penglab.hi5.core.ui.ResourceResult;
-import com.penglab.hi5.core.ui.annotation.AnnotationViewModel;
 import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.CollorationDataSource;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
-import com.penglab.hi5.data.QualityInspectionDataSource;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserInfoRepository;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
-import com.penglab.hi5.data.model.user.LoggedInUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,8 +34,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import io.agora.rtc.internal.RtcEngineMessage;
-
 public class CollaborationViewModel extends ViewModel {
     private final String TAG = "CollaborationViewModel";
     private final int DEFAULT_IMAGE_SIZE = 128;
@@ -53,8 +41,6 @@ public class CollaborationViewModel extends ViewModel {
     private boolean firstJoinRoom = true;
     public static final String ip_TencentCloud = "114.117.165.134";
     private final int DEFAULT_RES_INDEX = 2;
-    private boolean isDownloading = false;
-    private boolean noFileLeft = false;
 
     private final HashMap<String, List<String>> resMap = new HashMap<>();
     private volatile CollaborateNeuronInfo potentialDownloadNeuronInfo = new CollaborateNeuronInfo();
@@ -107,12 +93,6 @@ public class CollaborationViewModel extends ViewModel {
         return collaborationArborInfoState;
     }
 
-    public void handleBrainNumber(String brainNumber) {
-        Log.e(TAG, "handleBrainNumber" + brainNumber);
-        potentialDownloadNeuronInfo.setBrainNumber(brainNumber);
-        getNeuronList(brainNumber);
-    }
-
     public LiveData<ResourceResult> getImageResult() {
         return imageResult;
     }
@@ -123,7 +103,6 @@ public class CollaborationViewModel extends ViewModel {
 
     public void handleBrainListResult(Result result) {
         if (result == null) {
-            isDownloading = false;
             Log.e(TAG, "Fail to handle brain list result");
         }
         if (result instanceof Result.Success) {
@@ -155,29 +134,29 @@ public class CollaborationViewModel extends ViewModel {
                 }
                 downloadImage();
             } else {
-                isDownloading = false;
             }
         } else {
-            isDownloading = false;
         }
 
-    }
-
-    public void handleNeuronNumber(String neuronNumber) {
-        potentialDownloadNeuronInfo.setNeuronNumber(neuronNumber);
-        getAno(neuronNumber);
     }
 
     public LiveData<CollaborationViewModel.AnnotationMode> getAnnotationMode() {
         return annotationMode;
     }
 
-    public void handleAnoResult(String anoName) {
+    public void handleAnoResult(String swcUuid, String anoName) {
+        collorationDataSource.CurrentSwcInfo = new Pair<>(swcUuid,anoName);
+
         getDownloadAno(anoName);
         getNeuronList(potentialDownloadNeuronInfo.getBrainName());
 
         collorationDataSource.loadAno(potentialDownloadNeuronInfo.getBrainName(), potentialDownloadNeuronInfo.getNeuronName(), anoName);
 
+    }
+
+    public void handleProjectResult(String projectUuid, String projectName) {
+        collorationDataSource.CurrentProjectInfo = new Pair<>(projectUuid,projectName);
+        collorationDataSource.getSwcNameAndUuidByProject(projectUuid);
     }
 
     public void handleLoadAnoResult(Result result) {
@@ -207,10 +186,6 @@ public class CollaborationViewModel extends ViewModel {
         return potentialDownloadNeuronInfo;
     }
 
-    public void getImageList() {
-        collorationDataSource.getImageList();
-    }
-
     public void getNeuronList(String brainNumber) {
         collorationDataSource.getNeuron(brainNumber);
     }
@@ -223,27 +198,26 @@ public class CollaborationViewModel extends ViewModel {
 
     }
 
-    public void getAno() {
-        collorationDataSource.getAno();
-    }
-
-    public void getAno(String neuronNumber) {
-        collorationDataSource.getAno(neuronNumber);
-    }
-
     public void getDownloadAno(String anoName) {
         String[] parts = anoName.split("_");
-        String brainName = parts[0];
-        String neuronName = parts[0];
-        if(parts.length >= 2) {
-             brainName = parts[0];
-             neuronName = parts[0] + "_" + parts[1];
+        String image="", neuron="";
+
+        // Check if image has a suffix
+        if(parts.length >= 3 && parts[1].length() == 1){
+            image = parts[0] + "_" + parts[1];
+            neuron = image + "_" + parts[2];
+        }
+        else if(parts.length >= 2) {
+            image = parts[0];
+            neuron = image + "_" + parts[1];
+        }else{
+            throw new IllegalArgumentException("Invalid annotation name");
         }
 
-        potentialDownloadNeuronInfo.setBrainNumber(brainName);
-        potentialDownloadNeuronInfo.setNeuronNumber(neuronName);
-        Log.e("brainName", brainName);
-        Log.e("neuronName", neuronName);
+        potentialDownloadNeuronInfo.setBrainNumber(image);
+        potentialDownloadNeuronInfo.setNeuronNumber(neuron);
+        Log.e("brainName", image);
+        Log.e("neuronName", neuron);
     }
 
     private void getBrainList() {
@@ -261,7 +235,6 @@ public class CollaborationViewModel extends ViewModel {
 
         if (resList.size() == 0) {
             ToastEasy("Fail to download image, something wrong with res list !");
-            isDownloading = false;
             return;
         }
 //        for (int i = 0; i < resList.size(); i++) {
@@ -275,7 +248,6 @@ public class CollaborationViewModel extends ViewModel {
 
     public void handleDownloadImageResult(Result result) {
         if (result == null) {
-            isDownloading = false;
         }
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
@@ -284,9 +256,7 @@ public class CollaborationViewModel extends ViewModel {
                 openFile(downloadCoordinateConvert.getResIndex());
 
             }
-
         }
-
     }
 
     public void openFile(int resIndex) {

@@ -5,6 +5,7 @@ import static com.penglab.hi5.core.Myapplication.playCurveActionSound;
 import static com.penglab.hi5.core.Myapplication.playMarkerActionSound;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.view.MotionEvent;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 
+import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.Image4DSimple;
 import com.penglab.hi5.basic.image.ImageMarker;
@@ -74,8 +76,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     private final RenderOptions renderOptions = new RenderOptions();
     private final MatrixManager matrixManager = new MatrixManager();
     private final AnnotationDataManager annotationDataManager = new AnnotationDataManager();
-    private AnnotationHelper annotationHelper = new AnnotationHelper(annotationDataManager, matrixManager);
-    private AnnotationRender annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions);
+    private final AnnotationHelper annotationHelper = new AnnotationHelper(annotationDataManager, matrixManager);
+    private AnnotationRender annotationRender;
 
     private final ImageInfoRepository imageInfoRepository = ImageInfoRepository.getInstance();
 
@@ -91,12 +93,39 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     private OnScoreWinWithTouchEventListener onScoreWinWithTouchEventListener;
 
-    public AnnotationGLSurfaceView(Context context) {
+    public AnnotationGLSurfaceView(Context context, boolean reverseTextureSampleDirection) {
         super(context);
+
+        annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions,reverseTextureSampleDirection);
+
+        // 设置一下opengl版本；
+        setEGLContextClientVersion(3);
+        setRenderer(annotationRender);
+
+        // 调用 onPause 的时候保存EGLContext
+        setPreserveEGLContextOnPause(true);
+
+        // 当发生交互时重新执行渲染， 需要配合requestRender();
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+
     }
 
     public AnnotationGLSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        TypedArray a = context.getTheme().obtainStyledAttributes(
+                attrs,
+                R.styleable.AnnotationGLSurfaceViewAttr,
+                0, 0);
+
+        boolean customParameter;
+        try {
+            customParameter = a.getBoolean(R.styleable.AnnotationGLSurfaceViewAttr_ReverseTextureSampleDirection, true);
+        } finally {
+            a.recycle();
+        }
+
+        annotationRender = new AnnotationRender(annotationDataManager, matrixManager, renderOptions, customParameter);
 
         // 设置一下opengl版本；
         setEGLContextClientVersion(3);
@@ -110,7 +139,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
     }
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean onTouchEvent(MotionEvent event) {
         try {
             // ACTION_DOWN 不 return true，就无触发后面的各个事件
@@ -389,16 +417,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncAddMarker(imageMarkers);
     }
 
-    public void syncAddMarkerGlobal(ImageMarker imageMarker) {
-        annotationDataManager.syncAddMarkerGlobal(imageMarker);
-    }
-
     public void syncDelMarker(List<ImageMarker> imageMarkers) {
         annotationDataManager.syncDelMarker(imageMarkers);
-    }
-
-    public void syncDelMarkerGlobal(ImageMarker imageMarker) {
-        annotationDataManager.syncDelMarkerGlobal(imageMarker);
     }
 
     private void clearFingerTrajectory() {
@@ -433,7 +453,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         renderOptions.update();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public void openFile() {
         BasicFile basicFile = imageInfoRepository.getBasicImage();
         FilePath<?> filePath = basicFile.getFilePath();
@@ -621,7 +640,6 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         return annotationHelper.getLastMarkerType();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     public boolean APP2() {
         boolean result = annotationHelper.APP2(image4DSimple, is2DImage(), isBigData);
         requestRender();

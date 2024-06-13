@@ -143,14 +143,11 @@ public class MarkerFactoryActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_marker_factory);
         annotationGLSurfaceView = findViewById(R.id.gl_surface_view_marker_factory);
-        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(new AnnotationGLSurfaceView.OnScoreWinWithTouchEventListener() {
-            @Override
-            public void run() {
+        annotationGLSurfaceView.setOnScoreWinWithTouchEventListener(() -> {
 //                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.PINPOINT ) {
 ////                    markerFactoryViewModel.winScoreByPinPoint();
 //
 //                }
-            }
         });
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
         toolbar = (Toolbar) findViewById(R.id.toolbar_marker_factory);

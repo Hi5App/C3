@@ -82,12 +82,14 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private boolean ifShowSWC = true;
     private String imageInfo;
 
+    private boolean mReverseTextureSampleDirection;
 
-    public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions) {
+    public AnnotationRender(AnnotationDataManager annotationDataManager, MatrixManager matrixManager, RenderOptions renderOptions, boolean reverseTextureSampleDirection) {
         this.annotationDataManager = annotationDataManager;
         m_InitModelMatrixManager = matrixManager;
         this.matrixManager = matrixManager;
         this.renderOptions = renderOptions;
+        mReverseTextureSampleDirection = reverseTextureSampleDirection;
     }
 
     @Override
@@ -240,7 +242,7 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
     private void drawFrame() {
         if (myPattern.isNeedDraw()) {
             myPattern.drawVolume_3d(matrixManager.getFinalMatrix(),
-                    renderOptions.isImageChanging() && renderOptions.isDownSampling(), renderOptions.getContrast(), renderOptions.getContrastEnhanceRatio());
+                    renderOptions.isImageChanging() && renderOptions.isDownSampling(), renderOptions.getContrast(), renderOptions.getContrastEnhanceRatio(), mReverseTextureSampleDirection);
         }
         if (myPattern2D.isNeedDraw()) {
             myPattern2D.draw(matrixManager.getFinalMatrix());

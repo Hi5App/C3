@@ -8,7 +8,6 @@ import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Build;
@@ -37,11 +36,9 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
+import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
-import com.lxj.xpopup.interfaces.OnCancelListener;
-import com.lxj.xpopup.interfaces.OnConfirmListener;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
@@ -52,7 +49,6 @@ import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
-import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
@@ -68,12 +64,10 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
-import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
-import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -82,8 +76,6 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -92,12 +84,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private static final String TAG = "CollaborationActivity";
     private AnnotationGLSurfaceView annotationGLSurfaceView;
     private CollaborationViewModel collaborationViewModel;
-
-    private static String conPath = "";
     private static String port = "";
     public static boolean firstLoad = true;
     private boolean firstJoinRoom = true;
-    private boolean copyFile = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
     private static Context mainContext;
@@ -148,7 +137,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     }
 
     private ImageButton ROI_i;
-    private ImageButton editModeIndicator;
     private static BasePopupView downloadingPopupView;
     private static BasePopupView syncingPopupView;
 
@@ -160,10 +148,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     private List<String> neuronNumberList = new ArrayList<>();
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
-
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onRecMessage(String msg) {
         if (msg.startsWith("TestSocketConnection")) {
@@ -314,25 +298,23 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String header = listWithHeader.get(0);
                     String sender = header.split(" ")[0].trim();
                     listWithHeader2.remove(0);
-                    if(sender.equals("server")){
+                    if (sender.equals("server")) {
                         System.out.println("enter 1111111111111111111");
-                        if(reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
-                                reason.equals("BranchingError") || reason.equals("NearBifurcation")){
+                        if (reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
+                                reason.equals("BranchingError") || reason.equals("NearBifurcation")) {
                             Communicator communicator = Communicator.getInstance();
                             annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                             annotationGLSurfaceView.requestRender();
-                        }
-                        else if(reason.equals("Loop")){
+                        } else if (reason.equals("Loop")) {
                             int result = Integer.parseInt(header.split(" ")[1].trim());
-                            if(result == 0){
+                            if (result == 0) {
                                 Communicator communicator = Communicator.getInstance();
                                 annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                                 annotationGLSurfaceView.requestRender();
                             }
-                        }
-                        else{
+                        } else {
                             Toast_in_Thread_static("error from DBMS!");
                         }
                     }
@@ -364,9 +346,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String request_userid = header.split(" ")[1].trim();
                     int result = Integer.parseInt(header.split(" ")[2].trim());
                     listWithHeader2.remove(0);
-                    if(sender.equals("server")){
-                        if(reason.equals("ColorMutation") || reason.equals("Dissociative")|| reason.equals("Angle")){
-                            if(result == 0){
+                    if (sender.equals("server")) {
+                        if (reason.equals("ColorMutation") || reason.equals("Dissociative") || reason.equals("Angle")) {
+                            if (result == 0) {
                                 Communicator communicator = Communicator.getInstance();
                                 annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
@@ -473,136 +455,129 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         mainContext = this;
 
-        collaborationViewModel.getAnnotationMode().observe(this, new androidx.lifecycle.Observer<CollaborationViewModel.AnnotationMode>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onChanged(CollaborationViewModel.AnnotationMode annotationMode) {
-                if (annotationMode == null) {
-                    return;
-                }
-                updateUI(annotationMode);
-                updateOptionsMenu(annotationMode);
+        collaborationViewModel.getAnnotationMode().observe(this, annotationMode -> {
+            if (annotationMode == null) {
+                return;
             }
+            updateUI(annotationMode);
+            updateOptionsMenu(annotationMode);
         });
 
 
-        collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result instanceof Result.Success) {
-                    int index = 0;
-                    List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
-                    neuronNumberList.clear();
-                    for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
-                        CollaborateNeuronInfo item = potentialDownloadNeuronInfoList.get(i);
-                        neuronNumberList.add(item.getNeuronName());
-                        if(item.getNeuronName().equals(collaborationViewModel.getPotentialDownloadNeuronInfo().getNeuronName())){
-                            index = i;
-                        }
+        collaborationViewModel.getCollorationDataSource().getNeuronListCollaborate().observe(this, result -> {
+            if (result instanceof Result.Success) {
+                int index = 0;
+                List<CollaborateNeuronInfo> potentialDownloadNeuronInfoList = (List<CollaborateNeuronInfo>) ((Result.Success<?>) result).getData();
+                neuronNumberList.clear();
+                for (int i = 0; i < potentialDownloadNeuronInfoList.size(); i++) {
+                    CollaborateNeuronInfo item = potentialDownloadNeuronInfoList.get(i);
+                    neuronNumberList.add(item.getNeuronName());
+                    if (item.getNeuronName().equals(collaborationViewModel.getPotentialDownloadNeuronInfo().getNeuronName())) {
+                        index = i;
                     }
-                    collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(index));
                 }
+                collaborationViewModel.handleLoadImage(potentialDownloadNeuronInfoList.get(index));
             }
         });
 
-        collaborationViewModel.getCollorationDataSource().getAnoListCollaborate().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result instanceof Result.Success) {
-                    List<String> data = (List<String>) ((Result.Success<?>) result).getData();
-                    String[] str = new String[data.size()];
-                    String[] anoListShow = data.toArray(str);
-                    new XPopup.Builder(CollaborationActivity.this).
-                            maxHeight(1350).
-                            maxWidth(800).
-                            asCenterList("Ano Number",
-                                    anoListShow, new OnSelectListener() {
-                                        @Override
-                                        public void onSelect(int position, String text) {
-                                            ToastEasy("Click" + text);
-                                            collaborationViewModel.handleAnoResult(text.trim());
-                                        }
-                                    }).show();
-                } else if (result instanceof Result.Error) {
-                    ToastEasy(result.toString());
+        collaborationViewModel.getCollorationDataSource().getAllProjectListCollaborate().observe(this, result -> {
+            if (result instanceof Result.Success) {
+                List<android.util.Pair<String, String>> list = (List<android.util.Pair<String, String>>) ((Result.Success<?>) result).getData();
+                String[] data = new String[list.size()];
+                for (int i = 0; i < list.size(); i++) {
+                    data[i] = list.get(i).second; // Get the Name from the Pair
                 }
-            }
-        });
-        collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                collaborationViewModel.handleLoadAnoResult(result);
 
+                new XPopup.Builder(CollaborationActivity.this).
+                        maxHeight(1350).
+                        maxWidth(800).
+                        asCenterList("Project Number", data, (position, text) -> {
+                            ToastEasy("Click" + text);
+                            String uuid = list.get(position).first; // Get the Uuid from the Pair
+                            collaborationViewModel.handleProjectResult(uuid, list.get(position).second); // Use Uuid instead of Name
+                        }).show();
+            } else if (result instanceof Result.Error) {
+                ToastEasy(result.toString());
             }
         });
 
-        collaborationViewModel.getPortResult().observe(this, new androidx.lifecycle.Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                port = s;
+        collaborationViewModel.getCollorationDataSource().getAnoListCollaborate().observe(this, result -> {
+            if (result instanceof Result.Success) {
+                List<android.util.Pair<String, String>> list = (List<android.util.Pair<String, String>>) ((Result.Success<?>) result).getData();
+                String[] data = new String[list.size()];
+
+                for (int i = 0; i < list.size(); i++) {
+                    String swcName = list.get(i).second;// Get the Name from the Pair
+                    int removedLen = ".ano.eswc".length();
+                    int len = swcName.length();
+                    String anoName = swcName.substring(0, len - removedLen);
+                    data[i] = anoName;
+                }
+
+                new XPopup.Builder(CollaborationActivity.this).
+                        maxHeight(1350).
+                        maxWidth(800).
+                        asCenterList("Ano Number", data, (position, text) -> {
+                            ToastEasy("Click" + text);
+                            String uuid = list.get(position).first; // Get the Uuid from the Pair
+                            collaborationViewModel.handleAnoResult(uuid, text); // Use Uuid instead of Name
+                        }).show();
+            } else if (result instanceof Result.Error) {
+                ToastEasy(result.toString());
             }
+
+        });
+        collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this, result -> collaborationViewModel.handleLoadAnoResult(result));
+
+        collaborationViewModel.getPortResult().observe(this, s -> port = s);
+
+        collaborationViewModel.getImageDataSource().getBrainListResult().observe(this, result -> {
+            Log.e(TAG, "enter getBrainListResult()");
+            if (result == null) {
+                return;
+            }
+            collaborationViewModel.handleBrainListResult(result);
         });
 
-        collaborationViewModel.getImageDataSource().getBrainListResult().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                Log.e(TAG, "enter getBrainListResult()");
-                if (result == null) {
-                    return;
-                }
-                collaborationViewModel.handleBrainListResult(result);
+        collaborationViewModel.getImageDataSource().getDownloadImageResult().observe(this, result -> {
+            if (result == null) {
+                return;
             }
+            collaborationViewModel.handleDownloadImageResult(result);
+
+            initMsgConnector(port);
+            if (firstJoinRoom) {
+                initMsgService();
+                firstJoinRoom = false;
+            } else {
+                CollaborationService.resetConnection();
+            }
+
+            id = collaborationViewModel.getCollorationDataSource().getUserId();
+            Log.e(TAG, collaborationViewModel.getResMap().toString());
+            List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
+
+            assert roiList != null;
+            MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + collaborationViewModel.getCollorationDataSource().CurrentSwcInfo.first + " " + 2);
         });
 
-        collaborationViewModel.getImageDataSource().getDownloadImageResult().observe(this, new androidx.lifecycle.Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result == null) {
-                    return;
-                }
-                collaborationViewModel.handleDownloadImageResult(result);
-
-                initMsgConnector(port);
-                if (firstJoinRoom) {
-                    initMsgService();
-                    firstJoinRoom = false;
-                } else {
-                    CollaborationService.resetConnection();
-                }
-
-                id = collaborationViewModel.getCollorationDataSource().getUserId();
-                Log.e(TAG, collaborationViewModel.getResMap().toString());
-                List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
-
-                assert roiList != null;
-                MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + 2);
+        collaborationViewModel.getImageResult().observe(this, resourceResult -> {
+            if (resourceResult == null) {
+                return;
             }
+            if (resourceResult.isSuccess()) {
+                annotationGLSurfaceView.openFile();
+            } else {
+                ToastEasy(resourceResult.getError());
+            }
+
         });
 
-        collaborationViewModel.getImageResult().observe(this, new androidx.lifecycle.Observer<ResourceResult>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onChanged(ResourceResult resourceResult) {
-                if (resourceResult == null) {
-                    return;
-                }
-                if (resourceResult.isSuccess()) {
-                    annotationGLSurfaceView.openFile();
-                } else {
-                    ToastEasy(resourceResult.getError());
-                }
+        collaborationViewModel.getCollaborationArborInfoState().getCenterLocation().observe(this, centerLocation -> {
 
-            }
-        });
-
-        collaborationViewModel.getCollaborationArborInfoState().getCenterLocation().observe(this, new androidx.lifecycle.Observer<XYZ>() {
-            @Override
-            public void onChanged(XYZ centerLocation) {
-
-                collaborationViewModel.navigateAndZoomInBlock((int) centerLocation.x, (int) centerLocation.y, (int) centerLocation.z);
-                annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
-                annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
-            }
+            collaborationViewModel.navigateAndZoomInBlock((int) centerLocation.x, (int) centerLocation.y, (int) centerLocation.z);
+            annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+            annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
         });
     }
 
@@ -757,7 +732,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
      * 注册/注销系统消息未读数变化
      */
 
-    private Observer<Integer> sysMsgUnreadCountChangedObserver = (Observer<Integer>) unreadCount -> {
+    private Observer<Integer> sysMsgUnreadCountChangedObserver = unreadCount -> {
         Log.e("Observer<Integer>", "Observer unreadCount");
         SystemMessageUnreadManager.getInstance().setSysMsgUnreadCount(unreadCount);
         ReminderManager.getInstance().updateContactUnreadNum(unreadCount);
@@ -803,28 +778,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 .dismissOnTouchOutside(false)
                 .dismissOnBackPressed(false)
                 .asConfirm("INVITE", invitor + " is inviting you to join game in room " + roomName, "Reject", "Join",
-                        new OnConfirmListener() {
-                            @Override
-                            public void onConfirm() {
+                        () -> {
 
-                                Communicator communicator = Communicator.getInstance();
-                                communicator.initSoma(soma);
-                                communicator.setPath(path);
-                                Communicator.BrainNum = path.split("/")[1];
-                                conPath = path;
-                                firstLoad = true;
+                            Communicator communicator = Communicator.getInstance();
+                            communicator.initSoma(soma);
+                            communicator.setPath(path);
+                            Communicator.BrainNum = path.split("/")[1];
+                            firstLoad = true;
 
-                                ServerConnector serverConnector = ServerConnector.getInstance();
-                                serverConnector.sendMsg("LOADFILES:2 " + path);
+                            ServerConnector serverConnector = ServerConnector.getInstance();
+                            serverConnector.sendMsg("LOADFILES:2 " + path);
 
 //                                String[] list = path.split("/");
-                                serverConnector.setRoomName(roomName);
-                            }
-                        }, new OnCancelListener() {
-                            @Override
-                            public void onCancel() {
+                            serverConnector.setRoomName(roomName);
+                        }, () -> {
 
-                            }
                         }, false)
                 .show();
     }
@@ -839,7 +807,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         // Convert the online user list to a string array
         String[] userList = MsgConnector.userList.toArray(new String[0]);
-        Log.e(TAG,"Userlist"+userList);
+        Log.e(TAG, "Userlist" + userList);
 
         // Create the AlertDialog only if it's null
         if (dialog == null) {
@@ -1008,9 +976,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             FrameLayout.LayoutParams lp_ROI_i = new FrameLayout.LayoutParams(120, 120);
             lp_ROI_i.gravity = Gravity.BOTTOM | Gravity.LEFT;
             lp_ROI_i.setMargins(20, 0, 300, 480);
-            this.addContentView(ROI_i,lp_ROI_i);
+            this.addContentView(ROI_i, lp_ROI_i);
 
-            editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
+            ImageButton editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
             tapBarMenu = findViewById(R.id.tapBarMenu_collaborate);
             addCurve = tapBarMenu.findViewById(R.id.draw_i_collaborate);
             addMarker = tapBarMenu.findViewById(R.id.pinpoint_collaborate);
@@ -1023,17 +991,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             collaborateResButton.setOnClickListener(new CollaborateButtonClickListener());
             btnUserList.setOnClickListener(new CollaborateButtonClickListener());
 
-            ROI_i.setOnClickListener(new Button.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(annotationGLSurfaceView.getEditMode().getValue() == EditMode.ZOOM_IN_ROI){
-                        annotationGLSurfaceView.setEditMode(EditMode.NONE);
-                        ROI_i.setImageResource(R.drawable.ic_roi_stop);
-                    }else{
-                        annotationGLSurfaceView.setEditMode(EditMode.ZOOM_IN_ROI);
-                        ROI_i.setImageResource(R.drawable.ic_roi);
-                    }
-                    }
+            ROI_i.setOnClickListener(v -> {
+                if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.ZOOM_IN_ROI) {
+                    annotationGLSurfaceView.setEditMode(EditMode.NONE);
+                    ROI_i.setImageResource(R.drawable.ic_roi_stop);
+                } else {
+                    annotationGLSurfaceView.setEditMode(EditMode.ZOOM_IN_ROI);
+                    ROI_i.setImageResource(R.drawable.ic_roi);
+                }
             });
 
             tapBarMenu.setOnClickListener(v -> tapBarMenu.toggle());
@@ -1078,7 +1043,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @SuppressLint("NonConstantResourceId")
     private void onMenuItemClick(View view) {
         // resetUI
@@ -1281,18 +1245,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     private void openFile() {
         new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open BigData"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String item) {
-                                switch (item) {
-                                    case "Open BigData":
-                                        collaborationViewModel.getAno();
-//                                        collaborationViewModel.getImageList();
-                                        break;
-                                    default:
-                                        ToastEasy("Something wrong in function openFile !");
-                                }
+                .asCenterList("File Open", new String[]{"Open Project"},
+                        (position, item) -> {
+                            if (item.equals("Open Project")) {
+                                collaborationViewModel.getCollorationDataSource().getAllProject();
                             }
                         })
                 .show();
@@ -1307,19 +1263,16 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
         assert roiList != null;
         String[] rois = roiList.toArray(new String[]{});
-        rois[collaborationViewModel.getCoordinateConvert().getResIndex()-1]=rois[collaborationViewModel.getCoordinateConvert().getResIndex()-1] + "  √";
+        rois[collaborationViewModel.getCoordinateConvert().getResIndex() - 1] = rois[collaborationViewModel.getCoordinateConvert().getResIndex() - 1] + "  √";
         new XPopup.Builder(CollaborationActivity.this).
                 maxHeight(1350).
                 maxWidth(800).
-                asCenterList("Res List", rois, new OnSelectListener() {
-                    @Override
-                    public void onSelect(int position, String text) {
-                        ToastEasy("Click" + text);
-                        collaborationViewModel.switchRes(position, text.trim());
-                        annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
-                        annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+                asCenterList("Res List", rois, (position, text) -> {
+                    ToastEasy("Click" + text);
+                    collaborationViewModel.switchRes(position, text.trim());
+                    annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+                    annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
 //                        annotationGLSurfaceView.requestRender();
-                    }
                 }).show();
 
     }

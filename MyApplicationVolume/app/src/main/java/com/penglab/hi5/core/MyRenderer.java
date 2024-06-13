@@ -492,7 +492,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                             myPatternGame.drawMarker(finalMatrix, modelMatrix);
                         } else {
                             assert myPattern != null;
-                            myPattern.drawVolume_3d(finalMatrix, ifDownSampling, contrast,1);
+                            myPattern.drawVolume_3d(finalMatrix, ifDownSampling, contrast,1, true);
                         }
                 }
                 if (fileType == FileType.JPG || fileType == FileType.PNG) {

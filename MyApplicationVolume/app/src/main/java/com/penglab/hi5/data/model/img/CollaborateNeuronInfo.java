@@ -7,15 +7,13 @@ public class CollaborateNeuronInfo {
     private String name;
     private XYZ loc;
     private String[] resolutionList;
-    private String currentRes;
-
 
     public CollaborateNeuronInfo(String image, String name, XYZ loc) {
         this.imageId = image;
         this.name = name;
         this.loc = loc;
         this.resolutionList = null;
-        this.currentRes = "";
+        String currentRes = "";
     }
 
     public CollaborateNeuronInfo(){
@@ -23,9 +21,6 @@ public class CollaborateNeuronInfo {
         this.name = "";
         this.loc = new XYZ();
     }
-
-
-
 
     public String getBrainName() {
         return imageId;
@@ -51,11 +46,4 @@ public class CollaborateNeuronInfo {
         this.loc = xyz;
     }
 
-    public String[] getResolutionList() {
-        return resolutionList;
-    }
-
-    public void setResolutionList(String[] resolutionList) {
-        this.resolutionList = resolutionList;
-    }
 }
