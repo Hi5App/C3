@@ -7,7 +7,7 @@
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/get_model_list_button"
+        android:id="@+id/execMethod"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"
@@ -19,7 +19,7 @@
         android:backgroundTint="@color/colorWise"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black" />
+        app:srcCompat="@drawable/icon_play" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/get_plugin_list_button"
@@ -28,7 +28,7 @@
         android:layout_marginEnd="24dp"
         android:layout_marginBottom="10dp"
         android:clickable="true"
-        app:layout_constraintBottom_toTopOf ="@id/get_model_list_button"
+        app:layout_constraintBottom_toTopOf ="@id/execMethod"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:scaleType ="center"
@@ -43,7 +43,7 @@
         android:layout_marginBottom="76dp"
         android:clickable="true"
         android:visibility="invisible"
-        app:layout_constraintBottom_toTopOf="@+id/get_model_list_button"
+        app:layout_constraintBottom_toTopOf="@+id/execMethod"
         app:srcCompat="@drawable/ic_device_hub_black_24dp"
         tools:layout_editor_absoluteX="331dp"
         tools:ignore="MissingConstraints" />

@@ -28,12 +28,15 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.lxj.xpopup.XPopup;
+import com.lxj.xpopup.impl.LoadingPopupView;
 import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.penglab.hi5.R;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ResourceResult;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.data.Result;
+
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -46,11 +49,11 @@ public class PluginSystemActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private View commonView;
     private PluginSystemViewModel pluginSystemViewModel;
-    private static Context mainContext;
 
     private TextView imageIdLocationTextView;
     private ImageButton getPlugin;
-    private ImageButton getModel;
+    private ImageButton execMethod;
+    private LoadingPopupView mProcessingPopupView;
 
 
     @SuppressLint("MissingInflatedId")
@@ -67,103 +70,80 @@ public class PluginSystemActivity extends AppCompatActivity {
         updateOptionsMenu();
         updateUI();
 
-        pluginSystemViewModel.getPluginDataSource().getPluginListResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result instanceof Result.Success) {
-                    String[] data = (String[]) ((Result.Success<?>) result).getData();
-                    Set<String> set = new HashSet<String>(Arrays.asList(data));
-                    String[] listShow = set.toArray(new String[set.size()]);
-                    new XPopup.Builder(PluginSystemActivity.this).
-                            maxHeight(1350).
-                            maxWidth(800).
-                            asCenterList("Image Processing",
-                                    listShow, new OnSelectListener() {
-                                        @Override
-                                        public void onSelect(int position, String text) {
-                                            ToastEasy("Click" + text);
-                                            pluginSystemViewModel.handlePluginList(text.trim());
-                                            pluginSystemViewModel.downloadPluginResult();
-                                        }
-                                    }).show();
-                } else if (result instanceof Result.Error) {
-                    ToastEasy(result.toString());
-                }
+        pluginSystemViewModel.getPluginDataSource().getPluginListResult().observe(this, result -> {
+            if (result instanceof Result.Success) {
+                String[] data = (String[]) ((Result.Success<?>) result).getData();
+                Set<String> set = new HashSet<>(Arrays.asList(data));
+                String[] listShow = set.toArray(new String[set.size()]);
+                new XPopup.Builder(PluginSystemActivity.this).
+                        maxHeight(1350).
+                        maxWidth(800).
+                        asCenterList("Image Processing",
+                                listShow, (position, text) -> {
+                                    ToastEasy("Click" + text);
+                                    pluginSystemViewModel.handlePluginList(text.trim());
+                                    pluginSystemViewModel.downloadPluginResult();
+                                }).show();
+            } else if (result instanceof Result.Error) {
+                ToastEasy(result.toString());
             }
         });
 
-        pluginSystemViewModel.getPluginDataSource().getImageListResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result instanceof Result.Success) {
-                    String[] data = (String[]) ((Result.Success<?>) result).getData();
-                    Set<String> set = new HashSet<String>(Arrays.asList(data));
-                    String[] listShow = set.toArray(new String[set.size()]);
+        pluginSystemViewModel.getPluginDataSource().getImageListResult().observe(this, result -> {
+            if (result instanceof Result.Success) {
+                String[] data = (String[]) ((Result.Success<?>) result).getData();
+                Set<String> set = new HashSet<>(Arrays.asList(data));
+                String[] listShow = set.toArray(new String[set.size()]);
 
-                    new XPopup.Builder(PluginSystemActivity.this).
-                            maxHeight(1350).
-                            maxWidth(800).
-                            asCenterList("Image List",
-                                    listShow, new OnSelectListener() {
-                                        @Override
-                                        public void onSelect(int position, String text) {
-                                            ToastEasy("Click" + text);
-                                            pluginSystemViewModel.handleImageList(text.trim());
-                                        }
-                                    }).show();
-                } else if (result instanceof Result.Error) {
-                    ToastEasy(result.toString());
-                }
+                new XPopup.Builder(PluginSystemActivity.this).
+                        maxHeight(1350).
+                        maxWidth(800).
+                        asCenterList("Image List",
+                                listShow, (position, text) -> {
+                                    ToastEasy("Click" + text);
+                                    pluginSystemViewModel.handleImageList(text.trim());
+                                }).show();
+            } else if (result instanceof Result.Error) {
+                ToastEasy(result.toString());
             }
         });
 
-        pluginSystemViewModel.getPluginImageResult().observe(this, new Observer<ResourceResult>() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onChanged(ResourceResult resourceResult) {
-                if (resourceResult == null){
-                    return;
-                }
-                if (resourceResult.isSuccess()){
-                    annotationGLSurfaceView.openFile();
-                    String imageId= pluginSystemViewModel.getCurrentImageId();
-                    Log.e("textview",imageId);
-                    imageIdLocationTextView.setText(imageId);
-                    annotationGLSurfaceView.setImageInfoInRender(imageId);
-                } else {
-                    ToastEasy(resourceResult.getError());
-                }
+        pluginSystemViewModel.getPluginImageResult().observe(this, resourceResult -> {
+            if (resourceResult == null) {
+                return;
+            }
+            if (resourceResult.isSuccess()) {
+                annotationGLSurfaceView.openFile();
+                String imageId = pluginSystemViewModel.getCurrentImageId();
+                Log.e("textview", imageId);
+                imageIdLocationTextView.setText(imageId);
+                annotationGLSurfaceView.setImageInfoInRender(imageId);
+            } else {
+                ToastEasy(resourceResult.getError());
             }
         });
 
-        pluginSystemViewModel.getPluginDataSource().getDownloadPluginImageResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result == null) {
-                    return;
-                }
-                pluginSystemViewModel.handleDownloadImageResult(result);
+        pluginSystemViewModel.getPluginDataSource().getOriginImageResult().observe(this, result -> {
+            if (result == null) {
+                return;
             }
+            pluginSystemViewModel.handleDownloadImageResult(result);
         });
 
-        pluginSystemViewModel.getPluginDataSource().getOriginImageResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if (result == null){
-                    return;
-                }
-                pluginSystemViewModel.handleDownloadImageResult(result);
+        pluginSystemViewModel.getPluginDataSource().getDownloadPluginImageResult().observe(this, result -> {
+            mProcessingPopupView.dismiss();
+            execMethod.setEnabled(true);
+            if (result == null || result instanceof Result.Error) {
+                return;
             }
-        });
-
-        pluginSystemViewModel.getPluginDataSource().getModelImageResult().observe(this, new Observer<Result>() {
-            @Override
-            public void onChanged(Result result) {
-                if(result == null){
-                    return;
-                }
-                pluginSystemViewModel.handelModelImageResult(result);
+            String data = (String) ((Result.Success<?>) result).getData();
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject = new JSONObject(data);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+            pluginSystemViewModel.handlePluginResult(jsonObject);
         });
     }
 
@@ -196,7 +176,7 @@ public class PluginSystemActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mainContext = null;
+        Context mainContext = null;
     }
 
     @Override
@@ -219,23 +199,20 @@ public class PluginSystemActivity extends AppCompatActivity {
             this.addContentView(commonView, lpCommon);
 
             getPlugin = findViewById(R.id.get_plugin_list_button);
-            getModel = findViewById(R.id.get_model_list_button);
+            execMethod = findViewById(R.id.execMethod);
 
-            getPlugin.setOnClickListener(new Button.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    pluginSystemViewModel.getPluginList();
-                }
-            });
-            getModel.setOnClickListener(new View.OnClickListener(){
-
-                @Override
-                public void onClick(View view) {
-                    pluginSystemViewModel.getModelResult();
-                }
-            });
+            getPlugin.setOnClickListener(view -> pluginSystemViewModel.getPluginList());
+            execMethod.setOnClickListener(view -> {
+                        execMethod.setEnabled(false);
+                        mProcessingPopupView = new XPopup.Builder(this).asLoading("In progress. Please waiting...");
+                        mProcessingPopupView.setFocusable(false);
+                        mProcessingPopupView.show();
+                        pluginSystemViewModel.execMethod();
+                    }
+            );
         }
     }
+
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -256,32 +233,30 @@ public class PluginSystemActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    private void openAllFile(){
+
+    private void openAllFile() {
         new XPopup.Builder(this)
                 .asCenterList("File Open", new String[]{"Open File From Server", "Open LocalFile"},
-                        new OnSelectListener() {
-                            @Override
-                            public void onSelect(int position, String item) {
-                                switch (item) {
-                                    case "Open File From Server":
-                                        openFileFromServer();
-                                        break;
-                                    case "Open LocalFile":
-                                        openLocalFile();
-                                        break;
-                                    default:
-                                        ToastEasy("Something wrong in function openFile !");
-                                }
+                        (position, item) -> {
+                            switch (item) {
+                                case "Open File From Server":
+                                    openFileFromServer();
+                                    break;
+                                case "Open LocalFile":
+                                    openLocalFile();
+                                    break;
+                                default:
+                                    ToastEasy("Something wrong in function openFile !");
                             }
                         })
                 .show();
     }
 
-    private void openFileFromServer(){
+    private void openFileFromServer() {
         pluginSystemViewModel.getImageList();
     }
 
-    private void openLocalFile(){
+    private void openLocalFile() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");

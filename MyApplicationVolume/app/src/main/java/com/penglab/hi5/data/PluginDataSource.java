@@ -8,24 +8,33 @@ import androidx.lifecycle.MutableLiveData;
 import com.penglab.hi5.basic.utils.FileHelper;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
-import com.penglab.hi5.core.net.HttpUtilsImage;
 import com.penglab.hi5.core.net.HttpUtilsPlugin;
-import com.penglab.hi5.core.ui.ResourceResult;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
  * Class that handles image information.
- *
+ * <p>
  * Created by Jackiexing on 12/09/21
  */
 public class PluginDataSource {
@@ -35,35 +44,31 @@ public class PluginDataSource {
     private final MutableLiveData<Result> pluginListResult = new MutableLiveData<>();
     private final MutableLiveData<Result> imageListResult = new MutableLiveData<>();
 
-    private final MutableLiveData<Result> downloadPluginImageResult = new MutableLiveData<>();
+    public final MutableLiveData<Result> downloadPluginImageResult = new MutableLiveData<>();
 
-    private final MutableLiveData<Result> originImageResult    = new MutableLiveData<>();
-
-    private final MutableLiveData<Result> modelImageResult = new MutableLiveData<>();
+    private final MutableLiveData<Result> originImageResult = new MutableLiveData<>();
 
     public LiveData<Result> getPluginListResult() {
         return pluginListResult;
     }
+
     public LiveData<Result> getImageListResult() {
         return imageListResult;
-    }
-
-    public MutableLiveData<Result> getDownloadPluginImageResult() {
-        return downloadPluginImageResult;
     }
 
     public MutableLiveData<Result> getOriginImageResult() {
         return originImageResult;
     }
 
-    public MutableLiveData<Result> getModelImageResult() {
-        return modelImageResult;
+    public final MutableLiveData<Result> getDownloadPluginImageResult() {
+        return downloadPluginImageResult;
     }
 
     public void getPluginList() {
         try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsPlugin.getPluginListWithOkHttp(userInfo, new Callback() {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(HttpUtilsPlugin.UrlGetMethodList).build();
+            client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
@@ -71,30 +76,26 @@ public class PluginDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (response.body() != null) {
-                        String str = response.body().string();
-                        Log.e("GetPluginList", str);
-                        try{
-                            str = str.replace("[", "").replace("]", "");
-                            String[] pluginName = str.split(",");
-
-                            String[] pNames = new String[pluginName.length];
-                            for (int i = 0; i < pluginName.length; i++) {
-                                String path = pluginName[i];
-                                // 使用"/"分割路径，并取最后一个部分作为文件名
-                                pNames[i] = path.replace("\"","");
+                    if (!response.isSuccessful() || response.body() == null)
+                        pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    String body = response.body().string();
+                    String[] pNames = new String[0];
+                    JSONObject jsonObject;
+                    try {
+                        jsonObject = new JSONObject(body);
+                        if (jsonObject.has("response")) {
+                            pNames = new String[jsonObject.getJSONArray("response").length()];
+                            for (int i = 0; i < jsonObject.getJSONArray("response").length(); i++) {
+                                Log.e("response", jsonObject.getJSONArray("response").get(i).toString());
+                                pNames[i] = jsonObject.getJSONArray("response").get(i).toString();
                             }
-
-                            pluginListResult.postValue(new Result.Success<String[]>(pNames));
-                        } catch (Exception e){
-                            e.printStackTrace();
-                            pluginListResult.postValue(new Result.Error(new Exception("Fail to parse brain list info !")));
                         }
-                        response.body().close();
-                        response.close();
-                    } else {
-                        pluginListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
+                    pluginListResult.postValue(new Result.Success<>(pNames));
+                    response.body().close();
+                    response.close();
                 }
             });
         } catch (Exception exception) {
@@ -104,8 +105,9 @@ public class PluginDataSource {
 
     public void getImageList() {
         try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsPlugin.getImageListWithOkHttp(userInfo, new Callback() {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder().url(HttpUtilsPlugin.UrlGetImageList).build();
+            client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     imageListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
@@ -113,33 +115,26 @@ public class PluginDataSource {
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    int responseCode = response.code();
-                    Log.e("GetImageListResponseCode",""+responseCode);
+                    if (!response.isSuccessful() || response.body() == null)
+                        imageListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    String body = response.body().string();
+                    String[] fileNames = new String[0];
+                    JSONObject jsonObject;
                     try {
-                        if (response.body() != null) {
-                            String str = response.body().string();
-                            Log.e("GetImageList", str);
-                            str= str.replaceAll("\\\"","");
-                            str = str.replace("[", "").replace("]", "");
-                            String[] paths = str.split(",");
-                            String[] fileNames = new String[paths.length];
-                            for (int i = 0; i < paths.length; i++) {
-                                String path = paths[i];
-                                // 使用"/"分割路径，并取最后一个部分作为文件名
-                                fileNames[i] = path.substring(path.lastIndexOf("/") + 1);
-
+                        jsonObject = new JSONObject(body);
+                        if (jsonObject.has("response")) {
+                            fileNames = new String[jsonObject.getJSONArray("response").length()];
+                            for (int i = 0; i < jsonObject.getJSONArray("response").length(); i++) {
+                                Log.e("response", jsonObject.getJSONArray("response").get(i).toString());
+                                fileNames[i] = jsonObject.getJSONArray("response").get(i).toString();
                             }
-                            Log.e("filenames",""+fileNames[0]);
-                            imageListResult.postValue(new Result.Success<String[]>(fileNames));
-                            response.body().close();
-                            response.close();
-                        } else {
-                            imageListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        imageListResult.postValue(new Result.Error(new Exception("Fail to get image list !")));
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
+                    imageListResult.postValue(new Result.Success<>(fileNames));
+                    response.body().close();
+                    response.close();
                 }
             });
         } catch (Exception exception) {
@@ -147,34 +142,33 @@ public class PluginDataSource {
         }
     }
 
-    public void doPlugin(String imageName, String pluginName){
+    public void doPlugin(String imageName, String pluginName) {
         try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsPlugin.doPluginListWithOkHttp(userInfo, imageName,pluginName, new Callback() {
+            OkHttpClient client = new OkHttpClient();
+            String body = (new JSONObject().
+                    put("method_name", pluginName).
+                    put("image_name", imageName).
+                    put("session_id", InfoCache.getAccount() + "_" + UUID.randomUUID().toString()).
+                    put("user_name", InfoCache.getAccount()).
+                    put("force_regenerate", true)
+            ).toString();
+            Request request = new Request.Builder().url(HttpUtilsPlugin.UrlExecuteMethod).
+                    post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), body)).build();
+            client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     downloadPluginImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
                 }
+
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     try {
                         int responseCode = response.code();
-                        Log.e(TAG,"doPlugin_responseCode"+responseCode);
                         if (responseCode == 200) {
-                            if (response.body() != null) {
-                                byte[] fileContent = response.body().bytes();
-                                Log.e(TAG, "file size: " + fileContent.length);
-                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                                String filename = imageName;
-                                if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                    downloadPluginImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
-                                }
-                                downloadPluginImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                                String bodyJson = response.body().string();
+                                downloadPluginImageResult.postValue(new Result.Success(bodyJson));
                                 response.body().close();
                                 response.close();
-                            } else {
-                                downloadPluginImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
-                            }
                         } else {
                             downloadPluginImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
                         }
@@ -189,27 +183,36 @@ public class PluginDataSource {
         }
     }
 
-    public void getOriginImage(String imageName){
+    public void getImageFile(String pathPrefix, String imageName) {
         try {
-            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-            HttpUtilsPlugin.getOriginImageWithOkHttp(userInfo, imageName,new Callback() {
+            OkHttpClient client = new OkHttpClient();
+            String body = (new JSONObject().put("image_path", pathPrefix).put("image_name", imageName)).toString();
+            Request request = new Request.Builder().url(HttpUtilsPlugin.UrlGetImageFile).
+                    post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), body)).build();
+            client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
                     originImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
                 }
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
+                public void onResponse(Call call, Response response) {
                     try {
                         int responseCode = response.code();
-                        Log.e(TAG,"doPlugin_responseCode"+responseCode);
                         if (responseCode == 200) {
                             if (response.body() != null) {
                                 byte[] fileContent = response.body().bytes();
                                 Log.e(TAG, "file size: " + fileContent.length);
                                 String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                                String filename = imageName;
+                                String filename = imageName+".zip";
                                 if (!FileHelper.storeFile(storePath, filename, fileContent)) {
                                     originImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                } else {
+                                    String zipFilePath = storePath + "/" + filename;
+                                    if (unzipFile(zipFilePath, storePath)) {
+                                        originImageResult.postValue(new Result.Success(storePath));
+                                    } else {
+                                        originImageResult.postValue(new Result.Error(new Exception("Fail to unzip image file !")));
+                                    }
                                 }
                                 originImageResult.postValue(new Result.Success(storePath + "/" + filename));
                                 response.body().close();
@@ -231,201 +234,46 @@ public class PluginDataSource {
         }
     }
 
-    public void getModelImage(String imageName){
-         try {
-        JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-        HttpUtilsPlugin.doModelWithOkHttp(userInfo, imageName,new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                modelImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
-            }
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                try {
-                    int responseCode = response.code();
-                    Log.e(TAG,"doModel_responseCode"+responseCode);
-                    if (responseCode == 200) {
-                        if (response.body() != null) {
-                            byte[] fileContent = response.body().bytes();
-                            Log.e(TAG, "file size: " + fileContent.length);
-                            String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-                            String filename = imageName.split(".")[0]+"_output."+imageName.split(".")[1];
-                            if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-                                modelImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
-                            }
-                            modelImageResult.postValue(new Result.Success(storePath + "/" + filename));
-                            response.body().close();
-                            response.close();
-                        } else {
-                            modelImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
-                        }
-                    } else {
-                        modelImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
+    private boolean unzipFile(String zipFilePath, String destDirectory) {
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            destDir.mkdirs();
+        }
+        try (ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath))) {
+            ZipEntry entry = zipIn.getNextEntry();
+            // Iterate over entries in the zip file
+            while (entry != null) {
+                File filePath = new File(destDirectory, entry.getName());
+                if (entry.isDirectory()) {
+                    // If the entry is a directory, make the directory
+                    if (!filePath.isDirectory() && !filePath.mkdirs()) {
+                        throw new IOException("Failed to create directory " + filePath);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    modelImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                } else {
+                    // If the entry is a file, extracts it
+                    File parentDir = filePath.getParentFile();
+                    if (!parentDir.isDirectory() && !parentDir.mkdirs()) {
+                        throw new IOException("Failed to create directory " + parentDir);
+                    }
+                    extractFile(zipIn, filePath);
                 }
+                zipIn.closeEntry();
+                entry = zipIn.getNextEntry();
             }
-        }) ;
-    } catch (Exception exception) {
-             modelImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+        } catch (IOException e) {
+            Log.e(TAG, "Unzipping error: ", e);
+            return false;
+        }
+        return true;
     }
-}
 
-
-
-
-
-//    public void getNeuronList(String brainId){
-//        try {
-//            HttpUtilsImage.getNeuronListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), brainId, new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    brainListResult.postValue(new Result.Error(new Exception("Connect failed when get neuron list")));
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    try {
-//                        if (response.body() != null) {
-//                            JSONArray jsonArray = new JSONArray(response.body().string());
-//                            Log.e(TAG,"getNeuronList"+jsonArray);
-//                            brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
-//                        } else {
-//                            brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                        brainListResult.postValue(new Result.Error(new Exception("Fail to get neuron list !")));
-//                    }
-//                }
-//            });
-//        } catch (Exception exception) {
-//            brainListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-//        }
-//    }
-//
-//    public void getAnoList(String neuronId){
-//        try {
-//            HttpUtilsImage.getAnoListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), neuronId, new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    brainListResult.postValue(new Result.Error(new Exception("Connect failed when get ano list")));
-//                }
-//
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    try {
-//                        if (response.body() != null) {
-//                            JSONArray jsonArray = new JSONArray(response.body().string());
-//                            brainListResult.postValue(new Result.Success<JSONArray>(jsonArray));
-//                        } else {
-//                            brainListResult.postValue(new Result.Error(new Exception("Response from server is null !")));
-//                        }
-//                    } catch (JSONException e) {
-//                        e.printStackTrace();
-//                        brainListResult.postValue(new Result.Error(new Exception("Fail to get ano list !")));
-//                    }
-//                }
-//            });
-//        } catch (Exception exception) {
-//            brainListResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-//        }
-//    }
-//
-//    public void downloadImage(String brainId, String res, int offsetX, int offsetY, int offsetZ, int size){
-//        try {
-//            JSONObject pa1 = new JSONObject().put("x", offsetX - size/2).put("y", offsetY - size/2).put("z", offsetZ - size/2);
-//            JSONObject pa2 = new JSONObject().put("x", offsetX + size/2).put("y", offsetY + size/2).put("z", offsetZ + size/2);
-//            JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", res).put("obj", brainId);
-//            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-//
-//            HttpUtilsImage.downloadImageWithOkHttp(userInfo, bBox, new Callback() {
-//                @Override
-//                public void onFailure(Call call, IOException e) {
-//                    downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
-//                }
-//                @Override
-//                public void onResponse(Call call, Response response) throws IOException {
-//                    try {
-//                        int responseCode = response.code();
-//                        Log.e(TAG,"downloadImage_responseCode"+responseCode);
-//                        if (responseCode == 200) {
-//                            if (response.body() != null) {
-//                                byte[] fileContent = response.body().bytes();
-//                                Log.e(TAG, "file size: " + fileContent.length);
-//                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-//                                String filename = brainId + "_" + res + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
-//
-//                                if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-//                                    downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
-//                                }
-//                                downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
-//                                response.body().close();
-//                                response.close();
-//                            } else {
-//                                downloadImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
-//                            }
-//                        } else {
-//                            downloadImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        downloadImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
-//                    }
-//                }
-//            });
-//        } catch (Exception exception) {
-//            downloadImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
-//        }
-//    }
-//
-//    public void downloadButtonImage(String arborId){
-//        try{
-//            JSONObject user = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
-//            HttpUtilsImage.downloadButtonImageWithOkHttp(user,
-//                    arborId,
-//                    new Callback() {
-//                        @Override
-//                        public void onFailure(Call call, IOException e) {
-//                            downloadButtonImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download bouton Image")));
-//                        }
-//
-//                        @Override
-//                        public void onResponse(Call call, Response response) throws IOException {
-//                            try {
-//                                int responseCode = response.code();
-//                                Log.e(TAG, "download_bouton_Image_responseCode" + responseCode);
-//                                if (responseCode == 200) {
-//                                    if (response.body() != null) {
-//                                        byte[] fileContent = response.body().bytes();
-//                                        Log.e(TAG, "file size: " + fileContent.length);
-//                                        String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
-//                                        String filename = arborId+".v3dpbd";
-//                                        //                            String filename = brainId + "_" + res + "_"  + offsetX + "_" + offsetY + "_" + offsetZ + ".v3dpbd";
-//
-//                                        if (!FileHelper.storeFile(storePath, filename, fileContent)) {
-//                                            downloadButtonImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
-//                                        }
-//                                        downloadButtonImageResult.postValue(new Result.Success(storePath + "/" + filename));
-//                                        response.body().close();
-//                                        response.close();
-//                                    } else {
-//                                        downloadButtonImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
-//                                    }
-//                                } else {
-//                                    downloadButtonImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
-//                                }
-//                            } catch (Exception exception) {
-//                                downloadButtonImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
-//                            }
-//                        }
-//                    });
-//
-//        } catch (Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
+    private void extractFile(ZipInputStream zipIn, File filePath) throws IOException {
+        try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath))) {
+            byte[] bytesIn = new byte[4096];
+            int read;
+            while ((read = zipIn.read(bytesIn)) != -1) {
+                bos.write(bytesIn, 0, read);
+            }
+        }
+    }
 }
