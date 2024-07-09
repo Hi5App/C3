@@ -33,6 +33,10 @@ public class PluginSystemViewModel extends ViewModel {
     private volatile PluginInfo pluginInfo = new PluginInfo();
 
 
+    PluginInfo getPluginInfo() {
+        return pluginInfo;
+    }
+
     public PluginSystemViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, PluginDataSource pluginDataSource) {
         this.userInfoRepository = userInfoRepository;
         this.imageInfoRepository = imageInfoRepository;
@@ -82,15 +86,6 @@ public class PluginSystemViewModel extends ViewModel {
 
     public void getPluginList() {
         pluginDataSource.getPluginList();
-    }
-
-    public void downloadPluginResult() {
-
-        String image = pluginInfo.getInputImageName();
-        String pluginName = pluginInfo.getPluginName();
-        Log.e("pluginSytemViewModel_image", image);
-        Log.e("pluginSystemViewModel_pluginame", pluginName);
-        pluginDataSource.doPlugin(image, pluginName);
     }
 
     public void handleImageList(String imageNumber) {
@@ -147,7 +142,7 @@ public class PluginSystemViewModel extends ViewModel {
         Log.e("pluginsystem+filename:", fileName);
         FileType fileType = FileManager.getFileType(filePath);
         Log.e("pluginsystem+filetype", fileType.toString());
-        imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
+        imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<>(filePath), fileType);
         imageResult.setValue(new ResourceResult(true));
     }
 

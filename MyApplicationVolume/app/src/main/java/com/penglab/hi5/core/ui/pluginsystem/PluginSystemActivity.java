@@ -82,7 +82,6 @@ public class PluginSystemActivity extends AppCompatActivity {
                                 listShow, (position, text) -> {
                                     ToastEasy("Click" + text);
                                     pluginSystemViewModel.handlePluginList(text.trim());
-                                    pluginSystemViewModel.downloadPluginResult();
                                 }).show();
             } else if (result instanceof Result.Error) {
                 ToastEasy(result.toString());
@@ -176,7 +175,6 @@ public class PluginSystemActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        Context mainContext = null;
     }
 
     @Override
@@ -203,6 +201,14 @@ public class PluginSystemActivity extends AppCompatActivity {
 
             getPlugin.setOnClickListener(view -> pluginSystemViewModel.getPluginList());
             execMethod.setOnClickListener(view -> {
+                        if (pluginSystemViewModel.getPluginInfo().getInputImageName() == null || pluginSystemViewModel.getPluginInfo().getInputImageName().isEmpty()) {
+                            ToastEasy("Please select image file first!");
+                            return;
+                        }
+                        if (pluginSystemViewModel.getPluginInfo().getPluginName() == null || pluginSystemViewModel.getPluginInfo().getPluginName().isEmpty()) {
+                            ToastEasy("Please select image process method first!");
+                            return;
+                        }
                         execMethod.setEnabled(false);
                         mProcessingPopupView = new XPopup.Builder(this).asLoading("In progress. Please waiting...");
                         mProcessingPopupView.setFocusable(false);
