@@ -30,8 +30,6 @@ public class CollorationDataSource {
 
     private final String TAG = "CollorationDataSource";
 
-    private String responseData;
-
     private int userId;
     public int getUserId(){
         return userId;
@@ -75,7 +73,7 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
+                    String responseData = response.body().string();
                     Log.e(TAG, "response getNeuron: " + responseData);
 
                     if (responseCode == 200) {
@@ -130,7 +128,7 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
+                    String responseData = response.body().string();
                     if (responseCode == 200) {
                         Log.e(TAG, "response getAllProject: " + responseData);
                         // process response
@@ -190,7 +188,7 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
+                    String responseData = response.body().string();
                     if (responseCode == 200) {
                         Log.e(TAG, "response getSwcNameAndUuidByProject: " + responseData);
                         // process response
@@ -246,7 +244,7 @@ public class CollorationDataSource {
                 public void onResponse(Call call, Response response) throws IOException {
                     Log.e(TAG, "responseCode_loadano" + response.code());
                     int responseCode = response.code();
-                    responseData = response.body().string();
+                    String responseData = response.body().string();
                     if (responseCode == 200) {
 //                        Log.e(TAG, "response loadano: " + responseData);
                         // process response
@@ -280,12 +278,12 @@ public class CollorationDataSource {
 
     public void getUserId(String username){
         try {
-            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserToken", "");
+            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserPassword", InfoCache.getAccount());
             JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.05.06");
             JSONObject param = new JSONObject();
-            param.put("UserName",username);
-            param.put("UserVerifyInfo",userVerifyInfo);
             param.put("metaInfo",metaInfo);
+            param.put("UserVerifyInfo",userVerifyInfo);
+            param.put("UserName", username);
             HttpUtilsUser.getUserIdWithOKHttp(param, new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
@@ -297,7 +295,7 @@ public class CollorationDataSource {
                     int responseCode = response.code();
                     Log.e(TAG,"responsecode of getuserid"+responseCode);
                     if (responseCode == 200) {
-                        responseData = response.body().string();
+                        String responseData = response.body().string();
                         Log.e(TAG, "responseData_getuserid: " + responseData);
                         try {
                             JSONObject resultJson = new JSONObject(responseData);
