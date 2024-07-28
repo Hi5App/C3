@@ -76,6 +76,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -90,7 +92,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
     private static Context mainContext;
-
+    private static ExecutorService executorService = Executors.newFixedThreadPool(4);
     private AlertDialog dialog;
 
     private static final int HANDLER_SHOW_DOWNLOADING_POPUPVIEW = 0;
@@ -1019,24 +1021,23 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
                     .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("App2 tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.APP2());
-//            }).normalImageRes(R.drawable.ic_neuron));
-//
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
-//                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("GD tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.GD());
-//            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
-//                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("App2 tracing algorithm start !");
+                executorService.submit(() -> annotationGLSurfaceView.APP2());
+            }).normalImageRes(R.drawable.ic_neuron));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("GD tracing algorithm start !");
+                executorService.submit(() -> annotationGLSurfaceView.GD());
+            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
 
         } else {
             commonView.setVisibility(View.VISIBLE);
