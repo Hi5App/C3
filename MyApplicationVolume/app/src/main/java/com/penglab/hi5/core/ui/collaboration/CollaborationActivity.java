@@ -39,6 +39,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.interfaces.OnSelectListener;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
@@ -57,6 +58,7 @@ import com.penglab.hi5.chat.nim.session.extension.InviteAttachment;
 import com.penglab.hi5.core.BaseActivity;
 import com.penglab.hi5.core.collaboration.Communicator;
 import com.penglab.hi5.core.collaboration.basic.ReceiveMsgInterface;
+import com.penglab.hi5.core.collaboration.connector.ExecutorServiceProvider;
 import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.core.collaboration.connector.ServerConnector;
 import com.penglab.hi5.core.collaboration.service.BasicService;
@@ -64,8 +66,11 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.BoutonDetection.BoutonDetectionActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
+import com.penglab.hi5.core.ui.login.LoginActivity;
+import com.penglab.hi5.core.ui.marker.MarkerFactoryActivity;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 
@@ -135,7 +140,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public enum ShiftDirection {
         RIGHT, LEFT, UP, DOWN, FRONT, BACK
     }
-
+    private ImageButton editModeIndicator;
     private ImageButton ROI_i;
     private static BasePopupView downloadingPopupView;
     private static BasePopupView syncingPopupView;
@@ -436,7 +441,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         toolbar = findViewById(R.id.toolbar_collaboration);
         setSupportActionBar(toolbar);
-
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Collaboration");
         getSupportActionBar().setDisplayShowTitleEnabled(false);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -444,7 +449,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(CollaborationViewModel.class);
 
         downloadingPopupView = new XPopup.Builder(this)
-                .asLoading("Downloading......");
+                .asLoading("Call Hi5 Programming......");
 
         syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
@@ -978,6 +983,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             lp_ROI_i.setMargins(20, 0, 300, 480);
             this.addContentView(ROI_i, lp_ROI_i);
 
+            editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
             ImageButton editModeIndicator = findViewById(R.id.edit_mode_indicator_collaborate);
             tapBarMenu = findViewById(R.id.tapBarMenu_collaborate);
             addCurve = tapBarMenu.findViewById(R.id.draw_i_collaborate);
@@ -1019,24 +1025,24 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
                     .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("App2 tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.APP2());
-//            }).normalImageRes(R.drawable.ic_neuron));
-//
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
-//                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
-//                ToastEasy("GD tracing algorithm start !");
-//                executorService.submit(() -> annotationGLSurfaceView.GD());
-//            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
-//
-//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-//                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
-//                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("App2 tracing algorithm start !");
+                ExecutorServiceProvider.getExecutorService().submit(() -> annotationGLSurfaceView.APP2());
+            }).normalImageRes(R.drawable.ic_neuron));
+
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
+                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
+                ToastEasy("GD tracing algorithm start !");
+                ExecutorServiceProvider.getExecutorService().submit(() -> annotationGLSurfaceView.GD());
+            }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
+
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
+                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
 
         } else {
             commonView.setVisibility(View.VISIBLE);
@@ -1170,7 +1176,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                LoginActivity.start(CollaborationActivity.this);
                 return true;
 
 //            case R.id.undo:
@@ -1184,7 +1190,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             case R.id.file:
                 openFile();
                 return true;
-
+            case R.id.more:
+                moreFunctions();
+                return true;
 //            case R.id.share:
 //                annotationGLSurfaceView.screenCapture();
 //                return true;
@@ -1277,5 +1285,34 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     }
 
+    private void moreFunctions() {
+        new XPopup.Builder(this)
+                .maxHeight(1500)
+                .asCenterList("More Collaborations...", new String[]{"Soma Pinpointing", "Synapse Validation"},
+                        new OnSelectListener() {
+                            @Override
+                            public void onSelect(int position, String text) {
+                                switch (text) {
+                                    case "Soma Pinpointing":
+                                        somaPinpointing();
+                                        break;
+                                    case "Synapse Validation":
+                                        synapseValidation();
+                                        break;
+                                    default:
+                                        ToastEasy("Something wrong with more functions...");
+                                }
+                            }
+                        })
+                .show();
+    }
+
+    private void somaPinpointing(){
+        MarkerFactoryActivity.start(CollaborationActivity.this);
+    }
+
+    private void synapseValidation() {
+        BoutonDetectionActivity.start(CollaborationActivity.this);
+    }
 
 }
