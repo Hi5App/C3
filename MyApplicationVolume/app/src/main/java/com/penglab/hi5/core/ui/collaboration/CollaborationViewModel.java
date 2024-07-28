@@ -121,9 +121,12 @@ public class CollaborationViewModel extends ViewModel {
                         detail = detail.substring(1, detail.length() - 1);
                         String[] rois = detail.split(", ");
                         List<String> roiList = new ArrayList<>();
-                        for (int j = 0; j < rois.length; j++) {
-                            rois[j] = rois[j].substring(1, rois[j].length() - 1);
-                            roiList.add(rois[j]);
+                        for (String s : rois) {
+                            if (s.isEmpty()) {
+                                continue;
+                            }
+                            String res = s.substring(1, s.length() - 1);
+                            roiList.add(res);
                         }
                         if (rois.length >= 1) {
                             resMap.put(imageId, roiList);
