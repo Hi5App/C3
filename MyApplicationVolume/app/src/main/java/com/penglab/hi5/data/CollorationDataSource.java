@@ -278,7 +278,7 @@ public class CollorationDataSource {
 
     public void getUserId(String username){
         try {
-            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserPassword", InfoCache.getAccount());
+            JSONObject userVerifyInfo = new JSONObject().put("UserName", username).put("UserPassword", InfoCache.getToken());
             JSONObject metaInfo = new JSONObject().put("ApiVersion","2024.05.06");
             JSONObject param = new JSONObject();
             param.put("metaInfo",metaInfo);
