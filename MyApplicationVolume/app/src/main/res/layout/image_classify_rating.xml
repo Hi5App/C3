@@ -275,11 +275,10 @@
                 android:id="@+id/contrast_enhance_ratio"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:min="1"
                 android:max="20"
+                android:min="1"
                 android:splitTrack="false"
-                app:seekBarRotation="CW270"
-                /> <!-- Rotation: CW90 or CW270 -->
+                app:seekBarRotation="CW270" /> <!-- Rotation: CW90 or CW270 -->
         </com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper>
 
         <com.h6ah4i.android.widget.verticalseekbar.VerticalSeekBarWrapper

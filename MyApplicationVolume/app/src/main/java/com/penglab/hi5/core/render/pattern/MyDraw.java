@@ -369,6 +369,9 @@ public class MyDraw extends BasicPattern {
         colorPoints_model = new float[drawList_model.length * 3];//colormap[type];
         for(int i=0; i<colorPoints_model.length; i++){
             colorPoints_model[i] = colormap[type%11][i%3];
+            if(type == 247){
+                colorPoints_model[i] = colormap[2][i%3];
+            }
         }
         colorBuffer_model = ByteBuffer.allocateDirect(colorPoints_model.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -461,6 +464,9 @@ public class MyDraw extends BasicPattern {
         colorPoints_marker = new float[vertexPoints_marker.length]; //colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
             colorPoints_marker[i] = colormap[type % 11][i % 3];
+            if(type == 247){
+                colorPoints_marker[i] = colormap[2][i%3];
+            }
         }
         colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -530,6 +536,9 @@ public class MyDraw extends BasicPattern {
         colorPoints_marker = new float[line.length];
         for(int i=0; i<colorPoints_marker.length; i++){
             colorPoints_marker[i] = colormap[type%11][i%3];
+            if(type == 247){
+                colorPoints_marker[i] = colormap[2][i%3];
+            }
 //            System.out.println(colorPoints_marker[i]);
         }
         colorBuffer_line = ByteBuffer.allocateDirect(colorPoints_marker.length* 4)
@@ -655,6 +664,9 @@ public class MyDraw extends BasicPattern {
         float [] colorMarker = new float[3];
         for (int i = 0; i < 3; i++) {
             colorMarker[i] = colormap[type % 11][i];
+            if(type == 247){
+                colorMarker[i] = colormap[2][i];
+            }
         }
 
         int colorHandle_marker = GLES32.glGetUniformLocation(mProgram_marker, "color");

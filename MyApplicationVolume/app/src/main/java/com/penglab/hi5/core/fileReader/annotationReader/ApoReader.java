@@ -122,7 +122,7 @@ public class ApoReader {
                 ArrayList<Float> cur_line = new ArrayList<Float>();
                 for (int j = 0; j < 18; j++){
                     String cur_string = s[j].replace(" ","");
-                    if (cur_string.equals(""))
+                    if (cur_string.equals("") || cur_string.equals("quality_control"))
                         cur_string = "1234";
                     cur_line.add(Float.parseFloat(cur_string));
                 }

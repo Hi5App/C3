@@ -36,7 +36,8 @@ public class RenderOptions {
         this.imageChanging = false;
         this.screenCapture = false;
         this.scale = 2.5f;
-        this.contrastEnhanceRatio = 1;
+//        this.contrastEnhanceRatio = 1;
+        this.contrastEnhanceRatio = preferenceSetting.getContrastEnhanceRatio();
     }
 
     public int getContrastEnhanceRatio(){

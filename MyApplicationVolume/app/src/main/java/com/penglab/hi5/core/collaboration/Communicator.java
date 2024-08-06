@@ -57,7 +57,7 @@ public class Communicator {
     private String pattern;
     private Pattern r;
 
-    private static CoordinateConvert anoCoordinateConvert;
+    public static CoordinateConvert anoCoordinateConvert;
 
 
     /**
@@ -80,6 +80,8 @@ public class Communicator {
      * @param ctx
      */
     public static void init(Context ctx){
+        anoCoordinateConvert = new CoordinateConvert();
+        anoCoordinateConvert.setResIndex(2);
         mContext = ctx;
     }
 
@@ -374,6 +376,7 @@ public class Communicator {
         return anoCoordinateConvert.convertGlobalToLocal(x,y,z);
     }
 
+
     public XYZ ConvertLocalBlocktoGlobalCroods(double x,double y,double z)
     {
         return anoCoordinateConvert.convertLocalToGlobal(x,y,z);
@@ -428,7 +431,6 @@ public class Communicator {
 
     public void setUp(CoordinateConvert coordinateConvert) {
         anoCoordinateConvert = coordinateConvert;
-
     }
 
 

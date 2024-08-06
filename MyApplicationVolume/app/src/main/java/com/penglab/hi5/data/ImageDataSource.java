@@ -188,6 +188,53 @@ public class ImageDataSource {
         }
     }
 
+    public void downloadImage(String brainId, String res, int xMin, int yMin, int zMin, int xMax, int yMax, int zMax){
+        try {
+            JSONObject pa1 = new JSONObject().put("x", xMin).put("y", yMin).put("z", zMin);
+            JSONObject pa2 = new JSONObject().put("x", xMax).put("y", yMax).put("z", zMax);
+            JSONObject bBox = new JSONObject().put("pa1", pa1).put("pa2", pa2).put("res", res).put("obj", brainId);
+            JSONObject userInfo = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());
+
+            HttpUtilsImage.downloadImageWithOkHttp(userInfo, bBox, new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    downloadImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
+                }
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+                    try {
+                        int responseCode = response.code();
+                        Log.e(TAG,"downloadImage_responseCode"+responseCode);
+                        if (responseCode == 200) {
+                            if (response.body() != null) {
+                                byte[] fileContent = response.body().bytes();
+                                Log.e(TAG, "file size: " + fileContent.length);
+                                String storePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image";
+                                String filename = brainId + "_" + res + "_"  + xMin + "_" + xMax + "_" + yMin + "_" + yMax + "_" + zMin + "_" + zMax + ".v3dpbd";
+
+                                if (!FileHelper.storeFile(storePath, filename, fileContent)) {
+                                    downloadImageResult.postValue(new Result.Error(new Exception("Fail to store image file !")));
+                                }
+                                downloadImageResult.postValue(new Result.Success(storePath + "/" + filename));
+                                response.body().close();
+                                response.close();
+                            } else {
+                                downloadImageResult.postValue(new Result.Error(new Exception("Response from server is null when download image !")));
+                            }
+                        } else {
+                            downloadImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        downloadImageResult.postValue(new Result.Error(new Exception("Fail to download image file !")));
+                    }
+                }
+            });
+        } catch (Exception exception) {
+            downloadImageResult.postValue(new Result.Error(new IOException("Check the network please !", exception)));
+        }
+    }
+
     public void downloadButtonImage(String arborId){
         try{
             JSONObject user = new JSONObject().put("name", InfoCache.getAccount()).put("passwd", InfoCache.getToken());

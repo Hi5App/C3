@@ -15,7 +15,13 @@ public class CoordinateConvert {
 
     private final XYZ centerLocationInMaxRes = new XYZ();
     private int resIndex;
-    private int imgSize=128;
+    private int imgSize = 128;
+    public int imgXMin;
+    public int imgXMax;
+    public int imgYMin;
+    public int imgYMax;
+    public int imgZMin;
+    public int imgZMax;
 
     public XYZ convertGlobalToLocal(double x, double y, double z, int imageSizeX,int imageSizeY,int imageSizeZ) {
         XYZ node = convertMaxResToCurRes(x, y, z, resIndex);
@@ -92,6 +98,7 @@ public class CoordinateConvert {
     }
 
     public void initLocation(XYZ centerLoc) {
+        resIndex = 2;
         centerLocationInMaxRes.x = (int) (centerLoc.x);
         centerLocationInMaxRes.y = (int) (centerLoc.y);
         centerLocationInMaxRes.z = (int) (centerLoc.z);
@@ -99,9 +106,41 @@ public class CoordinateConvert {
         centerLocation.x = (int) (centerLoc.x / Math.pow(2, resIndex-1));
         centerLocation.y = (int) (centerLoc.y / Math.pow(2, resIndex-1));
         centerLocation.z = (int) (centerLoc.z / Math.pow(2, resIndex-1));
+    }
 
-        startLocation.x = centerLocation.x - imgSize / 2;
-        startLocation.y = centerLocation.y - imgSize / 2;
-        startLocation.z = centerLocation.z - imgSize / 2;
+    public void updateStartLoc(int xMin, int yMin, int zMin) {
+        imgXMin = xMin;
+        imgYMin = yMin;
+        imgZMin = zMin;
+        startLocation.x = imgXMin;
+        startLocation.y = imgYMin;
+        startLocation.z = imgZMin;
+    }
+
+    public void updateStartLoc(float xMin, float yMin, float zMin) {
+        imgXMin = (int)xMin;
+        imgYMin = (int)yMin;
+        imgZMin = (int)zMin;
+        startLocation.x = imgXMin;
+        startLocation.y = imgYMin;
+        startLocation.z = imgZMin;
+    }
+
+    public void updateMinAndMaxLoc(int xMin, int yMin, int zMin, int xMax, int yMax, int zMax) {
+        imgXMin = xMin;
+        imgYMin = yMin;
+        imgZMin = zMin;
+        imgXMax = xMax;
+        imgYMax = yMax;
+        imgZMax = zMax;
+    }
+
+    public void updateMinAndMaxLoc(float xMin, float yMin, float zMin, float xMax, float yMax, float zMax) {
+        imgXMin = (int)xMin;
+        imgYMin = (int)yMin;
+        imgZMin = (int)zMin;
+        imgXMax = (int)xMax;
+        imgYMax = (int)yMax;
+        imgZMax = (int)zMax;
     }
 }

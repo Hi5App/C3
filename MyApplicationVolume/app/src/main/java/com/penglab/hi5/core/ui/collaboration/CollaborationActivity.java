@@ -26,6 +26,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -67,6 +68,7 @@ import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.Result;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 
 import java.util.ArrayList;
@@ -946,6 +948,53 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             collaborateForWardButton.setOnClickListener(new CollaborateButtonClickListener());
             collaborateBackWardButton.setOnClickListener(new CollaborateButtonClickListener());
 
+            ImageButton hideSwc = findViewById(R.id.hide_swc);
+            hideSwc.setOnClickListener(v -> hideSwc());
+
+            PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+            SeekBar mContrastSeekBar = findViewById(R.id.collaborate_contrast_value);
+            SeekBar contrastEnhanceRatio = findViewById(R.id.collaborate_contrast_enhance_ratio);
+            contrastEnhanceRatio.setProgress(preferenceSetting.getContrastEnhanceRatio());
+            contrastEnhanceRatio.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+                    if (fromuser) {
+                        preferenceSetting.setContrastEnhanceRatio(progress);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    annotationGLSurfaceView.requestRender();
+                }
+            });
+
+            mContrastSeekBar.setProgress(preferenceSetting.getContrast());
+            mContrastSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromuser) {
+                    if (fromuser) {
+                        preferenceSetting.setContrast(progress);
+                        annotationGLSurfaceView.updateRenderOptions();
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                    annotationGLSurfaceView.requestRender();
+                }
+            });
+
+
             ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
             collaborateCheckFileButton.setVisibility(View.GONE);
 
@@ -1079,6 +1128,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     deleteMarker.setImageResource(R.drawable.ic_marker_delete);
                 }
                 break;
+        }
+    }
+
+    private void hideSwc() {
+        ImageButton hideSwc = findViewById(R.id.hide_swc);
+        if (annotationGLSurfaceView.setShowAnnotation()){
+            annotationGLSurfaceView.requestRender();
+            hideSwc.setImageResource(R.drawable.ic_not_hide);
+        } else {
+            annotationGLSurfaceView.requestRender();
+            hideSwc.setImageResource(R.drawable.ic_hide);
         }
     }
 

@@ -33,6 +33,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CollaborationViewModel extends ViewModel {
     private final String TAG = "CollaborationViewModel";
@@ -198,7 +201,6 @@ public class CollaborationViewModel extends ViewModel {
         downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
         Communicator.getInstance().setUp(downloadCoordinateConvert);
         getBrainList();
-
     }
 
     public void getDownloadAno(String anoName) {
@@ -227,9 +229,63 @@ public class CollaborationViewModel extends ViewModel {
         imageDataSource.getBrainList();
     }
 
+    // 调用之前需更新centerLocation
+    public void updateImgStartLocation(String resStr){
+        // 根据分辨率大小再次更新coordinate
+        String patternString = "RES\\((\\d+)x(\\d+)x(\\d+)\\)";
+        XYZ res = new XYZ();
+        Pattern pattern = Pattern.compile(patternString);
+        Matcher matcher1 = pattern.matcher(resStr);
+        while(matcher1.find()){
+            res.y = Integer.parseInt(Objects.requireNonNull(matcher1.group(1)));
+            res.x = Integer.parseInt(Objects.requireNonNull(matcher1.group(2)));
+            res.z = Integer.parseInt(Objects.requireNonNull(matcher1.group(3)));
+        }
+        XYZ centerLocation = downloadCoordinateConvert.getCenterLocation();
+        XYZ min = new XYZ();
+        XYZ max = new XYZ();
+        if(centerLocation.x + DEFAULT_IMAGE_SIZE / 2 < res.x){
+            max.x = centerLocation.x + DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            max.x = res.x;
+        }
+        if(centerLocation.y + DEFAULT_IMAGE_SIZE / 2 < res.y){
+            max.y = centerLocation.y + DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            max.y = res.y;
+        }
+        if(centerLocation.z + DEFAULT_IMAGE_SIZE / 2 < res.z){
+            max.z = centerLocation.z + DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            max.z = res.z;
+        }
+        if(centerLocation.x - DEFAULT_IMAGE_SIZE / 2 >= 0){
+            min.x = centerLocation.x - DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            min.x = 0;
+        }
+        if(centerLocation.y - DEFAULT_IMAGE_SIZE / 2 >= 0){
+            min.y = centerLocation.y - DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            min.y = 0;
+        }
+        if(centerLocation.z - DEFAULT_IMAGE_SIZE / 2 >= 0){
+            min.z = centerLocation.z - DEFAULT_IMAGE_SIZE / 2;
+        }
+        else{
+            min.z = 0;
+        }
+        downloadCoordinateConvert.updateMinAndMaxLoc(min.x, min.y, min.z, max.x, max.y, max.z);
+        downloadCoordinateConvert.updateStartLoc(min.x, min.y, min.z);
+    }
+
     public void downloadImage() {
         String brainId = potentialDownloadNeuronInfo.getBrainName();
-        XYZ loc = downloadCoordinateConvert.getCenterLocationInMaxRes();
         List<String> resList = resMap.get(brainId);
 //        Log.e("collaborate_brainId"+brainId,"collaborate_loc"+loc.toString());
         Log.e(TAG, "resolution:");
@@ -244,8 +300,12 @@ public class CollaborationViewModel extends ViewModel {
 //            XYZ coor = downloadCoordinateConvert.convertMaxResToCurRes(loc.x, loc.y, loc.z, i + 1);
 //            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(i), (int) coor.x, (int) coor.y, (int) coor.z, DEFAULT_IMAGE_SIZE);
 //        }
-        XYZ coor = downloadCoordinateConvert.convertMaxResToCurRes(loc.x, loc.y, loc.z, 2);
-        imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(1), (int) coor.x, (int) coor.y, (int) coor.z, DEFAULT_IMAGE_SIZE);
+        // 根据分辨率大小再次更新coordinate
+        String subMaxResStr = resList.get(1);
+        updateImgStartLocation(subMaxResStr);
+//        XYZ coor = downloadCoordinateConvert.convertMaxResToCurRes(loc.x, loc.y, loc.z, 2);
+        imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
 //        Log.e("collaboration mode download image","brainName:"+potentialDownloadNeuronInfo.getBrainName()+"/resolution:"+res+"/location:"+loc.x+loc.y+loc.z+"DEFAULT_IMAGE_SIZE"+DEFAULT_IMAGE_SIZE);
     }
 
@@ -264,14 +324,20 @@ public class CollaborationViewModel extends ViewModel {
 
     public void openFile(int resIndex) {
         String brainId = potentialDownloadNeuronInfo.getBrainName();
-        XYZ loc = downloadCoordinateConvert.getCenterLocation();
+        int xMin = downloadCoordinateConvert.imgXMin;
+        int yMin = downloadCoordinateConvert.imgYMin;
+        int zMin = downloadCoordinateConvert.imgZMin;
+        int xMax = downloadCoordinateConvert.imgXMax;
+        int yMax = downloadCoordinateConvert.imgYMax;
+        int zMax = downloadCoordinateConvert.imgZMax;
         List<String> resList = resMap.get(brainId);
         if (resList == null) {
             imageResult.setValue(new ResourceResult(false, "No res found"));
             return;
         }
+        String filename = brainId + "_" + resList.get(resIndex - 1) + "_"  + xMin + "_" + xMax + "_" + yMin + "_" + yMax + "_" + zMin + "_" + zMax + ".v3dpbd";
         String filePath = Myapplication.getContext().getExternalFilesDir(null) + "/Image" +
-                "/" + brainId + "_" + resList.get(resIndex - 1) + "_" + (int) loc.x + "_" + (int) loc.y + "_" + (int) loc.z + ".v3dpbd";
+                "/" + filename;
         String fileName = FileManager.getFileName(filePath);
         FileType fileType = FileManager.getFileType(filePath);
         imageInfoRepository.getBasicImage().setFileInfo(fileName, new FilePath<String>(filePath), fileType);
@@ -290,20 +356,24 @@ public class CollaborationViewModel extends ViewModel {
 
         downloadCoordinateConvert.setCenterLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x * ratio,
                 downloadCoordinateConvert.getCenterLocation().y * ratio, downloadCoordinateConvert.getCenterLocation().z * ratio));
-        downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - downloadCoordinateConvert.getImgSize() / 2,
-                downloadCoordinateConvert.getCenterLocation().y - downloadCoordinateConvert.getImgSize() / 2, downloadCoordinateConvert.getCenterLocation().z - downloadCoordinateConvert.getImgSize() / 2));
-
-        downloadCoordinateConvert.setResIndex(position + 1);
-        List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
+        String brainId = potentialDownloadNeuronInfo.getBrainName();
+        List<String> resList = resMap.get(brainId);
         assert resList != null;
-        imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
-                (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+        String resStr = resList.get(position);
+        updateImgStartLocation(resStr);
+
+//        downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - downloadCoordinateConvert.getImgSize() / 2,
+//                downloadCoordinateConvert.getCenterLocation().y - downloadCoordinateConvert.getImgSize() / 2, downloadCoordinateConvert.getCenterLocation().z - downloadCoordinateConvert.getImgSize() / 2));
+        downloadCoordinateConvert.setResIndex(position + 1);
+        imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resStr, downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
 //        SwitchFile(position);
     }
 
     public void navigateAndZoomInBlock(int offset_x, int offset_y, int offset_z) {
         if (resMap.get(potentialDownloadNeuronInfo.getBrainName()) != null) {
             List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
+            assert resList != null;
             String img_size = resList.get(downloadCoordinateConvert.getResIndex() - 1).replace("RES(", "").replace(")", "");
 
             int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
@@ -324,10 +394,10 @@ public class CollaborationViewModel extends ViewModel {
 
             } else {
                 offset_x_i += offset_x;
-                if (offset_x_i - size_i / 2 <= 0)
-                    offset_x_i = size_i / 2 + 1;
-                else if (offset_x_i + size_i / 2 >= img_size_x_i - 1)
-                    offset_x_i = img_size_x_i - size_i / 2 - 1;
+//                if (offset_x_i - size_i / 2 <= 0)
+//                    offset_x_i = size_i / 2 + 1;
+//                else if (offset_x_i + size_i / 2 >= img_size_x_i - 1)
+//                    offset_x_i = img_size_x_i - size_i / 2 - 1;
             }
 
             if ((offset_y_i + offset_y) <= 1 || (offset_y_i + offset_y) >= img_size_y_i - 1) {
@@ -336,10 +406,10 @@ public class CollaborationViewModel extends ViewModel {
 
             } else {
                 offset_y_i += offset_y;
-                if (offset_y_i - size_i / 2 <= 0)
-                    offset_y_i = size_i / 2 + 1;
-                else if (offset_y_i + size_i / 2 >= img_size_y_i - 1)
-                    offset_y_i = img_size_y_i - size_i / 2 - 1;
+//                if (offset_y_i - size_i / 2 <= 0)
+//                    offset_y_i = size_i / 2 + 1;
+//                else if (offset_y_i + size_i / 2 >= img_size_y_i - 1)
+//                    offset_y_i = img_size_y_i - size_i / 2 - 1;
             }
 
             if ((offset_z_i + offset_z) <= 1 || (offset_z_i + offset_z) >= img_size_z_i - 1) {
@@ -348,30 +418,36 @@ public class CollaborationViewModel extends ViewModel {
 
             } else {
                 offset_z_i += offset_z;
-                if (offset_z_i - size_i / 2 <= 0)
-                    offset_z_i = size_i / 2 + 1;
-                else if (offset_z_i + size_i / 2 >= img_size_z_i - 1)
-                    offset_z_i = img_size_z_i - size_i / 2 - 1;
+//                if (offset_z_i - size_i / 2 <= 0)
+//                    offset_z_i = size_i / 2 + 1;
+//                else if (offset_z_i + size_i / 2 >= img_size_z_i - 1)
+//                    offset_z_i = img_size_z_i - size_i / 2 - 1;
             }
 
             Log.e(TAG, String.format("after: x %d, y %d, z %d", offset_x_i, offset_y_i, offset_z_i));
             downloadCoordinateConvert.setCenterLocation(new XYZ(offset_x_i, offset_y_i, offset_z_i));
-            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
-                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+//            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
+//                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+            updateImgStartLocation(resList.get(downloadCoordinateConvert.getResIndex() - 1));
 
             if (downloadCoordinateConvert.getResIndex() <= 1) {
-                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
-                        (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+//                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
+//                        (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                        downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
             } else {
                 downloadCoordinateConvert.setResIndex(downloadCoordinateConvert.getResIndex() - 1);
                 downloadCoordinateConvert.setCenterLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x * 2,
                         downloadCoordinateConvert.getCenterLocation().y * 2, downloadCoordinateConvert.getCenterLocation().z * 2));
 
-                downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
-                        downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
-
-                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
-                        (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+//                downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
+//                        downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+//
+//                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
+//                        (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+                updateImgStartLocation(resList.get(downloadCoordinateConvert.getResIndex() - 1));
+                imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                        downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
             }
 
         }
@@ -404,9 +480,9 @@ public class CollaborationViewModel extends ViewModel {
                         return;
                     } else {
                         offset_x_i += size_i / 2;
-                        if (offset_x_i + size_i / 2 > img_size_x_i - 1) {
-                            offset_x_i = img_size_x_i - size_i / 2 - 1;
-                        }
+//                        if (offset_x_i + size_i / 2 > img_size_x_i - 1) {
+//                            offset_x_i = img_size_x_i - size_i / 2 - 1;
+//                        }
                     }
                     break;
                 }
@@ -416,9 +492,9 @@ public class CollaborationViewModel extends ViewModel {
                         return;
                     } else {
                         offset_x_i -= size_i / 2;
-                        if (offset_x_i - size_i / 2 < 1) {
-                            offset_x_i = 1 + size_i / 2;
-                        }
+//                        if (offset_x_i - size_i / 2 < 1) {
+//                            offset_x_i = 1 + size_i / 2;
+//                        }
                     }
                     break;
                 }
@@ -428,9 +504,9 @@ public class CollaborationViewModel extends ViewModel {
                         return;
                     } else {
                         offset_z_i += size_i / 2;
-                        if (offset_z_i + size_i / 2 > img_size_z_i - 1) {
-                            offset_z_i = img_size_z_i - size_i / 2 - 1;
-                        }
+//                        if (offset_z_i + size_i / 2 > img_size_z_i - 1) {
+//                            offset_z_i = img_size_z_i - size_i / 2 - 1;
+//                        }
                     }
                     break;
                 }
@@ -440,21 +516,21 @@ public class CollaborationViewModel extends ViewModel {
                         return;
                     } else {
                         offset_z_i -= size_i / 2;
-                        if (offset_z_i - size_i / 2 < 1) {
-                            offset_z_i = 1 + size_i / 2;
-                        }
+//                        if (offset_z_i - size_i / 2 < 1) {
+//                            offset_z_i = 1 + size_i / 2;
+//                        }
                     }
                     break;
                 }
                 case FRONT: {
-                    if (offset_y_i + size_i / 2 >= img_size_z_i - 1) {
+                    if (offset_y_i + size_i / 2 >= img_size_y_i - 1) {
                         Toast_in_Thread_static("You have already reached boundary!!!");
                         return;
                     } else {
                         offset_y_i += size_i / 2;
-                        if (offset_y_i + size_i / 2 > img_size_x_i - 1) {
-                            offset_y_i = img_size_x_i - size_i / 2 - 1;
-                        }
+//                        if (offset_y_i + size_i / 2 > img_size_x_i - 1) {
+//                            offset_y_i = img_size_x_i - size_i / 2 - 1;
+//                        }
                     }
                     break;
                 }
@@ -464,9 +540,9 @@ public class CollaborationViewModel extends ViewModel {
                         return;
                     } else {
                         offset_y_i -= size_i / 2;
-                        if (offset_y_i - size_i / 2 < 1) {
-                            offset_y_i = 1 + size_i / 2;
-                        }
+//                        if (offset_y_i - size_i / 2 < 1) {
+//                            offset_y_i = 1 + size_i / 2;
+//                        }
                     }
                     break;
                 }
@@ -476,12 +552,13 @@ public class CollaborationViewModel extends ViewModel {
 
             Log.e(TAG, String.format("after: x %d, y %d, z %d", offset_x_i, offset_y_i, offset_z_i));
             downloadCoordinateConvert.setCenterLocation(new XYZ(offset_x_i, offset_y_i, offset_z_i));
-            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
-                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
-
-            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
-                    (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
-
+//            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
+//                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+            updateImgStartLocation(resList.get(downloadCoordinateConvert.getResIndex() - 1));
+//            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
+//                    (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                    downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
         }
 
     }

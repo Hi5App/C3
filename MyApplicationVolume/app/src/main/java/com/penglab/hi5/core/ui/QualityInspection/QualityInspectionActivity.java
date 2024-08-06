@@ -253,6 +253,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
                     return;
                 }
                 Log.e("getQueryArborResult",result.toString());
+                // arbor result: 某个arbor被检查的情况
                 qualityInspectionViewModel.handleQueryArborResult(result);
             }
         });
@@ -347,9 +348,8 @@ public class QualityInspectionActivity extends AppCompatActivity {
         });
 
         startMusicService();
+        // 查询arbor信息，下载图像
         qualityInspectionViewModel.cacheImage();
-
-
 
     }
 
@@ -434,6 +434,7 @@ public class QualityInspectionActivity extends AppCompatActivity {
             case R.id.confirm:
                 if (!annotationGLSurfaceView.nothingToUpload()) {
                     needSyncSomaList = true;
+                    // 更新检查的结果以及arbor对应的marker信息
                     qualityInspectionViewModel.updateCheckResult(annotationGLSurfaceView.getMarkerListToAdd(),
                             annotationGLSurfaceView.getMarkerListToDelete(),1);
                     playButtonSound();
