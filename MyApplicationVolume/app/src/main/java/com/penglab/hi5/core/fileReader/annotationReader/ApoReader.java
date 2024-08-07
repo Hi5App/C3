@@ -79,13 +79,13 @@ public class ApoReader {
         }
     }
 
-    public ArrayList<ArrayList<Float>> read(String filePath){
+    public ArrayList<ArrayList<String>> readString(String filePath){
 
         // 文件头有多少行
         String headString = " ";
         int headLength = headString.length();
 
-        ArrayList<ArrayList<Float>> result = new ArrayList<ArrayList<Float>>();
+        ArrayList<ArrayList<String>> result = new ArrayList<>();
         ArrayList<String> arraylist = new ArrayList<String>();
         try{
 
@@ -119,10 +119,67 @@ public class ApoReader {
                 if (current.startsWith("#")) continue;
 
                 String [] s = current.split(",");
-                ArrayList<Float> cur_line = new ArrayList<Float>();
+                ArrayList<String> cur_line = new ArrayList<>();
                 for (int j = 0; j < 18; j++){
                     String cur_string = s[j].replace(" ","");
-                    if (cur_string.equals("") || cur_string.equals("quality_control"))
+//                    if (cur_string.equals(""))
+//                        cur_string = "1234";
+                    cur_line.add(cur_string);
+                }
+                result.add(cur_line);
+            }
+            return result;
+        }catch (Exception e){
+            Log.v("ReadApoException", e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public ArrayList<ArrayList<Float>> read(String filePath){
+
+        // 文件头有多少行
+        String headString = " ";
+        int headLength = headString.length();
+
+        ArrayList<ArrayList<Float>> result = new ArrayList<>();
+        ArrayList<String> arraylist = new ArrayList<String>();
+        try{
+
+            File f = new File(filePath);
+            FileInputStream fid = new FileInputStream(f);
+            InputStreamReader isr = new InputStreamReader(fid);
+            BufferedReader br = new BufferedReader(isr);
+
+            long filesize = f.length();
+            Log.v("ApoReader", Long.toString(filesize));
+
+            if (filesize < headLength){
+                throw new Exception("The size of your input file is too small and is not correct, -- it is too small to contain the legal header.");
+            }
+
+            String str;
+            while ((str = br.readLine()) != null) {
+                arraylist.add(str);
+            }
+            br.close();
+            isr.close();
+            if (arraylist.size() < 0){
+                throw new Exception("The number of columns is not correct");
+            }
+
+            //一共有多少行数据
+            int num = arraylist.size();
+//            float [][] result = new float[num][11];
+            for (int i = 0; i < num; i++){
+                String current = arraylist.get(i);
+                if (current.startsWith("#")) continue;
+
+                String [] s = current.split(",");
+                ArrayList<Float> cur_line = new ArrayList<>();
+                for (int j = 0; j < 18; j++){
+                    String cur_string = s[j].replace(" ","");
+                    if (cur_string.equals(""))
                         cur_string = "1234";
                     cur_line.add(Float.parseFloat(cur_string));
                 }

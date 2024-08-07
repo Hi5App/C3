@@ -875,6 +875,36 @@ public class Communicator {
 
     }
 
+    public ArrayList<ArrayList<String>> convertApoString(ArrayList<ArrayList<String>> apo){
+        //Log.e(TAG,"beforeConvertApo_x"+apo.get(5)+"beforeConvertApo_y"+apo.get(6)+"beforeConvertApo_z"+apo.get(4));
+
+        // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
+        ArrayList<ArrayList<String>> apo_converted = new ArrayList<>();
+
+        try{
+            for (int i = 0; i < apo.size(); i++){
+                ArrayList<String> currentLine = apo.get(i);
+                XYZ localCroods = ConvertGlobaltoLocalBlockCroods(Float.parseFloat(currentLine.get(5)),
+                        Float.parseFloat(currentLine.get(6)), Float.parseFloat(currentLine.get(4)));
+
+                ArrayList<String> newLine = new ArrayList<>(currentLine);
+                newLine.set(5, String.valueOf(localCroods.x));
+                newLine.set(6, String.valueOf(localCroods.y));
+                newLine.set(4, String.valueOf(localCroods.z));
+
+                apo_converted.add(newLine);
+                Log.e(TAG,"apo_x: "+ currentLine.get(5) +"apo_y"+ currentLine.get(6) +"apo_z: "+ currentLine.get(4));
+            }
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        return apo_converted;
+
+    }
+
+
     public NeuronTree convertNeuronTree(NeuronTree nt){
 
         try {

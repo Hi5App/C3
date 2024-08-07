@@ -17,16 +17,20 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -36,6 +40,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.material.slider.RangeSlider;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
@@ -65,6 +70,7 @@ import com.penglab.hi5.core.collaboration.service.CollaborationService;
 import com.penglab.hi5.core.collaboration.service.ManageService;
 import com.penglab.hi5.core.fileReader.annotationReader.ApoReader;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
 import com.penglab.hi5.data.Result;
@@ -73,6 +79,8 @@ import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -508,6 +516,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.getCollorationDataSource().getAnoListCollaborate().observe(this, result -> {
             if (result instanceof Result.Success) {
                 List<android.util.Pair<String, String>> list = (List<android.util.Pair<String, String>>) ((Result.Success<?>) result).getData();
+                list.sort(Comparator.comparing(p -> p.second));
                 String[] data = new String[list.size()];
 
                 for (int i = 0; i < list.size(); i++) {
@@ -570,6 +579,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 return;
             }
             if (resourceResult.isSuccess()) {
+                PreferenceSetting pref = PreferenceSetting.getInstance();
+                pref.resetRangeSlider();
                 annotationGLSurfaceView.openFile();
             } else {
                 ToastEasy(resourceResult.getError());
@@ -858,14 +869,13 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public void loadBigDataApo(String filepath) {
 
         try {
-            ArrayList<ArrayList<Float>> apo = new ArrayList<ArrayList<Float>>();
+            ArrayList<ArrayList<String>> apo;
             ApoReader apoReader = new ApoReader();
-            apo = apoReader.read(filepath);
+            apo = apoReader.readString(filepath);
 
             if (apo == null) {
                 Toast_in_Thread("There is something wrong with apo file !");
             }
-
             annotationGLSurfaceView.importApo(apo);
             annotationGLSurfaceView.requestRender();
 
@@ -994,10 +1004,62 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 }
             });
 
+            Button openPopupButton = findViewById(R.id.range_cut_button_ic);
+            openPopupButton.setOnClickListener(v -> {
+                PopupWindow popupWindow = new PopupWindow(LayoutInflater.from(CollaborationActivity.this).inflate(R.layout.popup_rangecut, null)
+                        , ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+                popupWindow.setOutsideTouchable(true);
+                popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(CollaborationActivity.this, R.drawable.global_blue_round_box_4));
+                popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER,0,0);
+
+                RangeSlider xRangeSlider = popupWindow.getContentView().findViewById(R.id.x_cut_slider);
+                // 加载保存的值
+                float xStart = preferenceSetting.getXRangeSliderStart();
+                float xEnd = preferenceSetting.getXRangeSliderEnd();
+                xRangeSlider.setValues(xStart, xEnd);
+
+                xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                    List<Float> values = xRangeSlider.getValues();
+                    annotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
+                    annotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
+                    annotationGLSurfaceView.requestRender();
+                    preferenceSetting.setXRangeSliderStart(values.get(0));
+                    preferenceSetting.setXRangeSliderEnd(values.get(1));
+                });
+
+                RangeSlider yRangeSlider = popupWindow.getContentView().findViewById(R.id.y_cut_slider);
+                // 加载保存的值
+                float yStart = preferenceSetting.getYRangeSliderStart();
+                float yEnd = preferenceSetting.getYRangeSliderEnd();
+                yRangeSlider.setValues(yStart, yEnd);
+
+                yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                    List<Float> values = yRangeSlider.getValues();
+                    annotationGLSurfaceView.setCuty_left_value(values.get(0)/100);
+                    annotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
+                    annotationGLSurfaceView.requestRender();
+                    preferenceSetting.setYRangeSliderStart(values.get(0));
+                    preferenceSetting.setYRangeSliderEnd(values.get(1));
+                });
+
+                RangeSlider zRangeSlider = popupWindow.getContentView().findViewById(R.id.z_cut_slider);
+                // 加载保存的值
+                float zStart = preferenceSetting.getZRangeSliderStart();
+                float zEnd = preferenceSetting.getZRangeSliderEnd();
+                zRangeSlider.setValues(zStart, zEnd);
+
+                zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                    List<Float> values = zRangeSlider.getValues();
+                    annotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
+                    annotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
+                    annotationGLSurfaceView.requestRender();
+                    preferenceSetting.setZRangeSliderStart(values.get(0));
+                    preferenceSetting.setZRangeSliderEnd(values.get(1));
+                });
+            });
 
             ImageButton collaborateCheckFileButton = findViewById(R.id.check_file_list_button);
             collaborateCheckFileButton.setVisibility(View.GONE);
-
 
         } else {
             bigDataModeView.setVisibility(View.VISIBLE);
@@ -1231,6 +1293,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                PreferenceSetting pref = PreferenceSetting.getInstance();
+                pref.resetRotationMatrix();
+                pref.resetRangeSlider();
                 finish();
                 return true;
 

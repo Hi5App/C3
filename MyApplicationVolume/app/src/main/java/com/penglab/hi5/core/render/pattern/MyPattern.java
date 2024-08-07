@@ -714,9 +714,7 @@ public class MyPattern extends BasicPattern {
 
 
     public void drawVolume_3d(float[] mvpMatrix, boolean ifDownSampling, float contrast, int contrastEnhanceRatio, boolean reverseTextureSampleDirection) {
-
         setCudePreVertex();
-
         bufferSet();
 
         // Add program to OpenGL ES environment

@@ -1,9 +1,11 @@
 package com.penglab.hi5.core.render.utils;
 
+import android.content.SharedPreferences;
 import android.opengl.Matrix;
 import android.util.Log;
 
 import com.penglab.hi5.basic.MyAnimation;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 
 import java.util.Arrays;
 
@@ -20,7 +22,7 @@ public class MatrixManager {
     private final float[] viewMatrix           = new float[16];
     private final float[] translate2Matrix     = new float[16];
     private final float[] zoomMatrix           = new float[16];
-    private final float[] rotateMatrix         = new float[16];
+    private float[] rotateMatrix         = new float[16];
     private final float[] translateMatrix      = new float[16];
     private final float[] modelMatrix          = new float[16];
     private final float[] modelTempMatrix      = new float[16];
@@ -50,6 +52,7 @@ public class MatrixManager {
         // init model matrix
         Matrix.setIdentityM(translateMatrix,0);
         Matrix.setIdentityM(zoomMatrix,0);
+
         Matrix.setIdentityM(rotateMatrix, 0);
         Matrix.setIdentityM(finalTempMatrix, 0);
         Matrix.setIdentityM(modelTempMatrix, 0);
@@ -128,6 +131,17 @@ public class MatrixManager {
 
         Matrix.multiplyMM(rotateMatrix, 0, tempRotateMatrix, 0, rotateMatrix, 0);
         updateFinalMatrix();
+    }
+
+    public void saveRotationMatrix(){
+        PreferenceSetting prefs = PreferenceSetting.getInstance();
+        prefs.setRotationMatrix(rotateMatrix);
+    }
+
+    public void setRotationMatrix(){
+        PreferenceSetting prefs = PreferenceSetting.getInstance();
+        rotateMatrix = prefs.getRotationMatrix();
+//        System.out.println(rotateMatrix);
     }
 
     public void rotate(float[] matrix){

@@ -38,6 +38,7 @@ import com.penglab.hi5.core.ui.collaboration.CollaborationArborInfoState;
 import com.penglab.hi5.core.ui.marker.CoordinateConvert;
 import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.BasicFile;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
@@ -212,10 +213,12 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                         } else if (!isZooming) {
                             if (editMode.getValue() == EditMode.NONE) {
                                 if (!is2DImage()) {
-                                    renderOptions.setImageChanging(true);
+//                                    renderOptions.setImageChanging(true);
                                 }
                                 annotationRender.rotate(currentX - lastX, currentY - lastY);
+
                                 requestRender();
+                                annotationRender.saveRotationMatrix();
                                 lastX = currentX;
                                 lastY = currentY;
                             } else {
@@ -260,6 +263,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                         if (!isZooming) {
                             try {
                                 switch (Objects.requireNonNull(editMode.getValue())) {
+//                                    case NONE:
+//                                        annotationRender.saveRotationMatrix();
                                     case ZOOM:
                                         editMode.setValue(EditMode.NONE);
                                         float[] center = annotationHelper.solveMarkerCenter(currentX, currentY);
@@ -470,6 +475,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
                     update3DFileSize(new Integer[]{(int) image4DSimple.getSz0(), (int) image4DSimple.getSz1(), (int) image4DSimple.getSz2()});
                     renderOptions.initOptions();
                     annotationRender.init3DImageInfo(image4DSimple, normalizedSize, originalSize);
+                    annotationRender.initRotate();
                     annotationHelper.initImageInfo(image4DSimple, normalizedSize, originalSize);
                     annotationDataManager.init(isBigData);
                 }
@@ -577,8 +583,8 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         requestRender();
     }
 
-    public void importApo(ArrayList<ArrayList<Float>> apo) {
-        annotationHelper.importApo(apo);
+    public void importApo(ArrayList<ArrayList<String>> apo) {
+        annotationHelper.importApoString(apo);
     }
 
     public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert) {

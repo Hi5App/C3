@@ -1844,6 +1844,83 @@ public class AnnotationHelper {
         return markerListLoaded;
     }
 
+    public ArrayList<ImageMarker> importApoString(ArrayList<ArrayList<String>> apo) {
+        annotationDataManager.getSyncMarkerList().clear();
+//        ArrayList<ArrayList<Float>> localApo = Communicator.getInstance().convertApo(apo);
+//        syncMarkerList.clear();
+        ArrayList<ArrayList<String>> localApo = Communicator.getInstance().convertApoString(apo);
+
+        // ##n,orderinfo,name,comment,z,x,y, pixmax,intensity,sdev,volsize,mass,,,, color_r,color_g,color_b
+        ArrayList<ImageMarker> markerListLoaded = new ArrayList<>();
+
+        try {
+            List<ImageMarker> markerList = new ArrayList<>();
+            for (int i = 0; i < localApo.size(); i++) {
+                ArrayList<String> currentLine = localApo.get(i);
+                ArrayList<String> currentLineGlobal = apo.get(i);
+
+                ImageMarker imageMarker_drawed = new ImageMarker(Float.parseFloat(currentLine.get(5)),
+                        Float.parseFloat(currentLine.get(6)),
+                        Float.parseFloat(currentLine.get(4)));
+                imageMarker_drawed.xGlobal = Float.parseFloat(currentLineGlobal.get(5));
+                imageMarker_drawed.yGlobal = Float.parseFloat(currentLineGlobal.get(6));
+                imageMarker_drawed.zGlobal = Float.parseFloat(currentLineGlobal.get(4));
+
+                int r = Integer.parseInt(currentLine.get(15));
+                int g = Integer.parseInt(currentLine.get(16));
+                int b = Integer.parseInt(currentLine.get(17));
+
+                if (r == 255 && g == 255 && b == 255) {
+                    imageMarker_drawed.type = 0;
+
+                } else if ((r == 0 && g == 0 && b == 0) || (r == 20 && g == 20 && b == 20)) {
+                    imageMarker_drawed.type = 1;
+
+                } else if ((r == 255 && g == 0 && b == 0) || (r == 200 && g == 20 && b == 0)) {
+                    imageMarker_drawed.type = 2;
+
+                } else if ((r == 0 && g == 0 && b == 255) || (r == 0 && g == 20 && b == 200)) {
+                    imageMarker_drawed.type = 3;
+
+                } else if ((r == 255 && g == 0 && b == 255) || (r == 200 && g == 0 && b == 200)) {
+                    imageMarker_drawed.type = 4;
+
+                } else if ((r == 0 && g == 255 && b == 255) || (r == 0 && g == 200 && b == 200)) {
+                    imageMarker_drawed.type = 5;
+
+                } else if ((r == 255 && g == 255 && b == 0) || (r == 220 && g == 200 && b == 0)) {
+                    imageMarker_drawed.type = 6;
+
+                } else if ((r == 0 && g == 255 && b == 0) || (r == 0 && g == 200 && b == 20)) {
+                    imageMarker_drawed.type = 7;
+
+                }else if (r == 250 && g == 100 && b == 120) {
+                    imageMarker_drawed.type = 8;
+
+                }else if (r == 168 && g == 128 && b == 255) {
+                    imageMarker_drawed.type = 9;
+
+                }
+                markerList.add(imageMarker_drawed);
+//                System.out.println("ImageType: " + imageMarker_drawed.type);
+//                annotationDataManager.getSyncMarkerList().add(imageMarker_drawed);
+                markerListLoaded.add(imageMarker_drawed);
+                Log.e(TAG, "18454_apo_x " + imageMarker_drawed.x + " 18454_apo_y " + imageMarker_drawed.y + " 18454_apo_z " + imageMarker_drawed.z + " 18454_apo_type " + imageMarker_drawed.type);
+                Log.e(TAG, "18454_apo_x_global " + imageMarker_drawed.xGlobal + " 18454_apo_y_global " + imageMarker_drawed.yGlobal + " 18454_apo_z_global " + imageMarker_drawed.zGlobal + " 18454_apo_type " + imageMarker_drawed.type);
+
+            }
+            annotationDataManager.syncAddMarker(markerList);
+
+//            System.out.println("Size of : markerListLoaded: " + markerListLoaded.size());
+
+        } catch (Exception e) {
+            markerListLoaded.clear();
+            e.printStackTrace();
+        }
+
+        return markerListLoaded;
+    }
+
     public void convertCoordsForMarker(CoordinateConvert downloadCoordinateConvert) {
         for(int i=0; i<annotationDataManager.getMarkerList().size(); i++){
             XYZ newCood = downloadCoordinateConvert.convertGlobalToLocal(annotationDataManager.getMarkerList().get(i).xGlobal, annotationDataManager.getMarkerList().get(i).yGlobal,

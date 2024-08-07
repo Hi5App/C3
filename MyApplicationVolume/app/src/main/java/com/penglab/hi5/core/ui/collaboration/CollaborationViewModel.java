@@ -22,6 +22,7 @@ import com.penglab.hi5.data.ImageDataSource;
 import com.penglab.hi5.data.ImageInfoRepository;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.UserInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
@@ -151,6 +152,8 @@ public class CollaborationViewModel extends ViewModel {
     }
 
     public void handleAnoResult(String swcUuid, String anoName) {
+        PreferenceSetting pref = PreferenceSetting.getInstance();
+        pref.resetRotationMatrix();
         collorationDataSource.CurrentSwcInfo = new Pair<>(swcUuid,anoName);
 
         getDownloadAno(anoName);

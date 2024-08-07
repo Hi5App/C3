@@ -34,6 +34,7 @@ import com.penglab.hi5.core.render.utils.AnnotationDataManager;
 import com.penglab.hi5.core.render.utils.MatrixManager;
 import com.penglab.hi5.core.render.utils.RenderOptions;
 import com.penglab.hi5.data.ImageInfoRepository;
+import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.FilePath;
 
 import java.nio.ByteBuffer;
@@ -174,6 +175,12 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
         myDraw.setNeedDraw(true);
     }
 
+    public void initRotate(){
+        PreferenceSetting prefs = PreferenceSetting.getInstance();
+        matrixManager.setRotationMatrix();
+        matrixManager.updateFinalMatrix();
+    }
+
     public void init2DImageInfo(Image4DSimple image4DSimple, Bitmap bitmap2D, float[] normalizedSize, int[] originalSize) {
         this.image4DSimple = image4DSimple;
         this.bitmap2D = bitmap2D;
@@ -298,6 +305,10 @@ public class AnnotationRender implements GLSurfaceView.Renderer {
 
     public void rotate(float distanceX, float distanceY) {
         matrixManager.rotate(distanceX, distanceY);
+    }
+
+    public void saveRotationMatrix(){
+        matrixManager.saveRotationMatrix();
     }
 
     public void drawNeuronSwc(V_NeuronSWC_list swcList) {
