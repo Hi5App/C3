@@ -246,7 +246,7 @@ public class MyPattern extends BasicPattern {
 
                     "     if(ReverseTextureSampleDirection)" +
                     "     {" +
-                    "         texture_value = texture(uVolData, vec3(1.0 - vpos.x/dim[0], 1.0 - vpos.y/dim[1], vpos.z/dim[2]));" +
+                    "         texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
                     "     }" +
                     "     else {" +
                     "         texture_value = texture(uVolData, vec3((vpos.x/dim[0])*(cutx_right-cutx_left)+cutx_left, (vpos.y/dim[1])*(cuty_right-cuty_left)+cuty_left, (vpos.z/dim[2])*(cutz_right-cutz_left)+cutz_left));" +
