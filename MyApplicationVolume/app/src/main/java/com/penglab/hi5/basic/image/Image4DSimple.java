@@ -46,9 +46,13 @@ public class Image4DSimple {
 
     public enum ImagePixelType {V3D_UNKNOWN, V3D_UINT8, V3D_UINT16, V3D_THREEBYTE, V3D_FLOAT32}
     public enum TimePackType {TIME_PACK_NONE,TIME_PACK_Z,TIME_PACK_C}
+    // x
     protected long sz0;
+    // y
     protected long sz1;
+    // z
     protected long sz2;
+    // c
     protected long sz3;
     protected long sz_time;
 
@@ -313,6 +317,24 @@ public class Image4DSimple {
 
     public boolean setData(Image4DSimple image){
         return this.setDataFromImage(image.getData(),image.getSz0(),image.getSz1(),image.getSz2(),image.getSz3(),image.getDatatype(), image.geiIsBig());
+    }
+
+    public void flipDataXY(){
+        int[][][][] dataCZYX = getDataCZYX();
+        // 创建一个新的四维数组来存储翻转后的结果
+        int[][][][] flippedArray = new int[(int)sz3][(int)sz2][(int)sz1][(int)sz0];
+        // 遍历数组并填充新的翻转后的数组
+        for (int c = 0; c < sz3; c++) {
+            for (int z = 0; z < sz2; z++) {
+                for (int y = 0; y < sz1; y++) {
+                    for (int x = 0; x < sz0; x++) {
+                        // 这里进行x轴和y轴的翻转
+                        flippedArray[c][z][(int)sz1 - 1 - y][(int)sz0 - 1 - x] = dataCZYX[c][z][y][x];
+                    }
+                }
+            }
+        }
+        setDataFormCZYX(flippedArray, sz0, sz1, sz2, sz3, datatype, isBig);
     }
 
     public int[][][][] getDataCXYZ(){

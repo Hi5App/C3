@@ -46,6 +46,7 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
+import com.netease.nim.uikit.common.util.C;
 import com.netease.nimlib.sdk.Observer;
 import com.netease.nimlib.sdk.msg.attachment.MsgAttachment;
 import com.netease.nimlib.sdk.msg.constant.MsgTypeEnum;
@@ -951,12 +952,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             collaborateForWardButton.setVisibility(View.VISIBLE);
             collaborateBackWardButton.setVisibility(View.VISIBLE);
 
-            collaborateRightButton.setOnClickListener(new CollaborateButtonClickListener());
-            collaborateLeftButton.setOnClickListener(new CollaborateButtonClickListener());
-            collaborateUpWardButton.setOnClickListener(new CollaborateButtonClickListener());
-            collaborateDownWardButton.setOnClickListener(new CollaborateButtonClickListener());
-            collaborateForWardButton.setOnClickListener(new CollaborateButtonClickListener());
-            collaborateBackWardButton.setOnClickListener(new CollaborateButtonClickListener());
+            CollaborateButtonClickListener buttonListener = new CollaborateButtonClickListener();
+
+            collaborateRightButton.setOnClickListener(buttonListener);
+            collaborateLeftButton.setOnClickListener(buttonListener);
+            collaborateUpWardButton.setOnClickListener(buttonListener);
+            collaborateDownWardButton.setOnClickListener(buttonListener);
+            collaborateForWardButton.setOnClickListener(buttonListener);
+            collaborateBackWardButton.setOnClickListener(buttonListener);
 
             ImageButton hideSwc = findViewById(R.id.hide_swc);
             hideSwc.setOnClickListener(v -> hideSwc());
