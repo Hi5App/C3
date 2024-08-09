@@ -426,6 +426,16 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
         annotationDataManager.syncDelMarker(imageMarkers);
     }
 
+    public void collaborateUndo(){
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateUndoDeque();
+    }
+
+    public void collaborateRedo(){
+        Communicator communicator = Communicator.getInstance();
+        communicator.updateRedoDeque();
+    }
+
     private void clearFingerTrajectory() {
         fingerTrajectory.clear();
         renderOptions.setShowFingerTrajectory(false);
@@ -617,6 +627,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
             e.printStackTrace();
         }
         requestRender();
+
     }
 
     public void redo() {

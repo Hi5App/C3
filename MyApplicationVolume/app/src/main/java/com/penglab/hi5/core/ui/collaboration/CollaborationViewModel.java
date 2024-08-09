@@ -566,6 +566,13 @@ public class CollaborationViewModel extends ViewModel {
 
     }
 
+    public void refresh(){
+        List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
+        assert resList != null;
+        imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
+    }
+
     public void getUserIdForCollaborate(String username){
         collorationDataSource.getUserId(username);
     }

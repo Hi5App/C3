@@ -78,6 +78,7 @@ import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -128,7 +129,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageView addMarker;
     private ImageView deleteCurve;
     private ImageView deleteMarker;
-    private ImageView splitCurve;
+    private ImageView changeCurveType;
     private Button collaborateResButton;
 
     private Button btnUserList;
@@ -191,45 +192,57 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         for collaboration -------------------------------------------------------------------
          */
 
-        if (msg.startsWith("/drawline_norm:") || msg.startsWith("/delline_norm:") || msg.startsWith("/retypeline_norm:") || msg.startsWith("/splitline_norm:") || msg.startsWith("/addmarker_norm:") || msg.startsWith("/delmarker_norm:")) {
+        if (msg.startsWith("/drawline") || msg.startsWith("/delline") || msg.startsWith("/retypeline") || msg.startsWith("/splitline_norm:") || msg.startsWith("/addmarker") || msg.startsWith("/delmarker")) {
             String[] singleMsg = msg.split(";");
             for (int i = 0; i < singleMsg.length; i++) {
                 String singlemsg = singleMsg[i];
+                String reg = "/(.*)_(.*):(.*)";
+                Pattern pattern = Pattern.compile(reg);
+                Matcher m = pattern.matcher(singlemsg);
+                String type;
+                if (m.find()) {
+                    type = m.group(2);
+                } else {
+                    System.out.println("NO MATCH");
+                    return;
+                }
+                assert type != null;
+                boolean isNorm = type.equals("norm");
 
-                if (singlemsg.startsWith("/splitline_norm:")) {
+                if (singlemsg.startsWith("/splitline")) {
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index + 1);
 
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncSplitSegSWC(communicator.syncSWC(seg, toolType));
                         annotationGLSurfaceView.requestRender();
                     }
                 }
 
-                if (singlemsg.startsWith("/drawline_norm:")) {
+                if (singlemsg.startsWith("/drawline")) {
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index + 1);
 
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddSegSWC(communicator.syncSWC(seg, toolType));
                         annotationGLSurfaceView.requestRender();
                     }
                 }
 
-                if (singlemsg.startsWith("/delline_norm:")) {
+                if (singlemsg.startsWith("/delline")) {
 //                    Log.e(TAG,"delline_norm");
 
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index + 1);
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Log.e(TAG, "enter delete");
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelSegSWC(communicator.syncSWC(seg, toolType));
@@ -238,7 +251,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     }
                 }
 
-                if (singlemsg.startsWith("/addmarker_norm:")) {
+                if (singlemsg.startsWith("/addmarker")) {
 
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
 
@@ -246,7 +259,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String markers = singlemsg.substring(index + 1);
 //                    String marker      = singlemsg.split(":")[1].split(",")[1];
 
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
@@ -254,14 +267,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     }
                 }
 
-                if (singlemsg.startsWith("/delmarker_norm:")) {
+                if (singlemsg.startsWith("/delmarker")) {
 //                    Log.e(TAG,"delmarker_norm");
 
                     String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     int index = singlemsg.indexOf(",");
                     String markers = singlemsg.substring(index + 1);
 
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncDelMarkerGlobal(communicator.syncMarkerGlobal(marker));
@@ -269,7 +282,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     }
                 }
 
-                if (msg.startsWith("/retypeline_norm:")) {
+                if (msg.startsWith("/retypeline")) {
 //                    Log.e(TAG,"retypeline_norm");
 
                     String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
@@ -278,7 +291,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index + 1);
 
-                    if (!userID.equals(String.valueOf(id))) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncRetypeSegSWC(communicator.syncSWC(seg, toolType));
                         annotationGLSurfaceView.requestRender();
@@ -312,7 +325,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String sender = header.split(" ")[0].trim();
                     listWithHeader2.remove(0);
                     if (sender.equals("server")) {
-                        System.out.println("enter 1111111111111111111");
                         if (reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
                                 reason.equals("BranchingError") || reason.equals("NearBifurcation")) {
                             Communicator communicator = Communicator.getInstance();
@@ -439,6 +451,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         }
     };
 
+    public void setSupportActionBar(Toolbar mToolbar) {
+        if(mToolbar.getMenu().size() != 0){
+            mToolbar.getMenu().clear();
+        }
+        mToolbar.inflateMenu(R.menu.annotation_menu_basic);
+        super.setSupportActionBar(mToolbar);
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -541,7 +561,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             }
 
         });
-        collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this, result -> collaborationViewModel.handleLoadAnoResult(result));
+        collaborationViewModel.getCollorationDataSource().getDownloadAnoResult().observe(this,
+                result -> collaborationViewModel.handleLoadAnoResult(result));
 
         collaborationViewModel.getPortResult().observe(this, s -> port = s);
 
@@ -1100,7 +1121,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             addMarker = tapBarMenu.findViewById(R.id.pinpoint_collaborate);
             deleteCurve = tapBarMenu.findViewById(R.id.delete_curve_collaborate);
             deleteMarker = tapBarMenu.findViewById(R.id.delete_marker_collaborate);
-            splitCurve = tapBarMenu.findViewById(R.id.split_curve_collaborate);
+            changeCurveType = tapBarMenu.findViewById(R.id.change_curve_type_collaborate);
 
             BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu_collaborate);
 
@@ -1122,14 +1143,19 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             addMarker.setOnClickListener(this::onMenuItemClick);
             deleteCurve.setOnClickListener(this::onMenuItemClick);
             deleteMarker.setOnClickListener(this::onMenuItemClick);
-            splitCurve.setOnClickListener(this::onMenuItemClick);
+            changeCurveType.setOnClickListener(this::onMenuItemClick);
 
             addCurve.setOnLongClickListener(this::onMenuItemLongClick);
             addMarker.setOnLongClickListener(this::onMenuItemLongClick);
 
+//            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
+//                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
+//                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
-                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
+                    .normalImageRes(R.drawable.ic_split_undo)
+                    .normalText("Split Curve"));
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
                     .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
@@ -1165,7 +1191,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         addMarker.setImageResource(R.drawable.ic_marker_main);
         deleteCurve.setImageResource(R.drawable.ic_delete_curve_normal);
         deleteMarker.setImageResource(R.drawable.ic_marker_delete_normal);
-        splitCurve.setImageResource(R.drawable.ic_split_undo);
+        changeCurveType.setImageResource(R.drawable.ic_change_curve_type_2);
 
         switch (view.getId()) {
             case R.id.draw_i_collaborate:
@@ -1178,9 +1204,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     addMarker.setImageResource(R.drawable.ic_add_marker);
                 }
                 break;
-            case R.id.split_curve_collaborate:
-                if (annotationGLSurfaceView.setEditMode(EditMode.SPLIT)) {
-                    splitCurve.setImageResource(R.drawable.ic_split);
+            case R.id.change_curve_type_collaborate:
+                if (annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE)) {
+                    changeCurveType.setImageResource(R.drawable.ic_change_curve_type_2_using);
                 }
                 break;
             case R.id.delete_curve_collaborate:
@@ -1280,7 +1306,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 toolbar.inflateMenu(R.menu.annotation_menu_basic);
                 break;
             case BIG_DATA:
-                toolbar.inflateMenu(R.menu.annotation_menu_editable_file);
+                toolbar.inflateMenu(R.menu.collaboration_menu);
                 break;
         }
     }
@@ -1302,13 +1328,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 finish();
                 return true;
 
-//            case R.id.undo:
-//                annotationGLSurfaceView.undo();
-//                return true;
-//
-//            case R.id.redo:
-//                annotationGLSurfaceView.redo();
-//                return true;
+            case R.id.undo:
+                annotationGLSurfaceView.collaborateUndo();
+                return true;
+
+            case R.id.redo:
+                annotationGLSurfaceView.collaborateRedo();
+                return true;
+
+            case R.id.refresh:
+                refresh();
+                return true;
 
             case R.id.file:
                 openFile();
@@ -1406,5 +1436,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     }
 
-
+    public void refresh(){
+        collaborationViewModel.refresh();
+        annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
+        annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+    }
 }

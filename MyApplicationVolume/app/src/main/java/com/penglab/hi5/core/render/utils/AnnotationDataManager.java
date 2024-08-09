@@ -1,6 +1,7 @@
 package com.penglab.hi5.core.render.utils;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.core.Myapplication.playCurveActionSound;
 
 import android.util.Log;
 
@@ -11,13 +12,18 @@ import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.basic.image.ImageMarkerExt;
+import com.penglab.hi5.core.collaboration.Communicator;
+import com.penglab.hi5.core.collaboration.connector.MsgConnector;
 import com.penglab.hi5.data.dataStore.database.Image;
 
 import org.json.JSONArray;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Jackiexing on 12/26/21
@@ -261,10 +267,10 @@ public class AnnotationDataManager {
      * Collaboration part
      */
 
-    public void syncSplitSegSWC(Vector<V_NeuronSWC> segs){
-        Vector<V_NeuronSWC> addSegs1=new Vector<>();
-        Vector<V_NeuronSWC> addSegs2=new Vector<>();
-        Vector<V_NeuronSWC> delSegs=new Vector<>();
+    public void syncSplitSegSWC(Vector<V_NeuronSWC> segs) {
+        Vector<V_NeuronSWC> addSegs1 = new Vector<>();
+        Vector<V_NeuronSWC> addSegs2 = new Vector<>();
+        Vector<V_NeuronSWC> delSegs = new Vector<>();
         delSegs.add(segs.get(0));
         addSegs1.add(segs.get(1));
         addSegs2.add(segs.get(2));
@@ -272,6 +278,7 @@ public class AnnotationDataManager {
         syncAddSegSWC(addSegs1);
         syncAddSegSWC(addSegs2);
     }
+
     public void syncAddSegSWC(Vector<V_NeuronSWC> segs) {
         syncSwcList.append(segs.get(0));
     }
@@ -318,8 +325,8 @@ public class AnnotationDataManager {
 
                 }
 
-                if(i==swcList.nsegs()-1&&!delete){
-                    flag=false;
+                if (i == swcList.nsegs() - 1 && !delete) {
+                    flag = false;
                 }
 
                 if (delete) {
@@ -415,7 +422,7 @@ public class AnnotationDataManager {
     }
 
     public void syncAddMarker(List<ImageMarker> imageMarkers) {
-        for(ImageMarker imageMarker:imageMarkers){
+        for (ImageMarker imageMarker : imageMarkers) {
             Log.e(TAG, "enter syncAddMarker" + imageMarker.x + " " + imageMarker.y + " " + imageMarker.z);
             syncMarkerList.add(imageMarker);
         }
@@ -426,7 +433,7 @@ public class AnnotationDataManager {
     }
 
     public void syncDelMarker(List<ImageMarker> imageMarkers) {
-        for(ImageMarker imageMarker:imageMarkers){
+        for (ImageMarker imageMarker : imageMarkers) {
             if (deleteSameMarkerFromList(imageMarker, markerList)) {
                 for (int i = undoMarkerList.size() - 1; i >= 0; i--) {
                     MarkerList undoList = undoMarkerList.get(i);
@@ -467,5 +474,4 @@ public class AnnotationDataManager {
         }
         return (float) Math.sqrt(sum);
     }
-
 }

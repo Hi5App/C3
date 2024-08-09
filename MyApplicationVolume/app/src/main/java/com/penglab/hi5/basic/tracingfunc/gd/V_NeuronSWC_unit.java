@@ -20,6 +20,7 @@ public class V_NeuronSWC_unit implements Cloneable {
         put(6, R.color.yellow_map);
         put(7, R.color.green_map);
         put(8, R.color.pink_map);
+        put(18, R.color.crossing_map);
     }};
 
     private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
@@ -32,6 +33,7 @@ public class V_NeuronSWC_unit implements Cloneable {
         put("FFDCC800",  6);
         put("FF00C814",  7);
         put("FFFA6478",  8);
+        put("FFA880FF", 18);
     }};
 
     public double n, type, x, y, z, r, parent, nchild, seg_id, nodeinseg_id, level, creatmode, timestamp, tfresindex;

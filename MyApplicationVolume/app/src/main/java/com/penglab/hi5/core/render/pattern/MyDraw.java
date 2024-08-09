@@ -372,6 +372,9 @@ public class MyDraw extends BasicPattern {
             if(type == 247){
                 colorPoints_model[i] = colormap[2][i%3];
             }
+            if(type == 18){
+                colorPoints_model[i] = colormap[9][i%3];
+            }
         }
         colorBuffer_model = ByteBuffer.allocateDirect(colorPoints_model.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -467,6 +470,9 @@ public class MyDraw extends BasicPattern {
             if(type == 247){
                 colorPoints_marker[i] = colormap[2][i%3];
             }
+            if(type == 18){
+                colorPoints_marker[i] = colormap[9][i%3];
+            }
         }
         colorBuffer_marker = ByteBuffer.allocateDirect(colorPoints_marker.length*4)
                 .order(ByteOrder.nativeOrder())
@@ -538,6 +544,9 @@ public class MyDraw extends BasicPattern {
             colorPoints_marker[i] = colormap[type%11][i%3];
             if(type == 247){
                 colorPoints_marker[i] = colormap[2][i%3];
+            }
+            if(type == 18){
+                colorPoints_marker[i] = colormap[9][i%3];
             }
 //            System.out.println(colorPoints_marker[i]);
         }
@@ -666,6 +675,9 @@ public class MyDraw extends BasicPattern {
             colorMarker[i] = colormap[type % 11][i];
             if(type == 247){
                 colorMarker[i] = colormap[2][i];
+            }
+            if(type == 18){
+                colorMarker[i] = colormap[9][i];
             }
         }
 
