@@ -66,13 +66,13 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/collaborate_backward_file_button" />
+        app:layout_constraintTop_toBottomOf="@+id/collaborate_forward_file_button" />
 
     <Button
-        android:id="@+id/collaborate_forward_file_button"
+        android:id="@+id/collaborate_backward_file_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:text="F"
+        android:text="B"
         android:textSize="18dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -80,10 +80,10 @@
         app:layout_constraintVertical_bias="0.90" />
 
     <Button
-        android:id="@+id/collaborate_backward_file_button"
+        android:id="@+id/collaborate_forward_file_button"
         android:layout_width="50dp"
         android:layout_height="50dp"
-        android:text="B"
+        android:text="F"
         android:textSize="18dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"

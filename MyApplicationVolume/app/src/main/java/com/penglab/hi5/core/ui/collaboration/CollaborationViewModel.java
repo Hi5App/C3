@@ -209,9 +209,19 @@ public class CollaborationViewModel extends ViewModel {
     public void getDownloadAno(String anoName) {
         String[] parts = anoName.split("_");
         String image="", neuron="";
-
+        if(anoName.contains(".tif")){
+            int index = anoName.indexOf(".tif");
+            if(anoName.contains("neuron")){
+                image = anoName.substring(0, index - "_neuron1".length());
+                neuron = anoName.substring(0, index);
+            }
+            else{
+                image = anoName.substring(0, index);
+                neuron = anoName.substring(0, index);
+            }
+        }
         // Check if image has a suffix
-        if(parts.length >= 3 && parts[1].length() == 1){
+        else if(parts.length >= 3 && parts[1].length() == 1){
             image = parts[0] + "_" + parts[1];
             neuron = image + "_" + parts[2];
         }
@@ -501,24 +511,24 @@ public class CollaborationViewModel extends ViewModel {
                     }
                     break;
                 }
-                case UP: {
-                    if (offset_z_i + size_i / 2 >= img_size_z_i - 1) {
+                case DOWN: {
+                    if (offset_y_i + size_i / 2 >= img_size_y_i - 1) {
                         Toast_in_Thread_static("You have already reached boundary!!!");
                         return;
                     } else {
-                        offset_z_i += size_i / 2;
+                        offset_y_i += size_i / 2;
 //                        if (offset_z_i + size_i / 2 > img_size_z_i - 1) {
 //                            offset_z_i = img_size_z_i - size_i / 2 - 1;
 //                        }
                     }
                     break;
                 }
-                case DOWN: {
-                    if (offset_z_i - size_i / 2 <= 1) {
+                case UP: {
+                    if (offset_y_i - size_i / 2 <= 1) {
                         Toast_in_Thread_static("You have already reached boundary!!!");
                         return;
                     } else {
-                        offset_z_i -= size_i / 2;
+                        offset_y_i -= size_i / 2;
 //                        if (offset_z_i - size_i / 2 < 1) {
 //                            offset_z_i = 1 + size_i / 2;
 //                        }
@@ -526,11 +536,11 @@ public class CollaborationViewModel extends ViewModel {
                     break;
                 }
                 case FRONT: {
-                    if (offset_y_i + size_i / 2 >= img_size_y_i - 1) {
+                    if (offset_z_i + size_i / 2 >= img_size_z_i - 1) {
                         Toast_in_Thread_static("You have already reached boundary!!!");
                         return;
                     } else {
-                        offset_y_i += size_i / 2;
+                        offset_z_i += size_i / 2;
 //                        if (offset_y_i + size_i / 2 > img_size_x_i - 1) {
 //                            offset_y_i = img_size_x_i - size_i / 2 - 1;
 //                        }
@@ -538,11 +548,11 @@ public class CollaborationViewModel extends ViewModel {
                     break;
                 }
                 case BACK: {
-                    if (offset_y_i - size_i / 2 <= 1) {
+                    if (offset_z_i - size_i / 2 <= 1) {
                         Toast_in_Thread_static("You have already reached boundary!!!");
                         return;
                     } else {
-                        offset_y_i -= size_i / 2;
+                        offset_z_i -= size_i / 2;
 //                        if (offset_y_i - size_i / 2 < 1) {
 //                            offset_y_i = 1 + size_i / 2;
 //                        }
