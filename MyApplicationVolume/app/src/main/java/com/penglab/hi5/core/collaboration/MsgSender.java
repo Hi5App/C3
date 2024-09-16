@@ -101,13 +101,15 @@ public class MsgSender {
             @Override
             public Boolean call() throws Exception {
                 try {
-
+                    if(socket == null || socket.isClosed()){
+                        return false;
+                    }
                     OutputStream out = socket.getOutputStream();
                     String data = "HeartBeat\n";
                     int dataLength = data.getBytes(StandardCharsets.UTF_8).length;
 
                     /* msg header = type + dataLength */
-                    String header = String.format("DataTypeWithSize:%d;;%s\n",0, dataLength);
+                    String header = String.format("DataTypeWithSize:%d %s\n",0, dataLength);
                     String finalMsg = header + data;
                     out.write(finalMsg.getBytes(StandardCharsets.UTF_8));
                     out.flush();

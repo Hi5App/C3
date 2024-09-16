@@ -98,6 +98,8 @@ dependencies {
     implementation project(path: ':ijkplayer-exo')
     implementation project(path: ':ijkplayer-java')
     implementation project(path: ':ijkplayer-example')
+    implementation 'androidx.recyclerview:recyclerview:1.2.0'
+    implementation 'androidx.recyclerview:recyclerview-selection:1.1.0'
     testImplementation 'junit:junit:4.13'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
@@ -199,4 +201,5 @@ dependencies {
     implementation 'me.grantland:autofittextview:0.2.1'
 
     implementation 'com.google.android.material:material:1.4.0'
+
 }

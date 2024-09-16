@@ -3,6 +3,7 @@ package com.penglab.hi5.core.collaboration.connector;
 import android.util.Log;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.Socket;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
@@ -11,7 +12,7 @@ public abstract class BasicConnector {
 
     public  String TAG;
 
-    protected Socket mSocket = null;
+    protected volatile Socket mSocket = null;
 
     private String ip;
 
@@ -64,12 +65,10 @@ public abstract class BasicConnector {
                         ToastEasy("Can't Connect Server, Try Again Please!");
                     }
 
-
                 } catch (IOException e) {
                     ToastEasy("Something Wrong when Connect Server");
                     e.printStackTrace();
                 }
-
             }
         };
         thread.start();
@@ -118,7 +117,7 @@ public abstract class BasicConnector {
      * send msg without waiting
      */
     public boolean sendMsg(String msg){
-        return sendMsg(msg, false, true);
+        return sendMsg(msg, false, false);
     }
 
 

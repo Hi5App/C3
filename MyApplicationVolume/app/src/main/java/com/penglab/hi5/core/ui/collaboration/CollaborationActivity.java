@@ -16,6 +16,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -45,6 +46,8 @@ import com.jaredrummler.android.colorpicker.ColorPickerDialog;
 import com.jaredrummler.android.colorpicker.ColorPickerDialogListener;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.core.BasePopupView;
+import com.lxj.xpopup.impl.LoadingPopupView;
+import com.lxj.xpopup.interfaces.XPopupCallback;
 import com.michaldrabik.tapbarmenulib.TapBarMenu;
 import com.netease.nim.uikit.common.util.C;
 import com.netease.nimlib.sdk.Observer;
@@ -100,7 +103,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private CollaborationViewModel collaborationViewModel;
     private static String port = "";
     public static boolean firstLoad = true;
-    private boolean firstJoinRoom = true;
+    private volatile boolean firstJoinRoom = true;
+    private volatile boolean isConnected = false;
+    private volatile boolean isReconnectedSuccess = false;
+    private final Handler uiHandler = new Handler();
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
     private static Context mainContext;
@@ -153,12 +159,15 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private ImageButton ROI_i;
     private static BasePopupView downloadingPopupView;
     private static BasePopupView syncingPopupView;
+    private static LoadingPopupView reconnectingPopupView;
 
     static Timer timerDownload;
     static Timer timerSync;
     private Timer timer = null;
     private TimerTask timerTask;
     private Toolbar toolbar;
+    private Timer timerCheckConn;
+    private TimerTask checkConnTask;
 
     private List<String> neuronNumberList = new ArrayList<>();
 
@@ -482,6 +491,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         syncingPopupView = new XPopup.Builder(this)
                 .asLoading("Syncing......");
 
+        reconnectingPopupView = new XPopup.Builder(this)
+                .asLoading("Reconnecting......");
+        reconnectingPopupView.setFocusable(false);
+
         username = InfoCache.getAccount();
 
         collaborationViewModel.getUserIdForCollaborate(InfoCache.getAccount());
@@ -516,19 +529,25 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.getCollorationDataSource().getAllProjectListCollaborate().observe(this, result -> {
             if (result instanceof Result.Success) {
                 List<android.util.Pair<String, String>> list = (List<android.util.Pair<String, String>>) ((Result.Success<?>) result).getData();
-                String[] data = new String[list.size()];
+                List<String> data = new ArrayList<>();
                 for (int i = 0; i < list.size(); i++) {
-                    data[i] = list.get(i).second; // Get the Name from the Pair
+                    data.add(list.get(i).second); // Get the Name from the Pair
                 }
 
                 new XPopup.Builder(CollaborationActivity.this).
                         maxHeight(1350).
                         maxWidth(800).
-                        asCenterList("Project Number", data, (position, text) -> {
-                            ToastEasy("Click" + text);
+                        asCustom(new CustomCenterListPopupView(CollaborationActivity.this, "Project Number", data, (position, text) -> {
+                            Toast.makeText(CollaborationActivity.this, "Clicked: " + text, Toast.LENGTH_SHORT).show();
+                            // 处理点击事件
                             String uuid = list.get(position).first; // Get the Uuid from the Pair
-                            collaborationViewModel.handleProjectResult(uuid, list.get(position).second); // Use Uuid instead of Name
-                        }).show();
+                            collaborationViewModel.handleProjectResult(uuid, list.get(position).second);
+                        })).show();
+//                        asCenterList("Project Number", data, (position, text) -> {
+//                            ToastEasy("Click" + text);
+//                            String uuid = list.get(position).first; // Get the Uuid from the Pair
+//                            collaborationViewModel.handleProjectResult(uuid, list.get(position).second); // Use Uuid instead of Name
+//                        }).show();
             } else if (result instanceof Result.Error) {
                 ToastEasy(result.toString());
             }
@@ -593,7 +612,14 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
 
             assert roiList != null;
-            MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + collaborationViewModel.getCollorationDataSource().CurrentSwcInfo.first + " " + 2);
+            if(MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + collaborationViewModel.getCollorationDataSource().CurrentSwcInfo.first + " " + 2)){
+                if(!isConnected){
+                    ToastEasy("Connect success!");
+                }
+                isConnected = true;
+                startTimerCheckConn();
+                hideReconnecting();
+            }
         });
 
         collaborationViewModel.getImageResult().observe(this, resourceResult -> {
@@ -688,6 +714,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             timerSync.cancel();
             timerSync = null;
         }
+        stopTimerCheckConn();
     }
 
     private void initService() {
@@ -1440,5 +1467,76 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         collaborationViewModel.refresh();
         annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
         annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
+    }
+
+    // 启动定时任务
+    public void startTimerCheckConn() {
+        if (timerCheckConn != null) {
+            return;
+        }
+
+        timerCheckConn = new Timer();
+        checkConnTask = new TimerTask() {
+            @Override
+            public void run() {
+                if(!isConnected){
+                    return;
+                }
+                // 定时任务的代码
+                // 向服务器发送心跳消息，检查连接是否仍然活跃
+                Pair<String, String> swcInfo = collaborationViewModel.getSwcInfo();
+                if(!MsgConnector.getInstance().testConnection()){
+                    isConnected = false;
+                    ToastEasy("Disconnection! Start reconnecting...");
+                    collaborationViewModel.handleAnoResult(swcInfo.first, swcInfo.second);
+                    runOnUiThread(() -> {
+                        showReconnecting();
+                    });
+                }
+            }
+        };
+
+        // 每隔3秒执行一次任务，初始延迟为5秒
+        timerCheckConn.schedule(checkConnTask, 5000, 3000);
+    }
+
+    // 停止定时任务
+    public void stopTimerCheckConn() {
+        System.out.println("timeCheckConn is destroyed");
+        if (timerCheckConn != null) {
+            timerCheckConn.cancel();  // 停止整个 Timer 和所有任务
+            timerCheckConn = null;    // 清空 Timer 以便可以重新启动
+        }
+    }
+
+    public void showReconnecting() {
+        if(reconnectingPopupView == null){
+            return;
+        }
+        reconnectingPopupView.show();
+        isReconnectedSuccess = false;
+        uiHandler.postDelayed(this::timeOutHandler, 8 * 1000);
+        Activity activity = getActivityFromContext(mainContext);
+        activity.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public void hideReconnecting() {
+        if(reconnectingPopupView == null){
+            return;
+        }
+        reconnectingPopupView.dismiss();
+        uiHandler.removeCallbacks(this::timeOutHandler);
+        isReconnectedSuccess = true;
+        Activity activity = getActivityFromContext(mainContext);
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    public void timeOutHandler() {
+        reconnectingPopupView.dismiss();
+        Activity activity = getActivityFromContext(mainContext);
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        if(!isReconnectedSuccess) {
+            ToastEasy("Reconnect time out! Please check out the network and reload the file!");
+        }
     }
 }

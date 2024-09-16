@@ -189,6 +189,7 @@ public class PreferenceSetting {
         int size = pref.getInt("rotationMatrix_length", 0);
         float[] matrix = new float[size];
         if (size == 0){
+            matrix = new float[16];
             Matrix.setIdentityM(matrix, 0);
             return matrix;
         }

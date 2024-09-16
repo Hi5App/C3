@@ -121,5 +121,5 @@
     <color name="pv_rocker_xy_small">#07F8D2</color>
     <color name="pv_rocker_z_big">#D67F7F</color>
     <color name="pv_rocker_z_small">#F10303</color>
-
+    <color name="divider_color">#0D000000</color>
 </resources>

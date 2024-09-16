@@ -97,6 +97,10 @@ public class CollaborationViewModel extends ViewModel {
         return collaborationArborInfoState;
     }
 
+    public Pair<String, String> getSwcInfo(){
+        return collorationDataSource.CurrentSwcInfo;
+    }
+
     public LiveData<ResourceResult> getImageResult() {
         return imageResult;
     }

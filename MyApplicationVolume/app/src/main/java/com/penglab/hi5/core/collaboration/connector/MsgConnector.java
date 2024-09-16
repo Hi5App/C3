@@ -1,6 +1,7 @@
 package com.penglab.hi5.core.collaboration.connector;
 
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 
 import com.penglab.hi5.chat.nim.InfoCache;
@@ -12,6 +13,7 @@ import com.penglab.hi5.core.ui.collaboration.CollaborationActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.LogRecord;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 import static com.penglab.hi5.core.Myapplication.lockForMsgSocket;
@@ -28,6 +30,8 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
     private static Context mContext;
 
     private MsgSender msgSender;
+
+    private Handler checkConnHandler;
 
     public static List<String> userList = new ArrayList<String>();
 
@@ -101,4 +105,7 @@ public class MsgConnector extends BasicConnector implements ReconnectionInterfac
         msgSender.close();
     }
 
+    public boolean testConnection(){
+        return msgSender.testConnection(mSocket);
+    }
 }
