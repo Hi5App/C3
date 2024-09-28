@@ -977,7 +977,7 @@ public class MyRenderer implements GLSurfaceView.Renderer {
                 update delete marker
                  */
 //                if (isBigData){
-//                    updateDelMarker(temp);
+                    updateDelMarker(temp);
 //                }
 
 //                saveUndo();

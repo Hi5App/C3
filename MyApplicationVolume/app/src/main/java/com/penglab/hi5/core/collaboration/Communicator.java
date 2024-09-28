@@ -187,13 +187,13 @@ public class Communicator {
             segUnit.yGlobal = GlobalCroods.y;
             segUnit.zGlobal = GlobalCroods.z;
 
-            if (type.equals("2")) {
-
-                segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
-                segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
-
-            } else if (type.equals("0")) {
-
+//            if (type.equals("2")) {
+//
+//                segUnit.n = Double.parseDouble(swc[i].split(" ")[4]);
+//                segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
+//
+//            } else
+            if (type.equals("0")){
                 segUnit.n = index;
                 if (index == 1) {
                     segUnit.parent = 0;
@@ -222,7 +222,7 @@ public class Communicator {
 
 //            Log.e(TAG, "point " + String.format("%d %f %f %f %f %f", (int) (curSWCunit.type), curSWCunit.x, curSWCunit.y, curSWCunit.z, curSWCunit.n, curSWCunit.parent));
             XYZ GlobalCroods = ConvertLocalBlocktoGlobalCroods(curSWCunit.x, curSWCunit.y, curSWCunit.z);
-            if (!result.add(String.format("%d %f %f %f %f %f", (int) (curSWCunit.type), GlobalCroods.x, GlobalCroods.y, GlobalCroods.z, curSWCunit.n, curSWCunit.parent))) {
+            if (!result.add(String.format("%d %f %f %f", (int) (curSWCunit.type), GlobalCroods.x, GlobalCroods.y, GlobalCroods.z))) {
                 Log.e(TAG, "Something wrong when convert V_NeuronSWC to MSG");
             }
         }
@@ -359,7 +359,7 @@ public class Communicator {
 
         String msg_origin = "/delmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
         msg_origin = msg_origin + TextUtils.join(",", result_origin);
-        msgConnector.sendMsg(msg_origin, true, true);
+        msgConnector.sendMsg(msg_origin, true, false);
 
         /*
         add marker
@@ -371,7 +371,7 @@ public class Communicator {
 
         String msg_current = "/addmarker_norm:" + String.format("%s %s %s %s %s,", "2", id, "128", "128", "128");
         msg_current = msg_current + TextUtils.join(",", result_current);
-        msgConnector.sendMsg(msg_current, true, true);
+        msgConnector.sendMsg(msg_current, true, false);
 
     }
 
@@ -384,7 +384,7 @@ public class Communicator {
         String msg = "/splitline_norm:" + "2" + " " + id + " 128 128 128," + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg.toString(), true, true);
+        msgConnector.sendMsg(msg.toString(), true, false);
 
     }
 
@@ -402,7 +402,7 @@ public class Communicator {
 
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg.toString(), true, true);
+        msgConnector.sendMsg(msg.toString(), true, false);
 
     }
 
@@ -411,7 +411,7 @@ public class Communicator {
         String msg = "/delline_norm:" + "2" + " " + id + " 128 128 128," + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, true, true);
+        msgConnector.sendMsg(msg, true, false);
 
     }
 
@@ -421,8 +421,21 @@ public class Communicator {
         String msg = "/retypeline_norm:" + "2" + " " + id + " " + type + " 128 128 128," + TextUtils.join(",", result);
 
         MsgConnector msgConnector = MsgConnector.getInstance();
-        msgConnector.sendMsg(msg, true, true);
+        msgConnector.sendMsg(msg, true, false);
 
+    }
+
+    public boolean updateRetypeManySegsSWC(List<V_NeuronSWC> segs, int type){
+        StringBuilder msg = new StringBuilder("/retypeline_norm:" + "2" + " " + id + " " + type + " 128 128 128 1,");
+        List<String> result = new ArrayList<>();
+        for(V_NeuronSWC seg : segs){
+            result.addAll(V_NeuronSWCToMSG(seg));
+            result.add("$");
+        }
+        msg.append(TextUtils.join(",", result));
+
+        MsgConnector msgConnector = MsgConnector.getInstance();
+        return msgConnector.sendMsg(msg.toString(), true, false);
     }
 
 

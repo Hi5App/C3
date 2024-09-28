@@ -374,7 +374,8 @@ public class AnnotationHelper {
     }
 
     public void changeCurveType(ArrayList<Float> line, boolean isBigData) throws CloneNotSupportedException {
-        if (changeCurveTypeInSwcList(line, lastCurveType, isBigData, annotationDataManager.getCurSwcList()) || changeCurveTypeInSwcList(line, lastCurveType, isBigData, annotationDataManager.getSyncSwcList())) {
+        int type = lastCurveType;
+        if (changeCurveTypeInSwcList(line, type, isBigData, annotationDataManager.getCurSwcList()) || changeCurveTypeInSwcList(line, type, isBigData, annotationDataManager.getSyncSwcList())) {
             annotationDataManager.saveUndo();
         }
     }
@@ -880,9 +881,6 @@ public class AnnotationHelper {
     }
 
     public boolean changeCurveTypeInSwcList(ArrayList<Float> line, int type, boolean isBigData, V_NeuronSWC_list list) throws CloneNotSupportedException {
-
-        Vector<Integer> indexToChangeLineType = new Vector<>();
-        Vector<Integer> ChangeLineType = new Vector<>();
         for (int i = 0; i < line.size() / 3 - 1; i++) {
             float x1 = line.get(i * 3);
             float y1 = line.get(i * 3 + 1);
@@ -936,8 +934,8 @@ public class AnnotationHelper {
                             && ((m * n) <= 0) && (p * q <= 0)) {
 //                        System.out.println("------------------this is delete---------------");
                         seg.to_be_deleted = true;
-                        indexToChangeLineType.add(j);
-                        ChangeLineType.add((int) seg.row.get(0).type);
+//                        indexToChangeLineType.add(j);
+//                        ChangeLineType.add((int) seg.row.get(0).type);
                         break;
                     }
                 }
@@ -945,17 +943,28 @@ public class AnnotationHelper {
         }
 
         boolean ifSucceed = false;
+        List<V_NeuronSWC> needRetypeSegs = new ArrayList<>();
         for (V_NeuronSWC seg : list.seg) {
             if (seg.to_be_deleted) {
-                for (int i = 0; i < seg.row.size(); i++) {
-                    seg.row.get(i).type = type;
-                }
+                needRetypeSegs.add(seg);
+//                for (int i = 0; i < seg.row.size(); i++) {
+//                    seg.row.get(i).type = type;
+//                }
                 seg.to_be_deleted = false;
 
-                if (isBigData) {
-                    updateRetypeSegSWC(seg);
-                }
+//                if (isBigData) {
+//                    updateRetypeSegSWC(seg, type);
+//                }
                 ifSucceed = true;
+            }
+        }
+        if(isBigData){
+            if(updateRetypeManySegs(needRetypeSegs, type)){
+                for(V_NeuronSWC seg : needRetypeSegs){
+                    for (int i = 0; i < seg.row.size(); i++) {
+                        seg.row.get(i).type = type;
+                    }
+                }
             }
         }
         return ifSucceed;
@@ -974,7 +983,7 @@ public class AnnotationHelper {
                 imageMarker.color.r=(char)imageMarker.getTypeToColorList()[lastMarkerType][0];
                 imageMarker.color.g=(char)imageMarker.getTypeToColorList()[lastMarkerType][1];
                 imageMarker.color.b=(char)imageMarker.getTypeToColorList()[lastMarkerType][2];
-                annotationDataManager.getMarkerList().add(imageMarker);
+//                annotationDataManager.getMarkerList().add(imageMarker);
 
                 annotationDataManager.saveUndo();
 
@@ -1120,7 +1129,7 @@ public class AnnotationHelper {
 
             if (dx < 0.08 && dy < 0.08) {
                 ImageMarker temp = list.get(i);
-                list.remove(i);
+//                list.remove(i);
 
                 /*
                 update delete marker
@@ -2028,9 +2037,14 @@ public class AnnotationHelper {
         communicator.updateRetypeMarkerMsg(origin_marker, current_marker);
     }
 
-    public void updateRetypeSegSWC(V_NeuronSWC seg) {
+    public void updateRetypeSegSWC(V_NeuronSWC seg, int type) {
         Communicator communicator = Communicator.getInstance();
-        communicator.updateRetypeSegSWC(seg, (int) seg.row.get(0).type);
+        communicator.updateRetypeSegSWC(seg, type);
+    }
+
+    public boolean updateRetypeManySegs(List<V_NeuronSWC> segs, int type){
+        Communicator communicator = Communicator.getInstance();
+        return communicator.updateRetypeManySegsSWC(segs, type);
     }
 
 }

@@ -227,7 +227,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncSplitSegSWC(communicator.syncSWC(seg, toolType));
-                        annotationGLSurfaceView.requestRender();
                     }
                 }
 
@@ -240,7 +239,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddSegSWC(communicator.syncSWC(seg, toolType));
-                        annotationGLSurfaceView.requestRender();
                     }
                 }
 
@@ -256,7 +254,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelSegSWC(communicator.syncSWC(seg, toolType));
 //                        annotationGLSurfaceView.getAnnotationRender().syncDelSegSWC(communicator.syncSWC(seg));
-                        annotationGLSurfaceView.requestRender();
                     }
                 }
 
@@ -268,12 +265,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String markers = singlemsg.substring(index + 1);
 //                    String marker      = singlemsg.split(":")[1].split(",")[1];
 
-                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
+//                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
-                        annotationGLSurfaceView.requestRender();
-                    }
+//                    }
                 }
 
                 if (singlemsg.startsWith("/delmarker")) {
@@ -283,18 +279,17 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     int index = singlemsg.indexOf(",");
                     String markers = singlemsg.substring(index + 1);
 
-                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
+//                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncDelMarkerGlobal(communicator.syncMarkerGlobal(marker));
-                        annotationGLSurfaceView.requestRender();
-                    }
+//                    }
                 }
 
-                if (msg.startsWith("/retypeline")) {
+                if (singlemsg.startsWith("/retypeline")) {
 //                    Log.e(TAG,"retypeline_norm");
 
-                    String userID = msg.split(":")[1].split(",")[0].split(" ")[1];
+                    String userID = singlemsg.split(":")[1].split(",")[0].split(" ")[1];
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
 
                     int index = singlemsg.indexOf(",");
@@ -303,9 +298,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncRetypeSegSWC(communicator.syncSWC(seg, toolType));
-                        annotationGLSurfaceView.requestRender();
                     }
                 }
+                annotationGLSurfaceView.requestRender();
             }
         }
 
@@ -313,7 +308,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             String[] singleMsg = msg.split(";");
             for (String singlemsg : singleMsg) {
                 String regex = "/WARN_(.*):(.*)";
-                System.out.println("enter 0000000000000000");
 
                 // 编译正则表达式
                 Pattern pattern = Pattern.compile(regex);
@@ -557,24 +551,34 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             if (result instanceof Result.Success) {
                 List<android.util.Pair<String, String>> list = (List<android.util.Pair<String, String>>) ((Result.Success<?>) result).getData();
                 list.sort(Comparator.comparing(p -> p.second));
-                String[] data = new String[list.size()];
+                List<String> data = new ArrayList<>();
 
                 for (int i = 0; i < list.size(); i++) {
                     String swcName = list.get(i).second;// Get the Name from the Pair
                     int removedLen = ".ano.eswc".length();
                     int len = swcName.length();
                     String anoName = swcName.substring(0, len - removedLen);
-                    data[i] = anoName;
+                    data.add(anoName);
                 }
 
                 new XPopup.Builder(CollaborationActivity.this).
                         maxHeight(1350).
                         maxWidth(800).
-                        asCenterList("Ano Number", data, (position, text) -> {
-                            ToastEasy("Click" + text);
+                        asCustom(new CustomCenterListPopupView(CollaborationActivity.this, "Ano Number", data, (position, text) -> {
+                            Toast.makeText(CollaborationActivity.this, "Clicked: " + text, Toast.LENGTH_SHORT).show();
+                            // 处理点击事件
                             String uuid = list.get(position).first; // Get the Uuid from the Pair
-                            collaborationViewModel.handleAnoResult(uuid, text); // Use Uuid instead of Name
-                        }).show();
+                            collaborationViewModel.handleAnoResult(uuid, text);
+                        })).show();
+
+//                new XPopup.Builder(CollaborationActivity.this).
+//                        maxHeight(1350).
+//                        maxWidth(800).
+//                        asCenterList("Ano Number", data, (position, text) -> {
+//                            ToastEasy("Click" + text);
+//                            String uuid = list.get(position).first; // Get the Uuid from the Pair
+//                            collaborationViewModel.handleAnoResult(uuid, text); // Use Uuid instead of Name
+//                        }).show();
             } else if (result instanceof Result.Error) {
                 ToastEasy(result.toString());
             }
