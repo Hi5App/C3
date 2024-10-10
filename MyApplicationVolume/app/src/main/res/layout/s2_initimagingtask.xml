@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="User ID"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_userid"
+                android:text="default"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+
+                app:funcType="canClear"
+                />
+
+
+        </LinearLayout >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="File Name"
+                android:paddingBottom="10dp"
+                android:textSize="12sp"
+                tools:ignore="HardcodedText" />
+
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_filename"
+                android:text="default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:funcType="canClear"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="slice numbers"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_slicenum"
+                android:text="256"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+
+                app:funcType="canClear"
+                />
+
+
+        </LinearLayout >
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="step size(um)"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_stepsize"
+                android:text="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+
+                app:funcType="canClear"
+                />
+
+
+        </LinearLayout >
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="X pixel"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_xp"
+                android:text="512"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+
+                app:funcType="canClear"
+                />
+
+
+        </LinearLayout >
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Y pixel"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_initimagingtask_yp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:text="512"
+
+                app:funcType="canClear" />
+
+
+        </LinearLayout >
+
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

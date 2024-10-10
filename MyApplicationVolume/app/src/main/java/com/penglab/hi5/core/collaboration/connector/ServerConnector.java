@@ -102,6 +102,16 @@ public class ServerConnector extends BasicConnector implements ReconnectionInter
         }
     }
 
+    public boolean ontestConnection() {
+        /*
+        reconnect
+         */
+        synchronized (lockForManageSocket){
+            if (!msgSender.testConnection(mSocket)){
+                return false;
+            }return true;
+        }
+    }
     public void closeSender(){
         msgSender.close();
     }

@@ -1,11 +1,22 @@
 package com.penglab.hi5.core;
 
 
+import static android.app.ProgressDialog.STYLE_HORIZONTAL;
+import static com.penglab.hi5.core.Myapplication.ToastEasy;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
+import static com.penglab.hi5.data.dataStore.SettingFileManager.setSelectSource;
+import static java.lang.Math.pow;
+import static java.lang.Math.sqrt;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.AlertDialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
@@ -48,6 +59,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RemoteViews;
 import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TableLayout;
@@ -59,6 +71,8 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import com.bifan.txtreaderlib.main.TxtConfig;
 import com.bifan.txtreaderlib.ui.HwTxtPlayActivity;
@@ -121,14 +135,6 @@ import tv.danmaku.ijk.media.example.widget.media.AndroidMediaController;
 import tv.danmaku.ijk.media.example.widget.media.IjkVideoView;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
-import static android.app.ProgressDialog.STYLE_HORIZONTAL;
-import static com.penglab.hi5.core.Myapplication.ToastEasy;
-import static com.penglab.hi5.data.dataStore.SettingFileManager.getFilename_Remote;
-import static com.penglab.hi5.data.dataStore.SettingFileManager.getoffset_Remote;
-import static com.penglab.hi5.data.dataStore.SettingFileManager.setSelectSource;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
-
 //import com.penglab.hi5.chat.agora.AgoraService;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 
@@ -153,11 +159,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static MyRenderer myS2renderer;
     private static Context S2Context;
     private static ManageService manageService;
+    private static NotificationCompat.Builder notification;
+    private static NotificationManagerCompat notificationManager;
     //ServerConnector ServerConnectorForScope;
 
     private String filepath = "";
     private  ArrayList<String> msgqueue ;
-
+    private static String s2checktaskprogress = "";
+    private static String s2cimagingtaskprogress = "";
     private boolean ifZooming = false;
     private boolean ifDeletingMultiMarker = false;
     private boolean ifChangeMarkerType = false;
@@ -179,13 +188,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean ifSettingROI = false;
     private boolean isforceupdate = false;
     private boolean ifsendmsgbyqueue = false;
+    private boolean ifsendnotification = false;
 
     private boolean ifresendmdg = false;
     private boolean iffirstlogin = true;
     private boolean ifloadtagstraem = false;
     private int heartbeatnum=0;
     private int countwaitnum=0;
-
+    private static int currentTaskProgress = 0;
 
     private static boolean isZscanSeries = false;
 
@@ -321,6 +331,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String s2filename = "";
     private static String s2EswcPath = "";
     private String S2CheckImgpath = "";
+    private String S2CheckSwcpath = "";
     private String S2LastImgName = "";
     private String S2Password = "";
     private String S2loadlogstream = "";
@@ -351,6 +362,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private static String conPath = "";
     private static String s2checkimgtype = "";
     private static String s2lastmsgforimg = "";
+    private static String s2imgordernow = "";
     private static String s2currentmsgforimg = "";
     private static String s2currentnumforimg = "";
     private static String data_tag = "";
@@ -380,6 +392,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         }
 
+
         if (msg.startsWith("Done:")) {
 
 
@@ -391,14 +404,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             String msghead=msg.split(":")[1];
             if(!msgqueue.isEmpty())
             {
-//                if(msgqueue.get(0).split(":")[0].equals(msghead))
-//                {
-//                    msgqueue.remove(msgqueue.get(0));
-//                    //msgqueue.remove(0);
-//                    ifsendmsgbyqueue=false;
-//                }
-//
-//                else Log.e(TAG, "msg.endsWith(\":Done\")() is error1111!  " + msghead);
+
 
                 Log.e(TAG, " msgqueue.remove: "+msgqueue.size());
                 for(String xx :msgqueue)
@@ -408,15 +414,33 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     {
                         msgqueue.remove(xx);
                         Log.e(TAG, " msgqueue.remove: "+xx);
-
+                        ifsendmsgbyqueue=false;
 
                     }else Log.e(TAG, "msg.endsWith(\":Done\")() is error1111!  " + msghead);
 
                 }
-                ifsendmsgbyqueue=false;
-            }else Log.e(TAG, "msg.msgqueue is empty!  " + msghead);
+
+            }
+            //else Log.e(TAG, "msg.msgqueue is empty!  " + msghead);
         }
 
+
+
+        if (msg.startsWith("mscheckscantask:")) {
+
+
+
+            s2checktaskprogress = msg.split(":")[1];
+           puiHandler.sendEmptyMessage(16);
+        }
+
+        if (msg.startsWith("mscheckimagingtask:")) {
+
+
+
+            s2cimagingtaskprogress = msg.split(":")[1];
+            puiHandler.sendEmptyMessage(17);
+        }
         /*
         select file
          */
@@ -548,6 +572,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             }else
             {
+                PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+                String account = preferenceLogin.getUsername();
+                Log.v(TAG, "account: " + account );
+                //ServerConnector.getInstance().sendMsg("ID:"+account);
+                msgqueue.add("ID:"+account);
+
                 isConfirmPassword=true;
                 Toast_in_Thread("welcome to si!");
             }
@@ -560,12 +590,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             String msgs = msg.substring("get_data_tag:".length());
 
 
-//            String[] msggg=msgs.split(";");
-//            msggg[msggg.length-2]="";
-//
-//            msgs=msggg.toString();
-//
-//            String msgx = msgs.replace(";;",";");
+
             String msgx = msgs.replace(";","\n");
 
 
@@ -590,34 +615,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             Log.e(TAG, "ID::" + msgs);
             Toast_in_Thread_static(msgs+"please check it!");
         }
-        if (msg.startsWith("get_data_tag:")) {
-            // loadBigDataImg(msg.split(":")[1]);
-            String msgs = msg.substring("get_data_tag:".length());
 
-
-//            String[] msggg=msgs.split(";");
-//            msggg[msggg.length-2]="";
-//
-//            msgs=msggg.toString();
-//
-//            String msgx = msgs.replace(";;",";");
-            String msgx = msgs.replace(";","\n");
-
-
-            Log.e(TAG, "get_data_tag:" + msgx);
-
-
-            AutofitHelper.create(y_pos_Text);
-
-            setTagView(msgx);
-            //x_pos_Text.setVisibility(View.VISIBLE);
-
-
-
-
-            // Log.e(TAG,"s2start:()  " + msg.split(":")[1]);
-
-        }
 
         if (msg.startsWith("GetPos:")) {
             // loadBigDataImg(msg.split(":")[1]);
@@ -693,6 +691,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             }
 
+            if (msg.endsWith(".eswc")) {
+
+                Log.e(TAG, "File: .swc");
+                loadBigDataSwc(msg.split(":")[1]);
+
+            }
+
             if (msg.endsWith(".txt")) {
 
                 Toast_in_Thread_static("The tag file was downloaded successfully" );
@@ -731,7 +736,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
     @SuppressLint("HandlerLeak")
-    private static Handler puiHandler = new Handler() {
+    private Handler puiHandler = new Handler() {
         // 覆写这个方法，接收并处理消息。
         @Override
         public void handleMessage(Message msg) {
@@ -813,8 +818,21 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     progressDialog_loadimg.setProgress(0);
                     break;
                 case 14:
-                    //progressDialog_loadimg(
+                    x_pos_Text.setText("");
                     break;
+                case 15:
+                    updateNotificationprogress();
+                    break;
+
+                case 16:
+
+                    showscantaskprogress(s2checktaskprogress);
+                    break;
+                case 17:
+
+                    showimagingtaskprogress(s2cimagingtaskprogress);
+                    break;
+
                 default:
                     break;
             }
@@ -954,12 +972,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 puiHandler.sendEmptyMessage(13);
                             }
                         }
+
+
                         heartbeatnum++;
                         if(msgqueue==null)return;
                         if(ifsendmsgbyqueue)
                         {
                             countwaitnum++;
-                            if(countwaitnum>=100*100) {
+                            if(countwaitnum>=10*20) {
                                 for(String xx :msgqueue)
                                 {
                                     Log.e(TAG, "msgqueue sdfasdf! "+xx);
@@ -968,16 +988,39 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                 //msgqueue.clear();
                                 countwaitnum=0;
                                 ifresendmdg=true;
-                                String msg = msgqueue.get(0);
-                                //msgqueue.clear();
-                                ServerConnector.getInstance().sendMsg(msg);
+
+
+                                //String msg = msgqueue.get(0);
+                                msgqueue.clear();
+                                ifsendmsgbyqueue=false;
+                                if(progressDialog_loadimg!=null)
+                                {
+                                    if(progressDialog_loadimg.isShowing())
+                                    {
+                                        progressDialog_loadimg.dismiss();
+                                    }
+                                }
+
+                                //ServerConnector.getInstance().sendMsg(msg);
+                                //ServerConnector.getInstance().onReconnection(msg);
+
                                 //msgqueue.remove(0);
                             }
-                            Log.e(TAG, "wait for msg! "+msgqueue.size());
+                            Log.v(TAG, "wait for msg! "+msgqueue.size());
                             //Log.e(TAG, "msgqueue : "+msgqueue);
-
                             return;
+
                         }
+
+//                        if(heartbeatnum==100&&ifsendnotification)
+//                        {
+//                            //ifsendnotification = false;
+//                            heartbeatnum = 0;
+//                            currentTaskProgress++;
+//                            puiHandler.sendEmptyMessage(15);
+//
+//
+//                        }
                         if(heartbeatnum>=320*5) {
                             heartbeatnum = 0;
 
@@ -999,7 +1042,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
                         if(msgqueue.isEmpty())
                         {
-                            Log.v(TAG, "msgqueue is empty! ");
+                            //Log.v(TAG, "msgqueue is empty! ");
                             return;
                         }else
                         {
@@ -1097,6 +1140,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             MsgConnector.getInstance().releaseConnection(false);
         }
 
+        if (ifTouchCamera) {
+            mVideoView.stopPlayback();
+            mVideoView.release(true);
+            mVideoView.stopBackgroundPlay();
+            ifTouchCamera=false;
+            IjkMediaPlayer.native_profileEnd();
+        }
 
         ll_top = null;
         ll_bottom = null;
@@ -1111,8 +1161,32 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         msgqueue = null;
         bitmap2D = null;
         pvcamModeView = null;
-        timerTask=null;
-        updateimgTimer=null;
+
+
+
+        if(updateimgTimer!=null){
+            updateimgTimer.cancel();
+            updateimgTimer=null;
+        }
+
+
+
+        if(timerDownload!=null){
+            timerDownload.cancel();
+            timerDownload=null;
+        }
+
+
+        if(timer_zseri!=null){
+            timer_zseri.cancel();
+            timer_zseri=null;
+        }
+
+
+        if(timer_nav!=null){
+            timer_nav.cancel();
+            timer_nav=null;
+        }
 
         progressBar = null;
         progressDialog_zscan = null;
@@ -1121,10 +1195,10 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
         Zslice_up = null;
         Zslice_down = null;
-        timerDownload = null;
-        timer_nav   = null ;
-        timer_zseri = null ;
-        
+
+        timerTask=null;
+
+
         Zoom_in_Big = null;
         bigImgS2Reader = null;
         Zoom_out_Big = null;
@@ -1215,13 +1289,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        Intent bgmIntent = new Intent(S2Activity.this, MusicServer.class);
 //        stopService(bgmIntent);
         super.onStop();
-        if (ifTouchCamera) {
-            mVideoView.stopPlayback();
-            mVideoView.release(true);
-            mVideoView.stopBackgroundPlay();
-            ifTouchCamera=false;
-            IjkMediaPlayer.native_profileEnd();
-        }
      //  s2filename=null;
 //        iffirstlogin=false;
     }
@@ -1229,6 +1296,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     @Override
     protected void onRestart() {
 //        initMusicService();
+
         super.onRestart();
        // iffirstlogin=false;
     }
@@ -1327,8 +1395,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             // load layout view
             mSettings = new Settings(this);
-            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+//            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+            String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
+
             String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
+            String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
+
 
             mMediaController = new AndroidMediaController(this, false);
 
@@ -1343,12 +1415,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             //ImageButton MoveX = findViewById(R.id.zoomOut);
 
             mVideoView = (IjkVideoView) findViewById(R.id.si_videoView);
-            //mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
+            mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
+            mHudView.bringToFront();
             mVideoView.setMediaController(mMediaController);
-            //mVideoView.setHudView(mHudView);
+            mVideoView.setHudView(mHudView);
 
             mVideoView.setBackgroundResource(R.drawable.mvideobg);
-
+            mVideoView.bringToFront();
             RockerView s2rocekerview_xy = (RockerView) findViewById(R.id.s2rockerView_z);
 
             Toolbar toolbar = findViewById(R.id.toolbar2);
@@ -1361,6 +1434,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             ImageButton startcamera = findViewById(R.id.startcamera);
             ImageButton stopcamera = findViewById(R.id.stopcamera);
 
+            ImageButton startinject = findViewById(R.id.startinject);
+
             @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_pro_img = (Switch)findViewById(R.id.switch_pro_img);
             @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_cam =(Switch) findViewById(R.id.switch_cam);
 
@@ -1369,13 +1444,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             zoom_out.setImageResource(R.drawable.ic_baseline_zoom_out_24);
             startcamera.setImageResource(R.drawable.ic_startcamera_foreground);
             stopcamera.setImageResource(R.drawable.ic_stopcamera_foreground);
+            startinject.setImageResource(R.drawable.ic_startinject_foreground);
+
 
             zoom_in.setVisibility(View.VISIBLE);
             zoom_out.setVisibility(View.VISIBLE);
             zscan.setVisibility(View.VISIBLE);
             stopcamera.setVisibility(View.VISIBLE);
             startcamera.setVisibility(View.VISIBLE);
-
+            startinject.setVisibility(View.VISIBLE);
             switch_pro_img.setVisibility(View.VISIBLE);
             switch_pro_img.setChecked(false);
             switch_cam.setVisibility(View.VISIBLE);
@@ -1448,7 +1525,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 public void onClick(View v) {
 
                     Log.e(TAG, "startcamera: ");
-                    ServerConnector.getInstance().sendMsg("msinitcam:0");
+                    ServerConnector.getInstance().sendMsg("msinitcam:");
+                }
+            });
+
+            startinject.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "startinject: ");
+                    ServerConnector.getInstance().sendMsg("msstartinject:");
                 }
             });
 
@@ -1456,7 +1541,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 public void onClick(View v) {
 
                     Log.e(TAG, "stopcamera: ");
-                    ServerConnector.getInstance().sendMsg("msclosecam:0");
+                    ServerConnector.getInstance().sendMsg("msclosecam:");
                 }
             });
 
@@ -2253,6 +2338,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         navigation_left.setOnClickListener(new Button.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void onClick(View v) {
                 if (s2filename == null||s2lastmsgforimg== null) {
                     return;
@@ -2276,6 +2362,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Log.e("imgnum", String.valueOf(imgnum));
                 imgnum=imgnum+1;
                 String newimgnumstring=String.format("%05d",imgnum);
+                s2imgordernow = newimgnumstring;
                 Log.e("newimgnumstring", newimgnumstring);
 
 
@@ -2283,10 +2370,34 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 if(isCheckmode)
                 {
                     ifsendmsgforimg=true;
+                    ifloadtagstraem=true;
                     lastmsg=lastmsg.replace(lastfilename,newimgnumstring);
                     Log.e("lastmsg", lastmsg);
                     lastmsg=lastmsg.replace("getimglist","getimgbyorder");
                     Log.e("navigation_left", lastmsg);
+                    String dir_str_server = S2CheckImgpath;
+                    Log.e(TAG, "tttttttt" + isforceupdate  +dir_str_server+newimgnumstring);
+
+
+
+
+
+                    if(!isforceupdate)
+                    {
+                        String filepathhh=getFilesbyorder(dir_str_server, newimgnumstring);
+                        if(!filepathhh.equals("$$$"))
+                        {
+
+                            Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepathhh);
+                            lastmsg="get_data_tag:"+newimgnumstring;
+                            Log.e("navigation_left", lastmsg);
+                            S2loadlogstream=lastmsg;
+                            loadBigDataImg(filepathhh);
+                            return;
+                        }
+
+
+                    }
                     msgqueue.add(lastmsg);
                     //ServerConnector.getInstance().sendMsg(lastmsg);
                     s2currentmsgforimg=lastmsg;
@@ -2294,7 +2405,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                     progressDialog_loadimg.show();
                     //progressDialog_loadimg.setMax(100);
                     //progressDialog_loadimg.setProgress(50);
-                    ifloadtagstraem=true;
                     lastmsg="get_data_tag:"+newimgnumstring;
                     Log.e("navigation_left", lastmsg);
                     S2loadlogstream=lastmsg;
@@ -2307,6 +2417,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         navigation_right.setOnClickListener(new Button.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             public void onClick(View v) {
                 if (s2filename == null||s2lastmsgforimg== null) {
                     return;
@@ -2335,14 +2446,39 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 // Log.e("s2lastmsgforimg", s2lastmsgforimg);
                 if(isCheckmode)
                 {
+                    ifsendmsgforimg=true;
+                    ifloadtagstraem=true;
                     lastmsg=lastmsg.replace(lastfilename,newimgnumstring);
                     Log.e("lastmsg", lastmsg);
                     lastmsg=lastmsg.replace("getimglist","getimgbyorder");
                     Log.e("navigation_right", lastmsg);
+                    String dir_str_server = S2CheckImgpath;
+                    Log.e(TAG, "tttttttt" + isforceupdate  +dir_str_server+newimgnumstring);
+
+                    if(!isforceupdate)
+                    {
+                        String filepathhh=getFilesbyorder(dir_str_server, newimgnumstring);
+                        if(!filepathhh.equals("$$$"))
+                        {
+
+                            Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepathhh);
+                            lastmsg="get_data_tag:"+newimgnumstring;
+                            Log.e("navigation_left", lastmsg);
+                            S2loadlogstream=lastmsg;
+
+                            loadBigDataImg(filepathhh);
+                            return;
+                        }
+
+
+                    }
                     msgqueue.add(lastmsg);
+
+                    Log.e(TAG, " ServerConnector.getInstance().sendMsg;" + conPath);
+
                     //ServerConnector.getInstance().sendMsg(lastmsg);
                     progressDialog_loadimg.show();
-                    ifloadtagstraem=true;
+
                     lastmsg="get_data_tag:"+newimgnumstring;
                     Log.e("navigation_left", lastmsg);
                     S2loadlogstream=lastmsg;
@@ -2400,42 +2536,54 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
 
         eswc_sync.setOnClickListener(new Button.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
                 //showSyncBar();
-                String eswcPath = null;
-                Log.e(TAG, "eswc_sync" + s2EswcPath + "  " + s2EswcPath.split("\\.")[1]);
-                if (s2EswcPath.endsWith("tif")) {
-                    eswcPath = s2EswcPath.replace(".tif", "_refined_pruned.swc");
-                    Log.e(TAG, "eswc_sync" + eswcPath);
-                } else if (s2EswcPath.endsWith("v3draw")) {
-                    eswcPath = s2EswcPath.replace(".v3draw", "_refined_pruned.swc");
-                    Log.e(TAG, "eswc_sync" + eswcPath);
-                } else if (s2EswcPath.endsWith("v3dpbd")) {
-                    eswcPath = s2EswcPath.replace(".v3dpbd", "_refined_pruned.swc");
-                    Log.e(TAG, "eswc_sync" + eswcPath);
-                }else {
-                    //ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + s2EswcPath.split("/")[1]);
-                    Log.e(TAG, "error file format!");
-                    return;
-                }
-                File eswc_f = new File(eswcPath);
 
-                if (!eswc_f.exists()) {
-                    String[] str;
-                    str = eswcPath.split("/");
-                    String eswc = str[str.length - 1];
 
-                    String getswcmsg="getimglist:/"+s2checkimgtype+"_img_stack/"+eswc;
-                    ServerConnector.getInstance().sendMsg(getswcmsg);
-                    Log.e(TAG, "eswc is not existed!" + getswcmsg);
-                    return;
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    loadBigDataSwc(eswcPath);
-                }
 
+
+                String eswcorder = s2filename.split("_")[0];
+                Log.e(TAG, "eswc_sync" + s2filename + "  " );
+                if (s2filename.endsWith("tif")||s2filename.endsWith("v3draw")||s2filename.endsWith("v3dpbd")) {
+
+
+
+                Log.e(TAG, "eswc_sync" + eswcorder);
+            } else {
+                //ServerConnector.getInstance().sendMsg("getimglist:/img_stack/" + s2EswcPath.split("/")[1]);
+                Log.e(TAG, "error file format!");
+                return;
             }
+                String dir_str_server = S2CheckSwcpath;
+                Log.e(TAG, "tttttttt" + isforceupdate  +dir_str_server+eswcorder);
+                if(!isforceupdate)
+                {
+                    String filepathhh=getFilesbyorder(dir_str_server, eswcorder);
+                    if(!filepathhh.equals("$$$"))
+                    {
+
+                        Log.e(TAG, "getFiles(finalDir_str_server).contains(text)" + filepathhh);
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            loadBigDataSwc(filepathhh);
+                        }
+                        return;
+                    }
+
+
+                }
+
+                if (true) {
+
+
+                String getswcmsg="getimgbyorder:/"+s2checkimgtype+"_img_stack/eswc/"+eswcorder;
+                ServerConnector.getInstance().sendMsg(getswcmsg);
+                Log.e(TAG, "eswc is not existed!" + getswcmsg);
+                return;
+            }
+
+        }
         });
 
 
@@ -2559,13 +2707,22 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
      */
     private void initDir() {
 
-        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Checkdata");
+        File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Checkdata/image");
         //String dir_str_server="/storage/emulated/0/Hi 5/S2";
         Log.e(TAG, " dir_str_server.text;" + dir_str_server);
         S2CheckImgpath = dir_str_server.getAbsolutePath();
         File dir_server = dir_str_server;
         if (!dir_server.exists()) {
             dir_server.mkdirs();
+
+        }
+        File dir_eswc_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2/Checkdata/eswc");
+        //String dir_str_server="/storage/emulated/0/Hi 5/S2";
+        Log.e(TAG, " dir_eswc_server.text;" + dir_eswc_server);
+        S2CheckSwcpath= dir_eswc_server.getAbsolutePath();
+        File dir_eswc_server1 = dir_eswc_server;
+        if (!dir_eswc_server1.exists()) {
+            dir_eswc_server1.mkdirs();
 
         }
         //String dir_PVCAM_server="/storage/emulated/0/Hi 5/S2/Pvcam";
@@ -2592,7 +2749,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //        File dir_password = new File(S2Password);
 //        if (!dir_password.exists()) {
 //            dir_password.mkdirs();
-//
+//rtmp
 //        }
 //    }
 //    private void doLoginAgora(){
@@ -2695,7 +2852,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         }
     };
 
+    String getFilesbyorder(String FilePath,String order) {
+        String FileOfInterstPath="$$$";
+        boolean ifexisted=false;
+        File file = new File(FilePath);
+        File[] files = file.listFiles();
+        if(files==null)
+        {
+            return "";
 
+        }
+        for (int i = 0; i < files.length; i++) {
+            File childFile = files[i];
+            String childName = childFile.getName();
+            if(childName.contains(order))
+            {
+                ifexisted=true;
+                FileOfInterstPath = childFile.getAbsolutePath();
+                Log.e("iiii", "getFilesbyorder: "+FileOfInterstPath);
+                return FileOfInterstPath;
+            }
+
+        }
+        Log.e("iiii", "getFilesbyorder: "+FileOfInterstPath);
+        return FileOfInterstPath;
+    }
     private ArrayList<String> getFiles(String FilePath) {
         ArrayList<String> arr = new ArrayList<>();
         File file = new File(FilePath);
@@ -2817,7 +2998,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                             loadBigDataImg(filepath);
                                             return;
                                         }
-                                        if (getFiles(finalDir_str_server).contains(text) && text.contains(".swc")) {
+                                        if (getFiles(finalDir_str_server).contains(text) && text.contains(".swc")&&text.contains(".eswc")) {
                                             String filepathgg = finalDir_str_server + "/" + text;
                                             Log.e(TAG, "loadBigDataSwc" + filepathgg);
                                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -2837,6 +3018,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                     {
                                         s2checkimgtype ="mouse";
                                     }else s2checkimgtype ="";
+
 
                                     if (!text.contains("img_stack") && text.length() > 10) {
                                         progressDialog_loadimg.show();
@@ -2869,7 +3051,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         if(account.equals(""))
         {
             Toast_in_Thread("No right to access virtual scope,Please log in!");
-            return;
+            //return;
         }
         conPath = "";
 
@@ -3679,7 +3861,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     public void More_icon() {
 
         new XPopup.Builder(this)
-                .asCenterList("More Functions...", new String[]{"liveScan", "Settings","Tag data"},
+                .asCenterList("More Functions...", new String[]{"liveScan", "Settings","Tag data","Init Scanning Task","Check Scanning Task","Init 2-p imaging Task","Check imaging Task","Reconnect server"},
                         new OnSelectListener() {
                             @Override
                             public void onSelect(int position, String text) {
@@ -3695,6 +3877,35 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                                         break;
                                     case "Tag data":
                                         s2Tagimg();
+                                        break;
+                                    case "Init Scanning Task":
+                                        s2InitScanTask();
+                                        break;
+
+                                    case "Check Scanning Task":
+
+
+                                        s2CheckScanTask();
+                                        break;
+
+                                    case "Check imaging Task":
+
+
+                                        s2CheckimagingTask();
+                                        break;
+
+
+                                    case "Init 2-p imaging Task":
+                                        s2Init2PImagingTask();
+                                        break;
+
+                                    case "Check 2-p imaging Task":
+                                        s2Check2PImagingTask();
+                                        break;
+
+                                    case "Reconnect server":
+                                        reconnection();
+
                                         break;
 
 //                                    case "Crash Info":
@@ -4061,6 +4272,87 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 .create();
         mdDialog.show();
     }
+    private String createNotificationChannel(String channelID, String channelNAME, int level) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            NotificationChannel channel = new NotificationChannel(channelID, channelNAME, level);
+            manager.createNotificationChannel(channel);
+            return channelID;
+        } else {
+            return null;
+        }
+    }
+
+    private void sendNotification() {
+
+       // Intent intent = new Intent(this, S2Activity.class);
+       // intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+       // PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+
+
+//        Intent resultIntent = new Intent(this, S2Activity.class);
+//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+//        stackBuilder.addNextIntentWithParentStack(resultIntent);
+//        PendingIntent resultPendingIntent =
+//                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+
+        String channelId = createNotificationChannel("my_channel_ID", "my_channel_NAME", NotificationManager.IMPORTANCE_HIGH);
+
+        notification = new NotificationCompat.Builder(this, channelId)
+                .setContentTitle("AutoTask Message")
+                .setContentText("Update Progress")
+               // .setContentIntent(pendingIntent)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+               // .addAction(R.drawable.icon, "按钮", pendingIntent)
+                .setAutoCancel(true);
+        // Issue the initial notification with zero progress
+        int PROGRESS_MAX = 100;
+        int PROGRESS_CURRENT = 0;
+        notification.setProgress(PROGRESS_MAX, PROGRESS_CURRENT, false);
+        notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(100, notification.build());
+    }
+
+    private static void updateNotificationprogress() {
+        //更新
+        notification.setContentText("Download complete")
+                .setProgress(100,currentTaskProgress,false);
+        notificationManager.notify(100, notification.build());
+
+
+
+    }
+
+    private void updateCustomNotification() {
+
+        Intent intent = new Intent(this, S2Activity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        String channelId = createNotificationChannel("my_channel_ID", "my_channel_NAME", NotificationManager.IMPORTANCE_MAX);
+        @SuppressLint("RemoteViewLayout") RemoteViews notificationLayout = new RemoteViews(getPackageName(), R.layout.s2_notification);
+        @SuppressLint("RemoteViewLayout") RemoteViews notificationLayoutExpanded = new RemoteViews(getPackageName(), R.layout.s2_notification);
+        NotificationCompat.Builder notification = new NotificationCompat.Builder(this, channelId)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
+                .setCustomContentView(notificationLayout)
+                .setCustomBigContentView(notificationLayoutExpanded)
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setAutoCancel(true);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        notificationManager.notify(100, notification.build());
+
+    }
+    private void reconnection() {
+        manageService.reConnect();
+
+        sendNotification();
+        ifsendnotification=true;
+
+
+    }
     private void s2Tagimg(){
         boolean[] isif_flag = new boolean[3];
 
@@ -4070,9 +4362,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         if(account.equals(""))
         {
             Toast_in_Thread("No right to tag!");
-            return;
+            //return;
         }
         String filename=s2filename;
+        if(filename==null)
+        {
+            Toast_in_Thread("No data to tag!");
+            return;
+        }
         if(filename.equals(""))
         {
             Toast_in_Thread("No data to tag!");
@@ -4198,6 +4495,612 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             }
         });
         builder.setTitle("s2_tag_data");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+
+    private void s2InitScanTask(){
+
+        boolean[] isif_flag = new boolean[3];
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_initscantask);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+
+
+
+
+                PowerfulEditText initscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_userid);
+
+                initscantask_userid.setText(account);
+
+                PowerfulEditText initscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_filename);
+
+
+
+
+
+
+
+
+
+
+
+
+
+//                if(!latesttag.isEmpty())
+//                {
+//                    taglist=latesttag.split("\n");
+//
+//                    img_q=taglist[0];
+//                    swc_q=taglist[1];
+//                    tag_id=taglist[2];
+//                    filename=taglist[3];
+//                    s_c=taglist[4];
+//                    tag_userid.setText(tag_id);
+//                    tag_filename.setText(filename);
+//                    image_quality.setProgress(Integer.parseInt(img_q));
+//
+//                    tag_notes.setText(s_c);
+//
+//                }
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+
+                PowerfulEditText initscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_userid);
+
+                PowerfulEditText initscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_filename);
+
+
+                PowerfulEditText s2_leftborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_leftborder);
+
+                PowerfulEditText s2_rightborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_rightborder);
+
+
+                PowerfulEditText s2_topborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_topborder);
+
+                PowerfulEditText s2_bottomborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_bottomborder);
+
+                String user_id="";
+
+                String file_name="";
+                String left="";
+
+                String right="";
+                String top="";
+
+                String bottom="";
+
+
+                user_id=initscantask_userid.getText().toString();
+
+                file_name=initscantask_filename.getText().toString();
+
+                left = s2_leftborder.getText().toString();
+
+                right = s2_rightborder.getText().toString();
+
+                top = s2_topborder.getText().toString();
+
+                bottom = s2_bottomborder.getText().toString();
+
+                Log.e(TAG, "user_id: " + user_id + ",file_name: "+ file_name + ",left: "+ left+ ",right: "+ right+ ",top: "+ top+ ",bottom: "+ bottom);
+
+                String msgg= file_name+":" + left+":" + top +":" + right +":" + bottom;
+
+                ServerConnector.getInstance().sendMsg("msstartscantask:" + msgg);
+
+                Log.e(TAG, "msgg:" + msgg );
+
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("s2 init scanning task");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+    private void s2CheckScanTask(){
+
+
+
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+        ServerConnector.getInstance().sendMsg("mscheckscantask:"+account);
+
+
+
+
+    }
+    private void s2CheckimagingTask(){
+
+
+
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+        ServerConnector.getInstance().sendMsg("mscheckimagingtask:"+account);
+
+
+
+
+    }
+
+
+
+    private void showimagingtaskprogress(String msg)
+    {
+
+        Log.v(TAG, "showimagingtaskprogress:" );
+        String[] msglist;
+        String filename = null;
+        String taskprogress = null;
+        String taskallnumb = null;
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            //Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+        if(!msg.isEmpty())
+        {
+            msglist=msg.split(";");
+
+            filename=msglist[1];
+
+            taskprogress=msglist[2];
+
+
+
+
+
+
+
+        }
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_checkimagingtask);
+        String finalFilename = filename;
+        String finalTaskprogress = taskprogress;
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+                PowerfulEditText checkimagingtask_userid = contentView.findViewById(R.id.s2_checkimagingtask_userid);
+
+
+
+                PowerfulEditText checkimagingtask_filename = contentView.findViewById(R.id.s2_checkimagingtask_filename);
+
+                IndicatorSeekBar checkimagingtaskProgress = contentView.findViewById(R.id.s2_checkimagingtask_progress);
+
+                checkimagingtaskProgress.setMax(100);
+                checkimagingtaskProgress.setMin(0);
+                checkimagingtask_userid.setText(account);
+                checkimagingtask_filename.setText(finalFilename);
+               // Log.e(TAG, "finalTaskprogress: " + finalTaskprogress);
+                checkimagingtaskProgress.setProgress((float) (Double.parseDouble(finalTaskprogress)*100));
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Update", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+                String account = preferenceLogin.getUsername();
+                Log.v(TAG, "account: " + account );
+                if(account.equals(""))
+                {
+                    Toast_in_Thread("No right to init!");
+                    //return;
+                }
+
+                ServerConnector.getInstance().sendMsg("mscheckimagingtask:"+account);
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+
+
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("check imaging task");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+
+    private void showscantaskprogress(String msg)
+    {
+
+        Log.v(TAG, "showscantaskprogress:" );
+        String[] msglist;
+        String filename = null;
+        String taskprogress = null;
+        String taskallnumb = null;
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+        if(account.equals(""))
+        {
+            //Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+        if(!msg.isEmpty())
+        {
+            msglist=msg.split(";");
+
+            filename=msglist[1];
+
+            taskprogress=msglist[2];
+
+
+
+
+
+
+
+        }
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_checkscantask);
+        String finalFilename = filename;
+        String finalTaskprogress = taskprogress;
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+                PowerfulEditText checkscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_checkscantask_userid);
+
+
+
+                PowerfulEditText checkscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_checkscantask_filename);
+
+                IndicatorSeekBar checkscantaskProgress = contentView.findViewById(R.id.s2_checkscantask_progress);
+
+                checkscantaskProgress.setMax(100);
+                checkscantaskProgress.setMin(0);
+                checkscantask_userid.setText(account);
+                checkscantask_filename.setText(finalFilename);
+
+                checkscantaskProgress.setProgress((float) (Double.parseDouble(finalTaskprogress)*100));
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Update", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+                String account = preferenceLogin.getUsername();
+                Log.v(TAG, "account: " + account );
+                if(account.equals(""))
+                {
+                    Toast_in_Thread("No right to init!");
+                    //return;
+                }
+
+                ServerConnector.getInstance().sendMsg("mscheckscantask:"+account);
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+
+
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("check scanning task");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+
+    private void s2Init2PImagingTask(){
+
+
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+
+
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_initimagingtask);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+                PowerfulEditText initimgtask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_userid);
+
+                PowerfulEditText initimgtask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_filename);
+
+
+                PowerfulEditText s2_slicenum = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_slicenum);
+
+                PowerfulEditText s2_stepsize = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+
+
+                PowerfulEditText s2_xp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_xp);
+
+                PowerfulEditText s2_yp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_yp);
+
+                String user_id="";
+
+                String file_name="";
+                String slicenum="";
+
+                String stepsize="";
+                String xp="";
+
+                String yp="";
+
+
+                user_id=initimgtask_userid.getText().toString();
+
+                file_name=initimgtask_filename.getText().toString();
+
+                slicenum = s2_slicenum.getText().toString();
+
+                stepsize = s2_stepsize.getText().toString();
+
+                xp = s2_xp.getText().toString();
+
+                yp = s2_yp.getText().toString();
+
+                Log.e(TAG, "user_id: " + user_id + ",file_name: "+ file_name + ",slicenum: "+ slicenum+ ",stepsize: "+ stepsize+ ",xp: "+ xp+ ",yp: "+ yp);
+
+                String msgg= file_name+":" + slicenum+":" + stepsize +":" + xp +":" + yp;
+
+                ServerConnector.getInstance().sendMsg("msstartimgtask:" + msgg);
+
+                Log.e(TAG, "msgg:" + msgg );
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("s2 init imaging task");
+        MDDialog mdDialog = builder
+                .create();
+        mdDialog.show();
+    }
+    private void s2Check2PImagingTask(){
+
+
+
+        PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+        String account = preferenceLogin.getUsername();
+        Log.v(TAG, "account: " + account );
+
+
+        if(account.equals(""))
+        {
+            Toast_in_Thread("No right to init!");
+            //return;
+        }
+
+
+
+        MDDialog.Builder builder = new MDDialog.Builder(this);
+        builder.setContentView(R.layout.s2_initimagingtask);
+        builder.setContentViewOperator(new MDDialog.ContentViewOperator() {
+            @Override
+            public void operate(View contentView) {
+
+
+
+
+
+            }
+        }).setNegativeButton("Cancel", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Cancel setting!");
+            }
+        });
+        builder.setPositiveButton("Confirm", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Toast_in_Thread("Confirm setting!");
+
+            }
+        });
+        builder.setPositiveButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View clickedView, View contentView) {
+
+                PowerfulEditText initimgtask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_userid);
+
+                PowerfulEditText initimgtask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_filename);
+
+
+                PowerfulEditText s2_slicenum = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_slicenum);
+
+                PowerfulEditText s2_stepsize = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+
+
+                PowerfulEditText s2_xp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_xp);
+
+                PowerfulEditText s2_yp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_yp);
+
+                String user_id="";
+
+                String file_name="";
+                String slicenum="";
+
+                String stepsize="";
+                String xp="";
+
+                String yp="";
+
+
+                user_id=initimgtask_userid.getText().toString();
+
+                file_name=initimgtask_filename.getText().toString();
+
+                slicenum = s2_slicenum.getText().toString();
+
+                stepsize = s2_stepsize.getText().toString();
+
+                xp = s2_xp.getText().toString();
+
+                yp = s2_yp.getText().toString();
+
+                Log.e(TAG, "user_id: " + user_id + ",file_name: "+ file_name + ",slicenum: "+ slicenum+ ",stepsize: "+ stepsize+ ",xp: "+ xp+ ",yp: "+ yp);
+
+                String msgg= file_name+":" + slicenum+":" + stepsize +":" + xp +":" + yp;
+
+                ServerConnector.getInstance().sendMsg("msstartimgtask:" + msgg);
+
+                Log.e(TAG, "msgg:" + msgg );
+
+            }
+        });
+        builder.setNegativeButtonMultiListener(new MDDialog.OnMultiClickListener() {
+            @Override
+            public void onClick(View clickedView, View contentView) {
+                Toast_in_Thread("Cancel down!");
+            }
+        });
+        builder.setTitle("s2 init imaging task");
         MDDialog mdDialog = builder
                 .create();
         mdDialog.show();
@@ -5403,6 +6306,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         Log.e(TAG, "loadBigDataImg file_Name: " + file_Name);
 
         Log.e(TAG, "loadBigDataImg: " + filepath);
+
+        clearTagView();
+        loadTagsStream();
         if (isZscanSeries) {
             progressDialog_zscan.dismiss();
             isZscanSeries = false;
@@ -5421,11 +6327,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             }
             if (!file_Name.contains(s2currentnumforimg)) {
                 Log.e(TAG, "sdfasdfsdfasdf 3" );
-                return;
+                //return;
             }
 
         }
-        loadTagsStream();
+
 
         s2filename = file_Name;
         s2EswcPath = filepath;
@@ -5435,6 +6341,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         myS2renderer.zoom(2f);
         myS2GLSurfaceView.requestRender();
         S2LastImgName=s2filename;
+
+
 //        if(isCamera){
 //            File file = new File(filepath);
 //            InputStream is = null;
@@ -5484,6 +6392,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         puiHandler.sendEmptyMessage(12);
     }
 
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void clearTagView() {
+
+        puiHandler.sendEmptyMessage(14);
+    }
     /*
  load pvcam image after downloading data  ---------------------------------------------------------------
  added by ld for pvcam
@@ -5558,7 +6473,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
     static Timer timerDownload;
 
-    public static void showProgressBar() {
+    public void showProgressBar() {
         puiHandler.sendEmptyMessage(0);
         timerDownload = new Timer();
         timerDownload.schedule(new TimerTask() {
@@ -5570,19 +6485,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void hideProgressBar() {
+    public  void hideProgressBar() {
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(1);
     }
 
 
-    public static void timeOutHandler() {
+    public  void timeOutHandler() {
         hideProgressBar();
         puiHandler.sendEmptyMessage(3);
     }
 
 
-    public static void showSyncBar() {
+    public  void showSyncBar() {
         puiHandler.sendEmptyMessage(9);
         timerDownload = new Timer();
         timerDownload.schedule(new TimerTask() {
@@ -5594,13 +6509,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void hideSyncBar() {
+    public  void hideSyncBar() {
         timerDownload.cancel();
         puiHandler.sendEmptyMessage(10);
     }
 
 
-    public static void setBigDataName() {
+    public  void setBigDataName() {
         puiHandler.sendEmptyMessage(4);
     }
 
@@ -5666,7 +6581,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    private static void setButtons() {
+    private void setButtons() {
         puiHandler.sendEmptyMessage(2);
     }
 
@@ -5978,7 +6893,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     }
 
 
-    public static void Toast_in_Thread_static(String message) {
+    public void Toast_in_Thread_static(String message) {
         Message msg = new Message();
         msg.what = TOAST_INFO_STATIC;
         Bundle bundle = new Bundle();
@@ -6000,7 +6915,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     functions for old version bigdata  ---------------------------------------------------------------------------------
      */
 
-    public static void LoadBigFile_Local(String filepath_local) {
+    public void LoadBigFile_Local(String filepath_local) {
         System.out.println("------" + filepath_local + "------");
         isBigData_Local = true;
 

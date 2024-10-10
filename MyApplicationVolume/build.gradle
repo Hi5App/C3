@@ -9,7 +9,7 @@ import java.text.SimpleDateFormat
 buildscript {
     repositories {
         google()
-        jcenter()
+        mavenCentral()
         maven { url 'https://developer.huawei.com/repo/'}
 
     }
@@ -25,7 +25,7 @@ buildscript {
 
 allprojects {
     repositories {
-        maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
 
         maven { url 'https://maven.aliyun.com/repository/google' }
         maven { url 'https://maven.aliyun.com/repository/jcenter' }
@@ -33,13 +33,13 @@ allprojects {
         maven { url 'https://developer.huawei.com/repo/'}
         maven { url 'https://jitpack.io' }//添加jitpack仓库地址
         google()
-        jcenter()
+        mavenCentral()
     }
 }
 
 ext {
     compileSdkVersion = 29
-    buildToolsVersion = '29.0.3'
+    buildToolsVersion = '30.0.2'
     minSdkVersion = 19
     targetSdkVersion = 28
     appTargetSdkVersion = 28

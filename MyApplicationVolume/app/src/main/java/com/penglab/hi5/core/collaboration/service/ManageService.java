@@ -90,12 +90,25 @@ public class ManageService extends BasicService {
         }
     }
 
+
+    /* when fail to send msg in service, reConnect the socket; use synchronized to avoid the using conflict of socket */
+    public void reConnect(){
+        Log.e(TAG,"Start to reConnect");
+
+            if(mBasicConnector.checkConnection()){
+                mBasicConnector.releaseConnection();
+                mReadThread.reConnect();
+            }
+
+    }
+
+
     public int getnumall(){
-        Log.e(TAG,"getnumall");
+       // Log.e(TAG,"getnumall");
 
         if(mBasicConnector.checkConnection()){
                 //mBasicConnector.releaseConnection();
-                Log.e(TAG,"getnumall"+mReadThread.Readtasknumall());
+              //  Log.e(TAG,"getnumall"+mReadThread.Readtasknumall());
                 return mReadThread.Readtasknumall();
         }
 
@@ -107,7 +120,7 @@ public class ManageService extends BasicService {
 
         if(mBasicConnector.checkConnection()){
                 //mBasicConnector.releaseConnection();
-                Log.e(TAG,"getnumnow"+mReadThread.Readttasknumnow());
+               // Log.e(TAG,"getnumnow"+mReadThread.Readttasknumnow());
                 return mReadThread.Readttasknumnow();
 
         }

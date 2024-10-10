@@ -102,7 +102,8 @@
         <activity android:name=".chat.nim.main.activity.NoDisturbActivity" />
         <activity android:name=".core.S2Activity"
             android:label="S2"
-            android:requestLegacyExternalStorage="true"/>
+            android:requestLegacyExternalStorage="true"
+            android:parentActivityName=".core.ui.splash.SplashScreenActivity" />
         <activity android:name=".core.ui.register.RegisterActivity" />
         <activity android:name=".core.ui.password.FindPasswordActivity" />
         <activity android:name=".core.ui.login.LoginActivity" />

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        tools:ignore="MissingConstraints">
+
+
+        <LinearLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp"
+            >
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="User ID"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:paddingBottom="10dp"
+                tools:ignore="HardcodedText" />
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_checkimagingtask_userid"
+                android:text="default"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+
+                app:funcType="canClear"
+                />
+
+
+        </LinearLayout >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="File Name"
+                android:paddingBottom="10dp"
+                android:textSize="12sp"
+                tools:ignore="HardcodedText" />
+
+
+            <com.chaychan.viewlib.PowerfulEditText
+                android:id="@+id/s2_checkimagingtask_filename"
+                android:text="default"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:funcType="canClear"
+                />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="15dp"
+            android:paddingBottom="10dp"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Display task progress"
+                android:paddingBottom="10dp"
+                android:textSize="12sp"
+                tools:ignore="HardcodedText" />
+
+            <com.warkiz.widget.IndicatorSeekBar
+                android:id="@+id/s2_checkimagingtask_progress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:isb_max="100"
+                app:isb_min="0"
+                app:isb_progress="0"
+                app:isb_seek_smoothly="true"
+                app:isb_ticks_count="6"
+                app:isb_show_tick_marks_type="oval"
+                app:isb_tick_marks_size="7dp"
+                app:isb_tick_marks_color="@color/colorAccent_light"
+                app:isb_tick_texts_size="12sp"
+                app:isb_tick_texts_color="@color/colorAccent_light"
+                app:isb_thumb_color="@color/colorAccent"
+                app:isb_thumb_size="12dp"
+                app:isb_show_indicator="rounded_rectangle"
+                app:isb_indicator_color="@color/button_normal"
+                app:isb_indicator_text_color="@color/colorAccent"
+                app:isb_indicator_text_size="18sp"
+                app:isb_track_background_color="@color/button_normal"
+                app:isb_track_background_size="2dp"
+
+                app:isb_track_progress_color="@color/colorAccent"
+                app:isb_track_progress_size="4dp"/>
+
+        </LinearLayout>
+
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

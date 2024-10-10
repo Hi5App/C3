@@ -168,7 +168,7 @@ public abstract class BasicService extends Service {
                 mBasicConnector.initConnection();
                 mSocket = mBasicConnector.getSocket();
                 is = mBasicConnector.getSocket().getInputStream();
-                mBasicConnector.reLogin();
+                //mBasicConnector.reLogin();
                 isReconnect = false;
                 isReset = false;
 
@@ -179,7 +179,18 @@ public abstract class BasicService extends Service {
 
             setReleaseInner(false);
         }
+        ///liudi
 
+        public void reconnect(){
+            Log.e(TAG,"Start to reConnect");
+
+            if(mBasicConnector.checkConnection()){
+
+                mBasicConnector.releaseConnection();
+                reConnect();
+            }
+
+        }
 
         public void resetConnection() {
             isReset = true;
@@ -517,10 +528,12 @@ public abstract class BasicService extends Service {
         private boolean processHeader(final String rmsg) {
 
             int ret = 0;
-            String dir_str_server = null;
+            String dir_img_server = null;
+            String dir_eswc_server = null;
             String dir_Pvcam_server = null;
             //File dir_str_server = getExternalFilesDir(context.getResources().getString(R.string.app_name) + "/S2");
-            dir_str_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Checkdata").getAbsolutePath();
+            dir_img_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Checkdata/image").getAbsolutePath();
+            dir_eswc_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Checkdata/eswc").getAbsolutePath();
             dir_Pvcam_server = getExternalFilesDir(getResources().getString(R.string.app_name) + "/S2/Pvcam").getAbsolutePath();
             if (rmsg.endsWith("\n")) {
                 String msg = rmsg.trim();
@@ -554,15 +567,20 @@ public abstract class BasicService extends Service {
 
                         if (dataType.filename.endsWith(".mp3") || dataType.filename.endsWith(".wmv"))
                             dataType.filepath = getApplicationContext().getExternalFilesDir(null).toString() + "/Resources/Music";
-                        else if (dataType.filename.endsWith(".tif")|| dataType.filename.endsWith(".swc") || dataType.filename.endsWith(".txt") || dataType.filename.endsWith(".v3dpbd") || dataType.filename.endsWith(".eswc") || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
-                            dataType.filepath = dir_str_server;
+                        else if (dataType.filename.endsWith(".tif") || dataType.filename.endsWith(".txt") || dataType.filename.endsWith(".v3dpbd")  || dataType.filename.endsWith(".jpg") || dataType.filename.endsWith(".v3draw")) {
+                            dataType.filepath = dir_img_server;
                             Log.e(TAG, "This is a s2 file !");
+                        } else if ( dataType.filename.endsWith(".eswc")|| dataType.filename.endsWith(".swc") )
+                        {
+                            dataType.filepath = dir_eswc_server;
+                            Log.e(TAG, "This is a s2 eswc !");
                         }
 
                         ret =0;
                     }
                 } else {
                     Log.e(TAG, "msgggggggggggggg: " + msg);
+
                     ret = 2;
                 }
             } else {
@@ -622,8 +640,8 @@ public abstract class BasicService extends Service {
             }
 
             //MainActivity.hideDownloadingPopupView();
-
-            //reConnection();
+            resetDataType();
+            reconnect();
         }
 
 

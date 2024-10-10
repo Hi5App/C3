@@ -2,7 +2,6 @@ package com.penglab.hi5.core.collaboration;
 
 import android.util.Log;
 
-import com.penglab.hi5.core.MainActivity;
 import com.penglab.hi5.core.collaboration.basic.ReconnectionInterface;
 
 import org.apache.commons.io.IOUtils;
@@ -100,7 +99,7 @@ public class MsgSender {
                 try {
 
                     OutputStream out = socket.getOutputStream();
-                    String data = "HeartBeat\n";
+                    String data = "HeartBeat:\n";
                     int dataLength = data.getBytes(StandardCharsets.UTF_8).length;
 
                     /* msg header = type + dataLength */
