@@ -1,0 +1,25 @@
+apply plugin: 'com.android.library'
+
+
+android {
+    compileSdkVersion 30 // 使用 API 级别 29
+    buildToolsVersion "30.0.2" // 使用与 API 29 兼容的构建工具版本
+
+    defaultConfig {
+
+        minSdkVersion 24 // 设置最低兼容的 SDK 版本
+        targetSdkVersion 30 // 设置目标 SDK 版本为 29
+
+    }
+
+    externalNativeBuild {
+        cmake {
+            version "3.10.2"
+            path file('src/main/jni/CMakeLists.txt')
+        }
+    }
+
+    dependencies {
+        implementation 'com.android.support:support-v4:24.0.0'
+    }
+}
