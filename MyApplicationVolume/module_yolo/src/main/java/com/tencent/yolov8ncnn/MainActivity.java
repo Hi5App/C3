@@ -20,7 +20,6 @@ import android.content.pm.PackageManager;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -29,8 +28,8 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MainActivity extends Activity implements SurfaceHolder.Callback
 {
@@ -70,6 +69,13 @@ public class MainActivity extends Activity implements SurfaceHolder.Callback
                 yolov8ncnn.closeCamera();
 
                 yolov8ncnn.openCamera(new_facing);
+//// 设置返回数据
+//                Intent resultIntent = new Intent();
+//                resultIntent.putExtra("key", "value");
+//                setResult(Activity.RESULT_OK, resultIntent);
+//
+//// 关闭子项目的 Activity 返回主项目
+//                finish();
 
                 facing = new_facing;
             }

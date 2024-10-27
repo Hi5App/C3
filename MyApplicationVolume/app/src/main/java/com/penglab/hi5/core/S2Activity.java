@@ -30,6 +30,7 @@ import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.opengl.GLSurfaceView;
@@ -46,6 +47,8 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -73,6 +76,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.content.ContextCompat;
 
 import com.bifan.txtreaderlib.main.TxtConfig;
 import com.bifan.txtreaderlib.ui.HwTxtPlayActivity;
@@ -112,6 +116,7 @@ import com.penglab.hi5.core.game.AchievementPopup;
 import com.penglab.hi5.core.ui.login.LoginActivity;
 import com.penglab.hi5.data.dataStore.PreferenceLogin;
 import com.penglab.hi5.data.dataStore.SettingFileManager;
+import com.tencent.yolov8ncnn.Yolov8Ncnn;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.File;
@@ -139,8 +144,9 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 //import com.penglab.hi5.chat.agora.message.AgoraMsgManager;
 
 
-public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
+public class S2Activity extends BaseActivity implements ReceiveMsgInterface, SurfaceHolder.Callback {
     private static final String TAG = "S2Activity";
+    private static final int REQUEST_CAMERA_PERMISSION = 100;
 
 
     private Timer timer = null;
@@ -202,7 +208,17 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
     private boolean[] temp_mode = new boolean[8];
     private float[] locationFor2dImg = new float[2];
 
+    public static final int REQUEST_CAMERA = 100;
 
+    private Yolov8Ncnn yolov8ncnn = new Yolov8Ncnn();
+    private int facing = 1;
+
+    private Spinner spinnerModel;
+    private Spinner spinnerCPUGPU;
+    private int current_model = 0;
+    private int current_cpugpu = 0;
+
+    private SurfaceView cameraView;
     private View pvcamModeView;
     private View pvcamRtmpModeView;
 
@@ -966,97 +982,97 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
                 Thread thread = new Thread(new Runnable() { //创建子线程
                     @Override
                     public void run() {
-                        if(progressDialog_loadimg!=null) {
-                            if (progressDialog_loadimg.isShowing()) {
-                                //puiHandler.sendMessage(13);
-                                puiHandler.sendEmptyMessage(13);
-                            }
-                        }
-
-
-                        heartbeatnum++;
-                        if(msgqueue==null)return;
-                        if(ifsendmsgbyqueue)
-                        {
-                            countwaitnum++;
-                            if(countwaitnum>=10*20) {
-                                for(String xx :msgqueue)
-                                {
-                                    Log.e(TAG, "msgqueue sdfasdf! "+xx);
-                                }
-                                //manageService.reConnection();
-                                //msgqueue.clear();
-                                countwaitnum=0;
-                                ifresendmdg=true;
-
-
-                                //String msg = msgqueue.get(0);
-                                msgqueue.clear();
-                                ifsendmsgbyqueue=false;
-                                if(progressDialog_loadimg!=null)
-                                {
-                                    if(progressDialog_loadimg.isShowing())
-                                    {
-                                        progressDialog_loadimg.dismiss();
-                                    }
-                                }
-
-                                //ServerConnector.getInstance().sendMsg(msg);
-                                //ServerConnector.getInstance().onReconnection(msg);
-
-                                //msgqueue.remove(0);
-                            }
-                            Log.v(TAG, "wait for msg! "+msgqueue.size());
-                            //Log.e(TAG, "msgqueue : "+msgqueue);
-                            return;
-
-                        }
-
-//                        if(heartbeatnum==100&&ifsendnotification)
-//                        {
-//                            //ifsendnotification = false;
-//                            heartbeatnum = 0;
-//                            currentTaskProgress++;
-//                            puiHandler.sendEmptyMessage(15);
+//                        if(progressDialog_loadimg!=null) {
+//                            if (progressDialog_loadimg.isShowing()) {
+//                                //puiHandler.sendMessage(13);
+//                                puiHandler.sendEmptyMessage(13);
+//                            }
+//                        }
 //
+//
+//                        heartbeatnum++;
+//                        if(msgqueue==null)return;
+//                        if(ifsendmsgbyqueue)
+//                        {
+//                            countwaitnum++;
+//                            if(countwaitnum>=10*20) {
+//                                for(String xx :msgqueue)
+//                                {
+//                                    Log.e(TAG, "msgqueue sdfasdf! "+xx);
+//                                }
+//                                //manageService.reConnection();
+//                                //msgqueue.clear();
+//                                countwaitnum=0;
+//                                ifresendmdg=true;
+//
+//
+//                                //String msg = msgqueue.get(0);
+//                                msgqueue.clear();
+//                                ifsendmsgbyqueue=false;
+//                                if(progressDialog_loadimg!=null)
+//                                {
+//                                    if(progressDialog_loadimg.isShowing())
+//                                    {
+//                                        progressDialog_loadimg.dismiss();
+//                                    }
+//                                }
+//
+//                                //ServerConnector.getInstance().sendMsg(msg);
+//                                //ServerConnector.getInstance().onReconnection(msg);
+//
+//                                //msgqueue.remove(0);
+//                            }
+//                            Log.v(TAG, "wait for msg! "+msgqueue.size());
+//                            //Log.e(TAG, "msgqueue : "+msgqueue);
+//                            return;
 //
 //                        }
-                        if(heartbeatnum>=320*5) {
-                            heartbeatnum = 0;
-
-                            msgqueue.add("HeartBeat:");
-
-                            Log.e(TAG, "HeartBeat!  ");
-
-
-                        }else if(heartbeatnum==160*5)
-                        {
-                            PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
-                            String account = preferenceLogin.getUsername();
-                            Log.v(TAG, "account: " + account );
-                            //ServerConnector.getInstance().sendMsg("ID:"+account);
-                            msgqueue.add("ID:"+account);
-                        }
-
-                       // Log.e(TAG, "updateimgTimer is working!  ");
-
-                        if(msgqueue.isEmpty())
-                        {
-                            //Log.v(TAG, "msgqueue is empty! ");
-                            return;
-                        }else
-                        {
-                            //Log.e(TAG, "msgqueue : "+msgqueue.toArray());
-                        }
-
-
-
-                        String msg = msgqueue.get(0);
-                        ServerConnector.getInstance().sendMsg(msg);
-                        //Log.e(TAG, "updateimgTimer is working!  "+msg);
-                         ifsendmsgbyqueue = true;
-                        countwaitnum=0;
-                        //puiHandler.sendMessage(msg);
+//
+////                        if(heartbeatnum==100&&ifsendnotification)
+////                        {
+////                            //ifsendnotification = false;
+////                            heartbeatnum = 0;
+////                            currentTaskProgress++;
+////                            puiHandler.sendEmptyMessage(15);
+////
+////
+////                        }
+//                        if(heartbeatnum>=320*5) {
+//                            heartbeatnum = 0;
+//
+//                            msgqueue.add("HeartBeat:");
+//
+//                            Log.e(TAG, "HeartBeat!  ");
+//
+//
+//                        }else if(heartbeatnum==160*5)
+//                        {
+//                            PreferenceLogin preferenceLogin = PreferenceLogin.getInstance();
+//                            String account = preferenceLogin.getUsername();
+//                            Log.v(TAG, "account: " + account );
+//                            //ServerConnector.getInstance().sendMsg("ID:"+account);
+//                            msgqueue.add("ID:"+account);
+//                        }
+//
+//                       // Log.e(TAG, "updateimgTimer is working!  ");
+//
+//                        if(msgqueue.isEmpty())
+//                        {
+//                            //Log.v(TAG, "msgqueue is empty! ");
+//                            return;
+//                        }else
+//                        {
+//                            //Log.e(TAG, "msgqueue : "+msgqueue.toArray());
+//                        }
+//
+//
+//
+//                        String msg = msgqueue.get(0);
+//                        ServerConnector.getInstance().sendMsg(msg);
+//                        //Log.e(TAG, "updateimgTimer is working!  "+msg);
+//                         ifsendmsgbyqueue = true;
+//                        countwaitnum=0;
+//                        //puiHandler.sendMessage(msg);
                     }
                 });
                 thread.start();					// 开启线程
@@ -1383,6 +1399,125 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
         hs_top.addView(ll_top);
     }
 
+    private void initYolov8Dection() {
+
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
+        } else {
+            // 已经授予权限，继续初始化
+//            yolov8ncnn.openCamera(facing);
+        }
+
+//        Intent intent = new Intent(this, com.tencent.yolov8ncnn.MainActivity.class);
+//        startActivity(intent);
+
+
+
+
+
+        setContentView(R.layout.activity_s2_yolov8_new);
+
+
+
+        cameraView = (SurfaceView) findViewById(R.id.cameravieww);
+
+        cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
+        cameraView.getHolder().addCallback(this);
+
+        Button buttonSwitchCamera = (Button) findViewById(R.id.buttonSwitchCameraa);
+        buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                Log.e("MainActivity", "buttonSwitchCamera");
+                int new_facing = 1 - facing;
+
+                yolov8ncnn.closeCamera();
+
+                yolov8ncnn.openCamera(new_facing);
+//// 设置返回数据
+//                Intent resultIntent = new Intent();
+//                resultIntent.putExtra("key", "value");
+//                setResult(Activity.RESULT_OK, resultIntent);
+//
+//// 关闭子项目的 Activity 返回主项目
+//                finish();
+
+                facing = new_facing;
+            }
+        });
+
+        spinnerModel = (Spinner) findViewById(R.id.spinnerModell);
+        spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
+            {
+                if (position != current_model)
+                {
+                    current_model = position;
+                    reload();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0)
+            {
+            }
+        });
+
+        spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPUu);
+        spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
+            {
+                if (position != current_cpugpu)
+                {
+                    current_cpugpu = position;
+                    reload();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> arg0)
+            {
+            }
+        });
+
+        reload();
+    }
+
+    private void reload()
+    {
+        boolean ret_init = yolov8ncnn.loadModel(getAssets(), current_model, current_cpugpu);
+        Log.e("MainActivity", "reload"+ret_init);
+        if (!ret_init)
+        {
+            Log.e("MainActivity", "yolov8ncnn loadModel failed");
+        }
+    }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
+    {
+        yolov8ncnn.setOutputWindow(holder.getSurface());
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder)
+    {
+        yolov8ncnn.setOutputWindow(holder.getSurface());
+        yolov8ncnn.openCamera(facing);
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder)
+    {
+        yolov8ncnn.setOutputWindow(null); // 在销毁时清除输出窗口
+        yolov8ncnn.closeCamera();         // 关闭摄像头
+    }
+
     private void initPvcamRtmplayout() {
         if (isCamera) {
 
@@ -1395,8 +1530,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             // load layout view
             mSettings = new Settings(this);
-//            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
-            String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
+            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+//            String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
 
             String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
             String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
@@ -1470,6 +1605,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
             } else {
                 mVideoView.setVideoURI(Uri.parse(mVideoPath));
                 mVideoView.start();
+
             }
 
 
@@ -2227,7 +2363,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 
             @Override
             public void onClick(View v) {
-                Log.e(TAG, "s2send ");
+                Log.e(TAG, "initYolov8Dection ");
 
 
                 isCamera = true;
@@ -2245,7 +2381,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface {
 //                //ServerConnector.getInstance().sendMsg("s2start:");
 //
                 Toast_in_Thread("Pvcam!");
-                initPvcamRtmplayout();
+//                initPvcamRtmplayout();
+                initYolov8Dection();
             }
         });
 

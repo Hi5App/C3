@@ -356,4 +356,12 @@
     <string name="zscan">zscan</string>
     <string name="opencamera">opencamera</string>
 
+    <string-array name="model_array">
+        <item>yolov8s-seg</item>
+        <!--        <item>yolov8n_test</item>-->
+    </string-array>
+    <string-array name="cpugpu_array">
+        <item>CPU</item>
+        <item>GPU</item>
+    </string-array>
 </resources>
