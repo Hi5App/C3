@@ -1138,11 +1138,13 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
         // 关闭摄像头并释放相关资源
         if (yolov8ncnn != null) {
             yolov8ncnn.closeCamera();
+            yolov8ncnn=null;
         }
 
         // 移除 SurfaceHolder 的回调，避免内存泄漏
         if (cameraView != null && cameraView.getHolder() != null) {
             cameraView.getHolder().removeCallback(this);
+            cameraView=null;
         }
 
         if (mBoundManagement) {
@@ -1410,9 +1412,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     public void onBackPressed() {
         Log.e("S2Activity", "onBackPressed");
 
+        finish();
 
-        // 执行返回逻辑
-        super.onBackPressed();  // 系统处理返回行为
     }
 
     private void initYolov8Dection() {
@@ -2379,7 +2380,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             @Override
             public void onClick(View v) {
-                Log.e(TAG, "initYolov8Dection ");
+                Log.e(TAG, "initPvcamRtmplayout ");
 
 
                 isCamera = true;
@@ -2398,7 +2399,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 //
                 Toast_in_Thread("Pvcam!");
 //                initPvcamRtmplayout();
-                initYolov8Dection();
+                initPvcamRtmplayout();
             }
         });
 
