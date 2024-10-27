@@ -1135,7 +1135,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 //            Intent agoraServiceIntent = new Intent(this, AgoraService.class);
 //            stopService(agoraServiceIntent);
 //        }
+        // 关闭摄像头并释放相关资源
+        if (yolov8ncnn != null) {
+            yolov8ncnn.closeCamera();
+        }
 
+        // 移除 SurfaceHolder 的回调，避免内存泄漏
+        if (cameraView != null && cameraView.getHolder() != null) {
+            cameraView.getHolder().removeCallback(this);
+        }
 
         if (mBoundManagement) {
             Log.e(TAG, "unbind management service !");
@@ -1398,6 +1406,14 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
         hs_top.addView(ll_top);
     }
+    @Override
+    public void onBackPressed() {
+        Log.e("S2Activity", "onBackPressed");
+
+
+        // 执行返回逻辑
+        super.onBackPressed();  // 系统处理返回行为
+    }
 
     private void initYolov8Dection() {
 
@@ -1408,7 +1424,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
             // 已经授予权限，继续初始化
-//            yolov8ncnn.openCamera(facing);
+          yolov8ncnn.openCamera(facing);
         }
 
 //        Intent intent = new Intent(this, com.tencent.yolov8ncnn.MainActivity.class);
