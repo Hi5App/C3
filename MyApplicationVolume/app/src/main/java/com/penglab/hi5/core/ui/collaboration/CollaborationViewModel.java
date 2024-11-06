@@ -224,6 +224,10 @@ public class CollaborationViewModel extends ViewModel {
                 neuron = anoName.substring(0, index);
             }
         }
+        else if(anoName.contains("synthetic")){
+            image = parts[0] + "_synthetic";
+            neuron = parts[0] + "_" + parts[1] + "_synthetic";
+        }
         // Check if image has a suffix
         else if(parts.length >= 3 && parts[1].length() == 1){
             image = parts[0] + "_" + parts[1];
