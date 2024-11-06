@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
@@ -39,6 +40,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.renderscript.RenderScript;
+import android.renderscript.ScriptIntrinsicYuvToRGB;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -96,6 +99,7 @@ import com.netease.nim.uikit.common.ui.imageview.CircleImageView;
 import com.netease.nimlib.sdk.NIMClient;
 import com.netease.nimlib.sdk.auth.AuthService;
 import com.penglab.hi5.R;
+import com.penglab.hi5.ai_module.ImageUtils;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_list;
@@ -120,6 +124,7 @@ import com.tencent.yolov8ncnn.Yolov8Ncnn;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.File;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -168,8 +173,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     private static NotificationCompat.Builder notification;
     private static NotificationManagerCompat notificationManager;
     //ServerConnector ServerConnectorForScope;
-
-    private String filepath = "";
+    private ScriptIntrinsicYuvToRGB yuvToRgbIntrinsic;
+    private RenderScript rs;
+    private final String filepath = "";
     private  ArrayList<String> msgqueue ;
     private static String s2checktaskprogress = "";
     private static String s2cimagingtaskprogress = "";
@@ -196,16 +202,16 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     private boolean ifsendmsgbyqueue = false;
     private boolean ifsendnotification = false;
 
-    private boolean ifresendmdg = false;
-    private boolean iffirstlogin = true;
+    private final boolean ifresendmdg = false;
+    private final boolean iffirstlogin = true;
     private boolean ifloadtagstraem = false;
-    private int heartbeatnum=0;
-    private int countwaitnum=0;
-    private static int currentTaskProgress = 0;
+    private final int heartbeatnum=0;
+    private final int countwaitnum=0;
+    private static final int currentTaskProgress = 0;
 
     private static boolean isZscanSeries = false;
 
-    private boolean[] temp_mode = new boolean[8];
+    private final boolean[] temp_mode = new boolean[8];
     private float[] locationFor2dImg = new float[2];
 
     public static final int REQUEST_CAMERA = 100;
@@ -245,8 +251,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     private static TextView filenametext;
     private RockerView s2rocekerview_xy;
     private RockerView s2rocekerview_z;
+    private ImageUtils imageUtils;
     private static ImageView PV_imageView;
     private IjkVideoView mVideoView;
+    private ImageView imageView ;
+    private boolean isDisplayingFrames = false;
+
     private Settings mSettings;
     private AndroidMediaController mMediaController;
     private TableLayout mHudView;
@@ -321,7 +331,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
     // 读写权限
-    private static String[] PERMISSIONS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.CAMERA,
@@ -349,8 +359,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     private String S2CheckImgpath = "";
     private String S2CheckSwcpath = "";
     private String S2LastImgName = "";
-    private String S2Password = "";
+    private final String S2Password = "";
     private String S2loadlogstream = "";
+    private IjkMediaPlayer player;
+    private SurfaceHolder surfaceHolder;
+    private boolean isSurfaceReady= false;
 
     private enum PenColor {
         WHITE, BLACK, RED, BLUE, PURPLE, CYAN, YELLOW, GREEN
@@ -371,9 +384,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     //    private boolean mBoundAgora = false;
     private boolean mBoundManagement = false;
     private boolean mBoundCollaboration = false;
-    private boolean mBounds2 = false;
+    private final boolean mBounds2 = false;
 
-    private int count = 0;
+    private final int count = 0;
 
     private static String conPath = "";
     private static String s2checkimgtype = "";
@@ -752,7 +765,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
     @SuppressLint("HandlerLeak")
-    private Handler puiHandler = new Handler() {
+    private final Handler puiHandler = new Handler() {
         // 覆写这个方法，接收并处理消息。
         @Override
         public void handleMessage(Message msg) {
@@ -1362,7 +1375,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     }
 
     private void initBasicLayout() {
-        ll = (FrameLayout) findViewById(R.id.container1);
+        ll = findViewById(R.id.container1);
         ll.addView(myS2GLSurfaceView);
 
         LinearLayout ll_up = new LinearLayout(this);
@@ -1439,12 +1452,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
 
-        cameraView = (SurfaceView) findViewById(R.id.cameravieww);
+        cameraView = findViewById(R.id.cameravieww);
 
         cameraView.getHolder().setFormat(PixelFormat.RGBA_8888);
         cameraView.getHolder().addCallback(this);
 
-        Button buttonSwitchCamera = (Button) findViewById(R.id.buttonSwitchCameraa);
+        Button buttonSwitchCamera = findViewById(R.id.buttonSwitchCameraa);
         buttonSwitchCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -1466,7 +1479,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             }
         });
 
-        spinnerModel = (Spinner) findViewById(R.id.spinnerModell);
+        spinnerModel = findViewById(R.id.spinnerModell);
         spinnerModel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
@@ -1484,7 +1497,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             }
         });
 
-        spinnerCPUGPU = (Spinner) findViewById(R.id.spinnerCPUGPUu);
+        spinnerCPUGPU = findViewById(R.id.spinnerCPUGPUu);
         spinnerCPUGPU.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id)
@@ -1556,25 +1569,31 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             mMediaController = new AndroidMediaController(this, false);
 
+            // 初始化 IjkMediaPlayer 实例
+            player = new IjkMediaPlayer();
+            imageUtils = new ImageUtils(this, 640, 360); // 假设你的视频尺寸为 640x360
 
             IjkMediaPlayer.loadLibrariesOnce(null);
             IjkMediaPlayer.native_profileBegin("libijkplayer.so");
-
+            // 调用 testPrint() 方法
+            player.testPrint(); // 注意这里用的是实例对象调用，而不是类名
             pvcamRtmpModeView = getLayoutInflater().inflate(R.layout.activity_s2_rtmp_new, null);
             this.addContentView(pvcamRtmpModeView, lp4BigDataMode);
 
             // MoveXtop = findViewById(R.id.pv_top);
             //ImageButton MoveX = findViewById(R.id.zoomOut);
+            imageView   = findViewById(R.id.ImageView);
 
-            mVideoView = (IjkVideoView) findViewById(R.id.si_videoView);
-            mHudView = (TableLayout) findViewById(R.id.hud_s2_view);
+            mVideoView = findViewById(R.id.si_videoView);
+
+            mHudView = findViewById(R.id.hud_s2_view);
             mHudView.bringToFront();
             mVideoView.setMediaController(mMediaController);
             mVideoView.setHudView(mHudView);
 
             mVideoView.setBackgroundResource(R.drawable.mvideobg);
             mVideoView.bringToFront();
-            RockerView s2rocekerview_xy = (RockerView) findViewById(R.id.s2rockerView_z);
+            RockerView s2rocekerview_xy = findViewById(R.id.s2rockerView_z);
 
             Toolbar toolbar = findViewById(R.id.toolbar2);
             TextView mLogLeft = findViewById(R.id.textViews_xy);
@@ -1588,8 +1607,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             ImageButton startinject = findViewById(R.id.startinject);
 
-            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_pro_img = (Switch)findViewById(R.id.switch_pro_img);
-            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_cam =(Switch) findViewById(R.id.switch_cam);
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_pro_img = findViewById(R.id.switch_pro_img);
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_cam = findViewById(R.id.switch_cam);
 
             zoom_in.setImageResource(R.drawable.ic_zoom_in);
             zscan.setImageResource(R.drawable.ic_startzscan_foreground);
@@ -1600,6 +1619,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
             zoom_in.setVisibility(View.VISIBLE);
+
             zoom_out.setVisibility(View.VISIBLE);
             zscan.setVisibility(View.VISIBLE);
             stopcamera.setVisibility(View.VISIBLE);
@@ -1624,6 +1644,8 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 mVideoView.start();
 
             }
+
+
 
 
             switch_pro_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -1684,7 +1706,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             startinject.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
-
+                    isDisplayingFrames = !isDisplayingFrames;
+                    if (isDisplayingFrames) {
+                        startDisplayingFrames();
+                    } else {
+                        stopDisplayingFrames();
+                    }
                     Log.e(TAG, "startinject: ");
                     ServerConnector.getInstance().sendMsg("msstartinject:");
                 }
@@ -1772,7 +1799,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                     }
                 });
             }
-            s2rocekerview_z = (RockerView) findViewById(R.id.s2rockerView_xy);
+            s2rocekerview_z = findViewById(R.id.s2rockerView_xy);
             if (s2rocekerview_z != null) {
                 s2rocekerview_z.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
                 s2rocekerview_z.setOnShakeListener(RockerView.DirectionMode.DIRECTION_2_VERTICAL, new RockerView.OnShakeListener() {
@@ -1802,7 +1829,53 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             pvcamRtmpModeView.setVisibility(View.VISIBLE);
         }
     }
+    private void startDisplayingFrames() {
+        new Thread(() -> {
+            while (isDisplayingFrames) {
+                ByteBuffer frameBuffer = player.getFrame();
+                if (frameBuffer != null&& frameBuffer.remaining() == 345600) {
+                    byte[] yuvData = new byte[frameBuffer.remaining()];
+                    frameBuffer.get(yuvData);
 
+                    // 将 YUV 数据转换为 Bitmap
+                    Bitmap bitmap = imageUtils.yuvToRgb(yuvData, 640, 360);
+
+                    if (bitmap != null) {
+                        Log.d("ImageView", "Bitmap created, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
+
+                        // 在主线程更新 ImageView
+                        runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+                    } else {
+                        Log.d("ImageView", "Bitmap conversion failed");
+                    }
+                } else {
+                    Log.d("ImageView", "Frame buffer is null");
+                }
+                // Add delay to avoid rapid consecutive captures
+                try {
+                    Thread.sleep(50); // 500ms delay between captures
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }).start();
+    }
+
+    private void displayFrame(Bitmap bitmap) {
+        if (isSurfaceReady && bitmap != null) {
+            Log.d("SurfaceView", "Displaying frame on SurfaceView");
+            Canvas canvas = surfaceHolder.lockCanvas();
+            if (canvas != null) {
+                canvas.drawBitmap(bitmap, 0, 0, null);
+                surfaceHolder.unlockCanvasAndPost(canvas);
+            }
+        } else {
+            Log.d("SurfaceView", "Surface not ready or bitmap is null");
+        }
+    }
+    private void stopDisplayingFrames() {
+        isDisplayingFrames = false;
+    }
     private  boolean startZscan()
     {
         AlertDialog aDialog = new AlertDialog.Builder(S2Context)
@@ -2734,8 +2807,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 String getswcmsg="getimgbyorder:/"+s2checkimgtype+"_img_stack/eswc/"+eswcorder;
                 ServerConnector.getInstance().sendMsg(getswcmsg);
                 Log.e(TAG, "eswc is not existed!" + getswcmsg);
-                return;
-            }
+                }
 
         }
         });
@@ -2966,7 +3038,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private ServiceConnection connection_management = new ServiceConnection() {
+    private final ServiceConnection connection_management = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -2989,7 +3061,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     /**
      * Defines callbacks for service binding, passed to bindService()
      */
-    private ServiceConnection connection_collaboration = new ServiceConnection() {
+    private final ServiceConnection connection_collaboration = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -4222,7 +4294,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                     @Override
                     public void operate(View contentView) {
                         // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                        EditText et = (EditText) contentView.findViewById(R.id.userAccount_edit_check);
+                        EditText et = contentView.findViewById(R.id.userAccount_edit_check);
                         et.setText(InfoCache.getAccount());
                     }
                 })
@@ -4548,11 +4620,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
 
-                PowerfulEditText tag_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
+                PowerfulEditText tag_userid = contentView.findViewById(R.id.s2_tag_userid);
 
                 tag_userid.setText(account);
 
-                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_filename);
+                PowerfulEditText tag_filename = contentView.findViewById(R.id.s2_tag_filename);
 
                 tag_filename.setText(s2filename);
 
@@ -4562,7 +4634,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 String[] arr = {"null", "wrong", "fail", "pass", "good", "perfect"};
                 image_quality.customTickTexts(arr);
                 swc_quality.customTickTexts(arr);
-                PowerfulEditText tag_notes = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_notes);
+                PowerfulEditText tag_notes = contentView.findViewById(R.id.s2_tag_notes);
 
                 image_quality.setProgress(0);
                 swc_quality.setProgress(0);
@@ -4606,9 +4678,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
                 IndicatorSeekBar image_quality = contentView.findViewById(R.id.s2_tag_image_quality);
                 IndicatorSeekBar swc_quality = contentView.findViewById(R.id.s2_tag_swc_quality);
-                PowerfulEditText tag_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_userid);
-                PowerfulEditText tag_notes = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_notes);
-                PowerfulEditText tag_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_tag_filename);
+                PowerfulEditText tag_userid = contentView.findViewById(R.id.s2_tag_userid);
+                PowerfulEditText tag_notes = contentView.findViewById(R.id.s2_tag_notes);
+                PowerfulEditText tag_filename = contentView.findViewById(R.id.s2_tag_filename);
 
 
                 int image_quality_int = image_quality.getProgress();
@@ -4681,11 +4753,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
 
-                PowerfulEditText initscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_userid);
+                PowerfulEditText initscantask_userid = contentView.findViewById(R.id.s2_initscantask_userid);
 
                 initscantask_userid.setText(account);
 
-                PowerfulEditText initscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_filename);
+                PowerfulEditText initscantask_filename = contentView.findViewById(R.id.s2_initscantask_filename);
 
 
 
@@ -4737,19 +4809,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             public void onClick(View clickedView, View contentView) {
 
 
-                PowerfulEditText initscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_userid);
+                PowerfulEditText initscantask_userid = contentView.findViewById(R.id.s2_initscantask_userid);
 
-                PowerfulEditText initscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_filename);
-
-
-                PowerfulEditText s2_leftborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_leftborder);
-
-                PowerfulEditText s2_rightborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_rightborder);
+                PowerfulEditText initscantask_filename = contentView.findViewById(R.id.s2_initscantask_filename);
 
 
-                PowerfulEditText s2_topborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_topborder);
+                PowerfulEditText s2_leftborder = contentView.findViewById(R.id.s2_initscantask_leftborder);
 
-                PowerfulEditText s2_bottomborder = (PowerfulEditText)contentView.findViewById(R.id.s2_initscantask_bottomborder);
+                PowerfulEditText s2_rightborder = contentView.findViewById(R.id.s2_initscantask_rightborder);
+
+
+                PowerfulEditText s2_topborder = contentView.findViewById(R.id.s2_initscantask_topborder);
+
+                PowerfulEditText s2_bottomborder = contentView.findViewById(R.id.s2_initscantask_bottomborder);
 
                 String user_id="";
 
@@ -4988,11 +5060,11 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
 
-                PowerfulEditText checkscantask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_checkscantask_userid);
+                PowerfulEditText checkscantask_userid = contentView.findViewById(R.id.s2_checkscantask_userid);
 
 
 
-                PowerfulEditText checkscantask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_checkscantask_filename);
+                PowerfulEditText checkscantask_filename = contentView.findViewById(R.id.s2_checkscantask_filename);
 
                 IndicatorSeekBar checkscantaskProgress = contentView.findViewById(R.id.s2_checkscantask_progress);
 
@@ -5097,19 +5169,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             @Override
             public void onClick(View clickedView, View contentView) {
 
-                PowerfulEditText initimgtask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_userid);
+                PowerfulEditText initimgtask_userid = contentView.findViewById(R.id.s2_initimagingtask_userid);
 
-                PowerfulEditText initimgtask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_filename);
-
-
-                PowerfulEditText s2_slicenum = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_slicenum);
-
-                PowerfulEditText s2_stepsize = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+                PowerfulEditText initimgtask_filename = contentView.findViewById(R.id.s2_initimagingtask_filename);
 
 
-                PowerfulEditText s2_xp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_xp);
+                PowerfulEditText s2_slicenum = contentView.findViewById(R.id.s2_initimagingtask_slicenum);
 
-                PowerfulEditText s2_yp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_yp);
+                PowerfulEditText s2_stepsize = contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+
+
+                PowerfulEditText s2_xp = contentView.findViewById(R.id.s2_initimagingtask_xp);
+
+                PowerfulEditText s2_yp = contentView.findViewById(R.id.s2_initimagingtask_yp);
 
                 String user_id="";
 
@@ -5201,19 +5273,19 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             @Override
             public void onClick(View clickedView, View contentView) {
 
-                PowerfulEditText initimgtask_userid = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_userid);
+                PowerfulEditText initimgtask_userid = contentView.findViewById(R.id.s2_initimagingtask_userid);
 
-                PowerfulEditText initimgtask_filename = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_filename);
-
-
-                PowerfulEditText s2_slicenum = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_slicenum);
-
-                PowerfulEditText s2_stepsize = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+                PowerfulEditText initimgtask_filename = contentView.findViewById(R.id.s2_initimagingtask_filename);
 
 
-                PowerfulEditText s2_xp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_xp);
+                PowerfulEditText s2_slicenum = contentView.findViewById(R.id.s2_initimagingtask_slicenum);
 
-                PowerfulEditText s2_yp = (PowerfulEditText)contentView.findViewById(R.id.s2_initimagingtask_yp);
+                PowerfulEditText s2_stepsize = contentView.findViewById(R.id.s2_initimagingtask_stepsize);
+
+
+                PowerfulEditText s2_xp = contentView.findViewById(R.id.s2_initimagingtask_xp);
+
+                PowerfulEditText s2_yp = contentView.findViewById(R.id.s2_initimagingtask_yp);
 
                 String user_id="";
 
@@ -5476,7 +5548,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
         int xx = (int) (locationFor2dImg[0] - x / 2.0);
         int yy = -(int) (locationFor2dImg[1] - y / 2.0);
 
-        scLocation = "sclocation:" + String.valueOf(xx) + ":" + String.valueOf(yy);
+        scLocation = "sclocation:" + xx + ":" + yy;
         Log.v(TAG, "scLocation: " + scLocation);
 
         ServerConnector.getInstance().sendMsg(scLocation);
@@ -5689,11 +5761,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                             @Override
                             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                                 ifChecked[1] = true;
-                                if (isChecked) {
-                                    ifChecked[0] = true;
-                                } else {
-                                    ifChecked[0] = false;
-                                }
+                                ifChecked[0] = isChecked;
                             }
                         });
 
@@ -5828,7 +5896,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 if (ifImport) {
 
                     FileManager fileManager = new FileManager();
-                    String fileName = fileManager.getFileName(uri);
+                    String fileName = FileManager.getFileName(uri);
                     String filetype = fileName.substring(fileName.lastIndexOf(".")).toUpperCase();
                     Log.v(TAG, "FileType: " + filetype + ", FileName: " + fileName);
 
@@ -5938,7 +6006,6 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                         ServerConnector.getInstance().sendMsg("s2_move:" + text);
 
                     } else {
-                        return;
                     }
 
 
@@ -5953,7 +6020,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
             }
-        }, 0 * 1000); // 延时5秒
+        }, 0); // 延时5秒
 
 
     }
@@ -5977,7 +6044,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
 
             }
-        }, 0 * 1000); // 延时5秒
+        }, 0); // 延时5秒
 
 
     }
@@ -6218,7 +6285,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                                 float ave_x = (x2 - x1_start + normalizedX - x0_start) / 2;
                                 float ave_y = (y2 - y1_start + normalizedY - y0_start) / 2;
                                 if (!(myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                    if (myS2renderer.getIfDownSampling() == false)
+                                    if (!myS2renderer.getIfDownSampling())
                                         myS2renderer.setIfDownSampling(true);
                                 }
 //                            if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker){
@@ -6241,7 +6308,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                             } else if (!isZooming) {
                                 if (!ifPainting && !ifDeletingLine && !ifSpliting && !ifChangeLineType && !ifPoint && !ifDeletingMarker && !ifChangeMarkerType && !ifDeletingMultiMarker && !ifSettingROI) {
                                     if (!(myS2renderer.getFileType() == MyRenderer.FileType.JPG || myS2renderer.getFileType() == MyRenderer.FileType.PNG)) {
-                                        if (myS2renderer.getIfDownSampling() == false)
+                                        if (!myS2renderer.getIfDownSampling())
                                             myS2renderer.setIfDownSampling(true);
                                     }
                                     if (!isS2Start) {

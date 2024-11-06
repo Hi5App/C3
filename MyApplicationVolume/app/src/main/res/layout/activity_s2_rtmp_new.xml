@@ -44,63 +44,63 @@
     </com.google.android.material.appbar.AppBarLayout>
 
 
-    <!--        <com.shy.rockerview.MyRockerView-->
-    <!--            android:id="@+id/rocker_view"-->
-    <!--            android:layout_width="wrap_content"-->
-    <!--            android:layout_height="wrap_content"-->
-    <!--            android:layout_marginTop="450dp"-->
-    <!--            android:layout_marginStart="30dp"-->
-    <!--            app:areaBackground="@color/black"-->
-    <!--            app:rockerBackground="@color/white"-->
-    <!--            app:rockerCallBackMode="CALL_BACK_MODE_STATE_CHANGE"-->
-    <!--            app:rockerScale="0.5"-->
-    <!--            app:rockerSpeedLevel="10" />-->
+<!--            <com.shy.rockerview.MyRockerView-->
+<!--                android:id="@+id/rocker_view"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_marginTop="450dp"-->
+<!--                android:layout_marginStart="30dp"-->
+<!--                app:areaBackground="@color/black"-->
+<!--                app:rockerBackground="@color/white"-->
+<!--                app:rockerCallBackMode="CALL_BACK_MODE_STATE_CHANGE"-->
+<!--                app:rockerScale="0.5"-->
+<!--                app:rockerSpeedLevel="10" />-->
 
-    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
-    <!--            android:id="@+id/pv_right"-->
-    <!--            android:layout_width="35dp"-->
-    <!--            android:layout_height="55dp"-->
-    <!--            android:layout_marginTop="500dp"-->
-    <!--            android:src="@drawable/ic_chevron_left_black_24dp"-->
-    <!--            android:layout_marginStart="50dp"-->
-    <!--            app:layout_constraintStart_toStartOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+<!--            <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+<!--                android:id="@+id/pv_right"-->
+<!--                android:layout_width="35dp"-->
+<!--                android:layout_height="55dp"-->
+<!--                android:layout_marginTop="500dp"-->
+<!--                android:src="@drawable/ic_chevron_left_black_24dp"-->
+<!--                android:layout_marginStart="50dp"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent" />-->
 
-    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
-    <!--            android:id="@+id/pv_left"-->
-    <!--            android:layout_width="35dp"-->
-    <!--            android:layout_height="55dp"-->
-    <!--            android:layout_marginStart="150dp"-->
-    <!--            android:layout_marginTop="500dp"-->
-    <!--            android:src="@drawable/ic_chevron_right_black_24dp"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintEnd_toEndOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+<!--            <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+<!--                android:id="@+id/pv_left"-->
+<!--                android:layout_width="35dp"-->
+<!--                android:layout_height="55dp"-->
+<!--                android:layout_marginStart="150dp"-->
+<!--                android:layout_marginTop="500dp"-->
+<!--                android:src="@drawable/ic_chevron_right_black_24dp"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
-    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
-    <!--            android:id="@+id/pv_top"-->
-    <!--            android:layout_width="35dp"-->
-    <!--            android:layout_height="55dp"-->
-    <!--            android:layout_marginRight="10dp"-->
-    <!--            android:layout_marginLeft="110dp"-->
-    <!--            android:layout_marginTop="450dp"-->
-    <!--            android:src="@drawable/ic_expand_less_black_24dp"-->
-    <!--            android:layout_marginStart="100dp"-->
-    <!--            app:layout_constraintStart_toStartOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent" />-->
+<!--            <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+<!--                android:id="@+id/pv_top"-->
+<!--                android:layout_width="35dp"-->
+<!--                android:layout_height="55dp"-->
+<!--                android:layout_marginRight="10dp"-->
+<!--                android:layout_marginLeft="110dp"-->
+<!--                android:layout_marginTop="450dp"-->
+<!--                android:src="@drawable/ic_expand_less_black_24dp"-->
+<!--                android:layout_marginStart="100dp"-->
+<!--                app:layout_constraintStart_toStartOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent" />-->
 
-    <!--        <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
-    <!--            android:id="@+id/pv_down"-->
-    <!--            android:layout_width="35dp"-->
-    <!--            android:layout_height="55dp"-->
-    <!--            android:layout_marginTop="550dp"-->
-    <!--            android:layout_marginStart="100dp"-->
-    <!--            android:src="@drawable/ic_expand_more_black_24dp"-->
-    <!--            app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--            app:layout_constraintEnd_toEndOf="parent"-->
-    <!--            app:layout_constraintTop_toTopOf="parent" />-->
+<!--            <com.penglab.hi5.basic.utils.view.ImageButtonExt-->
+<!--                android:id="@+id/pv_down"-->
+<!--                android:layout_width="35dp"-->
+<!--                android:layout_height="55dp"-->
+<!--                android:layout_marginTop="550dp"-->
+<!--                android:layout_marginStart="100dp"-->
+<!--                android:src="@drawable/ic_expand_more_black_24dp"-->
+<!--                app:layout_constraintBottom_toBottomOf="parent"-->
+<!--                app:layout_constraintEnd_toEndOf="parent"-->
+<!--                app:layout_constraintTop_toTopOf="parent" />-->
 
     <tv.danmaku.ijk.media.example.widget.media.IjkVideoView
         android:id="@+id/si_videoView"
@@ -114,6 +114,11 @@
         app:layout_constraintVertical_bias="0.0"
         tools:ignore="MissingConstraints">
 
+        <ImageView
+            android:id="@+id/ImageView"
+            android:layout_width="210dp"
+            android:layout_height="173dp"
+            android:background="@android:color/black" />
     </tv.danmaku.ijk.media.example.widget.media.IjkVideoView>
 
     <TableLayout
@@ -316,6 +321,8 @@
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2"
         app:srcCompat="@drawable/ic_startinject_foreground"
         tools:ignore="MissingConstraints" />
+    <!-- res/layout/activity_main.xml -->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 

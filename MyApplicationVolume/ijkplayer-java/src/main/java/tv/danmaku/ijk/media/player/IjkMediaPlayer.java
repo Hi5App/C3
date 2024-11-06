@@ -23,8 +23,8 @@ import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.graphics.SurfaceTexture;
 import android.graphics.Rect;
+import android.graphics.SurfaceTexture;
 import android.media.MediaCodecInfo;
 import android.media.MediaCodecList;
 import android.media.RingtoneManager;
@@ -47,6 +47,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -311,7 +312,29 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
         _setVideoSurface(surface);
         updateSurfaceScreenOn();
     }
+    // 私有的 Native 方法声明
+    private native void _testPrint();
+    // Native 方法声明
+    private native ByteBuffer _getFrame();
 
+    // 外部调用函数，返回帧数据
+    public ByteBuffer getFrame() {
+        System.out.println("getFrame");
+        ByteBuffer frameData = _getFrame();
+        if (frameData == null) {
+            System.out.println("No frame available.");
+        } else {
+            System.out.println("Frame data retrieved successfully.");
+        }
+        return frameData;
+    }
+
+    // 对外公开的调用接口方法
+    public void testPrint() {
+        // 可以在这里添加额外的逻辑或参数处理
+        System.out.println("Java: Calling native _testPrint method...");
+        _testPrint(); // 调用底层的 JNI 方法
+    }
     /**
      * Sets the data source as a content Uri.
      *
