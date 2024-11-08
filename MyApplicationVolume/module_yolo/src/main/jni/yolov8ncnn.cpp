@@ -17,6 +17,8 @@
 #include <android/native_window.h>
 
 #include <android/log.h>
+#define LOG_TAG "YoloV8NcnnNative"
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
 
 #include <jni.h>
 
@@ -140,11 +142,168 @@ void MyNdkCamera::on_image_render(cv::Mat& rgb) const
 
     draw_fps(rgb);
 }
+class MyNdkFunction
+{
+public:
+    virtual void image_render(cv::Mat& rgb) const;
+};
 
+void MyNdkFunction::image_render(cv::Mat& rgb) const
+{
+    // nanodet
+    {
+        ncnn::MutexLockGuard g(lock);
+
+        if (g_yolo)
+        {
+            std::vector<Object> objects;
+            g_yolo->detect(rgb, objects);
+
+            g_yolo->draw(rgb, objects);
+        }
+        else
+        {
+            draw_unsupported(rgb);
+        }
+    }
+
+    draw_fps(rgb);
+}
 static MyNdkCamera* g_camera = 0;
 
 extern "C" {
 
+
+JNIEXPORT jbyteArray JNICALL
+Java_com_tencent_yolov8ncnn_Yolov8Ncnn_processImageWithMask(JNIEnv* env, jobject thiz, jbyteArray inputImage, jint width, jint height) {
+    LOGI("Starting processImageWithMask...");
+
+//    // 将输入的 jbyteArray 转换为 OpenCV 的 cv::Mat
+//    jbyte* yuvData = env->GetByteArrayElements(inputImage, nullptr);
+//    if (yuvData == nullptr) {
+//        LOGI("Failed to get YUV data from input image");
+//        return nullptr;
+//    }
+//    LOGI("Successfully retrieved YUV data from input image");
+//
+//    cv::Mat yuvMat(height + height / 2, width, CV_8UC1, (unsigned char*)yuvData);
+//    LOGI("Created YUV Mat with size: %d x %d", width, height + height / 2);
+//
+//    // 转换 YUV 到 RGB 格式
+//    cv::Mat rgbMat;
+//    cv::cvtColor(yuvMat, rgbMat, cv::COLOR_YUV2RGB_NV21);
+//    LOGI("Converted YUV to RGB format");
+//
+//    // 调用 on_image_render 处理图像
+//    MyNdkFunction camera;
+//    camera.image_render(rgbMat);
+//    LOGI("Processed image with on_image_render");
+//
+//    // 将处理后的 RGB 数据转换为 jbyteArray 传回 Java
+//    int outputSize = rgbMat.total() * rgbMat.elemSize();
+//    LOGI("Output RGB Mat size: %d bytes", outputSize);
+//
+//    jbyteArray outputImage = env->NewByteArray(outputSize);
+//    if (outputImage == nullptr) {
+//        LOGI("Failed to create output byte array");
+//        env->ReleaseByteArrayElements(inputImage, yuvData, 0);
+//        return nullptr;
+//    }
+//
+//    env->SetByteArrayRegion(outputImage, 0, outputSize, (jbyte*)rgbMat.data);
+//    LOGI("Set processed RGB data to output byte array");
+//
+//    // 释放资源
+//    env->ReleaseByteArrayElements(inputImage, yuvData, 0);
+//    LOGI("Released input YUV data");
+//
+//    LOGI("Finished processImageWithMask");
+//    return outputImage;
+
+//    // 1. 获取 YUV 数据
+//    jbyte* yuvData = env->GetByteArrayElements(inputImage, nullptr);
+//    if (yuvData == nullptr) {
+//        LOGI("Failed to get YUV data from input image");
+//        return nullptr;
+//    }
+//    LOGI("Successfully retrieved YUV data from input image");
+//
+//    // 2. 创建 YUV 格式的 cv::Mat
+//    cv::Mat yuvMat(height + height / 2, width, CV_8UC1, (unsigned char*)yuvData);
+//    LOGI("Created YUV Mat with size: %d x %d", width, height + height / 2);
+//
+//    // 3. YUV 到 RGB 转换（使用 NV21 格式）
+//    cv::Mat rgbMat;
+//    cv::cvtColor(yuvMat, rgbMat, cv::COLOR_YUV2RGB_NV21);
+//    LOGI("Converted YUV to RGB format");
+//
+//    // 4. 处理图像 (on_image_render)
+//    MyNdkFunction camera;
+//    camera.image_render(rgbMat);
+//    LOGI("Processed image with on_image_render");
+//
+//    // 5. 将 RGB 数据转换为 jbyteArray 传回 Java
+//    int outputSize = rgbMat.total() * rgbMat.elemSize();
+//    LOGI("Output RGB Mat size: %d bytes", outputSize);
+//
+//    jbyteArray outputImage = env->NewByteArray(outputSize);
+//    if (outputImage == nullptr) {
+//        LOGI("Failed to create output byte array");
+//        env->ReleaseByteArrayElements(inputImage, yuvData, 0);
+//        return nullptr;
+//    }
+//
+//    // 6. 将数据写入 outputImage
+//    env->SetByteArrayRegion(outputImage, 0, outputSize, (jbyte*)rgbMat.data);
+//    LOGI("Set processed RGB data to output byte array");
+//
+//    // 7. 释放资源
+//    env->ReleaseByteArrayElements(inputImage, yuvData, 0);
+//    LOGI("Released input YUV data");
+//
+//    LOGI("Finished processImageWithMask");
+//    return outputImage;
+    LOGI("Starting processImageWithMask with RGB data...");
+
+    // 1. 获取 RGB 数据
+    jbyte* rgbData = env->GetByteArrayElements(inputImage, nullptr);
+    if (rgbData == nullptr) {
+        LOGI("Failed to get RGB data from input image");
+        return nullptr;
+    }
+    LOGI("Successfully retrieved RGB data from input image");
+
+    // 2. 创建 RGB 格式的 cv::Mat
+    cv::Mat rgbMat(height, width, CV_8UC3, (unsigned char*)rgbData);
+    LOGI("Created RGB Mat with size: %d x %d", width, height);
+
+    // 3. 处理图像 (直接处理 RGB 数据)
+    MyNdkFunction camera;
+    camera.image_render(rgbMat);  // 调用处理函数
+    LOGI("Processed image with on_image_render");
+
+    // 4. 将处理后的 RGB 数据转换为 jbyteArray 传回 Java
+    int outputSize = rgbMat.total() * rgbMat.elemSize();
+    LOGI("Output RGB Mat size: %d bytes", outputSize);
+
+    jbyteArray outputImage = env->NewByteArray(outputSize);
+    if (outputImage == nullptr) {
+        LOGI("Failed to create output byte array");
+        env->ReleaseByteArrayElements(inputImage, rgbData, 0);
+        return nullptr;
+    }
+
+    // 5. 将处理后的 RGB 数据写入 outputImage
+    env->SetByteArrayRegion(outputImage, 0, outputSize, (jbyte*)rgbMat.data);
+    LOGI("Set processed RGB data to output byte array");
+
+    // 6. 释放资源
+    env->ReleaseByteArrayElements(inputImage, rgbData, 0);
+    LOGI("Released input RGB data");
+
+    LOGI("Finished processImageWithMask");
+    return outputImage;
+}
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     __android_log_print(ANDROID_LOG_DEBUG, "ncnn", "JNI_OnLoad");

@@ -23,7 +23,7 @@ public class Yolov8Ncnn
     public native boolean openCamera(int facing);
     public native boolean closeCamera();
     public native boolean setOutputWindow(Surface surface);
-
+    public native byte[] processImageWithMask(byte[] inputImage, int width, int height);
     static {
         System.loadLibrary("yolov8ncnn");
     }

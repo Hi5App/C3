@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.opengl.GLSurfaceView;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
@@ -124,6 +125,8 @@ import com.tencent.yolov8ncnn.Yolov8Ncnn;
 import com.warkiz.widget.IndicatorSeekBar;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1441,15 +1444,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
           yolov8ncnn.openCamera(facing);
         }
 
-//        Intent intent = new Intent(this, com.tencent.yolov8ncnn.MainActivity.class);
-//        startActivity(intent);
-
-
-
 
 
         setContentView(R.layout.activity_s2_yolov8_new);
-
 
 
         cameraView = findViewById(R.id.cameravieww);
@@ -1467,13 +1464,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 yolov8ncnn.closeCamera();
 
                 yolov8ncnn.openCamera(new_facing);
-//// 设置返回数据
-//                Intent resultIntent = new Intent();
-//                resultIntent.putExtra("key", "value");
-//                setResult(Activity.RESULT_OK, resultIntent);
-//
-//// 关闭子项目的 Activity 返回主项目
-//                finish();
+
 
                 facing = new_facing;
             }
@@ -1561,7 +1552,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             // load layout view
             mSettings = new Settings(this);
             String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
-//            String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
+            //String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
 
             String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
             String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
@@ -1646,7 +1637,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             }
 
 
-
+            reload();
 
             switch_pro_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -1708,7 +1699,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                 public void onClick(View v) {
                     isDisplayingFrames = !isDisplayingFrames;
                     if (isDisplayingFrames) {
-                        startDisplayingFrames();
+                        startDisplayingFramesRgb();
                     } else {
                         stopDisplayingFrames();
                     }
@@ -1829,38 +1820,196 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             pvcamRtmpModeView.setVisibility(View.VISIBLE);
         }
     }
+    private void saveYuvToFile(byte[] yuvData, String filename) {
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write(yuvData);
+            Log.d("SaveYUV", "YUV data saved to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            Log.e("SaveYUV", "Failed to save YUV data", e);
+        }
+    }
+
+
+    private void saveBitmapToFile(Bitmap bitmap, String filename) {
+        File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), filename);
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            Log.d("SaveBitmap", "Bitmap saved to " + file.getAbsolutePath());
+        } catch (IOException e) {
+            Log.e("SaveBitmap", "Failed to save Bitmap", e);
+        }
+    }
+
+//    private void startDisplayingFrames() {
+//        new Thread(() -> {
+//            while (isDisplayingFrames) {
+//                ByteBuffer frameBuffer = player.getFrame();
+//                if (frameBuffer != null&& frameBuffer.remaining() == 345600) {
+//                    byte[] yuvData = new byte[frameBuffer.remaining()];
+//                    frameBuffer.get(yuvData);
+//                    // 保存原始 YUV 数据到文件
+//                    saveYuvToFile(yuvData, "original_yuv_640x360.yuv");
+//
+//                    // 将 YUV 数据转换为 Bitmap
+//                    Bitmap bitmap = imageUtils.yuvToRgb(yuvData, 640, 360);
+//
+//                    if (bitmap != null) {
+//                        Log.d("ImageView", "Bitmap created, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
+//
+//                        // 保存转换后的 Bitmap 为 PNG 文件
+//                        saveBitmapToFile(bitmap, "converted_rgb_640x360.png");
+//
+//                        // 在主线程更新 ImageView
+//                        runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+//                    } else {
+//                        Log.d("ImageView", "Bitmap conversion failed");
+//                    }
+//                } else {
+//                    Log.d("ImageView", "Frame buffer is null");
+//                }
+//                // Add delay to avoid rapid consecutive captures
+//                try {
+//                    Thread.sleep(50); // 500ms delay between captures
+//                } catch (InterruptedException e) {
+//                    Thread.currentThread().interrupt();
+//                }
+//            }
+//        }).start();
+//    }
     private void startDisplayingFrames() {
         new Thread(() -> {
             while (isDisplayingFrames) {
+                Log.d("FrameProcessing", "Attempting to get frame from player.");
                 ByteBuffer frameBuffer = player.getFrame();
-                if (frameBuffer != null&& frameBuffer.remaining() == 345600) {
+
+                if (frameBuffer != null && frameBuffer.remaining() == 345600) {
+                    Log.d("FrameProcessing", "Frame buffer is valid with expected size: " + frameBuffer.remaining());
+
+                    // Read YUV data from ByteBuffer
                     byte[] yuvData = new byte[frameBuffer.remaining()];
                     frameBuffer.get(yuvData);
+                    Log.d("FrameProcessing", "YUV data extracted from frame buffer.");
 
-                    // 将 YUV 数据转换为 Bitmap
-                    Bitmap bitmap = imageUtils.yuvToRgb(yuvData, 640, 360);
+                    // Call JNI method to process the image with a mask
+                    byte[] rgbMaskedData = yolov8ncnn.processImageWithMask(yuvData, 640, 360);
+                    Log.d("FrameProcessing", "JNI method processImageWithMask called.");
 
-                    if (bitmap != null) {
-                        Log.d("ImageView", "Bitmap created, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
+                    if (rgbMaskedData != null && rgbMaskedData.length == 640 * 360 * 3) {
+                        Log.d("FrameProcessing", "Received RGB masked data from JNI. Size: " + rgbMaskedData.length);
+                        // Create a Bitmap with the desired width, height, and ARGB_8888 configuration
+                        Bitmap bitmap = Bitmap.createBitmap(640, 360, Bitmap.Config.ARGB_8888);
 
-                        // 在主线程更新 ImageView
-                        runOnUiThread(() -> imageView.setImageBitmap(bitmap));
+                        // Set pixels in the Bitmap
+                        int[] pixels = new int[640 * 360]; // Array to hold pixel data in ARGB format
+                        for (int i = 0; i < pixels.length; i++) {
+                            int r = rgbMaskedData[i * 3] & 0xFF;     // Red
+                            int g = rgbMaskedData[i * 3 + 1] & 0xFF; // Green
+                            int b = rgbMaskedData[i * 3 + 2] & 0xFF; // Blue
+                            pixels[i] = (0xFF << 24) | (r << 16) | (g << 8) | b; // Combine into ARGB format
+                        }
+
+                        // Set the pixel data on the Bitmap
+                        bitmap.setPixels(pixels, 0, 640, 0, 0, 640, 360);
+                        if (bitmap != null) {
+                            Log.d("ImageView", "Bitmap created successfully, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
+
+                            // Update the ImageView on the main thread
+                            runOnUiThread(() -> {
+                                Log.d("ImageView", "Displaying bitmap on ImageView.");
+                                imageView.setImageBitmap(bitmap);
+                            });
+                        } else {
+                            Log.e("ImageView", "Bitmap conversion failed: BitmapFactory.decodeByteArray returned null.");
+                        }
                     } else {
-                        Log.d("ImageView", "Bitmap conversion failed");
+                        Log.e("FrameProcessing", "RGB masked data is null. JNI processing might have failed.");
                     }
                 } else {
-                    Log.d("ImageView", "Frame buffer is null");
+                    if (frameBuffer == null) {
+                        Log.e("FrameProcessing", "Frame buffer is null.");
+                    } else {
+                        Log.e("FrameProcessing", "Frame buffer size mismatch. Expected 345600 bytes, got: " + frameBuffer.remaining());
+                    }
                 }
+
                 // Add delay to avoid rapid consecutive captures
                 try {
-                    Thread.sleep(50); // 500ms delay between captures
+                    Log.d("FrameProcessing", "Sleeping for 50ms to control frame processing rate.");
+                    Thread.sleep(50); // Adjust delay as necessary
                 } catch (InterruptedException e) {
+                    Log.e("FrameProcessing", "Thread interrupted during sleep.", e);
                     Thread.currentThread().interrupt();
                 }
             }
         }).start();
     }
 
+    private void startDisplayingFramesRgb() {
+        new Thread(() -> {
+            while (isDisplayingFrames) {
+                Log.d("FrameProcessing", "Attempting to get frame from player.");
+                ByteBuffer frameBuffer = player._getFrameRgb();
+
+                // 假设 frameBuffer 现在直接包含 RGB 格式的数据
+                if (frameBuffer != null && frameBuffer.remaining() == 640 * 360 * 3) { // 检查是否为 RGB 数据的大小
+                    Log.d("FrameProcessing", "Frame buffer is valid with expected size: " + frameBuffer.remaining());
+
+                    // 从 ByteBuffer 中读取 RGB 数据
+                    byte[] rgbData = new byte[frameBuffer.remaining()];
+                    frameBuffer.get(rgbData);
+                    Log.d("FrameProcessing", "RGB data extracted from frame buffer.");
+
+                    // 调用 JNI 方法处理图像
+                    byte[] rgbMaskedData = yolov8ncnn.processImageWithMask(rgbData, 640, 360);
+                    Log.d("FrameProcessing", "JNI method processImageWithMask called.");
+
+                    if (rgbMaskedData != null && rgbMaskedData.length == 640 * 360 * 3) {
+                        Log.d("FrameProcessing", "Received RGB masked data from JNI. Size: " + rgbMaskedData.length);
+
+                        // 创建位图并设置像素
+                        Bitmap bitmap = Bitmap.createBitmap(640, 360, Bitmap.Config.ARGB_8888);
+                        int[] pixels = new int[640 * 360]; // 用于存储像素数据的 ARGB 格式数组
+
+                        // 将 RGB 数据转换为 ARGB 格式
+                        for (int i = 0; i < pixels.length; i++) {
+                            int r = rgbMaskedData[i * 3] & 0xFF;        // Red
+                            int g = rgbMaskedData[i * 3 + 1] & 0xFF;    // Green
+                            int b = rgbMaskedData[i * 3 + 2] & 0xFF;    // Blue
+                            pixels[i] = (0xFF << 24) | (r << 16) | (g << 8) | b; // 合成 ARGB 格式
+                        }
+
+                        // 将像素数据设置到 Bitmap 中
+                        bitmap.setPixels(pixels, 0, 640, 0, 0, 640, 360);
+                        Log.d("ImageView", "Bitmap created successfully, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
+
+                        // 在主线程上更新 ImageView
+                        runOnUiThread(() -> {
+                            Log.d("ImageView", "Displaying bitmap on ImageView.");
+                            imageView.setImageBitmap(bitmap);
+                        });
+                    } else {
+                        Log.e("FrameProcessing", "RGB masked data is null or has incorrect size. JNI processing might have failed.");
+                    }
+                } else {
+                    if (frameBuffer == null) {
+                        Log.e("FrameProcessing", "Frame buffer is null.");
+                    } else {
+                        Log.e("FrameProcessing", "Frame buffer size mismatch. Expected " + (640 * 360 * 3) + " bytes, got: " + frameBuffer.remaining());
+                    }
+                }
+
+                // 控制帧处理速率
+                try {
+                    Log.d("FrameProcessing", "Sleeping for 50ms to control frame processing rate.");
+                    Thread.sleep(50); // 根据需要调整延迟
+                } catch (InterruptedException e) {
+                    Log.e("FrameProcessing", "Thread interrupted during sleep.", e);
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }).start();
+    }
     private void displayFrame(Bitmap bitmap) {
         if (isSurfaceReady && bitmap != null) {
             Log.d("SurfaceView", "Displaying frame on SurfaceView");
@@ -2471,7 +2620,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 //                //ServerConnector.getInstance().sendMsg("s2start:");
 //
                 Toast_in_Thread("Pvcam!");
-//                initPvcamRtmplayout();
+                //initYolov8Dection();
                 initPvcamRtmplayout();
             }
         });

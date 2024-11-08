@@ -317,6 +317,11 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
     // Native 方法声明
     private native ByteBuffer _getFrame();
 
+    /**
+     * @return
+     */
+    //Native 方法声明
+    private native ByteBuffer _getframeRgb();
     // 外部调用函数，返回帧数据
     public ByteBuffer getFrame() {
         System.out.println("getFrame");
@@ -325,6 +330,19 @@ public final class IjkMediaPlayer extends AbstractMediaPlayer {
             System.out.println("No frame available.");
         } else {
             System.out.println("Frame data retrieved successfully.");
+        }
+        return frameData;
+    }
+
+
+    // 外部调用函数，返回帧数据
+    public ByteBuffer _getFrameRgb() {
+        System.out.println("getFrameRgb");
+        ByteBuffer frameData = _getframeRgb();
+        if (frameData == null) {
+            System.out.println("No frame Rgb available.");
+        } else {
+            System.out.println("Frame  data retrieved successfully.");
         }
         return frameData;
     }
