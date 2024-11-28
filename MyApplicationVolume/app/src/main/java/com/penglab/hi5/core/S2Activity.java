@@ -1427,7 +1427,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
     @Override
     public void onBackPressed() {
         Log.e("S2Activity", "onBackPressed");
-
+        // 自定义返回逻辑，比如释放摄像头资源
+        // 关闭摄像头并释放相关资源
+        if (yolov8ncnn != null) {
+            yolov8ncnn.closeCamera();
+            yolov8ncnn=null;
+        }
         finish();
 
     }
@@ -1521,22 +1526,27 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
-    {
+    {    if (yolov8ncnn != null) {
         yolov8ncnn.setOutputWindow(holder.getSurface());
+    }
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder)
     {
-        yolov8ncnn.setOutputWindow(holder.getSurface());
-        yolov8ncnn.openCamera(facing);
+        if (yolov8ncnn != null) {
+            yolov8ncnn.setOutputWindow(holder.getSurface());
+            yolov8ncnn.openCamera(facing);
+        }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder)
     {
-        yolov8ncnn.setOutputWindow(null); // 在销毁时清除输出窗口
-        yolov8ncnn.closeCamera();         // 关闭摄像头
+        if (yolov8ncnn != null) {
+            yolov8ncnn.setOutputWindow(null); // 在销毁时清除输出窗口
+            yolov8ncnn.closeCamera();         // 关闭摄像头
+        }
     }
 
     private void initPvcamRtmplayout() {
@@ -1553,7 +1563,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
             mSettings = new Settings(this);
             String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
             //String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
-
+//            String mVideoPath ="rtmp://114.117.165.134:8511/live/stream";
             String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
             String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
 
@@ -1697,12 +1707,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             startinject.setOnClickListener(new Button.OnClickListener() {
                 public void onClick(View v) {
-                    isDisplayingFrames = !isDisplayingFrames;
-                    if (isDisplayingFrames) {
-                        startDisplayingFramesRgb();
-                    } else {
-                        stopDisplayingFrames();
-                    }
+
                     Log.e(TAG, "startinject: ");
                     ServerConnector.getInstance().sendMsg("msstartinject:");
                 }
@@ -1815,6 +1820,261 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             // MoveXtop.setOnClickListener(this::MoveXtop());
             //zoomOut.setOnClickListener(v -> annotationGLSurfaceView.zoomOut());
+
+        } else {
+            pvcamRtmpModeView.setVisibility(View.VISIBLE);
+        }
+    }
+    private void initPvcamRtmpYololayout() {
+        if (isCamera) {
+
+
+            hideButtons();
+            ll.setVisibility(View.GONE);
+
+            ConstraintLayout.LayoutParams lp4BigDataMode = new ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT);
+
+            // load layout view
+            mSettings = new Settings(this);
+            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+            //String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
+//            String mVideoPath ="rtmp://114.117.165.134:8511/live/stream";
+            String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
+            String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
+
+
+            mMediaController = new AndroidMediaController(this, false);
+
+            // 初始化 IjkMediaPlayer 实例
+            player = new IjkMediaPlayer();
+            imageUtils = new ImageUtils(this, 640, 360); // 假设你的视频尺寸为 640x360
+
+            IjkMediaPlayer.loadLibrariesOnce(null);
+            IjkMediaPlayer.native_profileBegin("libijkplayer.so");
+            // 调用 testPrint() 方法
+            player.testPrint(); // 注意这里用的是实例对象调用，而不是类名
+            pvcamRtmpModeView = getLayoutInflater().inflate(R.layout.activity_s2_yolo, null);
+            this.addContentView(pvcamRtmpModeView, lp4BigDataMode);
+
+            // MoveXtop = findViewById(R.id.pv_top);
+            //ImageButton MoveX = findViewById(R.id.zoomOut);
+            imageView   = findViewById(R.id.ImageView1);
+
+            mVideoView = findViewById(R.id.si_videoView1);
+
+            mHudView = findViewById(R.id.hud_s2_view1);
+            mHudView.bringToFront();
+            mVideoView.setMediaController(mMediaController);
+            mVideoView.setHudView(mHudView);
+
+            mVideoView.setBackgroundResource(R.drawable.mvideobg);
+            mVideoView.bringToFront();
+            RockerView s2rocekerview_xy = findViewById(R.id.s2rockerView_z1);
+
+            Toolbar toolbar = findViewById(R.id.toolbar12);
+            TextView mLogLeft = findViewById(R.id.textViews_xy1);
+            TextView mLogright = findViewById(R.id.textViews_z1);
+
+            ImageButton zoom_in = findViewById(R.id.pv_zoom_in1);
+            ImageButton zscan = findViewById(R.id.startZscan1);
+            ImageButton zoom_out = findViewById(R.id.pv_zoom_out1);
+            ImageButton startcamera = findViewById(R.id.startcamera1);
+            ImageButton stopcamera = findViewById(R.id.stopcamera1);
+
+
+
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_pro_img = findViewById(R.id.switch_pro_img1);
+            @SuppressLint("UseSwitchCompatOrMaterialCode") Switch switch_cam = findViewById(R.id.switch_cam1);
+
+            zoom_in.setImageResource(R.drawable.ic_zoom_in);
+            zscan.setImageResource(R.drawable.ic_startzscan_foreground);
+            zoom_out.setImageResource(R.drawable.ic_baseline_zoom_out_24);
+            startcamera.setImageResource(R.drawable.ic_startcamera_foreground);
+            stopcamera.setImageResource(R.drawable.ic_stopcamera_foreground);
+
+
+
+            zoom_in.setVisibility(View.VISIBLE);
+
+            zoom_out.setVisibility(View.VISIBLE);
+            zscan.setVisibility(View.VISIBLE);
+            stopcamera.setVisibility(View.VISIBLE);
+            startcamera.setVisibility(View.VISIBLE);
+
+            switch_pro_img.setVisibility(View.VISIBLE);
+            switch_pro_img.setChecked(false);
+            switch_cam.setVisibility(View.VISIBLE);
+            switch_cam.setChecked(false);
+
+            setSupportActionBar(toolbar);
+
+            s2rocekerview_xy.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
+
+
+            if (TextUtils.isEmpty(mVideoPath)) {
+                Toast.makeText(this,
+                        "No Video Found! Press Back Button To Exit",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                mVideoView.setVideoURI(Uri.parse(mVideoPath));
+                mVideoView.start();
+
+
+            }
+
+
+            reload();
+
+            switch_pro_img.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                @Override
+
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    isDisplayingFrames = !isDisplayingFrames;
+                    //控制开关字体颜色
+                    if (b) {
+                        Log.e(TAG, "msproimg true");
+
+                        startDisplayingFramesRgb();
+                        switch_pro_img.setSwitchTextAppearance(S2Activity.this,R.style.blue_bottom_line_edit_text_style);
+
+                    }else {
+                        Log.e(TAG, "msproimg false");
+                        stopDisplayingFrames();
+                        switch_pro_img.setSwitchTextAppearance(S2Activity.this,R.style.grid_view);
+
+                    }
+
+
+
+                }
+
+            });
+
+
+            switch_cam.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+                @Override
+
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    //控制开关字体颜色
+
+                    if (b) {
+                        Log.e(TAG, "mscam true");
+                        ServerConnector.getInstance().sendMsg("mscam:1");
+                        switch_cam.setSwitchTextAppearance(S2Activity.this,R.style.blue_bottom_line_edit_text_style);
+
+                    }else {
+                        Log.e(TAG, "mscam: false");
+                        ServerConnector.getInstance().sendMsg("mscam:0");
+                        switch_cam.setSwitchTextAppearance(S2Activity.this,R.style.grid_view);
+
+                    }
+
+                }
+
+            });
+
+            startcamera.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "startcamera: ");
+                    // Start playing the video in ijkplayer
+                    if (!mVideoView.isPlaying()) {
+                        mVideoView.start();
+                        Log.e(TAG, "ijkplayer started playing");
+                    }
+                }
+            });
+
+
+
+            stopcamera.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "stopcamera: ");
+                    // Pause the video in ijkplayer
+                    if (mVideoView.isPlaying()) {
+                        mVideoView.pause();
+                        Log.e(TAG, "ijkplayer paused");
+                    }
+                }
+            });
+
+            zscan.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zscan");
+                    startZscan();
+                }
+            });
+
+            zoom_in.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zoom_in");
+                    ServerConnector.getInstance().sendMsg("mszoomin:");
+                    //startZscan();
+                }
+            });
+
+            zoom_out.setOnClickListener(new Button.OnClickListener() {
+                public void onClick(View v) {
+
+                    Log.e(TAG, "onClick: zoom_out");
+                    ServerConnector.getInstance().sendMsg("mszoomout:");
+                    //startZscan();
+                }
+            });
+
+
+            if (s2rocekerview_xy != null) {
+                s2rocekerview_xy.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
+                s2rocekerview_xy.setOnShakeListener(RockerView.DirectionMode.DIRECTION_4_ROTATE_45, new RockerView.OnShakeListener() {
+                    @Override
+                    public void onStart() {
+                        mLogLeft.setText("XY Stage");
+                    }
+
+                    @Override
+                    public void direction(RockerView.Direction direction) {
+                        mLogLeft.setText("Direction : " + getDirection(direction));
+
+                        pvRockerControl(false, direction);
+
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        mLogLeft.setText("XY Stage");
+                    }
+                });
+            }
+            s2rocekerview_z = findViewById(R.id.s2rockerView_xy);
+            if (s2rocekerview_z != null) {
+                s2rocekerview_z.setCallBackMode(RockerView.CallBackMode.CALL_BACK_MODE_STATE_CHANGE);
+                s2rocekerview_z.setOnShakeListener(RockerView.DirectionMode.DIRECTION_2_VERTICAL, new RockerView.OnShakeListener() {
+                    @Override
+                    public void onStart() {
+                        mLogright.setText("Z Stage");
+                    }
+
+                    @Override
+                    public void direction(RockerView.Direction direction) {
+
+                        mLogright.setText("Direction : " + getDirection(direction));
+                        pvRockerControl(true, direction);
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        mLogright.setText("Z Stage");
+                    }
+                });
+            }
+
 
         } else {
             pvcamRtmpModeView.setVisibility(View.VISIBLE);
@@ -1947,7 +2207,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
     private void startDisplayingFramesRgb() {
         new Thread(() -> {
-            while (isDisplayingFrames) {
+            while (isDisplayingFrames&&yolov8ncnn!=null) {
                 Log.d("FrameProcessing", "Attempting to get frame from player.");
                 ByteBuffer frameBuffer = player._getFrameRgb();
 
@@ -2610,6 +2870,33 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
                 //image1.setImageBitmap(bitmap); //设置Bitmap
                 setButtons();
+
+                BasePopupView show = new XPopup.Builder(v.getContext())
+                        .asCenterList("Live Functions...", new String[]{"CellInjection", "Camera", "AI-module"},
+                                new OnSelectListener() {
+                                    @Override
+                                    public void onSelect(int position, String text) {
+
+                                        switch (text) {
+
+                                            case "CellInjection":
+                                                initPvcamRtmplayout();
+                                                ifTouchCamera = true;
+                                                break;
+
+                                            case "Camera":
+                                                initYolov8Dection();
+                                                break;
+                                            case "AI-module":
+                                                initPvcamRtmpYololayout();
+                                                break;
+                                            default:
+                                                ToastEasy("Default in More Functions...");
+
+                                        }
+                                    }
+                                })
+                        .show();
 //
 //                myS2renderer.clearView(isCamera);  //clean view before showing new image
 //                myS2GLSurfaceView.requestRender();
@@ -2619,9 +2906,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 //                ServerConnector.getInstance().sendMsg("Pvcam:");
 //                //ServerConnector.getInstance().sendMsg("s2start:");
 //
-                Toast_in_Thread("Pvcam!");
-                //initYolov8Dection();
-                initPvcamRtmplayout();
+//                Toast_in_Thread("Pvcam!");
+//                //initYolov8Dection();
+//                initPvcamRtmpYololayout();
             }
         });
 
@@ -6971,7 +7258,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
          if (isCamera) {
             s2workstate = "Camera";
-            ifTouchCamera = true;
+
             //  cleans2workstate();
 
 
