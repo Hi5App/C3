@@ -254,7 +254,7 @@ static void nms_sorted_bboxes(const std::vector<Object>& faceobjects, std::vecto
 static void generate_proposals(std::vector<GridAndStride> grid_strides, const ncnn::Mat& pred, float prob_threshold, std::vector<Object>& objects)
 {
     const int num_points = grid_strides.size();
-    const int num_class = 80;  ///2
+    const int num_class = 80;  ///80
     const int reg_max_1 = 16;
 
     for (int i = 0; i < num_points; i++)
@@ -434,9 +434,10 @@ int Yolo::load(AAssetManager* mgr, const char* modeltype, int _target_size, cons
     char modelpath[256];
 //    sprintf(parampath, "best1-seg.param");
 //    sprintf(modelpath, "best1-seg.bin");
-    sprintf(parampath, "yolov8-seg.param");
-    sprintf(modelpath, "yolov8-seg.bin");
-
+    sprintf(parampath, "yolov8n-seg.param");
+    sprintf(modelpath, "yolov8n-seg.bin");
+//    sprintf(parampath, "yolov8n.param");
+//    sprintf(modelpath, "yolov8n.bin");
     yolo.load_param(mgr, parampath);
     yolo.load_model(mgr, modelpath);
 
@@ -450,9 +451,10 @@ int Yolo::load(AAssetManager* mgr, const char* modeltype, int _target_size, cons
 
     return 0;
 }
-
 int Yolo::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold, float nms_threshold)
 {
+    __android_log_print(ANDROID_LOG_WARN, "NdkCamera", "onImageAvailable——detect %p");
+
     int width = rgb.cols;
     int height = rgb.rows;
 
@@ -473,7 +475,8 @@ int Yolo::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_th
         w = w * scale;
     }
 
-    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
+    // 将输入图片转换为适应YOLO模型输入的格式
+    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGBA2BGR, width, height, w, h);
 
     // pad to target_size rectangle
     int wpad = (w + MAX_STRIDE-1) / MAX_STRIDE * MAX_STRIDE - w;
@@ -481,74 +484,161 @@ int Yolo::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_th
     ncnn::Mat in_pad;
     ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2, ncnn::BORDER_CONSTANT, 0.f);
 
-    in_pad.substract_mean_normalize(0, norm_vals);
+    in_pad.substract_mean_normalize(0, norm_vals);  // 进行均值和归一化
 
+    // 创建ncnn的提取器，获取YOLO模型的输出
     ncnn::Extractor ex = yolo.create_extractor();
-
     ex.input("images", in_pad);
 
     ncnn::Mat out;
-    ex.extract("output0", out);
+    ex.extract("output0", out);  // 提取检测结果
 
-    ncnn::Mat mask_proto;
-    ex.extract("output1", mask_proto);
-
-    std::vector<int> strides = {8, 16, 32}; // might have stride=64
+    std::vector<int> strides = {8, 16, 32}; // YOLO的尺度步长
     std::vector<GridAndStride> grid_strides;
+
+
     generate_grids_and_stride(in_pad.w, in_pad.h, strides, grid_strides);
 
     std::vector<Object> proposals;
     std::vector<Object> objects8;
-    generate_proposals(grid_strides, out, prob_threshold, objects8);
+    generate_proposals(grid_strides, out, prob_threshold, objects8);  // 生成候选框
     proposals.insert(proposals.end(), objects8.begin(), objects8.end());
 
-    // sort all proposals by score from highest to lowest
+    // 根据得分排序候选框
     qsort_descent_inplace(proposals);
 
-    // apply nms with nms_threshold
+    // 应用NMS算法，去除重叠的框
     std::vector<int> picked;
+
     nms_sorted_bboxes(proposals, picked, nms_threshold);
 
     int count = picked.size();
 
-    ncnn::Mat mask_feat = ncnn::Mat(32, count, sizeof(float));
-    for (int i = 0; i < count; i++) {
-        float* mask_feat_ptr = mask_feat.row(i);
-        std::memcpy(mask_feat_ptr, proposals[picked[i]].mask_feat.data(), sizeof(float) * proposals[picked[i]].mask_feat.size());
-    }
-
-    ncnn::Mat mask_pred_result;
-    decode_mask(mask_feat, width, height, mask_proto, in_pad, wpad, hpad, mask_pred_result);
-
+    // 设置检测框信息
     objects.resize(count);
     for (int i = 0; i < count; i++)
     {
         objects[i] = proposals[picked[i]];
 
-        // adjust offset to original unpadded
+        // 调整坐标，去除padding的影响
         float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
         float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
         float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
         float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
 
-        // clip
+        // clip to image bounds
         x0 = std::max(std::min(x0, (float)(width - 1)), 0.f);
         y0 = std::max(std::min(y0, (float)(height - 1)), 0.f);
         x1 = std::max(std::min(x1, (float)(width - 1)), 0.f);
         y1 = std::max(std::min(y1, (float)(height - 1)), 0.f);
 
+        // 更新目标框坐标
         objects[i].rect.x = x0;
         objects[i].rect.y = y0;
         objects[i].rect.width = x1 - x0;
         objects[i].rect.height = y1 - y0;
-
-        objects[i].mask = cv::Mat::zeros(height, width, CV_32FC1);
-        cv::Mat mask = cv::Mat(height, width, CV_32FC1, (float*)mask_pred_result.channel(i));
-        mask(objects[i].rect).copyTo(objects[i].mask(objects[i].rect));
     }
 
     return 0;
 }
+//int Yolo::detect(const cv::Mat& rgb, std::vector<Object>& objects, float prob_threshold, float nms_threshold)
+//{
+//    int width = rgb.cols;
+//    int height = rgb.rows;
+//
+//    // pad to multiple of 32
+//    int w = width;
+//    int h = height;
+//    float scale = 1.f;
+//    if (w > h)
+//    {
+//        scale = (float)target_size / w;
+//        w = target_size;
+//        h = h * scale;
+//    }
+//    else
+//    {
+//        scale = (float)target_size / h;
+//        h = target_size;
+//        w = w * scale;
+//    }
+//
+//    ncnn::Mat in = ncnn::Mat::from_pixels_resize(rgb.data, ncnn::Mat::PIXEL_RGB2BGR, width, height, w, h);
+//
+//    // pad to target_size rectangle
+//    int wpad = (w + MAX_STRIDE-1) / MAX_STRIDE * MAX_STRIDE - w;
+//    int hpad = (h + MAX_STRIDE-1) / MAX_STRIDE * MAX_STRIDE - h;
+//    ncnn::Mat in_pad;
+//    ncnn::copy_make_border(in, in_pad, hpad / 2, hpad - hpad / 2, wpad / 2, wpad - wpad / 2, ncnn::BORDER_CONSTANT, 0.f);
+//
+//    in_pad.substract_mean_normalize(0, norm_vals);
+//
+//    ncnn::Extractor ex = yolo.create_extractor();
+//
+//    ex.input("images", in_pad);
+//
+//    ncnn::Mat out;
+//    ex.extract("output0", out);
+//
+////    ncnn::Mat mask_proto;
+////    ex.extract("output1", mask_proto);
+//
+//    std::vector<int> strides = {8, 16, 32}; // might have stride=64
+//    std::vector<GridAndStride> grid_strides;
+//    generate_grids_and_stride(in_pad.w, in_pad.h, strides, grid_strides);
+//
+//    std::vector<Object> proposals;
+//    std::vector<Object> objects8;
+//    generate_proposals(grid_strides, out, prob_threshold, objects8);
+//    proposals.insert(proposals.end(), objects8.begin(), objects8.end());
+//
+//    // sort all proposals by score from highest to lowest
+//    qsort_descent_inplace(proposals);
+//
+//    // apply nms with nms_threshold
+//    std::vector<int> picked;
+//    nms_sorted_bboxes(proposals, picked, nms_threshold);
+//
+//    int count = picked.size();
+//
+////    ncnn::Mat mask_feat = ncnn::Mat(32, count, sizeof(float));
+////    for (int i = 0; i < count; i++) {
+////        float* mask_feat_ptr = mask_feat.row(i);
+////        std::memcpy(mask_feat_ptr, proposals[picked[i]].mask_feat.data(), sizeof(float) * proposals[picked[i]].mask_feat.size());
+////    }
+////
+////    ncnn::Mat mask_pred_result;
+////    decode_mask(mask_feat, width, height, mask_proto, in_pad, wpad, hpad, mask_pred_result);
+//
+//    objects.resize(count);
+//    for (int i = 0; i < count; i++)
+//    {
+//        objects[i] = proposals[picked[i]];
+//
+//        // adjust offset to original unpadded
+//        float x0 = (objects[i].rect.x - (wpad / 2)) / scale;
+//        float y0 = (objects[i].rect.y - (hpad / 2)) / scale;
+//        float x1 = (objects[i].rect.x + objects[i].rect.width - (wpad / 2)) / scale;
+//        float y1 = (objects[i].rect.y + objects[i].rect.height - (hpad / 2)) / scale;
+//
+//        // clip
+//        x0 = std::max(std::min(x0, (float)(width - 1)), 0.f);
+//        y0 = std::max(std::min(y0, (float)(height - 1)), 0.f);
+//        x1 = std::max(std::min(x1, (float)(width - 1)), 0.f);
+//        y1 = std::max(std::min(y1, (float)(height - 1)), 0.f);
+//
+//        objects[i].rect.x = x0;
+//        objects[i].rect.y = y0;
+//        objects[i].rect.width = x1 - x0;
+//        objects[i].rect.height = y1 - y0;
+//
+////        objects[i].mask = cv::Mat::zeros(height, width, CV_32FC1);
+////        cv::Mat mask = cv::Mat(height, width, CV_32FC1, (float*)mask_pred_result.channel(i));
+////        mask(objects[i].rect).copyTo(objects[i].mask(objects[i].rect));
+//    }
+//
+//    return 0;
+//}
 
 int Yolo::draw(cv::Mat& rgb, const std::vector<Object>& objects)
 {
@@ -651,29 +741,62 @@ int Yolo::draw(cv::Mat& rgb, const std::vector<Object>& objects)
             {245, 255, 0}
     };
     int color_index = 0;
+//    for (size_t i = 0; i < objects.size(); i++)
+//    {
+//        const Object& obj = objects[i];
+//        const unsigned char* color = colors[color_index % 80];
+//        color_index++;
+//
+//        cv::Scalar cc(color[0], color[1], color[2]);
+//
+//        fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
+//                obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
+////        for (int y = 0; y < rgb.rows; y++) {
+////            uchar* image_ptr = rgb.ptr(y);
+////            const float* mask_ptr = obj.mask.ptr<float>(y);
+////            for (int x = 0; x < rgb.cols; x++) {
+////                if (mask_ptr[x] >= 0.5)
+////                {
+////                    image_ptr[0] = cv::saturate_cast<uchar>(image_ptr[0] * 0.5 + color[2] * 0.5);
+////                    image_ptr[1] = cv::saturate_cast<uchar>(image_ptr[1] * 0.5 + color[1] * 0.5);
+////                    image_ptr[2] = cv::saturate_cast<uchar>(image_ptr[2] * 0.5 + color[0] * 0.5);
+////                }
+////                image_ptr += 3;
+////            }
+////        }
+//        cv::rectangle(rgb, obj.rect, cc, 2);
+//
+//        char text[256];
+//        sprintf(text, "%s %.1f%%", class_names[obj.label], obj.prob * 100);
+//
+//        int baseLine = 0;
+//        cv::Size label_size = cv::getTextSize(text, cv::FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+//
+//        int x = obj.rect.x;
+//        int y = obj.rect.y - label_size.height - baseLine;
+//        if (y < 0)
+//            y = 0;
+//        if (x + label_size.width > rgb.cols)
+//            x = rgb.cols - label_size.width;
+//
+//        cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
+//                      cv::Scalar(255, 255, 255), -1);
+//
+//        cv::putText(rgb, text, cv::Point(x, y + label_size.height),
+//                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+//    }
     for (size_t i = 0; i < objects.size(); i++)
     {
         const Object& obj = objects[i];
-        const unsigned char* color = colors[color_index % 80];
+
+//         fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
+//                 obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
+
+        const unsigned char* color = colors[color_index % 19];
         color_index++;
 
         cv::Scalar cc(color[0], color[1], color[2]);
 
-        fprintf(stderr, "%d = %.5f at %.2f %.2f %.2f x %.2f\n", obj.label, obj.prob,
-                obj.rect.x, obj.rect.y, obj.rect.width, obj.rect.height);
-        for (int y = 0; y < rgb.rows; y++) {
-            uchar* image_ptr = rgb.ptr(y);
-            const float* mask_ptr = obj.mask.ptr<float>(y);
-            for (int x = 0; x < rgb.cols; x++) {
-                if (mask_ptr[x] >= 0.5)
-                {
-                    image_ptr[0] = cv::saturate_cast<uchar>(image_ptr[0] * 0.5 + color[2] * 0.5);
-                    image_ptr[1] = cv::saturate_cast<uchar>(image_ptr[1] * 0.5 + color[1] * 0.5);
-                    image_ptr[2] = cv::saturate_cast<uchar>(image_ptr[2] * 0.5 + color[0] * 0.5);
-                }
-                image_ptr += 3;
-            }
-        }
         cv::rectangle(rgb, obj.rect, cc, 2);
 
         char text[256];
@@ -689,12 +812,12 @@ int Yolo::draw(cv::Mat& rgb, const std::vector<Object>& objects)
         if (x + label_size.width > rgb.cols)
             x = rgb.cols - label_size.width;
 
-        cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)),
-                      cv::Scalar(255, 255, 255), -1);
+        cv::rectangle(rgb, cv::Rect(cv::Point(x, y), cv::Size(label_size.width, label_size.height + baseLine)), cc, -1);
 
-        cv::putText(rgb, text, cv::Point(x, y + label_size.height),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 0, 0));
+        cv::Scalar textcc = (color[0] + color[1] + color[2] >= 381) ? cv::Scalar(0, 0, 0) : cv::Scalar(255, 255, 255);
+
+        cv::putText(rgb, text, cv::Point(x, y + label_size.height), cv::FONT_HERSHEY_SIMPLEX, 0.5, textcc, 1);
     }
-
     return 0;
 }
+
