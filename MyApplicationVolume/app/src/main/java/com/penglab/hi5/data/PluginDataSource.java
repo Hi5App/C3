@@ -71,13 +71,17 @@ public class PluginDataSource {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get method list")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (!response.isSuccessful() || response.body() == null)
-                        pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    if (!response.isSuccessful() || response.body() == null) {
+                        Log.e("response", String.valueOf(response.code()));
+                        pluginListResult.postValue(new Result.Error(new Exception("Connect failed when get method list")));
+                        response.close();
+                        return;
+                    }
                     String body = response.body().string();
                     String[] pNames = new String[0];
                     JSONObject jsonObject;
@@ -110,13 +114,16 @@ public class PluginDataSource {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    imageListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    imageListResult.postValue(new Result.Error(new Exception("Connect failed when get image list")));
                 }
 
                 @Override
                 public void onResponse(Call call, Response response) throws IOException {
-                    if (!response.isSuccessful() || response.body() == null)
-                        imageListResult.postValue(new Result.Error(new Exception("Connect failed when get Brain List")));
+                    if (!response.isSuccessful() || response.body() == null) {
+                        Log.e("response", String.valueOf(response.code()));
+                        imageListResult.postValue(new Result.Error(new Exception("Connect failed when get image list")));
+                        return;
+                    }
                     String body = response.body().string();
                     String[] fileNames = new String[0];
                     JSONObject jsonObject;
@@ -170,6 +177,7 @@ public class PluginDataSource {
                                 response.body().close();
                                 response.close();
                         } else {
+                            Log.e("response", String.valueOf(responseCode));
                             downloadPluginImageResult.postValue(new Result.Error(new Exception("Response from server is error when download image !")));
                         }
                     } catch (Exception e) {
@@ -209,12 +217,12 @@ public class PluginDataSource {
                                 } else {
                                     String zipFilePath = storePath + "/" + filename;
                                     if (unzipFile(zipFilePath, storePath)) {
-                                        originImageResult.postValue(new Result.Success(storePath));
+                                        originImageResult.postValue(new Result.Success(storePath + "/" + filename));
                                     } else {
                                         originImageResult.postValue(new Result.Error(new Exception("Fail to unzip image file !")));
                                     }
                                 }
-                                originImageResult.postValue(new Result.Success(storePath + "/" + filename));
+//                                originImageResult.postValue(new Result.Success(storePath + "/" + filename));
                                 response.body().close();
                                 response.close();
                             } else {

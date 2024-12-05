@@ -1,4 +1,4 @@
-package com.penglab.hi5.core.ui.ImageClassify;
+package com.penglab.hi5.core.ui.ImageClassify.adapter;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.penglab.hi5.R;
+import com.penglab.hi5.core.ui.ImageClassify.UserRatingResultInfo;
 
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
     }
     private DataCallback dataCallback;
 
-    public ImageClassifyTableAdapter(Context context,List<UserRatingResultInfo> data, DataCallback dataCallback) {
+    public ImageClassifyTableAdapter(Context context, List<UserRatingResultInfo> data, DataCallback dataCallback) {
         this.context = context;
         this.data = data;
         this.dataCallback = dataCallback;
@@ -36,6 +37,7 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
 
     public void setShowDetails(boolean showDetails) {
         this.showDetails = showDetails;
+        // 通知 Adapter 数据已经发生变化，进而刷新 UI 界面中的视图。
         notifyDataSetChanged();
     }
     public int getItemViewType(int position) {
@@ -85,7 +87,7 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
     @Override
     public int getItemCount() {
         if(showDetails) {
-            return  data.size() +1;
+            return data.size() +1;
         }else {
             return 1;
         }
@@ -126,7 +128,8 @@ public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassif
         }
         public void bindTotal(int total) {
             if (totalTextView != null) {
-                totalTextView.setText("Total: " + total);
+                String text = "Total: " + total;
+                totalTextView.setText(text);
             }
         }
     }

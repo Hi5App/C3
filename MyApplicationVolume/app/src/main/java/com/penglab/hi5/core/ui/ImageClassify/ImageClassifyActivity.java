@@ -6,34 +6,27 @@ import static com.penglab.hi5.core.Myapplication.playButtonSound;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.inputmethodservice.Keyboard;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.provider.ContactsContract;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.format.Time;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -45,13 +38,13 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -59,41 +52,36 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.slider.RangeSlider;
 import com.lxj.xpopup.XPopup;
 import com.lxj.xpopup.impl.LoadingPopupView;
-import com.lxj.xpopup.interfaces.OnSelectListener;
 //import com.penglab.hi5.Manifest;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.basic.utils.view.ImageButtonExt;
+import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.Myapplication;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
+import com.penglab.hi5.core.ui.ImageClassify.adapter.ClassifySolutionTableAdapter;
+import com.penglab.hi5.core.ui.ImageClassify.adapter.ImageClassifyTableAdapter;
 import com.penglab.hi5.core.ui.ViewModelFactory;
-import com.penglab.hi5.core.ui.annotation.AnnotationActivity;
-import com.penglab.hi5.core.ui.home.utils.Utils;
-import com.penglab.hi5.data.dataStore.PreferenceMusic;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
-import com.penglab.hi5.data.dataStore.PreferenceSoma;
 import com.penglab.hi5.data.model.img.FilePath;
 import com.penglab.hi5.data.model.img.FileType;
-import com.warkiz.widget.IndicatorSeekBar;
-import com.warkiz.widget.OnSeekChangeListener;
-import com.warkiz.widget.SeekParams;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 import cn.carbs.android.library.MDDialog;
-import jxl.Cell;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -124,19 +112,28 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private boolean currentShowDetails = false;
     private LoadingPopupView mDownloadingPopupView;
 
-    private final Handler uiHandler = new Handler();
-    private Timer mRenderTimer = new Timer();
+    private Button solutionAddButton;
 
-    private TimerTask mRenderTask = new TimerTask() {
+    private Button solutionDeleteButton;
+
+    private RecyclerView solutionRecycleView;
+    private HashSet<String> classifySolutionInfoSet = null;
+
+    private final PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+
+    private final Handler uiHandler = new Handler();
+    private final Timer mRenderTimer = new Timer();
+
+    private final TimerTask mRenderTask = new TimerTask() {
         @Override
         public void run() {
             mAnnotationGLSurfaceView.requestRender();
         }
     };
 
-    private Timer mDownloadControlTimer = new Timer();
+    private final Timer mDownloadControlTimer = new Timer();
 
-    private TimerTask mDownloadControlTask = new TimerTask() {
+    private final TimerTask mDownloadControlTask = new TimerTask() {
         @Override
         public void run() {
             if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted() && !mImageClassifyViewModel.getNextRatingImagesInfoDeque().isEmpty()) {
@@ -193,7 +190,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
             popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER,0,0);
 
             RangeSlider xRangeSlider = popupWindow.getContentView().findViewById(R.id.x_cut_slider);
-            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
+            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
                 List<Float> values = xRangeSlider.getValues();
                 mAnnotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
                 mAnnotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
@@ -219,9 +216,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
         mImageClassifyViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(ImageClassifyViewModel.class);
 
-        mImageClassifyViewModel.acquireCurrentImage().observe(this, imageInfo -> {
-            renderImageFile(imageInfo);
-        });
+        mImageClassifyViewModel.acquireCurrentImage().observe(this, this::renderImageFile);
 
         mImageClassifyViewModel.acquireReScheduledDownloadImageInfo().observe(this, imageInfo -> {
             if (imageInfo == null) {
@@ -296,6 +291,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         if(mToolbar.getMenu().size() != 0){
             mToolbar.getMenu().clear();
         }
+        // 加载菜单
         mToolbar.inflateMenu(R.menu.image_classify_menu);
         super.setSupportActionBar(mToolbar);
     }
@@ -720,6 +716,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 }
             });
             adapter.setShowDetails(showDetailsCheckbox.isChecked());
+            // 设置布局管理器
             timeRecycleView.setLayoutManager(new LinearLayoutManager(this));
             timeRecycleView.setAdapter(adapter);
         }
@@ -776,6 +773,84 @@ public class ImageClassifyActivity extends AppCompatActivity {
             Toast.makeText(this, "Failed to create CSV file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             e.printStackTrace();
         }
+    }
+
+    public void classifySoltions() {
+        new MDDialog.Builder(this)
+                .setContentView(R.layout.image_classify_solutions)
+                .setContentViewOperator(contentView -> {
+                    solutionAddButton = contentView.findViewById(R.id.add_button);
+                    solutionDeleteButton = contentView.findViewById(R.id.delete_button);
+                    solutionRecycleView = contentView.findViewById(R.id.recycler_view_table);
+                    solutionRecycleView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+                        @Override
+                        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                            // 判断是否是滑动事件
+                            if (e.getAction() == MotionEvent.ACTION_MOVE) {
+                                return true;  // 如果是滑动事件，拦截事件，不触发点击
+                            }
+                            return super.onInterceptTouchEvent(rv, e);
+                        }
+                    });
+                    showSolutions();
+
+                    solutionAddButton.setOnClickListener(v -> {
+                        // Fetch data from server and display in table
+//                        addSolutionToTable();
+                    });
+                    solutionDeleteButton.setOnClickListener(v -> {
+//                        deleteSolutionFromTable();
+                    });
+                }).setNegativeButton("Cancel", v -> { })
+                .setPositiveButton("Confirm", v -> {
+                    playButtonSound();
+//                    saveSolutions();
+                })
+                .setTitle("Classification Solutions")
+                .create()
+                .show();
+    }
+
+    private void showSolutions() {
+        if(solutionRecycleView == null) {
+            Toast.makeText(this, "SoluionRecycleView not initialized", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Check permission
+        if (ContextCompat.checkSelfPermission(ImageClassifyActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted
+            ActivityCompat.requestPermissions(ImageClassifyActivity.this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    1);
+        } else {
+            Set<String> set = preferenceSetting.getUserClassifySolutionInfos(InfoCache.getAccount());
+            classifySolutionInfoSet = new HashSet<>(set);
+            Map<String, String> infoMap = getSolutionInfoMap(classifySolutionInfoSet);
+            // Pass the data to RecyclerView adapter with callback implementation
+            ClassifySolutionTableAdapter adapter = new ClassifySolutionTableAdapter(this, infoMap);
+            // 设置布局管理器
+            solutionRecycleView.setLayoutManager(new LinearLayoutManager(this));
+            solutionRecycleView.setAdapter(adapter);
+        }
+    }
+
+    private Map<String, String> getSolutionInfoMap(HashSet<String> classifySolutionInfoSet) {
+        HashMap<String, String> solutionInfoMap = new HashMap<>();
+        for (String item : classifySolutionInfoSet){
+            String[] solutionInfo = item.split(":");
+            if(solutionInfo.length >= 2){
+                String solutionName = solutionInfo[0];
+                String solutionDetail = solutionInfo[1];
+                solutionInfoMap.put(solutionName, solutionDetail);
+            }
+            else{
+                ToastEasy("Errors in the format of the classification solution!");
+                return new HashMap<String, String>();
+            }
+        }
+        return solutionInfoMap;
     }
 
 }

@@ -99,6 +99,8 @@ public abstract class BasicConnector {
             try {
                 if (!mSocket.isClosed()) {
                     mSocket.close();
+
+
                 }
                 mSocket = null;
             }catch (Exception e){

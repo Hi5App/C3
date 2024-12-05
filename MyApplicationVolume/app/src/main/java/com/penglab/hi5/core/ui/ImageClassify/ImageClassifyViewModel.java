@@ -36,9 +36,9 @@ public class ImageClassifyViewModel extends ViewModel {
     private final ImageInfoRepository mImageInfoRepository;
     private final ImageClassifyDataSource mImageClassifyDataSource;
 
-    private Deque<RatingImageInfo> mPreviousRatingImagesInfoDeque = new ArrayDeque<>();
+    private final Deque<RatingImageInfo> mPreviousRatingImagesInfoDeque = new ArrayDeque<>();
     private final MutableLiveData<RatingImageInfo> mCurrentRatingImageInfo = new MutableLiveData<>();
-    private Deque<RatingImageInfo> mNextRatingImagesInfoDeque = new ArrayDeque<>();
+    private final Deque<RatingImageInfo> mNextRatingImagesInfoDeque = new ArrayDeque<>();
     private final MutableLiveData<RatingImageInfo> mReScheduledDownloadImageInfo = new MutableLiveData<>();
 
     private final MutableLiveData<List<UserRatingResultInfo>> mUserRatingResultTable = new MutableLiveData<>();

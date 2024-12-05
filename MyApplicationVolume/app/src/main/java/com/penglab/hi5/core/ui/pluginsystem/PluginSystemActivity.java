@@ -8,10 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -19,6 +21,10 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -54,6 +60,22 @@ public class PluginSystemActivity extends AppCompatActivity {
     private ImageButton getPlugin;
     private ImageButton execMethod;
     private LoadingPopupView mProcessingPopupView;
+    private LoadingPopupView mDownloadingPopupView;
+    private final Handler uiHandler = new Handler();
+
+    private final ActivityResultLauncher<Intent> pickLocalFileLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Intent data = result.getData();
+                        if (data != null) {
+                            // TODO 处理选中的文件
+                        }
+                    }
+                }
+            });
 
 
     @SuppressLint("MissingInflatedId")
@@ -65,6 +87,8 @@ public class PluginSystemActivity extends AppCompatActivity {
         pluginSystemViewModel = new ViewModelProvider(this, new ViewModelFactory()).get(PluginSystemViewModel.class);
         toolbar = findViewById(R.id.toolbar_plugin);
         imageIdLocationTextView = findViewById(R.id.imageid_location_text_view);
+        mDownloadingPopupView = new XPopup.Builder(this).asLoading("Downloading......");
+        mDownloadingPopupView.setFocusable(false);
         setSupportActionBar(toolbar);
 
         updateOptionsMenu();
@@ -74,7 +98,7 @@ public class PluginSystemActivity extends AppCompatActivity {
             if (result instanceof Result.Success) {
                 String[] data = (String[]) ((Result.Success<?>) result).getData();
                 Set<String> set = new HashSet<>(Arrays.asList(data));
-                String[] listShow = set.toArray(new String[set.size()]);
+                String[] listShow = set.toArray(new String[0]);
                 new XPopup.Builder(PluginSystemActivity.this).
                         maxHeight(1350).
                         maxWidth(800).
@@ -92,7 +116,7 @@ public class PluginSystemActivity extends AppCompatActivity {
             if (result instanceof Result.Success) {
                 String[] data = (String[]) ((Result.Success<?>) result).getData();
                 Set<String> set = new HashSet<>(Arrays.asList(data));
-                String[] listShow = set.toArray(new String[set.size()]);
+                String[] listShow = set.toArray(new String[0]);
 
                 new XPopup.Builder(PluginSystemActivity.this).
                         maxHeight(1350).
@@ -100,11 +124,20 @@ public class PluginSystemActivity extends AppCompatActivity {
                         asCenterList("Image List",
                                 listShow, (position, text) -> {
                                     ToastEasy("Click" + text);
+                                    runOnUiThread(this::showDownloadingProgressBar);
                                     pluginSystemViewModel.handleImageList(text.trim());
                                 }).show();
             } else if (result instanceof Result.Error) {
                 ToastEasy(result.toString());
             }
+        });
+
+        pluginSystemViewModel.getPluginDataSource().getOriginImageResult().observe(this, result -> {
+            if (result == null) {
+                return;
+            }
+            hideDownloadingProgressBar();
+            pluginSystemViewModel.handleDownloadImageResult(result);
         });
 
         pluginSystemViewModel.getPluginImageResult().observe(this, resourceResult -> {
@@ -122,17 +155,13 @@ public class PluginSystemActivity extends AppCompatActivity {
             }
         });
 
-        pluginSystemViewModel.getPluginDataSource().getOriginImageResult().observe(this, result -> {
-            if (result == null) {
-                return;
-            }
-            pluginSystemViewModel.handleDownloadImageResult(result);
-        });
-
         pluginSystemViewModel.getPluginDataSource().getDownloadPluginImageResult().observe(this, result -> {
             mProcessingPopupView.dismiss();
             execMethod.setEnabled(true);
             if (result == null || result instanceof Result.Error) {
+                if(result != null) {
+                    ToastEasy(((Result.Error) result).getError().toString());
+                }
                 return;
             }
             String data = (String) ((Result.Success<?>) result).getData();
@@ -217,6 +246,9 @@ public class PluginSystemActivity extends AppCompatActivity {
                     }
             );
         }
+        else{
+            commonView.setVisibility(View.VISIBLE);
+        }
     }
 
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -266,11 +298,33 @@ public class PluginSystemActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.addCategory(Intent.CATEGORY_OPENABLE);
         intent.setType("*/*");
-        startActivityForResult(intent, OPEN_LOCAL_FILE);
+        pickLocalFileLauncher.launch(intent);
+//
+//        startActivityForResult(intent, OPEN_LOCAL_FILE, null);
     }
 
     public static void start(Context context) {
         Intent intent = new Intent(context, PluginSystemActivity.class);
         context.startActivity(intent);
+    }
+
+    private void showDownloadingProgressBar() {
+        mDownloadingPopupView.show();
+        uiHandler.postDelayed(this::timeOutHandler, 60 * 1000);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE, WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void hideDownloadingProgressBar() {
+        if (mDownloadingPopupView.isShow()){
+            mDownloadingPopupView.dismiss();
+            uiHandler.removeCallbacks(this::timeOutHandler);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        }
+    }
+
+    private void timeOutHandler() {
+        mDownloadingPopupView.dismiss();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+        ToastEasy("Download image time out! Please try again!");
     }
 }

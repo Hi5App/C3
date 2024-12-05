@@ -25,11 +25,11 @@ import okhttp3.Response;
 
 public class HttpUtilsRating extends HttpUtils {
 
-    private static final String URL_GET_RATING_IMAGE_LIST = SERVER_IP + "/dynamic/GetRatingImageList";
-    private static final String URL_UPDATE_RATING_RESULT = SERVER_IP + "/dynamic/UpdateRatingResult";
-    private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP +"/dynamic/GetRatingImageFile/";
+    private static final String URL_GET_RATING_IMAGE_LIST = SERVER_IP + "/release/GetRatingImageList";
+    private static final String URL_UPDATE_RATING_RESULT = SERVER_IP + "/release/UpdateRatingResult";
+    private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP +"/release/GetRatingImageFile/";
 
-    private static final String URL_GET_RATTING_RESULT = SERVER_IP +"/dynamic/GetRatingResult";
+    private static final String URL_GET_RATTING_RESULT = SERVER_IP +"/release/GetRatingResult";
 
     public static void getRattingImageListWithOkHttp(String username,String password, int count, Callback callback) {
         try {
@@ -107,7 +107,8 @@ public class HttpUtilsRating extends HttpUtils {
                     ratingImageInfo.IsDownloadCompleted = true;
 
                     if(imageClassifyViewModel != null) {
-                        if(imageClassifyViewModel.acquireReScheduledDownloadImageInfo().getValue()!=null && imageClassifyViewModel.acquireReScheduledDownloadImageInfo().getValue().ImageName.equals(ratingImageInfo.ImageName)) {
+                        RatingImageInfo imageInfo = imageClassifyViewModel.acquireReScheduledDownloadImageInfo().getValue();
+                        if(imageInfo !=null && imageInfo.ImageName.equals(ratingImageInfo.ImageName)) {
                             imageClassifyViewModel.acquireReScheduledDownloadImageInfo().postValue(null);
                         }
                     }

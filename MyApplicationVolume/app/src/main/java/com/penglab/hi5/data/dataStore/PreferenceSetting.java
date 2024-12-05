@@ -6,6 +6,11 @@ import android.content.SharedPreferences;
 import android.opengl.Matrix;
 
 import com.lxj.xpopup.widget.SmartDragLayout;
+import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.ui.ImageClassify.ClassifySolutionInfo;
+
+import java.util.HashSet;
+import java.util.Set;
 
 
 /**
@@ -197,5 +202,25 @@ public class PreferenceSetting {
             matrix[i] = pref.getFloat("rotationMatrix_" + i, 0f);
         }
         return matrix;
+    }
+
+    public void setUserClassifySolutionInfos(Set<ClassifySolutionInfo> solutionInfos){
+        SharedPreferences.Editor editor = pref.edit();
+        String username = InfoCache.getAccount();
+        String key = username + "_classify_solution_info";
+        Set<String> set = new HashSet<>();
+        for(ClassifySolutionInfo info : solutionInfos){
+            String item = String.join(":", info.solutionName, info.solutionDetail);
+            set.add(item);
+        }
+        editor.putStringSet(key, set);
+        editor.apply();
+    }
+
+    public Set<String> getUserClassifySolutionInfos(String username){
+        String key = username + "_classify_solution_info";
+        HashSet<String> defaultSet = new HashSet<String>();
+        defaultSet.add("Default:HORIZONTAL,VERTICAL,SLANTING_INTERCEPTIVE,SLANTING_UNTRUNCATED,SPECIAL");
+        return pref.getStringSet(key, defaultSet);
     }
 }

@@ -30,7 +30,7 @@ public class PluginSystemViewModel extends ViewModel {
     private final MutableLiveData<ResourceResult> imageResult = new MutableLiveData<>();
 
 
-    private volatile PluginInfo pluginInfo = new PluginInfo();
+    private final PluginInfo pluginInfo = new PluginInfo();
 
 
     PluginInfo getPluginInfo() {
@@ -126,8 +126,7 @@ public class PluginSystemViewModel extends ViewModel {
         if (result instanceof Result.Success) {
             Object data = ((Result.Success<?>) result).getData();
             openFile();
-            if (data instanceof String) {
-            } else {
+            if (!(data instanceof String)) {
                 isDownloading = false;
             }
         } else {
