@@ -1837,9 +1837,9 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             // load layout view
             mSettings = new Settings(this);
-            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
+//            String mVideoPath = "http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8";
             //String mVideoPath = "rtmp://ns8.indexforce.com/home/mystream";
-//            String mVideoPath ="rtmp://114.117.165.134:8511/live/stream";
+            String mVideoPath ="rtmp://114.117.165.134:8511/live/stream";
             String mPvcamPath = "rtmp://139.155.28.154:8513/stream/123";
             String mPvcamPath_srs = "rtmp://139.155.28.154:8515/stream/123";
 
@@ -1848,7 +1848,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
             // 初始化 IjkMediaPlayer 实例
             player = new IjkMediaPlayer();
-            imageUtils = new ImageUtils(this, 640, 360); // 假设你的视频尺寸为 640x360
+            imageUtils = new ImageUtils(this, 256, 256); // 假设你的视频尺寸为 640x360
 
             IjkMediaPlayer.loadLibrariesOnce(null);
             IjkMediaPlayer.native_profileBegin("libijkplayer.so");
@@ -2207,12 +2207,12 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
 
     private void startDisplayingFramesRgb() {
         new Thread(() -> {
-            while (isDisplayingFrames&&yolov8ncnn!=null) {
+            while (isDisplayingFrames && yolov8ncnn != null) {
                 Log.d("FrameProcessing", "Attempting to get frame from player.");
                 ByteBuffer frameBuffer = player._getFrameRgb();
 
-                // 假设 frameBuffer 现在直接包含 RGB 格式的数据
-                if (frameBuffer != null && frameBuffer.remaining() == 640 * 360 * 3) { // 检查是否为 RGB 数据的大小
+                // 假设 frameBuffer 现在直接包含 RGB 格式的数据，尺寸更新为 2048 * 2048
+                if (frameBuffer != null && frameBuffer.remaining() == 256 * 256 * 3) { // 检查是否为 RGB 数据的大小
                     Log.d("FrameProcessing", "Frame buffer is valid with expected size: " + frameBuffer.remaining());
 
                     // 从 ByteBuffer 中读取 RGB 数据
@@ -2221,15 +2221,15 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                     Log.d("FrameProcessing", "RGB data extracted from frame buffer.");
 
                     // 调用 JNI 方法处理图像
-                    byte[] rgbMaskedData = yolov8ncnn.processImageWithMask(rgbData, 640, 360);
+                    byte[] rgbMaskedData = yolov8ncnn.processImageWithMask(rgbData, 256, 256);
                     Log.d("FrameProcessing", "JNI method processImageWithMask called.");
 
-                    if (rgbMaskedData != null && rgbMaskedData.length == 640 * 360 * 3) {
+                    if (rgbMaskedData != null && rgbMaskedData.length == 256 * 256 * 3) {
                         Log.d("FrameProcessing", "Received RGB masked data from JNI. Size: " + rgbMaskedData.length);
 
                         // 创建位图并设置像素
-                        Bitmap bitmap = Bitmap.createBitmap(640, 360, Bitmap.Config.ARGB_8888);
-                        int[] pixels = new int[640 * 360]; // 用于存储像素数据的 ARGB 格式数组
+                        Bitmap bitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888);
+                        int[] pixels = new int[256 * 256]; // 用于存储像素数据的 ARGB 格式数组
 
                         // 将 RGB 数据转换为 ARGB 格式
                         for (int i = 0; i < pixels.length; i++) {
@@ -2240,7 +2240,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                         }
 
                         // 将像素数据设置到 Bitmap 中
-                        bitmap.setPixels(pixels, 0, 640, 0, 0, 640, 360);
+                        bitmap.setPixels(pixels, 0, 256, 0, 0, 256, 256);
                         Log.d("ImageView", "Bitmap created successfully, width: " + bitmap.getWidth() + ", height: " + bitmap.getHeight());
 
                         // 在主线程上更新 ImageView
@@ -2255,7 +2255,7 @@ public class S2Activity extends BaseActivity implements ReceiveMsgInterface, Sur
                     if (frameBuffer == null) {
                         Log.e("FrameProcessing", "Frame buffer is null.");
                     } else {
-                        Log.e("FrameProcessing", "Frame buffer size mismatch. Expected " + (640 * 360 * 3) + " bytes, got: " + frameBuffer.remaining());
+                        Log.e("FrameProcessing", "Frame buffer size mismatch. Expected " + (256 * 256 * 3) + " bytes, got: " + frameBuffer.remaining());
                     }
                 }
 
