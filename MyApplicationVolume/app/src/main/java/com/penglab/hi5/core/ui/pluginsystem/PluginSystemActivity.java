@@ -133,7 +133,10 @@ public class PluginSystemActivity extends AppCompatActivity {
         });
 
         pluginSystemViewModel.getPluginDataSource().getOriginImageResult().observe(this, result -> {
-            if (result == null) {
+            if (result == null || result instanceof Result.Error) {
+                if(result != null) {
+                    ToastEasy(((Result.Error) result).getError().toString());
+                }
                 return;
             }
             hideDownloadingProgressBar();

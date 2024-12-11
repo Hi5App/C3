@@ -7,42 +7,69 @@
 
     <EditText
         android:id="@+id/start_time_edit_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
         android:hint="Start Time"
         android:focusable="false"
         android:clickable="true"
         android:inputType="none"
-        android:padding="10dp"
+        android:padding="8dp"
         android:background="@drawable/edit_text_background"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/end_time_edit_text"
+        android:layout_marginTop="8dp"
         app:layout_constraintHorizontal_chainStyle="spread_inside" />
 
     <EditText
         android:id="@+id/end_time_edit_text"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="40dp"
         android:hint="End Time"
         android:focusable="false"
         android:clickable="true"
         android:inputType="none"
         android:drawablePadding="8dp"
-        android:padding="10dp"
+        android:padding="8dp"
         android:background="@drawable/edit_text_background"
         app:layout_constraintStart_toEndOf="@+id/start_time_edit_text"
-        app:layout_constraintTop_toTopOf="@+id/start_time_edit_text"
-        app:layout_constraintEnd_toStartOf="@+id/user_spinner" />
+        app:layout_constraintTop_toTopOf="@+id/start_time_edit_text" />
+
+    <TextView
+        android:id="@+id/solution_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="Solution:"
+        app:layout_constraintStart_toEndOf="@+id/end_time_edit_text"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="4dp" />
+
+    <Spinner
+        android:id="@+id/solution_spinner"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/solution_text"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="10dp"/>
+
+    <TextView
+        android:id="@+id/user_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="User:"
+        app:layout_constraintStart_toEndOf="@+id/end_time_edit_text"
+        app:layout_constraintTop_toTopOf="@+id/user_spinner"
+        android:layout_marginStart="4dp"/>
 
     <Spinner
         android:id="@+id/user_spinner"
         android:layout_width="0dp"
-        android:layout_height="50dp"
-        app:layout_constraintStart_toEndOf="@+id/end_time_edit_text"
-        app:layout_constraintTop_toTopOf="@+id/start_time_edit_text"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@+id/solution_spinner"
+        app:layout_constraintTop_toBottomOf="@+id/solution_spinner"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginStart="20dp"
         android:layout_marginEnd="10dp"/>
 
     <Button

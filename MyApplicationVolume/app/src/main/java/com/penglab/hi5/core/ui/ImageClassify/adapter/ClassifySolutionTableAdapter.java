@@ -1,6 +1,7 @@
 package com.penglab.hi5.core.ui.ImageClassify.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,17 +20,28 @@ import java.util.List;
 import java.util.Map;
 
 public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifySolutionTableAdapter.ViewHolder> {
-    private final List<Map.Entry<String, String>> data;
+    private final List<ClassifySolutionInfo> data;
+    private int selectedPosition = -1;  // 记录当前选中的位置
     private final Context context;
+    private final OnSolutionClickListener onSolutionClickListener;
 
-    public ClassifySolutionTableAdapter(Context context, Map<String, String> solutionData) {
+    public ClassifySolutionTableAdapter(Context context, List<ClassifySolutionInfo> solutionData, OnSolutionClickListener onSolutionClickListener) {
         // 将 HashMap 转换为列表
-        data = new ArrayList<>(solutionData.entrySet());
+        this.data = solutionData;
         this.context = context;
+        this.onSolutionClickListener = onSolutionClickListener;
     }
 
-    public List<Map.Entry<String, String>> getSolutions(){
+    public List<ClassifySolutionInfo> getSolutions(){
         return data;
+    }
+
+    public int getSelectedPosition() {
+        return selectedPosition;
+    }
+
+    public interface OnSolutionClickListener {
+        void onSolutionLongClick(int position);
     }
 
     @NonNull
@@ -46,11 +58,39 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Map.Entry<String, String> entry = data.get(position); // 注意索引变化
-        ClassifySolutionInfo info = new ClassifySolutionInfo();
-        info.solutionName = entry.getKey();
-        info.solutionDetail = entry.getValue();
+        ClassifySolutionInfo info = data.get(position); // 注意索引变化
         holder.bind(info);
+
+        // 设置背景颜色
+        if (position == selectedPosition) {
+            holder.itemView.setBackgroundColor(Color.BLUE);  // 设置选中的项背景为蓝色
+            holder.solutionNameTextView.setTextColor(Color.WHITE);
+            holder.solutionDetailTextView.setTextColor(Color.WHITE);
+        } else {
+            holder.itemView.setBackgroundColor(Color.TRANSPARENT);  // 设置未选中的项背景为透明
+            holder.solutionNameTextView.setTextColor(Color.BLACK);
+            holder.solutionDetailTextView.setTextColor(Color.BLACK);
+        }
+
+        // 设置点击事件
+        holder.itemView.setOnClickListener(v -> {
+            // Use getAdapterPosition to get the correct position
+            int clickedPosition = holder.getBindingAdapterPosition();
+            if (clickedPosition != RecyclerView.NO_POSITION) {
+                // Update selected position and notify item changes
+                int previousSelected = selectedPosition;
+                selectedPosition = clickedPosition;
+                notifyItemChanged(previousSelected);
+                notifyItemChanged(clickedPosition);
+            }
+        });
+
+        // 设置长按事件监听器
+        holder.itemView.setOnLongClickListener(v -> {
+            // 长按事件触发时，调用接口方法
+            onSolutionClickListener.onSolutionLongClick(position);
+            return true; // 返回 true 表示事件已被处理
+        });
     }
 
     @Override
@@ -59,8 +99,8 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private final TextView solutionNameTextView;
-        private final TextView solutionDetailTextView;
+        public final TextView solutionNameTextView;
+        public final TextView solutionDetailTextView;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);

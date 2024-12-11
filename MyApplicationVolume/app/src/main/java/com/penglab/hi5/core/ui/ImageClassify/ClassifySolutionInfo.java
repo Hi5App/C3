@@ -18,4 +18,12 @@ public class ClassifySolutionInfo {
     public int hashCode() {
         return Objects.hash(solutionName);
     }
+
+    public ClassifySolutionInfo() {
+    }
+
+    public ClassifySolutionInfo(String solutionName, String solutionDetail) {
+        this.solutionName = solutionName;
+        this.solutionDetail = solutionDetail;
+    }
 }

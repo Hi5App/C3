@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -151,7 +152,10 @@ public class PluginDataSource {
 
     public void doPlugin(String imageName, String pluginName) {
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)  // 设置连接超时为 60 秒
+                    .readTimeout(60, TimeUnit.SECONDS)     // 设置读取超时为 60 秒
+                    .writeTimeout(60, TimeUnit.SECONDS)    // 设置写入超时为 60 秒
+                    .build();
             String body = (new JSONObject().
                     put("method_name", pluginName).
                     put("image_name", imageName).
@@ -164,7 +168,8 @@ public class PluginDataSource {
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    downloadPluginImageResult.postValue(new Result.Error(new Exception("Connect Failed When Download Image")));
+                    e.printStackTrace();
+                    downloadPluginImageResult.postValue(new Result.Error(new Exception("Connect Failed When Do Plugin")));
                 }
 
                 @Override
@@ -193,7 +198,10 @@ public class PluginDataSource {
 
     public void getImageFile(String pathPrefix, String imageName) {
         try {
-            OkHttpClient client = new OkHttpClient();
+            OkHttpClient client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS)  // 设置连接超时为 60 秒
+                    .readTimeout(60, TimeUnit.SECONDS)     // 设置读取超时为 60 秒
+                    .writeTimeout(60, TimeUnit.SECONDS)    // 设置写入超时为 60 秒
+                    .build();
             String body = (new JSONObject().put("image_path", pathPrefix).put("image_name", imageName)).toString();
             Request request = new Request.Builder().url(HttpUtilsPlugin.UrlGetImageFile).
                     post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), body)).build();

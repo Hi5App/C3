@@ -3,18 +3,23 @@ package com.penglab.hi5.core.net;
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import com.penglab.hi5.chat.nim.InfoCache;
+import com.penglab.hi5.core.ui.ImageClassify.ClassifySolutionInfo;
 import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyViewModel;
 import com.penglab.hi5.core.ui.ImageClassify.RatingImageInfo;
+import com.penglab.hi5.core.ui.ImageClassify.UpdateClassifySolution;
 import com.penglab.hi5.core.ui.home.utils.Utils;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -28,8 +33,13 @@ public class HttpUtilsRating extends HttpUtils {
     private static final String URL_GET_RATING_IMAGE_LIST = SERVER_IP + "/release/GetRatingImageList";
     private static final String URL_UPDATE_RATING_RESULT = SERVER_IP + "/release/UpdateRatingResult";
     private static final String URL_DOWNLOAD_RATING_IMAGE = SERVER_IP +"/release/GetRatingImageFile/";
+    private static final String URL_GET_RATING_RESULT = SERVER_IP +"/release/GetRatingResult";
+    private static final String URL_GET_RATING_USERNAME = SERVER_IP +"/release/GetRatingUserName";
 
-    private static final String URL_GET_RATTING_RESULT = SERVER_IP +"/release/GetRatingResult";
+    private static final String URL_GET_RATING_SOLUTION = SERVER_IP +"/release/GetRatingSolution";
+    private static final String URL_ADD_RATING_SOLUTION = SERVER_IP +"/release/AddRatingSolution";
+    private static final String URL_UPDATE_RATING_SOLUTION = SERVER_IP +"/release/UpdateRatingSolution";
+    private static final String URL_DELETE_RATING_SOLUTION = SERVER_IP +"/release/DeleteRatingSolution";
 
     public static void getRattingImageListWithOkHttp(String username,String password, int count, Callback callback) {
         try {
@@ -43,12 +53,13 @@ public class HttpUtilsRating extends HttpUtils {
         }
     }
 
-    public static void uploadUserRatingResultWithOkHttp(String username, String password, String ImageName, String RatingEnum, String AdditionalRatingDescription, Callback callback) {
+    public static void uploadUserRatingResultWithOkHttp(String username, String password, String ImageName, String solutionName, String RatingEnum, String AdditionalRatingDescription, Callback callback) {
         try {
             RequestBody body = RequestBody.create(JSON, String.valueOf(new JSONObject()
                     .put("UserName", username)
                     .put("Password", password)
                     .put("ImageName", ImageName)
+                    .put("SolutionName", solutionName)
                     .put("RatingEnum",RatingEnum)
                     .put("AdditionalRatingDescription",AdditionalRatingDescription)));
             asyncPostRequest(URL_UPDATE_RATING_RESULT, body, callback);
@@ -133,7 +144,8 @@ public class HttpUtilsRating extends HttpUtils {
 
 
 
-    public static void queryUserRattingTableWithOkHttp(String username, String password, String queryUserName, String queryStartTime, String queryEndTime, Callback callback) {
+
+    public static void queryUserRatingTableWithOkHttp(String username, String password, String querySolutionName, String queryUserName, String queryStartTime, String queryEndTime, Callback callback) {
         try {
 //            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
 //            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
@@ -144,12 +156,118 @@ public class HttpUtilsRating extends HttpUtils {
             jsonObject.put("QueryUserName", queryUserName);
             jsonObject.put("QueryStartTime", queryStartTime);
             jsonObject.put("QueryEndTime", queryEndTime);
+            jsonObject.put("QuerySolutionName", querySolutionName);
 
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
-            asyncPostRequest(URL_GET_RATTING_RESULT, body, callback);
+            asyncPostRequest(URL_GET_RATING_RESULT, body, callback);
         } catch (Exception e) {
-            e.printStackTrace();
+            ToastEasy(e.toString());
         }
+    }
+
+    public static void addRatingSolutionWithOkHttp(String username, String password, List<ClassifySolutionInfo> addedSolutionList, Callback callback) {
+        try {
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+
+            // 创建 JSONArray 来存储对象
+            JSONArray classifyJsonArray = new JSONArray();
+            for(ClassifySolutionInfo classifySolutionInfo : addedSolutionList){
+                JSONObject solutionJson = new JSONObject();
+                solutionJson.put("SolutionName",classifySolutionInfo.solutionName);
+                solutionJson.put("SolutionDetail", classifySolutionInfo.solutionDetail);
+                classifyJsonArray.put(solutionJson);
+            }
+            jsonObject.put("AddedSolution", classifyJsonArray);
+
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            asyncPostRequest(URL_ADD_RATING_SOLUTION, body, callback);
+        } catch (Exception e) {
+            ToastEasy(e.toString());
+        }
+    }
+
+    public static void deleteRatingSolutionWithOkHttp(String username, String password, List<String> deletedSolutionList, Callback callback) {
+        try {
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+            jsonObject.put("DeletedSolution", new JSONArray(deletedSolutionList));
+
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            asyncPostRequest(URL_DELETE_RATING_SOLUTION, body, callback);
+        } catch (Exception e) {
+            ToastEasy(e.toString());
+        }
+    }
+
+    public static void updateRatingSolutionWithOkHttp(String username, String password, List<UpdateClassifySolution> updatedSolutionList, Callback callback) {
+        try {
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+
+            // 创建 JSONArray 来存储对象
+            JSONArray classifyJsonArray = new JSONArray();
+            for(UpdateClassifySolution classifySolutionInfo : updatedSolutionList){
+                JSONObject updateSolutionJson = new JSONObject();
+                updateSolutionJson.put("OldSolutionName",classifySolutionInfo.oldSolutionName);
+                JSONObject newSolutionJson = new JSONObject();
+                newSolutionJson.put("SolutionName", classifySolutionInfo.newSolutionInfo.solutionName);
+                newSolutionJson.put("SolutionDetail", classifySolutionInfo.newSolutionInfo.solutionDetail);
+                updateSolutionJson.put("UpdatedSolution", newSolutionJson);
+                classifyJsonArray.put(updateSolutionJson);
+            }
+            jsonObject.put("UpdatedSolutionInfo", new JSONArray(classifyJsonArray));
+
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            asyncPostRequest(URL_UPDATE_RATING_SOLUTION, body, callback);
+        } catch (Exception e) {
+            ToastEasy(e.toString());
+        }
+    }
+
+    public static Response queryRatingSolutionListWithOkHttp(String username, String password) {
+        try {
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            return syncPostRequest(URL_GET_RATING_SOLUTION, body);
+        } catch (Exception e) {
+            ToastEasy(e.toString());
+        }
+        return null;
+    }
+
+    public static Response queryRatingUserNameListWithOkHttp(String username, String password, String solutionName) {
+        try {
+//            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
+//            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("UserName", username);
+            jsonObject.put("Password", password);
+            jsonObject.put("SolutionName", solutionName);
+            RequestBody body = RequestBody.create(JSON, jsonObject.toString());
+            return syncPostRequest(URL_GET_RATING_USERNAME, body);
+        } catch (Exception e) {
+            ToastEasy(e.toString());
+        }
+        return null;
     }
 }
 

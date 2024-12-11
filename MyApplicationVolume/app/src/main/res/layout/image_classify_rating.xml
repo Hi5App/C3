@@ -99,136 +99,163 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <!-- 类别按钮容器 -->
-    <LinearLayout
-        android:id="@+id/layoutBottomNav"
+    <ScrollView
+        android:id="@+id/class_first_scrollview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:background="@android:color/transparent"
-        android:elevation="8dp"
-        android:padding="8dp"
-        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
-
-            <!-- 第一类按钮 -->
-        <Button
-            android:id="@+id/btnHorizontal"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Horizontal"
-            android:ellipsize="end"
-            android:singleLine="true"
-            android:background="@color/category1Color"
-            android:textColor="@android:color/black"
-            android:layout_marginEnd="8dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:foreground="?attr/selectableItemBackground"/>
-
-        <!-- 第二类按钮 -->
-        <Button
-            android:id="@+id/btnVertical"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Vertical"
-            android:background="@color/category2Color"
-            android:layout_marginEnd="8dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:foreground="?attr/selectableItemBackground"/>
-
-        <!-- 第三类按钮 -->
-        <Button
-            android:id="@+id/btnSlanting"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Slanting"
-            android:background="@color/category3Color"
-            android:textColor="@android:color/black"
-            android:layout_marginEnd="8dp"
-            style="?android:attr/borderlessButtonStyle"
-            android:foreground="?attr/selectableItemBackground"/>
-
-        <!-- 第四类按钮 -->
-        <Button
-            android:id="@+id/btnOther"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Other"
-            android:enabled="true"
-            android:background="@color/category4Color"
-            android:textColor="@android:color/black"
-            style="?android:attr/borderlessButtonStyle"
-            android:foreground="?attr/selectableItemBackground"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutSubcategoryWindow3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="#80FFFFFF"
-        android:visibility="gone"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">
-
-        <Button
-            android:id="@+id/btnInterceptive"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="interceptive"
-            android:textColor="@android:color/black"
-            android:layout_marginEnd="8dp"/>
-
-        <Button
-            android:id="@+id/btnUntruncated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="untruncated"
-            android:textColor="@android:color/black"
-            android:layout_marginStart="8dp"/>
-    </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/layoutSubcategoryWindow4"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:background="#80FFFFFF"
-        android:visibility="gone"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">
-
-
-        <!-- 第四类小类按钮2 -->
-        <Button
-            android:id="@+id/btnSpecial"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="special"
-            android:textColor="@android:color/black"
-            android:layout_marginEnd="8dp"/>
-
-        <EditText
-            android:id="@+id/editTextRemark"
+        <!-- 类别按钮容器 -->
+        <LinearLayout
+            android:id="@+id/class_first_button_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="other"
+            android:orientation="horizontal"
+            android:background="@android:color/transparent"
+            android:elevation="8dp"
+            android:padding="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+<!--            &lt;!&ndash; 第一类按钮 &ndash;&gt;-->
+<!--            <Button-->
+<!--                android:id="@+id/btnHorizontal"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="Horizontal"-->
+<!--                android:ellipsize="end"-->
+<!--                android:singleLine="true"-->
+<!--                android:background="@color/category1Color"-->
+<!--                android:textColor="@android:color/black"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                style="?android:attr/borderlessButtonStyle"-->
+<!--                android:foreground="?attr/selectableItemBackground"/>-->
+<!--    -->
+<!--            &lt;!&ndash; 第二类按钮 &ndash;&gt;-->
+<!--            <Button-->
+<!--                android:id="@+id/btnVertical"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="Vertical"-->
+<!--                android:background="@color/category2Color"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                style="?android:attr/borderlessButtonStyle"-->
+<!--                android:foreground="?attr/selectableItemBackground"/>-->
+<!--    -->
+<!--            &lt;!&ndash; 第三类按钮 &ndash;&gt;-->
+<!--            <Button-->
+<!--                android:id="@+id/btnSlanting"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="Slanting"-->
+<!--                android:background="@color/category3Color"-->
+<!--                android:textColor="@android:color/black"-->
+<!--                android:layout_marginEnd="8dp"-->
+<!--                style="?android:attr/borderlessButtonStyle"-->
+<!--                android:foreground="?attr/selectableItemBackground"/>-->
+<!--    -->
+<!--            &lt;!&ndash; 第四类按钮 &ndash;&gt;-->
+<!--            <Button-->
+<!--                android:id="@+id/btnOther"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_weight="1"-->
+<!--                android:text="Other"-->
+<!--                android:enabled="true"-->
+<!--                android:background="@color/category4Color"-->
+<!--                android:textColor="@android:color/black"-->
+<!--                style="?android:attr/borderlessButtonStyle"-->
+<!--                android:foreground="?attr/selectableItemBackground"/>-->
+        </LinearLayout>
+    </ScrollView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/class_first_scrollview">
+        <!-- 类别按钮容器 -->
+        <LinearLayout
+            android:id="@+id/class_second_button_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#80FFFFFF"
             android:visibility="gone"
-            />
-    </LinearLayout>
+            android:gravity="center"
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent">
+        </LinearLayout>
+    </ScrollView>
+
+<!--    <LinearLayout-->
+<!--        android:id="@+id/layoutSubcategoryWindow3"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        android:background="#80FFFFFF"-->
+<!--        android:visibility="gone"-->
+<!--        android:gravity="center"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btnInterceptive"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="interceptive"-->
+<!--            android:textColor="@android:color/black"-->
+<!--            android:layout_marginEnd="8dp"/>-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btnUntruncated"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="untruncated"-->
+<!--            android:textColor="@android:color/black"-->
+<!--            android:layout_marginStart="8dp"/>-->
+<!--    </LinearLayout>-->
+
+<!--    <LinearLayout-->
+<!--        android:id="@+id/layoutSubcategoryWindow4"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_weight="1"-->
+<!--        android:background="#80FFFFFF"-->
+<!--        android:visibility="gone"-->
+<!--        android:gravity="center"-->
+<!--        android:orientation="horizontal"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintBottom_toTopOf="@id/layoutBottomNav">-->
+
+
+<!--        &lt;!&ndash; 第四类小类按钮2 &ndash;&gt;-->
+<!--        <Button-->
+<!--            android:id="@+id/btnSpecial"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="special"-->
+<!--            android:textColor="@android:color/black"-->
+<!--            android:layout_marginEnd="8dp"/>-->
+
+<!--        <EditText-->
+<!--            android:id="@+id/editTextRemark"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="other"-->
+<!--            android:visibility="gone"-->
+<!--            />-->
+<!--    </LinearLayout>-->
 
     <ImageButton
         android:id="@+id/get_classify_solution_button"
@@ -245,14 +272,13 @@
 
     <ImageButton
         android:id="@+id/open_classify_attachment_button"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        app:cornerRadius="24dp"
-        android:layout_marginEnd="4dp"
+        android:layout_width="29dp"
+        android:layout_height="24dp"
         android:layout_marginTop="7dp"
-        app:layout_constraintTop_toBottomOf ="@id/get_classify_solution_button"
+        android:background="@drawable/classify_attachment"
+        app:cornerRadius="24dp"
         app:layout_constraintRight_toRightOf="@+id/downSample_mode"
-        android:background="@drawable/classify_attachment" />
+        app:layout_constraintTop_toBottomOf="@id/get_classify_solution_button" />
 
     <ImageButton
         android:id="@+id/downSample_mode"

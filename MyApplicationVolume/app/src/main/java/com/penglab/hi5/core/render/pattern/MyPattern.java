@@ -871,7 +871,9 @@ public class MyPattern extends BasicPattern {
         vol_hDS = vol_h / downSampleScale + 1;
         vol_dDS = vol_d / downSampleScale + 1;
 
+        image.setDataXYFlip();
         byte[] data_src = image.getData();
+//        byte[] data_src = image.getXYFlipData();
 
         nchannel = (int) image.getSz3();
         data_length = image.getDatatype().ordinal();
@@ -1047,7 +1049,7 @@ public class MyPattern extends BasicPattern {
         }
 
         GLES32.glBindTexture(GLES32.GL_TEXTURE_3D, 0);
-
+        image.setDataXYFlip();
     }
 
     /*
