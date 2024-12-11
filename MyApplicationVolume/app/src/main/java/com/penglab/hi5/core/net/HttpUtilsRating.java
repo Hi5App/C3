@@ -237,7 +237,7 @@ public class HttpUtilsRating extends HttpUtils {
         }
     }
 
-    public static Response queryRatingSolutionListWithOkHttp(String username, String password) {
+    public static void queryRatingSolutionListWithOkHttp(String username, String password, Callback callback) {
         try {
 //            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
 //            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
@@ -246,14 +246,13 @@ public class HttpUtilsRating extends HttpUtils {
             jsonObject.put("UserName", username);
             jsonObject.put("Password", password);
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
-            return syncPostRequest(URL_GET_RATING_SOLUTION, body);
+            asyncPostRequest(URL_GET_RATING_SOLUTION, body, callback);
         } catch (Exception e) {
             ToastEasy(e.toString());
         }
-        return null;
     }
 
-    public static Response queryRatingUserNameListWithOkHttp(String username, String password, String solutionName) {
+    public static void queryRatingUserNameListWithOkHttp(String username, String password, String solutionName, Callback callback) {
         try {
 //            String rfc3339StartTime = Utils.convertToRFC3339(queryStartTime);
 //            String rfc3339EndTime = Utils.convertToRFC3339(queryEndTime);
@@ -263,11 +262,10 @@ public class HttpUtilsRating extends HttpUtils {
             jsonObject.put("Password", password);
             jsonObject.put("SolutionName", solutionName);
             RequestBody body = RequestBody.create(JSON, jsonObject.toString());
-            return syncPostRequest(URL_GET_RATING_USERNAME, body);
+            asyncPostRequest(URL_GET_RATING_USERNAME, body, callback);
         } catch (Exception e) {
             ToastEasy(e.toString());
         }
-        return null;
     }
 }
 

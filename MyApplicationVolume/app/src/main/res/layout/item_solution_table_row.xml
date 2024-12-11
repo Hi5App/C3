@@ -10,14 +10,13 @@
         android:layout_weight="1">
         <TextView
             android:id="@+id/solution_name_text_view"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:ellipsize="end"
-            android:scrollHorizontally="true"
             android:padding="5dp"
+            android:textSize="16sp"
             android:gravity="center"
-            android:text="Solution name" />
+            android:text="Solution name"/>
     </HorizontalScrollView>
 
     <!-- 第二个可滚动的文本 -->
@@ -25,17 +24,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="3"
-        android:layout_marginStart="8dp">
+        android:layout_marginStart="10dp">
         <TextView
             android:id="@+id/solution_detail_text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:maxLines="1"
-            android:ellipsize="end"
-            android:scrollHorizontally="true"
             android:padding="5dp"
+            android:textSize="16sp"
             android:gravity="center"
-            android:text="Solution detail" />
+            android:text="Solution detail"/>
     </HorizontalScrollView>
 
 </LinearLayout>

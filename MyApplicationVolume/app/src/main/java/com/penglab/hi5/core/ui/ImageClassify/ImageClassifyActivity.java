@@ -44,6 +44,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AlertDialogLayout;
 import androidx.appcompat.widget.Toolbar;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -128,9 +129,14 @@ public class ImageClassifyActivity extends AppCompatActivity {
     private Button solutionDeleteButton;
 
     private RecyclerView solutionRecycleView;
+    private HashMap<String, String> previousSolutionInfoMap;
     private HashMap<String, String> classifySolutionInfoMap;
     private List<ClassifySolutionInfo> classifySolutionInfoList;
     private ClassifySolutionTableAdapter classifySolutionAdapter;
+
+    private MDDialog settingDialog;
+    private MDDialog solutionDialog;
+
     private String curSelectedClassFirst;
     private String additionalRatingDescription;
 
@@ -249,6 +255,34 @@ public class ImageClassifyActivity extends AppCompatActivity {
                 return;
             }
             generateExcel(userRatingResultInfos,currentShowDetails);
+        });
+
+        mImageClassifyViewModel.getmClassifySolutionList().observe(this, classifySolutionInfos -> {
+            if(classifySolutionInfos != null){
+                assembleSolutions(classifySolutionInfos);
+                if(settingDialog != null && settingDialog.isShowing()){
+                    List<String> solutionNames = getSolutionNameList();
+                    if (solutionNames == null){
+                        solutionNames = new ArrayList<>();
+                    }
+                    setupSolutionSpinner(solutionNames, solutionSpinner);
+                    String selectedSolutionName = (String) solutionSpinner.getSelectedItem();
+                    mImageClassifyViewModel.requestRatingUserNameList(selectedSolutionName);
+                }
+                if(solutionDialog != null && solutionDialog.isShowing()){
+                    previousSolutionInfoMap = new HashMap<>(classifySolutionInfoMap);
+                    showSolutions();
+                }
+            }
+        });
+
+        mImageClassifyViewModel.getmClassifyUserNameList().observe(this, usernames -> {
+            if(userSpinner != null){
+                if (usernames == null){
+                    usernames = new ArrayList<>();
+                }
+                setupUserSpinner(usernames, userSpinner);
+            }
         });
 
         mImageClassifyViewModel.acquireImagesManually();
@@ -557,9 +591,16 @@ public class ImageClassifyActivity extends AppCompatActivity {
                         .setPositiveButton("OK", (dialog, which) -> {
                             additionalRatingDescription = additionInfoEditText.getText().toString().trim();
                         })
-                        .setNegativeButton("Cancel", null)
-                        .create()
-                        .show();
+                        .setNegativeButton("Cancel", null);
+
+                AlertDialog alert = builder.create();
+                alert.show();
+                // 获取 PositiveButton 和 NegativeButton
+                Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+                Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+                // 设置字体颜色
+                positiveButton.setTextColor(Color.BLACK);
+                negativeButton.setTextColor(Color.BLACK);
             });
 
         } else {
@@ -645,9 +686,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
     public void settings() {
-        List<ClassifySolutionInfo> classifySolutionInfos = mImageClassifyViewModel.requestRatingSolutionList();
-        assembleSolutions(classifySolutionInfos);
-        new MDDialog.Builder(this)
+        MDDialog.Builder builder = new MDDialog.Builder(this)
                 .setContentView(R.layout.image_classify_setting)
                 .setContentViewOperator(contentView -> {
                     start_time_edit_text = contentView.findViewById(R.id.start_time_edit_text);
@@ -658,12 +697,6 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     downloadButton = contentView.findViewById(R.id.download_button);
                     timeRecycleView = contentView.findViewById(R.id.recycler_view_table);
                     showDetailsCheckbox = contentView.findViewById(R.id.show_details_checkbox);
-
-                    List<String> solutionNames = getSolutionNameList();
-                    setupSolutionSpinner(solutionNames, solutionSpinner);
-                    String selectedSolutionName = (String) solutionSpinner.getSelectedItem();
-                    List<String> userNames = mImageClassifyViewModel.requestRatingUserNameList(selectedSolutionName);
-                    setupUserSpinner(userNames, userSpinner);
 
                     start_time_edit_text.setOnClickListener(v -> showDateTimePicker(start_time_edit_text));
                     end_time_edit_text.setOnClickListener(v -> showDateTimePicker(end_time_edit_text));
@@ -679,9 +712,11 @@ public class ImageClassifyActivity extends AppCompatActivity {
                         .setPositiveButton("Confirm", v -> {
                             playButtonSound();
                         })
-                        .setTitle("QueryRatingResults")
-                        .create()
-                        .show();
+                        .setTitle("QueryRatingResults");
+        settingDialog = builder.create();
+        settingDialog.show();
+
+        mImageClassifyViewModel.requestRatingSolutionList();
     }
 
     public void setupUserSpinner(List<String> userNames, Spinner spinner) {
@@ -690,7 +725,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
         userNames.add("All");
         // 创建一个 ArrayAdapter 来绑定数据
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, userNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setSelection(0);
@@ -702,7 +737,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
         solutionNames.add("All");
         // 创建一个 ArrayAdapter 来绑定数据
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, solutionNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, solutionNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
         spinner.setSelection(0);
@@ -712,8 +747,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
                 // 当选择项发生变化时触发的事件
                 String selectedItem = parentView.getItemAtPosition(position).toString();
-                List<String> userNames = mImageClassifyViewModel.requestRatingUserNameList(selectedItem);
-                setupUserSpinner(userNames, userSpinner);
+                mImageClassifyViewModel.requestRatingUserNameList(selectedItem);
             }
 
             @Override
@@ -831,6 +865,12 @@ public class ImageClassifyActivity extends AppCompatActivity {
         // 文件路径
         File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File csvFile = new File(downloadDir, "UserRatings.csv");
+        if(csvFile.exists()){
+            boolean isDeleted = csvFile.delete();
+            if (!isDeleted) {
+                ToastEasy("old csv file failed to be deleted");
+            }
+        }
 
         try (FileWriter writer = new FileWriter(csvFile)) {
             // 写入标题头
@@ -854,28 +894,22 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
     public void classifySoltions() {
-        List<ClassifySolutionInfo> classifySolutionInfos = mImageClassifyViewModel.requestRatingSolutionList();
-        assembleSolutions(classifySolutionInfos);
-        HashMap<String, String> previousSolutionInfoMap = new HashMap<>(classifySolutionInfoMap);
-
-        new MDDialog.Builder(this)
+        MDDialog.Builder builder = new MDDialog.Builder(this)
                 .setContentView(R.layout.image_classify_solutions)
                 .setContentViewOperator(contentView -> {
                     solutionAddButton = contentView.findViewById(R.id.add_button);
                     solutionDeleteButton = contentView.findViewById(R.id.delete_button);
                     solutionRecycleView = contentView.findViewById(R.id.recycler_view_table);
-                    solutionRecycleView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
-                        @Override
-                        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                            // 判断是否是滑动事件
-                            if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                                return true;  // 如果是滑动事件，拦截事件，不触发点击
-                            }
-                            return super.onInterceptTouchEvent(rv, e);
-                        }
-                    });
-                    showSolutions();
-
+//                    solutionRecycleView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
+//                        @Override
+//                        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+//                            // 判断是否是滑动事件
+//                            if (e.getAction() == MotionEvent.ACTION_MOVE) {
+//                                return true;  // 如果是滑动事件，拦截事件，不触发点击
+//                            }
+//                            return super.onInterceptTouchEvent(rv, e);
+//                        }
+//                    });
                     solutionAddButton.setOnClickListener(v -> {
                         // Fetch data from server and display in table
                         addSolutionToTable();
@@ -890,9 +924,12 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     showClassifications(classifySolutionAdapter.getSelectedPosition());
                     saveSolutionChanges(previousSolutionInfoMap);
                 })
-                .setTitle("Classification Solutions")
-                .create()
-                .show();
+                .setTitle("Classification Solutions");
+
+        solutionDialog = builder.create();
+        solutionDialog.show();
+
+        mImageClassifyViewModel.requestRatingSolutionList();
     }
 
     private void showClassifications(int position) {
@@ -942,11 +979,12 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams.WRAP_CONTENT
             );
             params.weight = 1;
-            params.setMargins(8, 8, 8, 8);
+            params.setMargins(1, 1, 1, 1);
             button.setLayoutParams(params);
 
             // 设置文本
             button.setText(classFirst);
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             // 设置按钮启用
             button.setEnabled(true);
             // 设置文本颜色
@@ -961,17 +999,24 @@ public class ImageClassifyActivity extends AppCompatActivity {
             Drawable foreground = typedArray.getDrawable(0);
             button.setForeground(foreground);
 
-            getContext().getTheme().resolveAttribute(android.R.attr.borderlessButtonStyle, typedValue, true);
-            attribute = new int[] { android.R.attr.borderlessButtonStyle};
-            typedArray = getContext().getTheme().obtainStyledAttributes(typedValue.resourceId, attribute);
-            button.setBackground(typedArray.getDrawable(0));
+//            TypedValue typedValue2 = new TypedValue();
+//            getContext().getTheme().resolveAttribute(android.R.attr.borderlessButtonStyle, typedValue2, true);
+//            attribute = new int[] { android.R.attr.borderlessButtonStyle};
+//            typedArray = getContext().getTheme().obtainStyledAttributes(typedValue2.resourceId, attribute);
+//            button.setBackground(typedArray.getDrawable(0));
             typedArray.recycle();
 
             // 设置点击事件
             button.setOnClickListener(v -> {
                 if(!classFirst2SecondMap.containsKey(classFirst)){
                     if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                        String utf8String = new String(additionalRatingDescription.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                        String utf8String = null;
+                        if (additionalRatingDescription != null){
+                            utf8String = new String(additionalRatingDescription.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                        }
+                        else{
+                            utf8String = "";
+                        }
                         navigateFile(true, true,  classFirst2IndexMap.get(classFirst) + "_" + classFirst.toLowerCase(Locale.ROOT), utf8String);
                         additionalRatingDescription = "";
                     } else {
@@ -1020,6 +1065,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
             // 设置文本
             button.setText(classSecond);
+            button.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
             // 设置按钮启用
             button.setEnabled(true);
             // 设置文本颜色
@@ -1034,16 +1080,23 @@ public class ImageClassifyActivity extends AppCompatActivity {
             Drawable foreground = typedArray.getDrawable(0);
             button.setForeground(foreground);
 
-            getContext().getTheme().resolveAttribute(android.R.attr.borderlessButtonStyle, typedValue, true);
-            attribute = new int[]{android.R.attr.borderlessButtonStyle};
-            typedArray = getContext().getTheme().obtainStyledAttributes(typedValue.resourceId, attribute);
-            button.setBackground(typedArray.getDrawable(0));
+//            getContext().getTheme().resolveAttribute(android.R.attr.borderlessButtonStyle, typedValue, true);
+//            attribute = new int[]{android.R.attr.borderlessButtonStyle};
+//            typedArray = getContext().getTheme().obtainStyledAttributes(typedValue.resourceId, attribute);
+//            button.setBackground(typedArray.getDrawable(0));
             typedArray.recycle();
 
             // 设置点击事件
             button.setOnClickListener(v -> {
                 if (mImageClassifyViewModel.acquireCurrentImage().getValue() != null) {
-                    String utf8String = new String(additionalRatingDescription.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                    String utf8String = null;
+                    if (additionalRatingDescription != null){
+                        utf8String = new String(additionalRatingDescription.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
+                    }
+                    else{
+                        utf8String = "";
+                    }
+
                     navigateFile(true, true, index + "." + classSecond2IndexMap.get(classSecond) + "_" + classSecond.toLowerCase(Locale.ROOT), utf8String);
                     additionalRatingDescription = "";
                     classSecondButtonContainer.setVisibility(View.GONE);
@@ -1080,25 +1133,39 @@ public class ImageClassifyActivity extends AppCompatActivity {
         // 设置当前描述为对话框中的默认值
         solutionNameEditText.setText(selectedSolution.solutionName);
         solutionDetailEditText.setText(selectedSolution.solutionDetail);
+        solutionDetailEditText.setEnabled(false);
 
         // 创建对话框
-        new AlertDialog.Builder(this)
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
                 .setTitle("Edit Solution")
                 .setView(dialogView)
                 .setPositiveButton("Save", (dialog, which) -> {
                     String updatedName = solutionNameEditText.getText().toString().trim();
                     String updatedDetail = solutionDetailEditText.getText().toString().trim();
                     if (!updatedDetail.isEmpty() && !updatedName.isEmpty()) {
-                        // 更新 HashMap 和列表中的数据
-                        classifySolutionInfoMap.put(updatedName, updatedDetail);
-                        updateSolutionList();
+                        if(!Objects.equals(selectedSolution.solutionName, updatedName) && !classifySolutionInfoMap.containsKey(updatedName)){
+                            // 更新 HashMap 和列表中的数据
+                            classifySolutionInfoMap.remove(selectedSolution.solutionName);
+                            classifySolutionInfoMap.put(updatedName, updatedDetail);
+                            updateSolutionList();
+                        }else if(classifySolutionInfoMap.containsKey(updatedName)){
+                            ToastEasy("Solution Name cannot be duplicate");
+                        }
                     } else {
                         Toast.makeText(this, "Solution Name or Detail cannot be empty", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
+                .setNegativeButton("Cancel", null);
+
+        AlertDialog alert = builder.create();
+        alert.show();
+
+        // 获取 PositiveButton 和 NegativeButton
+        Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+        // 设置字体颜色
+        positiveButton.setTextColor(Color.BLACK);
+        negativeButton.setTextColor(Color.BLACK);
     }
 
     private void addSolutionToTable() {
@@ -1115,15 +1182,28 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     String solutionName = solutionNameEditText.getText().toString().trim();
                     String solutionDetail = solutionDetailEditText.getText().toString().trim();
                     if (!solutionName.isEmpty() && !solutionDetail.isEmpty()) {
-                        classifySolutionInfoMap.put(solutionName, solutionDetail);
-                        updateSolutionList();
+                        if(!classifySolutionInfoMap.containsKey(solutionName)){
+                            classifySolutionInfoMap.put(solutionName, solutionDetail);
+                            updateSolutionList();
+                        }
+                        else{
+                            ToastEasy("Solution Name cannot be duplicate");
+                        }
                     } else {
                         Toast.makeText(ImageClassifyActivity.this, "Solution Name and Detail cannot be empty", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
+                .setNegativeButton("Cancel", null);
+
+        AlertDialog alert = builder.create();
+        alert.show();
+
+        // 获取 PositiveButton 和 NegativeButton
+        Button positiveButton = alert.getButton(AlertDialog.BUTTON_POSITIVE);
+        Button negativeButton = alert.getButton(AlertDialog.BUTTON_NEGATIVE);
+        // 设置字体颜色
+        positiveButton.setTextColor(Color.BLACK);
+        negativeButton.setTextColor(Color.BLACK);
     }
 
     private void updateSolutionList() {
@@ -1235,7 +1315,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
     }
 
     private String getSelectedSolutionName(){
-        if (classifySolutionAdapter == null || classifySolutionAdapter.getSelectedPosition() != RecyclerView.NO_POSITION){
+        if (classifySolutionAdapter == null || classifySolutionAdapter.getSelectedPosition() == RecyclerView.NO_POSITION){
             return null;
         }
         else{

@@ -53,7 +53,11 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
         LayoutInflater inflater = LayoutInflater.from(context);
         View view;
         view = inflater.inflate(R.layout.item_solution_table_row, parent, false);
-        return new ViewHolder(view);
+        ViewHolder holder = new ViewHolder(view);
+
+
+
+        return holder;
     }
 
     @Override
@@ -73,7 +77,7 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
         }
 
         // 设置点击事件
-        holder.itemView.setOnClickListener(v -> {
+        holder.solutionNameTextView.setOnClickListener(v -> {
             // Use getAdapterPosition to get the correct position
             int clickedPosition = holder.getBindingAdapterPosition();
             if (clickedPosition != RecyclerView.NO_POSITION) {
@@ -86,11 +90,34 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
         });
 
         // 设置长按事件监听器
-        holder.itemView.setOnLongClickListener(v -> {
+        holder.solutionNameTextView.setOnLongClickListener(v -> {
+            int clickedPosition = holder.getBindingAdapterPosition();
             // 长按事件触发时，调用接口方法
-            onSolutionClickListener.onSolutionLongClick(position);
+            onSolutionClickListener.onSolutionLongClick(clickedPosition);
             return true; // 返回 true 表示事件已被处理
         });
+
+        // 设置点击事件
+        holder.solutionDetailTextView.setOnClickListener(v -> {
+            // Use getAdapterPosition to get the correct position
+            int clickedPosition = holder.getBindingAdapterPosition();
+            if (clickedPosition != RecyclerView.NO_POSITION) {
+                // Update selected position and notify item changes
+                int previousSelected = selectedPosition;
+                selectedPosition = clickedPosition;
+                notifyItemChanged(previousSelected);
+                notifyItemChanged(clickedPosition);
+            }
+        });
+
+        // 设置长按事件监听器
+        holder.solutionDetailTextView.setOnLongClickListener(v -> {
+            int clickedPosition = holder.getBindingAdapterPosition();
+            // 长按事件触发时，调用接口方法
+            onSolutionClickListener.onSolutionLongClick(clickedPosition);
+            return true; // 返回 true 表示事件已被处理
+        });
+
     }
 
     @Override
@@ -108,7 +135,7 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
             solutionDetailTextView = itemView.findViewById(R.id.solution_detail_text_view);
 
             // 设置边框
-            itemView.setBackgroundResource(R.drawable.table_border);
+//            itemView.setBackgroundResource(R.drawable.table_border);
         }
         public void bind(ClassifySolutionInfo info) {
             // 设置数据

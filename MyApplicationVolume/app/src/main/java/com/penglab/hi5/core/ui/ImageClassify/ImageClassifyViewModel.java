@@ -47,6 +47,9 @@ public class ImageClassifyViewModel extends ViewModel {
 
     private final MutableLiveData<List<UserRatingResultInfo>> mUserRatingResultTable = new MutableLiveData<>();
 
+    private final MutableLiveData<List<ClassifySolutionInfo>> mClassifySolutionList = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> mClassifyUserNameList = new MutableLiveData<>();
+
     public ImageClassifyViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, ImageClassifyDataSource imageClassifyDataSource) {
         this.mUserInfoRepository = userInfoRepository;
         this.mImageInfoRepository = imageInfoRepository;
@@ -61,6 +64,14 @@ public class ImageClassifyViewModel extends ViewModel {
 
     public MutableLiveData<List<UserRatingResultInfo>> getmUserRatingResultTable() {
         return mUserRatingResultTable;
+    }
+
+    public MutableLiveData<List<ClassifySolutionInfo>> getmClassifySolutionList() {
+        return mClassifySolutionList;
+    }
+
+    public MutableLiveData<List<String>> getmClassifyUserNameList() {
+        return mClassifyUserNameList;
     }
 
     public boolean isNextImageDequeDownloadCompleted() {
@@ -341,61 +352,70 @@ public class ImageClassifyViewModel extends ViewModel {
                 });
     }
 
-    public ArrayList<ClassifySolutionInfo> requestRatingSolutionList() {
-        Response response = HttpUtilsRating.queryRatingSolutionListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken());
-        Log.e(TAG, "Received response");
-        if(response == null){
-            return null;
-        }
+    public void requestRatingSolutionList() {
+        HttpUtilsRating.queryRatingSolutionListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Connect failed when requesting rating solution!");
+                ToastEasy("Connect failed when requesting rating solution!");
+            }
 
-        int responseCode = response.code();
-        if (responseCode == 200) {
-            String str = null;
-            try {
-                str = Objects.requireNonNull(response.body()).string();
-            } catch (IOException e) {
-                ToastEasy(e.toString());
-            }
-            if (str != null) {
-                Log.e("Get rating solution", str);
-                try {
-                    JSONObject jsonObject = new JSONObject(str);
-                    String status = jsonObject.optString("Status");
-                    if (status.equals("OK")) {
-                        if (!jsonObject.isNull("SolutionResult")) {
-                            JSONArray solutionResults = jsonObject.getJSONArray("SolutionResult");
-                            ArrayList<ClassifySolutionInfo> classifySolutionInfoList = new ArrayList<>();
-                            for (int i = 0; i < solutionResults.length(); i++) {
-                                JSONObject solutionResult = solutionResults.getJSONObject(i);
-                                ClassifySolutionInfo classifySolutionInfo = new ClassifySolutionInfo();
-                                classifySolutionInfo.solutionName = solutionResult.optString("SolutionName");
-                                classifySolutionInfo.solutionDetail = solutionResult.optString("SolutionDetail");
-                                classifySolutionInfoList.add(classifySolutionInfo);
-                            }
-                            return classifySolutionInfoList;
-                        } else {
-                            ToastEasy("SolutionResult is null");
-                            return null;
-                        }
-                    } else {
-                        Log.e(TAG, "Status is not OK: " + status);
-                        ToastEasy("Status is not OK: " + status);
-                        return null;
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.e(TAG, "Received response");
+                int responseCode = response.code();
+                if (responseCode == 200) {
+                    String str = null;
+                    try {
+                        str = Objects.requireNonNull(response.body()).string();
+                    } catch (IOException e) {
+                        ToastEasy(e.toString());
                     }
-                } catch (JSONException e) {
-                    ToastEasy(e.toString());
+                    if (str != null) {
+                        Log.e("Get rating solution", str);
+                        try {
+                            JSONObject jsonObject = new JSONObject(str);
+                            String status = jsonObject.optString("Status");
+                            if (status.equals("OK")) {
+                                if (!jsonObject.isNull("SolutionResult")) {
+                                    JSONArray solutionResults = jsonObject.getJSONArray("SolutionResult");
+                                    ArrayList<ClassifySolutionInfo> classifySolutionInfoList = new ArrayList<>();
+                                    for (int i = 0; i < solutionResults.length(); i++) {
+                                        JSONObject solutionResult = solutionResults.getJSONObject(i);
+                                        ClassifySolutionInfo classifySolutionInfo = new ClassifySolutionInfo();
+                                        classifySolutionInfo.solutionName = solutionResult.optString("SolutionName");
+                                        classifySolutionInfo.solutionDetail = solutionResult.optString("SolutionDetail");
+                                        classifySolutionInfoList.add(classifySolutionInfo);
+                                    }
+                                    mClassifySolutionList.postValue(classifySolutionInfoList);
+                                } else {
+                                    ToastEasy("SolutionResult is null");
+                                    mClassifySolutionList.postValue(null);
+                                }
+                            } else {
+                                Log.e(TAG, "Status is not OK: " + status);
+                                ToastEasy("Status is not OK: " + status);
+                                mClassifySolutionList.postValue(null);
+                            }
+                        } catch (JSONException e) {
+                            ToastEasy(e.toString());
+                            mClassifySolutionList.postValue(null);
+                        }
+                    }
                 }
+                else {
+                    ToastEasy("responseCode is: " + responseCode);
+                }
+                response.close();
             }
-        }
-        ToastEasy("responseCode is: " + responseCode);
-        response.close();
-        return null;
+        });
     }
 
     public CompletableFuture<Boolean> addRatingSolution(List<ClassifySolutionInfo> addedSolutionList) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         if(addedSolutionList.size() == 0){
             future.complete(true);
+            return future;
         }
         HttpUtilsRating.addRatingSolutionWithOkHttp(
                 InfoCache.getAccount(), InfoCache.getToken(), addedSolutionList, new Callback() {
@@ -442,6 +462,7 @@ public class ImageClassifyViewModel extends ViewModel {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         if(deletedSolutionList.size() == 0){
             future.complete(true);
+            return future;
         }
         HttpUtilsRating.deleteRatingSolutionWithOkHttp(
                 InfoCache.getAccount(), InfoCache.getToken(), deletedSolutionList, new Callback() {
@@ -488,6 +509,7 @@ public class ImageClassifyViewModel extends ViewModel {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
         if(updatedSolutionList.size() == 0){
             future.complete(true);
+            return future;
         }
         HttpUtilsRating.updateRatingSolutionWithOkHttp(
                 InfoCache.getAccount(), InfoCache.getToken(), updatedSolutionList, new Callback() {
@@ -530,52 +552,61 @@ public class ImageClassifyViewModel extends ViewModel {
         return future;
     }
 
-    public List<String> requestRatingUserNameList(String solutionName) {
-        Response response = HttpUtilsRating.queryRatingUserNameListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), solutionName);
-        Log.e(TAG, "Received response");
-        if(response == null){
-            return null;
-        }
+    public void requestRatingUserNameList(String solutionName) {
+        HttpUtilsRating.queryRatingUserNameListWithOkHttp(InfoCache.getAccount(), InfoCache.getToken(), solutionName, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e(TAG, "Connect failed when querying rating username!");
+                ToastEasy("Connect failed when querying rating username!");
+            }
 
-        int responseCode = response.code();
-        if (responseCode == 200) {
-            String str = null;
-            try {
-                str = Objects.requireNonNull(response.body()).string();
-            } catch (IOException e) {
-                ToastEasy(e.toString());
-            }
-            if (str != null) {
-                Log.e("Get rating username", str);
-                try {
-                    JSONObject jsonObject = new JSONObject(str);
-                    String status = jsonObject.optString("Status");
-                    if (status.equals("OK")) {
-                        if (!jsonObject.isNull("UserNameResult")) {
-                            JSONArray userNameResults = jsonObject.getJSONArray("UserNameResult");
-                            ArrayList<String> usernames = new ArrayList<>();
-                            for (int i = 0; i < userNameResults.length(); i++) {
-                                String username = userNameResults.getString(i);
-                                usernames.add(username);
-                            }
-                            return usernames;
-                        } else {
-                            ToastEasy("UserNameResult is null");
-                            return null;
-                        }
-                    } else {
-                        Log.e(TAG, "Status is not OK: " + status);
-                        ToastEasy("Status is not OK: " + status);
-                        return null;
+            @Override
+            public void onResponse(Call call, Response response) {
+                Log.e(TAG, "Received response");
+                int responseCode = response.code();
+                if (responseCode == 200) {
+                    String str = null;
+                    try {
+                        str = Objects.requireNonNull(response.body()).string();
+                    } catch (IOException e) {
+                        ToastEasy(e.toString());
+                        mClassifyUserNameList.postValue(null);
                     }
-                } catch (JSONException e) {
-                    ToastEasy(e.toString());
+                    if (str != null) {
+                        Log.e("Get rating username", str);
+                        try {
+                            JSONObject jsonObject = new JSONObject(str);
+                            String status = jsonObject.optString("Status");
+                            if (status.equals("OK")) {
+                                if (!jsonObject.isNull("UserNameResult")) {
+                                    JSONArray userNameResults = jsonObject.getJSONArray("UserNameResult");
+                                    ArrayList<String> usernames = new ArrayList<>();
+                                    for (int i = 0; i < userNameResults.length(); i++) {
+                                        String username = userNameResults.getString(i);
+                                        usernames.add(username);
+                                    }
+                                    mClassifyUserNameList.postValue(usernames);
+                                } else {
+//                                    ToastEasy("UserNameResult is null");
+                                    mClassifyUserNameList.postValue(null);
+                                }
+                            } else {
+                                Log.e(TAG, "Status is not OK: " + status);
+                                ToastEasy("Status is not OK: " + status);
+                                mClassifyUserNameList.postValue(null);
+                            }
+                        } catch (JSONException e) {
+                            ToastEasy(e.toString());
+                            mClassifyUserNameList.postValue(null);
+                        }
+                    }
                 }
+                else{
+                    ToastEasy("responseCode is: " + responseCode);
+                }
+                response.close();
             }
-        }
-        ToastEasy("responseCode is: " + responseCode);
-        response.close();
-        return null;
+        });
     }
 
     public boolean isLoggedIn() {

@@ -272,9 +272,10 @@
 
     <ImageButton
         android:id="@+id/open_classify_attachment_button"
-        android:layout_width="29dp"
-        android:layout_height="24dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
         android:layout_marginTop="7dp"
+        android:layout_marginEnd="4dp"
         android:background="@drawable/classify_attachment"
         app:cornerRadius="24dp"
         app:layout_constraintRight_toRightOf="@+id/downSample_mode"

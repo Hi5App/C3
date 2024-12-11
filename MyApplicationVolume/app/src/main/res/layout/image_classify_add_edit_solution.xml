@@ -5,18 +5,26 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <EditText
-        android:id="@+id/solution_name_edit_text_view"
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Solution Name"
-        android:inputType="text"/>
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/solution_name_edit_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Solution Name"
+            android:inputType="text"/>
+    </HorizontalScrollView>
 
-    <EditText
-        android:id="@+id/solution_detail_edit_text_view"
+    <HorizontalScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Solution Detail"
-        android:inputType="text"/>
+        android:layout_height="wrap_content">
+        <EditText
+            android:id="@+id/solution_detail_edit_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:hint="Solution Detail"
+            android:inputType="text"/>
+    </HorizontalScrollView>
 
 </LinearLayout>
