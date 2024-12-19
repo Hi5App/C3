@@ -924,7 +924,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     showClassifications(classifySolutionAdapter.getSelectedPosition());
                     saveSolutionChanges(previousSolutionInfoMap);
                 })
-                .setTitle("Classification Solutions");
+                .setTitle("Classification Labels Setting");
 
         solutionDialog = builder.create();
         solutionDialog.show();
