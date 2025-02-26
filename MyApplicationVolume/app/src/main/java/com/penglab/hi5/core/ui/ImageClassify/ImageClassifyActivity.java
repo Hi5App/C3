@@ -874,15 +874,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
 
         try (FileWriter writer = new FileWriter(csvFile)) {
-            // 自动生成表头
-            Field[] fields = UserRatingResultInfo.class.getFields();
-            for (int i = 0; i < fields.length; i++) {
-                writer.append(fields[i].getName());
-                if (i < fields.length - 1) {
-                    writer.append(",");
-                }
-            }
-            writer.append("\n");
+            writer.append("imageName,solutionName,userName,ratingEnum,additionalRatingDescription,uploadTime\n");
 
             // 写入数据
             for (UserRatingResultInfo info : userRatingResultInfos) {
