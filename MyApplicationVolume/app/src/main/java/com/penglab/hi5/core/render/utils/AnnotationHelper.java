@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by Jackiexing on 12/28/21
@@ -983,7 +985,7 @@ public class AnnotationHelper {
                 imageMarker.color.r=(char)imageMarker.getTypeToColorList()[lastMarkerType][0];
                 imageMarker.color.g=(char)imageMarker.getTypeToColorList()[lastMarkerType][1];
                 imageMarker.color.b=(char)imageMarker.getTypeToColorList()[lastMarkerType][2];
-//                annotationDataManager.getMarkerList().add(imageMarker);
+                annotationDataManager.getMarkerList().add(imageMarker);
 
                 annotationDataManager.saveUndo();
 
@@ -1129,8 +1131,10 @@ public class AnnotationHelper {
 
             if (dx < 0.08 && dy < 0.08) {
                 ImageMarker temp = list.get(i);
-//                list.remove(i);
-
+                if (ImageMarker.qcTypes.contains(temp.comment)){
+                    annotationDataManager.getQueue().offer(temp);
+                }
+                list.remove(i);
                 /*
                 update delete marker
                  */
@@ -1875,6 +1879,8 @@ public class AnnotationHelper {
                 imageMarker_drawed.yGlobal = Float.parseFloat(currentLineGlobal.get(6));
                 imageMarker_drawed.zGlobal = Float.parseFloat(currentLineGlobal.get(4));
 
+                imageMarker_drawed.comment = currentLineGlobal.get(3);
+
                 int r = Integer.parseInt(currentLine.get(15));
                 int g = Integer.parseInt(currentLine.get(16));
                 int b = Integer.parseInt(currentLine.get(17));
@@ -2029,6 +2035,7 @@ public class AnnotationHelper {
         marker.xGlobal=GlobalCroods.x;
         marker.yGlobal=GlobalCroods.y;
         marker.zGlobal=GlobalCroods.z;
+
 //        annotationDataManager.syncDelMarkerGlobal(marker);
     }
 

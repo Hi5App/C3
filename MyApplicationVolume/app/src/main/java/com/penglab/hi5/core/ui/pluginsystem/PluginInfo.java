@@ -28,18 +28,4 @@ public class PluginInfo {
     public void setInputImageName(String inputImageName) {
         this.inputImageName = inputImageName;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

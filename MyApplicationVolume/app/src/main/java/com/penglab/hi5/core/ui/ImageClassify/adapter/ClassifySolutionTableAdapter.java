@@ -53,11 +53,7 @@ public class ClassifySolutionTableAdapter extends RecyclerView.Adapter<ClassifyS
         LayoutInflater inflater = LayoutInflater.from(context);
         View view;
         view = inflater.inflate(R.layout.item_solution_table_row, parent, false);
-        ViewHolder holder = new ViewHolder(view);
-
-
-
-        return holder;
+        return new ViewHolder(view);
     }
 
     @Override

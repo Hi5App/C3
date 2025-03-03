@@ -1,0 +1,232 @@
+<!-- fragment_label_list.xml -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- 标题 -->
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="QC Statisticians"
+        android:textSize="20sp"
+        android:padding="8dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="8dp"/>
+
+    <!-- 标签1 -->
+    <TextView
+        android:id="@+id/total_number_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total number of markers:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/titleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"/>
+
+    <!-- 值1 -->
+    <TextView
+        android:id="@+id/total_number_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值1"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/total_number_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <!-- 标签2 -->
+    <TextView
+        android:id="@+id/multifurcation_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Multifurcation:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/total_number_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <!-- 值2 -->
+    <TextView
+        android:id="@+id/multifurcation_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值2"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/multifurcation_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/loop_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loop:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/multifurcation_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/loop_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值3"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/loop_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/missing_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Missing:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/loop_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/missing_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值4"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/missing_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/crossing_direction_error_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Crossing direction error:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/missing_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/crossing_direction_error_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值5"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/crossing_direction_error_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/color_mutation_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Color mutation:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/crossing_direction_error_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/color_mutation_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值6"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/color_mutation_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/isolated_branch_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Isolated branch:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/color_mutation_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/isolated_branch_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值7"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/isolated_branch_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/angle_error_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Angle error:"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/isolated_branch_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/angle_error_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值8"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/angle_error_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/overlap_branch_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Overlapping branches(removed):"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/angle_error_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/overlap_branch_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值9"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/overlap_branch_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+    <TextView
+        android:id="@+id/error_seg_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Error seg(tuned):"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/overlap_branch_label"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:id="@+id/error_seg_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="值10"
+        android:textSize="16sp"
+        app:layout_constraintTop_toTopOf="@id/error_seg_label"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="20dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

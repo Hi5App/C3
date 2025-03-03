@@ -10,6 +10,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.image.XYZ;
 import com.penglab.hi5.basic.utils.FileManager;
 import com.penglab.hi5.core.Myapplication;
@@ -49,6 +50,8 @@ public class CollaborationViewModel extends ViewModel {
     private final HashMap<String, List<String>> resMap = new HashMap<>();
     private volatile CollaborateNeuronInfo potentialDownloadNeuronInfo = new CollaborateNeuronInfo();
     private final CoordinateConvert downloadCoordinateConvert = new CoordinateConvert();
+
+    private volatile boolean isSwcChanged = false;
 
     public CollaborationViewModel(UserInfoRepository userInfoRepository, ImageInfoRepository imageInfoRepository, ImageDataSource imageDataSource, CollorationDataSource collorationDataSource) {
         this.userInfoRepository = userInfoRepository;
@@ -100,6 +103,8 @@ public class CollaborationViewModel extends ViewModel {
     public Pair<String, String> getSwcInfo(){
         return collorationDataSource.CurrentSwcInfo;
     }
+
+    public boolean getIsSwcChanged() { return isSwcChanged; }
 
     public LiveData<ResourceResult> getImageResult() {
         return imageResult;
@@ -158,11 +163,21 @@ public class CollaborationViewModel extends ViewModel {
     public void handleAnoResult(String swcUuid, String anoName) {
         PreferenceSetting pref = PreferenceSetting.getInstance();
         pref.resetRotationMatrix();
-        collorationDataSource.CurrentSwcInfo = new Pair<>(swcUuid,anoName);
+
+        if (collorationDataSource.CurrentSwcInfo != null){
+            isSwcChanged = !collorationDataSource.CurrentSwcInfo.first.equals(swcUuid);
+        }
+        else{
+            isSwcChanged = true;
+        }
+        collorationDataSource.CurrentSwcInfo = new Pair<>(swcUuid, anoName);
 
         getDownloadAno(anoName);
+
+        // 异步获取神经元坐标信息
         getNeuronList(potentialDownloadNeuronInfo.getBrainName());
 
+        // 异步获取port
         collorationDataSource.loadAno(potentialDownloadNeuronInfo.getBrainName(), potentialDownloadNeuronInfo.getNeuronName(), anoName);
 
     }
@@ -207,6 +222,7 @@ public class CollaborationViewModel extends ViewModel {
         potentialDownloadNeuronInfo.setLocation(collaborateNeuronInfo.getLocation());
         downloadCoordinateConvert.initLocation(collaborateNeuronInfo.getLocation());
         Communicator.getInstance().setUp(downloadCoordinateConvert);
+        // 获取图像分辨率
         getBrainList();
     }
 
@@ -582,6 +598,34 @@ public class CollaborationViewModel extends ViewModel {
                     downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
         }
 
+    }
+
+    public boolean moveToQCMarkerCenter(ImageMarker marker) {
+        if (resMap.get(potentialDownloadNeuronInfo.getBrainName()) != null) {
+            List<String> resList = resMap.get(potentialDownloadNeuronInfo.getBrainName());
+            assert resList != null;
+            String img_size = resList.get(downloadCoordinateConvert.getResIndex() - 1).replace("RES(", "").replace(")", "");
+
+            int img_size_x_i = Integer.parseInt(img_size.split("x")[1]);
+            int img_size_y_i = Integer.parseInt(img_size.split("x")[0]);
+            int img_size_z_i = Integer.parseInt(img_size.split("x")[2]);
+
+            if ((int) marker.xGlobal >= img_size_x_i - 1 || (int) marker.yGlobal >= img_size_y_i - 1 || (int) marker.zGlobal >= img_size_z_i) {
+                Toast_in_Thread_static("You have already reached boundary!!!");
+                return false;
+            }
+
+            downloadCoordinateConvert.setCenterLocation(new XYZ((int) marker.xGlobal, (int) marker.yGlobal, (int) marker.zGlobal));
+//            downloadCoordinateConvert.setStartLocation(new XYZ(downloadCoordinateConvert.getCenterLocation().x - size_i / 2,
+//                    downloadCoordinateConvert.getCenterLocation().y - size_i / 2, downloadCoordinateConvert.getCenterLocation().z - size_i / 2));
+            updateImgStartLocation(resList.get(downloadCoordinateConvert.getResIndex() - 1));
+//            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), (int) downloadCoordinateConvert.getCenterLocation().x,
+//                    (int) downloadCoordinateConvert.getCenterLocation().y, (int) downloadCoordinateConvert.getCenterLocation().z, DEFAULT_IMAGE_SIZE);
+            imageDataSource.downloadImage(potentialDownloadNeuronInfo.getBrainName(), resList.get(downloadCoordinateConvert.getResIndex() - 1), downloadCoordinateConvert.imgXMin, downloadCoordinateConvert.imgYMin,
+                    downloadCoordinateConvert.imgZMin, downloadCoordinateConvert.imgXMax, downloadCoordinateConvert.imgYMax, downloadCoordinateConvert.imgZMax);
+            return true;
+        }
+        return false;
     }
 
     public void refresh(){
