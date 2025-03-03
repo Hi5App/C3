@@ -76,6 +76,7 @@ import com.penglab.hi5.data.model.img.FileType;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
 import cn.carbs.android.library.MDDialog;
@@ -873,17 +874,16 @@ public class ImageClassifyActivity extends AppCompatActivity {
         }
 
         try (FileWriter writer = new FileWriter(csvFile)) {
-            // 写入标题头
-            writer.append("Image Name,User Name,Rating,Additional Rating Description,Upload Time\n");
+            writer.append("imageName,solutionName,userName,ratingEnum,additionalRatingDescription,uploadTime\n");
 
             // 写入数据
             for (UserRatingResultInfo info : userRatingResultInfos) {
-                writer.append(info.imageName).append(",");
-                writer.append(info.solutionName).append(",");
-                writer.append(info.userName).append(",");
-                writer.append(String.valueOf(info.ratingEnum)).append(",");
-                writer.append(info.additionalRatingDescription).append(",");
-                writer.append(info.uploadTime).append("\n");
+                writer.append(info.imageName != null ? info.imageName : "").append(",");
+                writer.append(info.solutionName != null ? info.solutionName : "").append(",");
+                writer.append(info.userName != null ? info.userName : "").append(",");
+                writer.append(info.ratingEnum != null ? info.ratingEnum : "").append(",");
+                writer.append(info.additionalRatingDescription != null ? info.additionalRatingDescription : "").append(",");
+                writer.append(info.uploadTime != null ? info.uploadTime : "").append("\n");
             }
 
             Toast.makeText(this, "CSV file created and saved to " + csvFile.getAbsolutePath(), Toast.LENGTH_LONG).show();
