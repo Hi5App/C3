@@ -22,6 +22,8 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,6 +44,8 @@ public class AnnotationDataManager {
     private final ArrayList<MarkerList> undoMarkerList = new ArrayList<>();
     private final ArrayList<V_NeuronSWC_list> undoCurveList = new ArrayList<>();
 
+    private final BlockingQueue<ImageMarker> qcCheckedMarkerQueue = new LinkedBlockingQueue<>();
+
     public MarkerList getMarkerList() {
         return markerList;
     }
@@ -52,6 +56,8 @@ public class AnnotationDataManager {
 //        }
         return syncMarkerList;
     }
+
+    public BlockingQueue<ImageMarker> getQueue() { return qcCheckedMarkerQueue; }
 
     public MarkerList getSyncMarkerListGlobal() {
         return syncMarkerListGlobal;
@@ -458,6 +464,9 @@ public class AnnotationDataManager {
             float[] marker_del = new float[]{imageMarker.x, imageMarker.y, imageMarker.z};
             float[] marker_cur = new float[]{marker.x, marker.y, marker.z};
             if (distance(marker_cur, marker_del) < 0.5) {
+                if (ImageMarker.qcTypes.contains(marker.comment)){
+                    qcCheckedMarkerQueue.offer(marker);
+                }
                 list.remove(i);
                 return true;
             }

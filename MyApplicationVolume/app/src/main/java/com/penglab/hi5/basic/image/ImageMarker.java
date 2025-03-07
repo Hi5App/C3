@@ -5,6 +5,9 @@ import com.penglab.hi5.core.ui.annotation.EditMode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ImageMarker extends BasicSurfObj {
     private static final int DEFAULT_TYPE = 6;
@@ -39,6 +42,19 @@ public class ImageMarker extends BasicSurfObj {
         put(9, R.color.crossing_map);
     }};
 
+    private static final HashMap<Integer, String> typeToColorStr = new HashMap<Integer, String>() {{
+        put(0, "#FFFFFF");
+        put(1, "#141414");
+        put(2, "#C81400");
+        put(3, "#0014C8");
+        put(4, "#C814C8");
+        put(5, "#00C8C8");
+        put(6, "#DCC800");
+        put(7, "#00C814");
+        put(8, "#FA6478");
+        put(9, "#A880FF");
+    }};
+
     private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
         put("FFFFFFFF",  0);
         put("FF141414",  1);
@@ -51,6 +67,17 @@ public class ImageMarker extends BasicSurfObj {
         put("FFFA6478",  8);
         put("FFA880FF",  9);
     }};
+
+    public static final List<String> qcTypes = Stream.of(
+            "Multifurcation",
+            "Approaching bifurcation",
+            "Loop",
+            "Missing",
+            "Crossing error",
+            "Color mutation",
+            "Isolated branch",
+            "Angle error"
+    ).collect(Collectors.toList());
 
     /**
      * 0-white    RGB(255, 255, 255):  undefined
@@ -75,6 +102,8 @@ public class ImageMarker extends BasicSurfObj {
     public float xGlobal, yGlobal, zGlobal;
 
     public float radius;
+
+    public String comment;
 
     public ImageMarker() {
         this.type = 0;
@@ -137,6 +166,10 @@ public class ImageMarker extends BasicSurfObj {
         return new XYZ(x, y, z);
     }
 
+    public String getColorStr() {
+        return typeToColorStr.getOrDefault(type, "#C81400");
+    }
+
     public static ImageMarker parse(String imageMarkerString) throws Exception {
         String[] imageMarkerStringArray = imageMarkerString.split(",");
         ArrayList<Float> imageMarkerFloatList = new ArrayList<Float>();
@@ -193,7 +226,6 @@ public class ImageMarker extends BasicSurfObj {
 
         } else if ((r == 168 && g == 128 && b == 255)) {
             imageMarker.type = 9;
-
         }
         return imageMarker;
     }

@@ -111,7 +111,7 @@ public class Communicator {
     for collaboration -------------------------------------------------------------------------------
      */
 
-    public List<ImageMarker> MSGToImageMarker(String msg) {
+    public List<ImageMarker> MSGToImageMarker(String msg, String comment) {
         List<ImageMarker> list = new ArrayList<>();
         String[] markerInfos = msg.split(",");
 
@@ -135,6 +135,11 @@ public class Communicator {
             imageMarker.x = LocalCroods.x;
             imageMarker.y = LocalCroods.y;
             imageMarker.z = LocalCroods.z;
+
+            if (comment != null){
+                imageMarker.comment = comment;
+            }
+
             list.add(imageMarker);
         }
 
@@ -193,7 +198,7 @@ public class Communicator {
 //                segUnit.parent = Double.parseDouble(swc[i].split(" ")[5]);
 //
 //            } else
-            if (type.equals("0")){
+            if (type.equals("0")) {
                 segUnit.n = index;
                 if (index == 1) {
                     segUnit.parent = 0;
@@ -425,10 +430,10 @@ public class Communicator {
 
     }
 
-    public boolean updateRetypeManySegsSWC(List<V_NeuronSWC> segs, int type){
+    public boolean updateRetypeManySegsSWC(List<V_NeuronSWC> segs, int type) {
         StringBuilder msg = new StringBuilder("/retypeline_norm:" + "2" + " " + id + " " + type + " 128 128 128 1,");
         List<String> result = new ArrayList<>();
-        for(V_NeuronSWC seg : segs){
+        for (V_NeuronSWC seg : segs) {
             result.addAll(V_NeuronSWCToMSG(seg));
             result.add("$");
         }
@@ -445,7 +450,11 @@ public class Communicator {
 
 
     public List<ImageMarker> syncMarker(String msg) {
-        return MSGToImageMarker(msg);
+        return MSGToImageMarker(msg, null);
+    }
+
+    public List<ImageMarker> syncMarker(String msg, String comment) {
+        return MSGToImageMarker(msg, comment);
     }
 
     public ImageMarker syncMarkerGlobal(String msg) {

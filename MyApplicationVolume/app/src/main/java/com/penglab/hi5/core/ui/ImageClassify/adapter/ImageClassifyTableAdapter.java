@@ -16,8 +16,8 @@ import com.penglab.hi5.core.ui.ImageClassify.UserRatingResultInfo;
 import java.util.List;
 
 public class ImageClassifyTableAdapter extends RecyclerView.Adapter<ImageClassifyTableAdapter.ViewHolder> {
-    private List<UserRatingResultInfo> data;
-    private Context context;
+    private final List<UserRatingResultInfo> data;
+    private final Context context;
     private static final int TYPE_ITEM = 0;
     private static final int TYPE_FOOTER = 1;
 

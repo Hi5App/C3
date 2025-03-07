@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -39,7 +40,10 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.widget.LinearLayoutCompat;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.adapter.FragmentStateAdapter;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.slider.RangeSlider;
 import com.jaredrummler.android.colorpicker.ColorPickerDialog;
@@ -59,6 +63,7 @@ import com.nightonke.boommenu.BoomMenuButton;
 import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
+import com.penglab.hi5.basic.image.MarkerList;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
 import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.chat.nim.main.helper.SystemMessageUnreadManager;
@@ -77,6 +82,9 @@ import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
 import com.penglab.hi5.core.ui.ImageClassify.ImageClassifyActivity;
 import com.penglab.hi5.core.ui.ViewModelFactory;
 import com.penglab.hi5.core.ui.annotation.EditMode;
+import com.penglab.hi5.core.ui.collaboration.adapter.ViewPagerAdapter;
+import com.penglab.hi5.core.ui.collaboration.fragment.QCInfoFragment;
+import com.penglab.hi5.core.ui.collaboration.fragment.QCStatisFragment;
 import com.penglab.hi5.data.Result;
 import com.penglab.hi5.data.dataStore.PreferenceSetting;
 import com.penglab.hi5.data.model.img.CollaborateNeuronInfo;
@@ -91,6 +99,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
@@ -111,7 +120,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private boolean mBoundCollaboration = false;
     private static Context mainContext;
     private static ExecutorService executorService = Executors.newFixedThreadPool(4);
-    private AlertDialog dialog;
+    private AlertDialog userListDialog;
+    private AlertDialog qcInfoDialog;
 
     private static final int HANDLER_SHOW_DOWNLOADING_POPUPVIEW = 0;
     private static final int HANDLER_HIDE_DOWNLOADING_POPUPVIEW = 1;
@@ -139,6 +149,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private Button collaborateResButton;
 
     private Button btnUserList;
+
+    private Button qcInfoButton;
 
     private ImageButton collaborateRightButton;
 
@@ -169,7 +181,38 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     private Timer timerCheckConn;
     private TimerTask checkConnTask;
 
+    private final Timer timerUpdateCheckedMarkerQueue = new Timer();
+    private final TimerTask taskUpdateCheckedMarkerQueue = new TimerTask() {
+        @Override
+        public void run() {
+            BlockingQueue<ImageMarker> queue = annotationGLSurfaceView.getQueue();
+            boolean isCheckedMarkerInfoListChanged = false;
+            if (!queue.isEmpty()) {
+                isCheckedMarkerInfoListChanged = true;
+            }
+            while (!queue.isEmpty()){
+                ImageMarker marker = queue.poll();
+                qcCheckedMarkerInfoList.add(marker);
+            }
+            if (isCheckedMarkerInfoListChanged) {
+                runOnUiThread(() -> {
+                    resetQCDialog();
+                });
+            }
+        }
+    };
+
     private List<String> neuronNumberList = new ArrayList<>();
+
+    private final List<ImageMarker> qcUnCheckedMarkerInfoList = new ArrayList<>();
+    private final List<ImageMarker> qcCheckedMarkerInfoList = new ArrayList<>();
+    private int removedOverlapSegNum;
+    private int removedErrSegNum;
+
+    private ViewPager2 viewPager;
+    private FragmentStateAdapter viewPagerAdapter;
+
+    CollaborateButtonClickListener buttonListener = new CollaborateButtonClickListener();
 
     @Override
     public void onRecMessage(String msg) {
@@ -192,10 +235,19 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         if (msg.startsWith("File:")) {
             if (msg.endsWith(".apo")) {
                 loadBigDataApo(msg.split(":")[1]);
+
+                if(collaborationViewModel.getIsSwcChanged() && qcInfoDialog != null){
+                    removedErrSegNum = 0;
+                    removedErrSegNum = 0;
+                    assembleQCInfo();
+                    qcCheckedMarkerInfoList.clear();
+                    viewPagerAdapter = new ViewPagerAdapter(this, qcUnCheckedMarkerInfoList, qcCheckedMarkerInfoList,
+                            this::moveToQCMarkerCenter, removedOverlapSegNum, removedErrSegNum);
+                    viewPager.setAdapter(viewPagerAdapter);
+                }
             } else if (msg.endsWith(".swc") || msg.endsWith(".eswc")) {
                 loadBigDataSwc(msg.split(":")[1]);
             }
-
         }
         /*
         for collaboration -------------------------------------------------------------------
@@ -203,8 +255,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
         if (msg.startsWith("/drawline") || msg.startsWith("/delline") || msg.startsWith("/retypeline") || msg.startsWith("/splitline_norm:") || msg.startsWith("/addmarker") || msg.startsWith("/delmarker")) {
             String[] singleMsg = msg.split(";");
-            for (int i = 0; i < singleMsg.length; i++) {
-                String singlemsg = singleMsg[i];
+            for (String singlemsg : singleMsg) {
                 String reg = "/(.*)_(.*):(.*)";
                 Pattern pattern = Pattern.compile(reg);
                 Matcher m = pattern.matcher(singlemsg);
@@ -249,7 +300,21 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String toolType = singlemsg.split(":")[1].split(",")[0].split(" ")[0];
                     int index = singlemsg.indexOf(",");
                     String seg = singlemsg.substring(index + 1);
-                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
+
+                    if (userID.equals("server")) {
+                        String header = singlemsg.split(":")[1].split(",")[0];
+                        String[] info = header.split(" ");
+                        String qcInfo = info[2];
+                        int num = Integer.parseInt(info[3]);
+                        if (qcInfo.equals("overlap")){
+                            removedOverlapSegNum += num;
+                        }
+                        else if(qcInfo.equals("error")){
+                            removedErrSegNum += num;
+                        }
+                        resetQCDialog();
+                    }
+                    else if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Log.e(TAG, "enter delete");
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelSegSWC(communicator.syncSWC(seg, toolType));
@@ -265,11 +330,12 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String markers = singlemsg.substring(index + 1);
 //                    String marker      = singlemsg.split(":")[1].split(",")[1];
 
-//                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
 //                    }
+                    }
                 }
 
                 if (singlemsg.startsWith("/delmarker")) {
@@ -279,11 +345,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     int index = singlemsg.indexOf(",");
                     String markers = singlemsg.substring(index + 1);
 
-//                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
+                    if (!userID.equals(String.valueOf(id)) || !isNorm) {
                         Communicator communicator = Communicator.getInstance();
                         annotationGLSurfaceView.syncDelMarker(communicator.syncMarker(markers));
 //                        annotationGLSurfaceView.syncDelMarkerGlobal(communicator.syncMarkerGlobal(marker));
-//                    }
+                    }
                 }
 
                 if (singlemsg.startsWith("/retypeline")) {
@@ -327,18 +393,44 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String header = listWithHeader.get(0);
                     String sender = header.split(" ")[0].trim();
                     listWithHeader2.remove(0);
+                    String comment = "";
                     if (sender.equals("server")) {
                         if (reason.equals("TipUndone") || reason.equals("CrossingError") || reason.equals("MulBifurcation") ||
-                                reason.equals("BranchingError") || reason.equals("NearBifurcation")) {
+                                reason.equals("BranchingError") || reason.equals("Approaching bifurcation")) {
+
+                            switch (reason) {
+                                case "TipUndone":
+                                    comment = "Missing";
+                                    break;
+                                case "CrossingError":
+                                    comment = "Crossing error";
+                                    break;
+                                case "MulBifurcation":
+                                    comment = "Multifurcation";
+                                    break;
+                                case "BranchingError":
+                                    comment = "Branching error";
+                                    break;
+                                case "Approaching bifurcation":
+                                    comment = "Approaching bifurcation";
+                                    break;
+                            }
+
                             Communicator communicator = Communicator.getInstance();
-                            annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+                            annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2), comment));
+
+                            resetQCDialog();
+
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                             annotationGLSurfaceView.requestRender();
                         } else if (reason.equals("Loop")) {
+
+                            comment = "Loop";
+
                             int result = Integer.parseInt(header.split(" ")[1].trim());
                             if (result == 0) {
                                 Communicator communicator = Communicator.getInstance();
-                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2), comment));
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                                 annotationGLSurfaceView.requestRender();
                             }
@@ -374,11 +466,30 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                     String request_userid = header.split(" ")[1].trim();
                     int result = Integer.parseInt(header.split(" ")[2].trim());
                     listWithHeader2.remove(0);
+                    String comment = "";
+
                     if (sender.equals("server")) {
                         if (reason.equals("ColorMutation") || reason.equals("Dissociative") || reason.equals("Angle")) {
+
+                            switch (reason) {
+                                case "ColorMutation":
+                                    comment = "Color mutation";
+                                    break;
+                                case "Dissociative":
+                                    comment = "Isolated branch";
+                                    break;
+                                case "Angle":
+                                    comment = "Angle error";
+                                    break;
+                            }
+
                             if (result == 0) {
                                 Communicator communicator = Communicator.getInstance();
-                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2)));
+                                annotationGLSurfaceView.syncAddMarker(communicator.syncMarker(String.join(",", listWithHeader2), comment));
+
+                                resetQCDialog();
+
+
 //                        annotationGLSurfaceView.syncAddMarkerGlobal(communicator.syncMarkerGlobal(marker));
                                 annotationGLSurfaceView.requestRender();
                             }
@@ -455,6 +566,7 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
     };
 
     public void setSupportActionBar(Toolbar mToolbar) {
+        assert mToolbar != null;
         if(mToolbar.getMenu().size() != 0){
             mToolbar.getMenu().clear();
         }
@@ -615,9 +727,10 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             Log.e(TAG, collaborationViewModel.getResMap().toString());
             List<String> roiList = collaborationViewModel.getResMap().get(collaborationViewModel.getPotentialDownloadNeuronInfo().getBrainName());
 
+            boolean isSwcChanged = collaborationViewModel.getIsSwcChanged();
             assert roiList != null;
             if(MsgConnector.getInstance().sendMsg("/login:" + id + " " + InfoCache.getAccount() + " " + InfoCache.getToken() + " " + roiList.get(0) + " " + collaborationViewModel.getCollorationDataSource().CurrentSwcInfo.first + " " + 2)){
-                if(!isConnected){
+                if(!isConnected && isSwcChanged){
                     ToastEasy("Connect success!");
                 }
                 isConnected = true;
@@ -646,6 +759,8 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
             annotationGLSurfaceView.convertCoordsForSWC(collaborationViewModel.getCoordinateConvert());
         });
+
+        timerUpdateCheckedMarkerQueue.schedule(taskUpdateCheckedMarkerQueue, 0, 500);
     }
 
     @Override
@@ -718,6 +833,11 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             timerSync.cancel();
             timerSync = null;
         }
+
+        if (timerUpdateCheckedMarkerQueue != null) {
+            timerUpdateCheckedMarkerQueue.cancel();  // 停止整个 Timer 和所有任务
+        }
+
         stopTimerCheckConn();
     }
 
@@ -878,19 +998,94 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
         Log.e(TAG, "Userlist" + userList);
 
         // Create the AlertDialog only if it's null
-        if (dialog == null) {
+        if (userListDialog == null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(activity);
             builder.setTitle("Online Users")
                     .setItems(userList, null);
-            dialog = builder.create();
+            userListDialog = builder.create();
         }
 
         // Show the dialog if the activity is running
         if (!activity.isFinishing() && !activity.isDestroyed()) {
             // Show the dialog attached to the activity's window
-            dialog.show();
+            userListDialog.show();
         }
     }
+
+    private void showQCInfo(Activity activity) {
+        if(isConnected){
+            assembleQCInfo();
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle("Quality Control Manager");
+            View view = LayoutInflater.from(this).inflate(R.layout.collabirate_qc_dialog_with_voewpager, null);
+            viewPager = view.findViewById(R.id.viewPager);
+            viewPagerAdapter = new ViewPagerAdapter(this, qcUnCheckedMarkerInfoList, qcCheckedMarkerInfoList,
+                    this::moveToQCMarkerCenter, removedOverlapSegNum, removedErrSegNum);
+            viewPager.setAdapter(viewPagerAdapter);
+            builder.setView(view);
+            builder.setCancelable(true);
+            qcInfoDialog = builder.create();
+
+            // Show the dialog if the activity is running
+            if (!activity.isFinishing() && !activity.isDestroyed()) {
+                // Show the dialog attached to the activity's window
+                qcInfoDialog.show();
+                Window window = qcInfoDialog.getWindow();
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                window.setLayout(width - 100, height * 3 / 4);
+            }
+        }
+    }
+
+    private void assembleQCInfo() {
+        qcUnCheckedMarkerInfoList.clear();
+        ArrayList<ImageMarker> markers = annotationGLSurfaceView.getMarkerList().getMarkers();
+        ArrayList<ImageMarker> syncMarkers = annotationGLSurfaceView.getSyncMarkerList().getMarkers();
+        for (ImageMarker marker : markers) {
+            if (ImageMarker.qcTypes.contains(marker.comment)) {
+                qcUnCheckedMarkerInfoList.add(marker);
+            }
+        }
+        for (ImageMarker marker : syncMarkers) {
+            if (ImageMarker.qcTypes.contains(marker.comment)) {
+                qcUnCheckedMarkerInfoList.add(marker);
+            }
+        }
+        Log.e("qc", qcUnCheckedMarkerInfoList.toString());
+    }
+
+    private void moveToQCMarkerCenter(int position){
+        if (collaborationViewModel.moveToQCMarkerCenter(qcUnCheckedMarkerInfoList.get(position))) {
+            qcInfoDialog.hide();
+        }
+    }
+
+    public void resetQCDialog() {
+        if (qcInfoDialog != null){
+            assembleQCInfo();
+            viewPagerAdapter = new ViewPagerAdapter(this, qcUnCheckedMarkerInfoList, qcCheckedMarkerInfoList,
+                    this::moveToQCMarkerCenter, removedOverlapSegNum, removedErrSegNum);
+            viewPager.setAdapter(viewPagerAdapter);
+        }
+    }
+
+//    // 当数据发生变化时调用此方法
+//    public void onQCMarkerInfoChanged() {
+//        if (viewPagerAdapter != null && viewPagerAdapter instanceof ViewPagerAdapter){
+//            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPagerAdapter;
+//            QCInfoFragment qcInfoFragment = (QCInfoFragment) adapter.getFragment(0);
+//            qcInfoFragment.updateData(qcUnCheckedMarkerInfoList, qcCheckedMarkerInfoList);
+//        }
+//    }
+//
+//    public void onQCStatisChanged() {
+//        if (viewPagerAdapter != null && viewPagerAdapter instanceof ViewPagerAdapter){
+//            ViewPagerAdapter adapter = (ViewPagerAdapter) viewPagerAdapter;
+//            QCStatisFragment qcStaticFragment = (QCStatisFragment) adapter.getFragment(1);
+//            qcStaticFragment.updateData(qcUnCheckedMarkerInfoList, removedOverlapSegNum, removedErrSegNum);
+//        }
+//    }
 
     private void updateUserList(List<String> newUserList) {
         List<String> addedUsers = new ArrayList<>();
@@ -1003,8 +1198,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             collaborateDownWardButton.setVisibility(View.VISIBLE);
             collaborateForWardButton.setVisibility(View.VISIBLE);
             collaborateBackWardButton.setVisibility(View.VISIBLE);
-
-            CollaborateButtonClickListener buttonListener = new CollaborateButtonClickListener();
 
             collaborateRightButton.setOnClickListener(buttonListener);
             collaborateLeftButton.setOnClickListener(buttonListener);
@@ -1137,6 +1330,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
             btnUserList = findViewById(R.id.collaborate_user_list);
             btnUserList.setVisibility(View.VISIBLE);
 
+            qcInfoButton = findViewById(R.id.collaborate_quality_control_info);
+            qcInfoButton.setVisibility(View.VISIBLE);
+
             ROI_i = new ImageButton(this);
             ROI_i.setImageResource(R.drawable.ic_roi);
             ROI_i.setBackgroundResource(R.drawable.circle_normal);
@@ -1156,8 +1352,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
             BoomMenuButton boomMenuButton = tapBarMenu.findViewById(R.id.expanded_menu_collaborate);
 
-            collaborateResButton.setOnClickListener(new CollaborateButtonClickListener());
-            btnUserList.setOnClickListener(new CollaborateButtonClickListener());
+            collaborateResButton.setOnClickListener(buttonListener);
+            btnUserList.setOnClickListener(buttonListener);
+            qcInfoButton.setOnClickListener(buttonListener);
 
             ROI_i.setOnClickListener(v -> {
                 if (annotationGLSurfaceView.getEditMode().getValue() == EditMode.ZOOM_IN_ROI) {
@@ -1397,6 +1594,9 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
                 case R.id.collaborate_user_list:
                     showUserList(CollaborationActivity.this);
                     break;
+                case R.id.collaborate_quality_control_info:
+                    showQCInfo(CollaborationActivity.this);
+                    break;
                 case R.id.collaborate_right_file_button:
                     collaborationViewModel.shiftBlock(ShiftDirection.RIGHT);
                     annotationGLSurfaceView.convertCoordsForMarker(collaborationViewModel.getCoordinateConvert());
@@ -1506,7 +1706,6 @@ public class CollaborationActivity extends BaseActivity implements ReceiveMsgInt
 
     // 停止定时任务
     public void stopTimerCheckConn() {
-        System.out.println("timeCheckConn is destroyed");
         if (timerCheckConn != null) {
             timerCheckConn.cancel();  // 停止整个 Timer 和所有任务
             timerCheckConn = null;    // 清空 Timer 以便可以重新启动

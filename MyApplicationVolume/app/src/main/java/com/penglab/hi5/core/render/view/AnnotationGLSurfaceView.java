@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -320,6 +321,7 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
                                     case DELETE_MARKER:
                                         annotationHelper.deleteMarker(currentX, currentY, isBigData);
+
                                         requestRender();
                                         break;
 
@@ -724,6 +726,14 @@ public class AnnotationGLSurfaceView extends BasicGLSurfaceView {
 
     public MarkerList getMarkerList() {
         return annotationDataManager.getMarkerList();
+    }
+
+    public MarkerList getSyncMarkerList() {
+        return annotationDataManager.getSyncMarkerList();
+    }
+
+    public BlockingQueue<ImageMarker> getQueue () {
+        return annotationDataManager.getQueue();
     }
 
     private void update3DFileSize(Integer[] size) {
