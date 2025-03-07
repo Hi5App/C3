@@ -916,7 +916,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     });
                     solutionDeleteButton.setOnClickListener(v -> {
                         if(classifySolutionAdapter != null)
-                        deleteSolutionFromTable(classifySolutionAdapter.getSelectedPosition());
+                            deleteSolutionFromTable(classifySolutionAdapter.getSelectedPosition());
                     });
                 }).setNegativeButton("Cancel", v -> { })
                 .setPositiveButton("Confirm", v -> {

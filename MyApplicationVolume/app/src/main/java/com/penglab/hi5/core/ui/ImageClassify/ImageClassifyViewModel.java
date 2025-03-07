@@ -251,6 +251,7 @@ public class ImageClassifyViewModel extends ViewModel {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.e(TAG, "Connect failed when upload user rating result !");
+                            ToastEasy("Connect failed when upload user rating result !", Toast.LENGTH_LONG);
                         }
 
                         @Override
@@ -278,9 +279,11 @@ public class ImageClassifyViewModel extends ViewModel {
                                     }
                                 } else {
                                     Log.e(TAG, "Response from server is null when upload user rating result !");
+                                    ToastEasy("Response from server is null when upload user rating result !", Toast.LENGTH_LONG);
                                 }
                             } else {
                                 Log.e(TAG, "Response from server is error when upload user rating result !");
+                                ToastEasy("Response from server is error when upload user rating result !", Toast.LENGTH_LONG);
                             }
                             response.close();
                         }
