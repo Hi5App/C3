@@ -16,7 +16,7 @@ public class UserInfoRepository {
 
     // If user credentials will be cached in local storage, it is recommended it be encrypted
     // @see https://developer.android.com/training/articles/keystore
-    private LoggedInUser user = null;
+    private LoggedInUser user = new LoggedInUser("0","guest","xxx@email.com");
 
     private ScoreModel scoreModel = new ScoreModel();
 
