@@ -293,6 +293,14 @@
         android:src="@drawable/ic_iamge_downsample_foreground" />
 
     <Button
+        android:id="@+id/boring_file"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Uncertain"
+        app:layout_constraintTop_toBottomOf="@id/contrast_setting"
+
+        />
+    <Button
         android:id="@+id/range_cut_button_ic"
         android:layout_width="32dp"
         android:layout_height="32dp"

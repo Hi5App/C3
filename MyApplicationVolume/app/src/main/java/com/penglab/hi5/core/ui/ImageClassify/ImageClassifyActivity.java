@@ -1038,6 +1038,10 @@ public class ImageClassifyActivity extends AppCompatActivity {
             // 添加按钮到容器中
             classFirstButtonContainer.addView(button);
         }
+        Button uncertainButton =findViewById(R.id.boring_file);
+        uncertainButton.setOnClickListener(v ->{
+            navigateFile(true,true,"-1","");
+        });
     }
 
     private void showSecondClassifications(String classFirst, LinkedHashSet<String> classSecondSet, int index) {
