@@ -74,7 +74,7 @@ public class ImageClassifyViewModel extends ViewModel {
         return mClassifyUserNameList;
     }
 
-    public boolean isNextImageDequeDownloadCompleted() {
+    public synchronized boolean isNextImageDequeDownloadCompleted() {
         for (RatingImageInfo ratingImageInfo : mNextRatingImagesInfoDeque) {
             if (!isImageFileExist(ratingImageInfo)) {
                 return false;

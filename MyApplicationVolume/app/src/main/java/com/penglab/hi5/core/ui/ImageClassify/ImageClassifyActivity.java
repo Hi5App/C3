@@ -157,7 +157,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
     private final TimerTask mDownloadControlTask = new TimerTask() {
         @Override
-        public void run() {
+        public synchronized void run() {
             if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted() && !mImageClassifyViewModel.getNextRatingImagesInfoDeque().isEmpty()) {
                 uiHandler.post(() -> {
                     hideDownloadingProgressBar();
