@@ -2,6 +2,8 @@ package com.penglab.hi5.core.ui.ImageClassify;
 
 import static com.penglab.hi5.core.Myapplication.ToastEasy;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -251,7 +253,7 @@ public class ImageClassifyViewModel extends ViewModel {
                         @Override
                         public void onFailure(Call call, IOException e) {
                             Log.e(TAG, "Connect failed when upload user rating result !");
-                            ToastEasy("Connect failed when upload user rating result !", Toast.LENGTH_LONG);
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when upload user rating result !", Toast.LENGTH_LONG));
                         }
 
                         @Override
@@ -273,17 +275,18 @@ public class ImageClassifyViewModel extends ViewModel {
 
                                     String status = jsonResponse.optString("Status", "");
                                     if (status.equals("OK")) {
-                                        ToastEasy("Upload rating result successfully! \nImage: " + imageName + " \nSolution: " + solutionName + " \nRating: " + ratingEnum + " \nDescription: " + additionalRatingDescription);
+                                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Upload rating result successfully! \nImage: " + imageName + " \nSolution: " + solutionName + " \nRating: " + ratingEnum + " \nDescription: " + additionalRatingDescription));
                                     } else {
-                                        ToastEasy("Failed to uploadUserRatingResult: " + responseBody);
+                                        Log.e(TAG, "Failed to uploadUserRatingResult: " + responseBody);
+                                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Failed to uploadUserRatingResult: " + responseBody));
                                     }
                                 } else {
                                     Log.e(TAG, "Response from server is null when upload user rating result !");
-                                    ToastEasy("Response from server is null when upload user rating result !", Toast.LENGTH_LONG);
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Response from server is null when upload user rating result !", Toast.LENGTH_LONG));
                                 }
                             } else {
                                 Log.e(TAG, "Response from server is error when upload user rating result !");
-                                ToastEasy("Response from server is error when upload user rating result !", Toast.LENGTH_LONG);
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Response from server is error when upload user rating result !", Toast.LENGTH_LONG));
                             }
                             response.close();
                         }
