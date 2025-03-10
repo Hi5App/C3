@@ -302,7 +302,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.e(TAG, "Connect failed when getting request rating table!");
-                        ToastEasy("Connect failed when getting request rating table!");
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when getting request rating table!"));
                     }
 
                     @Override
@@ -337,21 +337,21 @@ public class ImageClassifyViewModel extends ViewModel {
                                             mUserRatingResultTable.postValue(new ArrayList<>());
                                         }
                                     } else {
-                                        ToastEasy("RatingQueryResult is null");
+                                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("RatingQueryResult is null"));
                                         // 发布一个空结果通知的信息
                                         mUserRatingResultTable.postValue(new ArrayList<>());
                                     }
                                 } else {
                                     Log.e(TAG, "Status is not OK: " + status);
-                                    ToastEasy("Status is not OK: " + status);
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                     mUserRatingResultTable.postValue(new ArrayList<>());  // 可以在这里处理错误状态
                                 }
                             } catch (JSONException e) {
-                                ToastEasy(e.toString());
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                             }
                         }
                         else{
-                            ToastEasy("responseCode is: " + responseCode);
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                         }
                         response.close();
                     }
@@ -363,7 +363,7 @@ public class ImageClassifyViewModel extends ViewModel {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "Connect failed when requesting rating solution!");
-                ToastEasy("Connect failed when requesting rating solution!");
+                new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when requesting rating solution!"));
             }
 
             @Override
@@ -375,7 +375,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     try {
                         str = Objects.requireNonNull(response.body()).string();
                     } catch (IOException e) {
-                        ToastEasy(e.toString());
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                     }
                     if (str != null) {
                         Log.e("Get rating solution", str);
@@ -395,16 +395,16 @@ public class ImageClassifyViewModel extends ViewModel {
                                     }
                                     mClassifySolutionList.postValue(classifySolutionInfoList);
                                 } else {
-                                    ToastEasy("SolutionResult is null");
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("SolutionResult is null"));
                                     mClassifySolutionList.postValue(null);
                                 }
                             } else {
                                 Log.e(TAG, "Status is not OK: " + status);
-                                ToastEasy("Status is not OK: " + status);
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                 mClassifySolutionList.postValue(null);
                             }
                         } catch (JSONException e) {
-                            ToastEasy(e.toString());
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                             mClassifySolutionList.postValue(null);
                         }
                     }
@@ -428,7 +428,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.e(TAG, "Connect failed when adding rating solution!");
-                        ToastEasy("Connect failed when adding rating solution!");
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when adding rating solution!"));
                         future.complete(false);
                     }
 
@@ -443,19 +443,19 @@ public class ImageClassifyViewModel extends ViewModel {
                                 String status = jsonObject.optString("Status");
                                 if (!status.equals("OK")) {
                                     Log.e(TAG, "Status is not OK: " + status);
-                                    ToastEasy("Status is not OK: " + status);
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                     future.complete(false);
                                 }
                                 else{
                                     future.complete(true);
                                 }
                             } catch (JSONException e) {
-                                ToastEasy(e.toString());
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                                 future.complete(false);
                             }
                         }
                         else{
-                            ToastEasy("responseCode is: " + responseCode);
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                             future.complete(false);
                         }
                         response.close();
@@ -475,7 +475,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.e(TAG, "Connect failed when adding rating solution!");
-                        ToastEasy("Connect failed when adding rating solution!");
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when adding rating solution!"));
                         future.complete(false);
                     }
 
@@ -490,19 +490,19 @@ public class ImageClassifyViewModel extends ViewModel {
                                 String status = jsonObject.optString("Status");
                                 if (!status.equals("OK")) {
                                     Log.e(TAG, "Status is not OK: " + status);
-                                    ToastEasy("Status is not OK: " + status);
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                     future.complete(false);
                                 }
                                 else{
                                     future.complete(true);
                                 }
                             } catch (JSONException e) {
-                                ToastEasy(e.toString());
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                                 future.complete(false);
                             }
                         }
                         else{
-                            ToastEasy("responseCode is: " + responseCode);
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                             future.complete(false);
                         }
                         response.close();
@@ -522,7 +522,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     @Override
                     public void onFailure(Call call, IOException e) {
                         Log.e(TAG, "Connect failed when updating rating solution!");
-                        ToastEasy("Connect failed when updating rating solution!");
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when updating rating solution!"));
                         future.complete(false);
                     }
 
@@ -537,19 +537,19 @@ public class ImageClassifyViewModel extends ViewModel {
                                 String status = jsonObject.optString("Status");
                                 if (!status.equals("OK")) {
                                     Log.e(TAG, "Status is not OK: " + status);
-                                    ToastEasy("Status is not OK: " + status);
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                     future.complete(false);
                                 }
                                 else{
                                     future.complete(true);
                                 }
                             } catch (JSONException e) {
-                                ToastEasy(e.toString());
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                                 future.complete(false);
                             }
                         }
                         else{
-                            ToastEasy("responseCode is: " + responseCode);
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                             future.complete(false);
                         }
                         response.close();
@@ -563,7 +563,7 @@ public class ImageClassifyViewModel extends ViewModel {
             @Override
             public void onFailure(Call call, IOException e) {
                 Log.e(TAG, "Connect failed when querying rating username!");
-                ToastEasy("Connect failed when querying rating username!");
+                new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Connect failed when querying rating username!"));
             }
 
             @Override
@@ -575,7 +575,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     try {
                         str = Objects.requireNonNull(response.body()).string();
                     } catch (IOException e) {
-                        ToastEasy(e.toString());
+                        new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                         mClassifyUserNameList.postValue(null);
                     }
                     if (str != null) {
@@ -593,22 +593,22 @@ public class ImageClassifyViewModel extends ViewModel {
                                     }
                                     mClassifyUserNameList.postValue(usernames);
                                 } else {
-//                                    ToastEasy("UserNameResult is null");
+                                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("UserNameResult is null"));
                                     mClassifyUserNameList.postValue(null);
                                 }
                             } else {
                                 Log.e(TAG, "Status is not OK: " + status);
-                                ToastEasy("Status is not OK: " + status);
+                                new Handler(Looper.getMainLooper()).post(() -> ToastEasy("Status is not OK: " + status));
                                 mClassifyUserNameList.postValue(null);
                             }
                         } catch (JSONException e) {
-                            ToastEasy(e.toString());
+                            new Handler(Looper.getMainLooper()).post(() -> ToastEasy(e.toString()));
                             mClassifyUserNameList.postValue(null);
                         }
                     }
                 }
                 else{
-                    ToastEasy("responseCode is: " + responseCode);
+                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                 }
                 response.close();
             }
