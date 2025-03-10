@@ -120,7 +120,7 @@ public class ImageClassifyViewModel extends ViewModel {
                                             response.close();
                                         }
                                     } else {
-                                        ToastEasy("ImageInfoList is null! Maybe there are no more images to classify!");
+                                        new Handler(Looper.getMainLooper()).post( ()-> ToastEasy("ImageInfoList is null! Maybe there are no more images to classify!"));
                                         Log.e("TAG", "imageInfoList is null");
                                     }
 
@@ -410,7 +410,7 @@ public class ImageClassifyViewModel extends ViewModel {
                     }
                 }
                 else {
-                    ToastEasy("responseCode is: " + responseCode);
+                    new Handler(Looper.getMainLooper()).post(() -> ToastEasy("responseCode is: " + responseCode));
                 }
                 response.close();
             }
