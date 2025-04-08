@@ -7,6 +7,7 @@ import static com.penglab.hi5.core.Myapplication.updateMusicVolume;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +47,7 @@ import com.penglab.hi5.R;
 import com.penglab.hi5.basic.NeuronTree;
 import com.penglab.hi5.basic.image.ImageMarker;
 import com.penglab.hi5.basic.tracingfunc.gd.V_NeuronSWC_unit;
+import com.penglab.hi5.chat.nim.InfoCache;
 import com.penglab.hi5.core.music.MusicService;
 import com.penglab.hi5.core.render.AnnotationRender;
 import com.penglab.hi5.core.render.view.AnnotationGLSurfaceView;
@@ -58,6 +60,12 @@ import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -232,33 +240,33 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
         Button openPopupButton = findViewById(R.id.range_cut_button);
         openPopupButton.setOnClickListener(v -> {
-            PopupWindow popupWindow = new PopupWindow(LayoutInflater.from(AnnotationActivity.this).inflate(R.layout.popup_rangecut, null)
-                    , ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
+            PopupWindow popupWindow = new PopupWindow(LayoutInflater.from(AnnotationActivity.this).inflate(R.layout.popup_rangecut, null), ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true);
             popupWindow.setOutsideTouchable(true);
             popupWindow.setBackgroundDrawable(ContextCompat.getDrawable(AnnotationActivity.this, R.drawable.global_blue_round_box_4));
-            popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER,0,0);
+            popupWindow.showAsDropDown(openPopupButton, Gravity.CENTER, 0, 0);
 
             RangeSlider xRangeSlider = popupWindow.getContentView().findViewById(R.id.x_cut_slider);
-            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {;
+            xRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
+                ;
                 List<Float> values = xRangeSlider.getValues();
-                annotationGLSurfaceView.setCutx_left_value(values.get(0)/100);
-                annotationGLSurfaceView.setCutx_right_value(values.get(1)/100);
+                annotationGLSurfaceView.setCutx_left_value(values.get(0) / 100);
+                annotationGLSurfaceView.setCutx_right_value(values.get(1) / 100);
                 annotationGLSurfaceView.requestRender();
             });
 
             RangeSlider yRangeSlider = popupWindow.getContentView().findViewById(R.id.y_cut_slider);
             yRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
                 List<Float> values = yRangeSlider.getValues();
-                annotationGLSurfaceView.setCuty_left_value(values.get(0) /100);
-                annotationGLSurfaceView.setCuty_right_value(values.get(1)/100);
+                annotationGLSurfaceView.setCuty_left_value(values.get(0) / 100);
+                annotationGLSurfaceView.setCuty_right_value(values.get(1) / 100);
                 annotationGLSurfaceView.requestRender();
             });
 
             RangeSlider zRangeSlider = popupWindow.getContentView().findViewById(R.id.z_cut_slider);
             zRangeSlider.addOnChangeListener((slider, value, fromUser) -> {
                 List<Float> values = zRangeSlider.getValues();
-                annotationGLSurfaceView.setCutz_left_value(values.get(0)/100);
-                annotationGLSurfaceView.setCutz_right_value(values.get(1) /100);
+                annotationGLSurfaceView.setCutz_left_value(values.get(0) / 100);
+                annotationGLSurfaceView.setCutz_right_value(values.get(1) / 100);
                 annotationGLSurfaceView.requestRender();
             });
         });
@@ -420,21 +428,54 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     }
 
     private void openFile() {
-        new XPopup.Builder(this)
-                .asCenterList("File Open", new String[]{"Open BigData", "Open LocalFile"},
-                        (position, item) -> {
-                            switch (item) {
-                                case "Open LocalFile":
-                                    openLocalFile();
-                                    break;
-                                case "Open BigData":
-                                    ToastEasy("BigData is under maintenance ！");
-                                    break;
-                                default:
-                                    ToastEasy("Something wrong in function openFile !");
+        new XPopup.Builder(this).asCenterList("File Open", new String[]{"Open LocalFile", "Open Demo File"}, (position, item) -> {
+            switch (item) {
+                case "Open LocalFile":
+                    openLocalFile();
+                    break;
+                case "Open Demo File": {
+
+                    String[] demoFiles = new String[]{"DemoData1.v3dpbd", "DemoData2.v3dpbd", "DemoData3.v3dpbd", "DemoData4.v3dpbd", "DemoData5.v3dpbd"};
+
+                    new XPopup.Builder(this).asCenterList("选择演示文件", demoFiles, (filePosition, fileName) -> {
+                        ToastEasy("正在加载演示文件: " + fileName);
+                        executorService.submit(() -> {
+                            try {
+                                AssetManager assetManager = getResources().getAssets();
+                                // 打开文件获取InputStream
+                                InputStream inputStream = assetManager.open(fileName);
+                                // 创建临时文件
+                                String tempFile = InfoCache.getContext().getExternalFilesDir(null) + "/Image/" + fileName;
+                                // 将assets文件复制到临时文件
+                                FileOutputStream outputStream = new FileOutputStream(tempFile);
+                                byte[] buffer = new byte[1024];
+                                int length;
+                                while ((length = inputStream.read(buffer)) > 0) {
+                                    outputStream.write(buffer, 0, length);
+                                }
+                                inputStream.close();
+                                outputStream.close();
+
+                                // 在UI线程中处理文件打开
+                                runOnUiThread(() -> {
+                                    Uri uri = Uri.fromFile(new File(tempFile));
+                                    Intent data = new Intent();
+                                    data.setData(uri);
+                                    annotationViewModel.openLocalFile(data);
+                                });
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                                runOnUiThread(() -> ToastEasy("加载演示文件失败: " + e.getMessage()));
                             }
-                        })
-                .show();
+                        });
+                    }).show();
+
+                    break;
+                }
+                default:
+                    ToastEasy("Something wrong in function openFile !");
+            }
+        }).show();
     }
 
     private void openLocalFile() {
@@ -466,45 +507,38 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
 
     private void moreFunctions() {
         String[] centerList = new String[]{"Analyze Swc", "Filter by example", "Settings"};
-        new XPopup.Builder(this)
-                .maxHeight(1500)
-                .asCenterList("More Functions...", centerList,
-                        (position, text) -> {
-                            switch (text) {
-                                case "Analyze Swc":
-                                    analyzeSwc();
-                                    break;
-                                case "Animate":
-                                    break;
-                                case "Filter by example":
-                                    executorService.submit(() -> annotationGLSurfaceView.pixelClassification());
-                                    break;
-                                case "Settings":
-                                    settings();
-                                    break;
-                                default:
-                                    ToastEasy("Something wrong with more functions...");
-                            }
-                        })
-                .show();
+        new XPopup.Builder(this).maxHeight(1500).asCenterList("More Functions...", centerList, (position, text) -> {
+            switch (text) {
+                case "Analyze Swc":
+                    analyzeSwc();
+                    break;
+                case "Animate":
+                    break;
+                case "Filter by example":
+                    executorService.submit(() -> annotationGLSurfaceView.pixelClassification());
+                    break;
+                case "Settings":
+                    settings();
+                    break;
+                default:
+                    ToastEasy("Something wrong with more functions...");
+            }
+        }).show();
     }
 
     private void analyzeSwc() {
-        new XPopup.Builder(this)
-                .asCenterList("Morphology calculate", new String[]{"Analyze swc file", "Analyze current tracing"},
-                        (position, text) -> {
-                            switch (text) {
-                                case "Analyze swc file":
-                                    analyzeSwcFile();
-                                    break;
-                                case "Analyze current tracing":
-                                    analyzeCurTracing();
-                                    break;
-                                default:
-                                    ToastEasy("Default in analysis");
-                            }
-                        })
-                .show();
+        new XPopup.Builder(this).asCenterList("Morphology calculate", new String[]{"Analyze swc file", "Analyze current tracing"}, (position, text) -> {
+            switch (text) {
+                case "Analyze swc file":
+                    analyzeSwcFile();
+                    break;
+                case "Analyze current tracing":
+                    analyzeCurTracing();
+                    break;
+                default:
+                    ToastEasy("Default in analysis");
+            }
+        }).show();
     }
 
     private void analyzeSwcFile() {
@@ -524,109 +558,101 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     }
 
     private void settings() {
-        new MDDialog.Builder(this)
-                .setContentView(R.layout.annotation_settings)
-                .setContentViewOperator(contentView -> {
-                    PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
-                    PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
+        new MDDialog.Builder(this).setContentView(R.layout.annotation_settings).setContentViewOperator(contentView -> {
+            PreferenceSetting preferenceSetting = PreferenceSetting.getInstance();
+            PreferenceMusic preferenceMusic = PreferenceMusic.getInstance();
 
-                    SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
-                    IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
-                    SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
-                    SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
-                    SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
+            SwitchCompat downSampleSwitch = contentView.findViewById(R.id.downSample_mode);
+            IndicatorSeekBar contrastIndicator = contentView.findViewById(R.id.contrast_indicator_seekbar);
+            SeekBar bgmVolumeBar = contentView.findViewById(R.id.bgSoundBar);
+            SeekBar buttonVolumeBar = contentView.findViewById(R.id.buttonSoundBar);
+            SeekBar actionVolumeBar = contentView.findViewById(R.id.actionSoundBar);
 
-                    downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
-                    contrastIndicator.setProgress(preferenceSetting.getContrast());
-                    bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
-                    buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
-                    actionVolumeBar.setProgress(preferenceMusic.getActionSound());
+            downSampleSwitch.setChecked(preferenceSetting.getDownSampleMode());
+            contrastIndicator.setProgress(preferenceSetting.getContrast());
+            bgmVolumeBar.setProgress(preferenceMusic.getBackgroundSound());
+            buttonVolumeBar.setProgress(preferenceMusic.getButtonSound());
+            actionVolumeBar.setProgress(preferenceMusic.getActionSound());
 
-                    downSampleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                        preferenceSetting.setDownSampleMode(isChecked);
-                        annotationGLSurfaceView.updateRenderOptions();
-                    });
+            downSampleSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                preferenceSetting.setDownSampleMode(isChecked);
+                annotationGLSurfaceView.updateRenderOptions();
+            });
 
-                    contrastIndicator.setOnSeekChangeListener(new OnSeekChangeListener() {
-                        @Override
-                        public void onSeeking(SeekParams seekParams) {
-                            preferenceSetting.setContrast(seekParams.progress);
-                            annotationGLSurfaceView.updateRenderOptions();
-                        }
+            contrastIndicator.setOnSeekChangeListener(new OnSeekChangeListener() {
+                @Override
+                public void onSeeking(SeekParams seekParams) {
+                    preferenceSetting.setContrast(seekParams.progress);
+                    annotationGLSurfaceView.updateRenderOptions();
+                }
 
-                        @Override
-                        public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
-                        }
+                @Override
+                public void onStartTrackingTouch(IndicatorSeekBar seekBar) {
+                }
 
-                        @Override
-                        public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
-                        }
-                    });
+                @Override
+                public void onStopTrackingTouch(IndicatorSeekBar seekBar) {
+                }
+            });
 
-                    bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                        @Override
-                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            preferenceMusic.setBackgroundSound(progress);
-                            updateMusicVolume();
-                        }
+            bgmVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    preferenceMusic.setBackgroundSound(progress);
+                    updateMusicVolume();
+                }
 
-                        @Override
-                        public void onStartTrackingTouch(SeekBar seekBar) {
-                        }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
-                        @Override
-                        public void onStopTrackingTouch(SeekBar seekBar) {
-                        }
-                    });
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
 
-                    buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                        @Override
-                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            preferenceMusic.setButtonSound(progress);
-                            updateMusicVolume();
-                        }
+            buttonVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    preferenceMusic.setButtonSound(progress);
+                    updateMusicVolume();
+                }
 
-                        @Override
-                        public void onStartTrackingTouch(SeekBar seekBar) {
-                        }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
-                        @Override
-                        public void onStopTrackingTouch(SeekBar seekBar) {
-                        }
-                    });
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
 
-                    actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                        @Override
-                        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                            preferenceMusic.setActionSound(progress);
-                            updateMusicVolume();
-                        }
+            actionVolumeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    preferenceMusic.setActionSound(progress);
+                    updateMusicVolume();
+                }
 
-                        @Override
-                        public void onStartTrackingTouch(SeekBar seekBar) {
-                        }
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+                }
 
-                        @Override
-                        public void onStopTrackingTouch(SeekBar seekBar) {
-                        }
-                    });
-                })
-                .setNegativeButton("Cancel", v -> {
-                })
-                .setPositiveButton("Confirm", v -> {
-                    annotationGLSurfaceView.requestRender();
-                    playButtonSound();
-                })
-                .setTitle("Settings")
-                .create()
-                .show();
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+                }
+            });
+        }).setNegativeButton("Cancel", v -> {
+        }).setPositiveButton("Confirm", v -> {
+            annotationGLSurfaceView.requestRender();
+            playButtonSound();
+        }).setTitle("Settings").create().show();
     }
 
     private void showCommonUI() {
         if (commonView == null) {
             // load layout view
-            LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams lpCommon = new LinearLayout.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             commonView = getLayoutInflater().inflate(R.layout.annotation_common, null);
             this.addContentView(commonView, lpCommon);
 
@@ -650,30 +676,20 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             addMarker.setOnLongClickListener(this::onMenuItemLongClick);
 
             // All is lambda expression
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE))
-                    .normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_CURVE_TYPE)).normalImageRes(R.drawable.ic_change_curve_type).normalText("Change Curve Color"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE))
-                    .normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> annotationGLSurfaceView.setEditMode(EditMode.CHANGE_MARKER_TYPE)).normalImageRes(R.drawable.ic_change_marker_type).normalText("Change Marker Color"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT))
-                    .normalImageRes(R.drawable.ic_split).normalText("Split"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> annotationGLSurfaceView.setEditMode(EditMode.SPLIT)).normalImageRes(R.drawable.ic_split).normalText("Split"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER))
-                    .normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> annotationGLSurfaceView.setEditMode(EditMode.DELETE_MULTI_MARKER)).normalImageRes(R.drawable.ic_delete_multimarker).normalText("Delete Multi Markers"));
 
             boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> {
                 ToastEasy("GD tracing algorithm start !");
                 executorService.submit(() -> annotationGLSurfaceView.GD());
             }).normalImageRes(R.drawable.ic_gd_tracing).normalText("GD-Tracing"));
 
-            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder()
-                    .listener(index -> annotationGLSurfaceView.clearAllTracing())
-                    .normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
+            boomMenuButton.addBuilder(new TextOutsideCircleButton.Builder().listener(index -> annotationGLSurfaceView.clearAllTracing()).normalImageRes(R.drawable.ic_clear).normalText("Clear Tracing"));
 
         } else {
             commonView.setVisibility(View.VISIBLE);
@@ -721,28 +737,10 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private boolean onMenuItemLongClick(View view) {
         switch (view.getId()) {
             case R.id.draw_i:
-                ColorPickerDialog.newBuilder()
-                        .setShowColorShades(false)
-                        .setAllowCustom(false)
-                        .setDialogId(R.id.draw_i)
-                        .setDialogTitle(R.string.curve_map_title)
-                        .setColor(ContextCompat.getColor(this,
-                                V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType())))
-                        .setPresets(getResources().getIntArray(R.array.colorMap))
-                        .setSelectedButtonText(R.string.color_selector_confirm)
-                        .show(this);
+                ColorPickerDialog.newBuilder().setShowColorShades(false).setAllowCustom(false).setDialogId(R.id.draw_i).setDialogTitle(R.string.curve_map_title).setColor(ContextCompat.getColor(this, V_NeuronSWC_unit.typeToColor(annotationGLSurfaceView.getLastCurveType()))).setPresets(getResources().getIntArray(R.array.colorMap)).setSelectedButtonText(R.string.color_selector_confirm).show(this);
                 return true;
             case R.id.pinpoint:
-                ColorPickerDialog.newBuilder()
-                        .setShowColorShades(false)
-                        .setAllowCustom(false)
-                        .setDialogId(R.id.pinpoint)
-                        .setDialogTitle(R.string.marker_map_title)
-                        .setColor(ContextCompat.getColor(this,
-                                ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType())))
-                        .setPresets(getResources().getIntArray(R.array.colorMap))
-                        .setSelectedButtonText(R.string.color_selector_confirm)
-                        .show(this);
+                ColorPickerDialog.newBuilder().setShowColorShades(false).setAllowCustom(false).setDialogId(R.id.pinpoint).setDialogTitle(R.string.marker_map_title).setColor(ContextCompat.getColor(this, ImageMarker.typeToColor(annotationGLSurfaceView.getLastMarkerType()))).setPresets(getResources().getIntArray(R.array.colorMap)).setSelectedButtonText(R.string.color_selector_confirm).show(this);
                 return true;
             default:
                 return false;
@@ -771,8 +769,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private void showUI4LocalFileMode() {
         if (localFileModeView == null) {
             // load layout view
-            LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams lp4LocalFileMode = new LinearLayout.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             localFileModeView = getLayoutInflater().inflate(R.layout.annotation_local_file, null);
             this.addContentView(localFileModeView, lp4LocalFileMode);
 
@@ -792,8 +789,7 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
     private void showUI4BigDataMode() {
         if (bigDataModeView == null) {
             // load layout view
-            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(
-                    LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
+            LinearLayout.LayoutParams lp4BigDataMode = new LinearLayout.LayoutParams(LinearLayoutCompat.LayoutParams.MATCH_PARENT, LinearLayoutCompat.LayoutParams.MATCH_PARENT);
             bigDataModeView = getLayoutInflater().inflate(R.layout.annotation_big_data, null);
             this.addContentView(bigDataModeView, lp4BigDataMode);
 
@@ -849,76 +845,37 @@ public class AnnotationActivity extends AppCompatActivity implements ColorPicker
             }
         }
 
-        title = new String[]{
-                "number of nodes",
-                "soma surface",
-                "number of stems",
-                "number of bifurcations",
-                "number of branches",
-                "number of tips",
-                "overall width",
-                "overall height",
-                "overall depth",
-                "average diameter",
-                "total length",
-                "total surface",
-                "total volume",
-                "max euclidean distance",
-                "max path distance",
-                "max branch order",
-                "average contraction",
-                "average fragmentation",
-                "average parent-daughter ratio",
-                "average bifurcation angle local",
-                "average bifurcation angle remote",
-                "Hausdorff dimension"
-        };
+        title = new String[]{"number of nodes", "soma surface", "number of stems", "number of bifurcations", "number of branches", "number of tips", "overall width", "overall height", "overall depth", "average diameter", "total length", "total surface", "total volume", "max euclidean distance", "max path distance", "max branch order", "average contraction", "average fragmentation", "average parent-daughter ratio", "average bifurcation angle local", "average bifurcation angle remote", "Hausdorff dimension"};
 
-        titleId = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4,
-                R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9,
-                R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14,
-                R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19,
-                R.id.title20, R.id.title21};
+        titleId = new int[]{R.id.title0, R.id.title1, R.id.title2, R.id.title3, R.id.title4, R.id.title5, R.id.title6, R.id.title7, R.id.title8, R.id.title9, R.id.title10, R.id.title11, R.id.title12, R.id.title13, R.id.title14, R.id.title15, R.id.title16, R.id.title17, R.id.title18, R.id.title19, R.id.title20, R.id.title21};
 
-        contentId = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4,
-                R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9,
-                R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14,
-                R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19,
-                R.id.content20, R.id.content21};
+        contentId = new int[]{R.id.content0, R.id.content1, R.id.content2, R.id.content3, R.id.content4, R.id.content5, R.id.content6, R.id.content7, R.id.content8, R.id.content9, R.id.content10, R.id.content11, R.id.content12, R.id.content13, R.id.content14, R.id.content15, R.id.content16, R.id.content17, R.id.content18, R.id.content19, R.id.content20, R.id.content21};
 
-        itemLayoutId = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4,
-                R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9,
-                R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14,
-                R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19,
-                R.id.RL20, R.id.RL21};
+        itemLayoutId = new int[]{R.id.RL0, R.id.RL1, R.id.RL2, R.id.RL3, R.id.RL4, R.id.RL5, R.id.RL6, R.id.RL7, R.id.RL8, R.id.RL9, R.id.RL10, R.id.RL11, R.id.RL12, R.id.RL13, R.id.RL14, R.id.RL15, R.id.RL16, R.id.RL17, R.id.RL18, R.id.RL19, R.id.RL20, R.id.RL21};
 
-        featuresDisplay = new MDDialog.Builder(this)
-                .setContentView(R.layout.analysis_result)
-                .setContentViewOperator(contentView -> {
-                    // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
-                    // analysis_result next page
-                    Button next = (Button) contentView.findViewById(R.id.ar_right);
-                    next.setOnClickListener(v -> {
-                        if (featureList.size() > 1) {
-                            featureDisplayId = (featureDisplayId + 1) % featureList.size();
-                            double[] result1 = featureList.get(featureDisplayId);
-                            setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
-                            featuresDisplay.show();
-                        }
-                    });
-                    Button previous = (Button) contentView.findViewById(R.id.ar_left);
-                    previous.setOnClickListener(v -> {
-                        if (featureList.size() > 1) {
-                            featureDisplayId = (featureDisplayId - 1 + featureList.size()) % featureList.size();
-                            double[] result1 = featureList.get(featureDisplayId);
-                            setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
-                            featuresDisplay.show();
-                        }
-                    });
-                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
-                })
-                .setShowTitle(false)
-                .create();
+        featuresDisplay = new MDDialog.Builder(this).setContentView(R.layout.analysis_result).setContentViewOperator(contentView -> {
+            // 这里的contentView就是上面代码中传入的自定义的View或者layout资源inflate出来的view
+            // analysis_result next page
+            Button next = (Button) contentView.findViewById(R.id.ar_right);
+            next.setOnClickListener(v -> {
+                if (featureList.size() > 1) {
+                    featureDisplayId = (featureDisplayId + 1) % featureList.size();
+                    double[] result1 = featureList.get(featureDisplayId);
+                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
+                    featuresDisplay.show();
+                }
+            });
+            Button previous = (Button) contentView.findViewById(R.id.ar_left);
+            previous.setOnClickListener(v -> {
+                if (featureList.size() > 1) {
+                    featureDisplayId = (featureDisplayId - 1 + featureList.size()) % featureList.size();
+                    double[] result1 = featureList.get(featureDisplayId);
+                    setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result1, subtitle[featureDisplayId]);
+                    featuresDisplay.show();
+                }
+            });
+            setResultContentView(contentView, title, titleId, contentId, itemLayoutId, result, subtitle[featureDisplayId]);
+        }).setShowTitle(false).create();
         featuresDisplay.show();
     }
 
