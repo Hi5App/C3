@@ -157,7 +157,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
 
     private final TimerTask mDownloadControlTask = new TimerTask() {
         @Override
-        public void run() {
+        public synchronized void run() {
             if (mImageClassifyViewModel.isNextImageDequeDownloadCompleted() && !mImageClassifyViewModel.getNextRatingImagesInfoDeque().isEmpty()) {
                 uiHandler.post(() -> {
                     hideDownloadingProgressBar();
@@ -916,7 +916,7 @@ public class ImageClassifyActivity extends AppCompatActivity {
                     });
                     solutionDeleteButton.setOnClickListener(v -> {
                         if(classifySolutionAdapter != null)
-                        deleteSolutionFromTable(classifySolutionAdapter.getSelectedPosition());
+                            deleteSolutionFromTable(classifySolutionAdapter.getSelectedPosition());
                     });
                 }).setNegativeButton("Cancel", v -> { })
                 .setPositiveButton("Confirm", v -> {
@@ -1038,6 +1038,10 @@ public class ImageClassifyActivity extends AppCompatActivity {
             // 添加按钮到容器中
             classFirstButtonContainer.addView(button);
         }
+        Button uncertainButton =findViewById(R.id.boring_file);
+        uncertainButton.setOnClickListener(v ->{
+            navigateFile(true,true,"-1","");
+        });
     }
 
     private void showSecondClassifications(String classFirst, LinkedHashSet<String> classSecondSet, int index) {
