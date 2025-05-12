@@ -1880,6 +1880,7 @@ public class AnnotationHelper {
                 imageMarker_drawed.zGlobal = Float.parseFloat(currentLineGlobal.get(4));
 
                 imageMarker_drawed.comment = currentLineGlobal.get(3);
+                Log.e("qc", imageMarker_drawed.comment);
 
                 int r = Integer.parseInt(currentLine.get(15));
                 int g = Integer.parseInt(currentLine.get(16));
@@ -1914,7 +1915,8 @@ public class AnnotationHelper {
 
                 }else if (r == 168 && g == 128 && b == 255) {
                     imageMarker_drawed.type = 9;
-
+                }else if (r == 188 && g == 94 && b == 37) {
+                    imageMarker_drawed.type = 10;
                 }
                 markerList.add(imageMarker_drawed);
 //                System.out.println("ImageType: " + imageMarker_drawed.type);

@@ -32,7 +32,8 @@ public class MyDraw extends BasicPattern {
             {0f, 0.7843f, 0.07843f},              //green
             {0.9803f, 0.3921f, 0.4705f},          //pink
             {0.6588f, 0.5019f, 1f},               //crossing
-            {0.98039f,0.39215f,0.47058f},
+            {0.73725f,0.36863f,0.14510f},
+            {0.98039f,0.39215f,0.47058f}
     };
 
     private final float[] modelVertex = {
@@ -368,7 +369,7 @@ public class MyDraw extends BasicPattern {
 
         colorPoints_model = new float[drawList_model.length * 3];//colormap[type];
         for(int i=0; i<colorPoints_model.length; i++){
-            colorPoints_model[i] = colormap[type%11][i%3];
+            colorPoints_model[i] = colormap[type%colormap.length][i%3];
             if(type == 247){
                 colorPoints_model[i] = colormap[2][i%3];
             }
@@ -466,7 +467,7 @@ public class MyDraw extends BasicPattern {
 
         colorPoints_marker = new float[vertexPoints_marker.length]; //colormap[type];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type % 11][i % 3];
+            colorPoints_marker[i] = colormap[type % colormap.length][i % 3];
             if(type == 247){
                 colorPoints_marker[i] = colormap[2][i%3];
             }
@@ -541,7 +542,7 @@ public class MyDraw extends BasicPattern {
 
         colorPoints_marker = new float[line.length];
         for(int i=0; i<colorPoints_marker.length; i++){
-            colorPoints_marker[i] = colormap[type%11][i%3];
+            colorPoints_marker[i] = colormap[type%colormap.length][i%3];
             if(type == 247){
                 colorPoints_marker[i] = colormap[2][i%3];
             }
@@ -672,7 +673,7 @@ public class MyDraw extends BasicPattern {
 
         float [] colorMarker = new float[3];
         for (int i = 0; i < 3; i++) {
-            colorMarker[i] = colormap[type % 11][i];
+            colorMarker[i] = colormap[type % colormap.length][i];
             if(type == 247){
                 colorMarker[i] = colormap[2][i];
             }

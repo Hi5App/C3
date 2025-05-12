@@ -22,7 +22,8 @@ public class ImageMarker extends BasicSurfObj {
         {220,200,0,},
         {0,200,20},
         {250,100,120},
-        {168,128,255}
+        {168,128,255},
+        {188,94,37}
     };
 
     public int[][] getTypeToColorList(){
@@ -40,6 +41,7 @@ public class ImageMarker extends BasicSurfObj {
         put(7, R.color.green_map);
         put(8, R.color.pink_map);
         put(9, R.color.crossing_map);
+        put(10, R.color.coffee_map);
     }};
 
     private static final HashMap<Integer, String> typeToColorStr = new HashMap<Integer, String>() {{
@@ -53,6 +55,7 @@ public class ImageMarker extends BasicSurfObj {
         put(7, "#00C814");
         put(8, "#FA6478");
         put(9, "#A880FF");
+        put(10, "#BC5E25");
     }};
 
     private static final HashMap<String, Integer> colorToType = new HashMap<String, Integer>() {{
@@ -66,6 +69,7 @@ public class ImageMarker extends BasicSurfObj {
         put("FF00C814",  7);
         put("FFFA6478",  8);
         put("FFA880FF",  9);
+        put("FFBC5E25", 10);
     }};
 
     public static final List<String> qcTypes = Stream.of(
@@ -88,8 +92,9 @@ public class ImageMarker extends BasicSurfObj {
      * 5-cyan     RGB(0, 200, 200):
      * 6-yellow   RGB(220, 200, 0):
      * 7-green    RGB(0, 200, 20):
-     * 8-pink  RGB(250, 100, 120):
+     * 8-pink     RGB(250, 100, 120):
      * 9-crossing RGB(168, 128, 255):
+     * 10-multifurcation RGB(188, 94, 37)
      */
     public int type;			// 0-pxUnknown, 1-pxLocaNotUseful, 2-pxLocaUseful, 3-pxLocaUnsure, 4-pxTemp
 
@@ -226,6 +231,8 @@ public class ImageMarker extends BasicSurfObj {
 
         } else if ((r == 168 && g == 128 && b == 255)) {
             imageMarker.type = 9;
+        }else if ((r == 188 && g == 94 && b == 37)) {
+            imageMarker.type = 10;
         }
         return imageMarker;
     }
@@ -276,9 +283,27 @@ public class ImageMarker extends BasicSurfObj {
 
         } else if ((r == 168 && g == 128 && b == 255)) {
             return 9;
-
+        }
+        else if ((r == 188 && g == 94 && b == 37)) {
+            return 10;
         }
 
         return 0;
+    }
+
+    @Override
+    public String toString() {
+        return "ImageMarker{" +
+                "type=" + type +
+                ", shape=" + shape +
+                ", x=" + x +
+                ", y=" + y +
+                ", z=" + z +
+                ", xGlobal=" + xGlobal +
+                ", yGlobal=" + yGlobal +
+                ", zGlobal=" + zGlobal +
+                ", radius=" + radius +
+                ", comment='" + comment + '\'' +
+                '}';
     }
 }

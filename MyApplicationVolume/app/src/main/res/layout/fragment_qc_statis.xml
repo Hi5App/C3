@@ -22,6 +22,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Total number of markers:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/titleTextView"
         app:layout_constraintStart_toStartOf="parent"
@@ -33,10 +34,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值1"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/total_number_label"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginEnd="20dp" />
+
+<!--    &lt;!&ndash; 标签2 &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/Approaching_bifurcation_label"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Approaching bifurcation:"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="16sp"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/total_number_label"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        android:layout_marginStart="16dp"-->
+<!--        android:layout_marginTop="8dp"/>-->
+
+<!--&lt;!&ndash;         值2 &ndash;&gt;-->
+<!--    <TextView-->
+<!--        android:id="@+id/Approaching_bifurcation_value"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="值2"-->
+<!--        android:textColor="@color/black"-->
+<!--        android:textSize="16sp"-->
+<!--        app:layout_constraintTop_toTopOf="@id/Approaching_bifurcation_label"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        android:layout_marginEnd="20dp" />-->
 
     <!-- 标签2 -->
     <TextView
@@ -44,18 +71,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Multifurcation:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/total_number_label"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"/>
 
-    <!-- 值2 -->
+<!--     值2 -->
     <TextView
         android:id="@+id/multifurcation_value"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值2"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/multifurcation_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,6 +95,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Loop:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/multifurcation_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -77,6 +107,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值3"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/loop_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -87,6 +118,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Missing:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/loop_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -98,6 +130,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值4"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/missing_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -108,6 +141,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Crossing direction error:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/missing_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -119,6 +153,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值5"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/crossing_direction_error_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -129,6 +164,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Color mutation:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/crossing_direction_error_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -140,6 +176,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值6"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/color_mutation_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -150,6 +187,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Isolated branch:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/color_mutation_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -161,6 +199,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值7"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/isolated_branch_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -171,6 +210,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Angle error:"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/isolated_branch_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -182,6 +222,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值8"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/angle_error_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -192,6 +233,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Overlapping branches(removed):"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/angle_error_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -203,6 +245,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值9"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/overlap_branch_label"
         app:layout_constraintEnd_toEndOf="parent"
@@ -213,6 +256,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Error seg(tuned):"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toBottomOf="@id/overlap_branch_label"
         app:layout_constraintStart_toStartOf="parent"
@@ -224,6 +268,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="值10"
+        android:textColor="@color/black"
         android:textSize="16sp"
         app:layout_constraintTop_toTopOf="@id/error_seg_label"
         app:layout_constraintEnd_toEndOf="parent"

@@ -34,6 +34,9 @@ public class QCStatisFragment extends Fragment {
     private TextView overlapBranchNumberTextView;
     private TextView errSegNumberTextView;
 
+    private TextView approachingBifNumberTextView;
+
+
     public QCStatisFragment(List<ImageMarker> unCheckedMarkerList, int removedOverlapSegNum, int removedErrSegNum) {
         this.unCheckedMarkerList = unCheckedMarkerList;
         this.removedErrSegNum = removedErrSegNum;
@@ -59,9 +62,11 @@ public class QCStatisFragment extends Fragment {
         totalNumberTextView = view.findViewById(R.id.total_number_value);
         multifurcationNumberTextView = view.findViewById(R.id.multifurcation_value);
         loopNumberTextView = view.findViewById(R.id.loop_value);
+//        approachingBifNumberTextView = view.findViewById(R.id.Approaching_bifurcation_value);
         missingNumberTextView = view.findViewById(R.id.missing_value);
         crossingDirectionErrNumberTextView = view.findViewById(R.id.crossing_direction_error_value);
         colorMutationNumberTextView = view.findViewById(R.id.color_mutation_value);
+
         isolatedBranchNumberTextView = view.findViewById(R.id.isolated_branch_value);
         angleErrNumberTextView = view.findViewById(R.id.angle_error_value);
 
@@ -78,6 +83,12 @@ public class QCStatisFragment extends Fragment {
         } else {
             loopNumberTextView.setText(0 + "");
         }
+//        Integer approachingBifNum = type2SizeMap.getOrDefault("Approaching bifurcation", 0);
+//        if (approachingBifNum != null) {
+//            approachingBifNumberTextView.setText(approachingBifNum + "");
+//        } else {
+//            approachingBifNumberTextView.setText(0 + "");
+//        }
         Integer missingNum = type2SizeMap.getOrDefault("Missing", 0);
         if (missingNum != null) {
             missingNumberTextView.setText(missingNum + "");

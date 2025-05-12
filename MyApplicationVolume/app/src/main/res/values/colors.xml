@@ -87,6 +87,7 @@
     <color name="green_map">#00C814</color>
     <color name="pink_map">#fa6478</color>
     <color name="crossing_map">#A880FF</color>
+    <color name="coffee_map">#BC5E25</color>
     <color name ="reward">#FF6557</color>
 
     <color name="descriptionText">#777777</color>

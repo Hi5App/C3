@@ -121,7 +121,10 @@ public class ApoReader {
                 String [] s = current.split(",");
                 ArrayList<String> cur_line = new ArrayList<>();
                 for (int j = 0; j < 18; j++){
-                    String cur_string = s[j].replace(" ","");
+                    String cur_string = s[j];
+                    if (j != 3){
+                        cur_string = s[j].replace(" ","");
+                    }
 //                    if (cur_string.equals(""))
 //                        cur_string = "1234";
                     cur_line.add(cur_string);
